@@ -5,6 +5,7 @@
 - No secrets in Git, prompts, logs, manifests, Telegram messages, or docs. `[CONFIRMED]`
 - n8n: use the n8n Credentials store for Telegram, Postgres, Redis, provider APIs. `[PROPOSED]`
 - Mac workers: secrets in an env file outside the repo (mode `600`, owned by the service user) or macOS Keychain. The repo only has a value-free `.env.example`. `[PROPOSED]`
+- Nextcloud archive access: dedicated Nextcloud user with an app password, limited to the archive folder; stored in macOS Keychain on the worker (D-036). `[CONFIRMED]` approach
 - Each component has its own credential (dedicated DB role for n8n; one HMAC key per worker). No shared superuser. `[PROPOSED]`
 - Logs: redact `Authorization` headers, query params containing keys, provider payloads containing tokens. `[PROPOSED]`
 - Rotation: documented procedure to rotate HMAC keys/bot token; rotate immediately on suspected leak. `[PROPOSED]`

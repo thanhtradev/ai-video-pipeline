@@ -38,6 +38,7 @@
 | D-032 | Starting QA targets: -14 LUFS integrated, -1 dBTP true peak; subtitles max 2 lines, ~42 chars/line, ~17 chars/s; tune after first videos (was Q-010) |
 | D-033 | **Interim NAS = LXC 106 `lxc-nextcloud`** until a dedicated NAS device is bought. Single-disk risk (R-01) accepted for now; archive code must make the target swappable by config |
 | D-034 | MacBook Pro M1 has not joined the tailnet and is treated as **offline** for now; the Mac mini M4 is the only active worker and consumes every stream. Design stays multi-worker so M1 can join later |
+| D-036 | Interim archive transport: **Nextcloud WebDAV** at `http://192.168.1.106:8080`, using a **dedicated Nextcloud user + app password** (not the owner's account). Plain HTTP on LAN accepted for now (R-11) (was Q-018) |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]
@@ -56,7 +57,7 @@
 | P-010 | Template-first Remotion: a few tested templates (typography explainer, top-N list, data chart, quote); Claude Code mainly produces scene JSON, writes new composition code only when needed | architecture §4 |
 | P-011 | Claude Code steps guarded by a usage guard: on usage limit → `BLOCKED_PROVIDER`, wait for reset, no fallback | cost §3 |
 | P-012 | Claude Code text-only steps run with tools disabled in an empty workspace; output validated against JSON schema, bounded retries | security §5 |
-| P-013 | Archive via a storage adapter (`webdav` now for Nextcloud, `smb` for the future NAS); same `.partial` + SHA-256 verify flow; target selected by config | storage §4 |
+| P-013 | Archive via a storage adapter (`webdav` now for Nextcloud per D-036, `smb` for the future NAS); same `.partial` + SHA-256 verify flow; target selected by config | storage §4 |
 
 ## 3. Open questions
 
@@ -67,9 +68,8 @@
 | Q-004 | Remaining: do Max subscription terms allow automated headless use, and how much usage does one video consume? (U-14) | Throughput, compliance | High |
 | Q-013 | n8n currently uses SQLite in regular mode (S-05). Move n8n to PostgreSQL and/or queue mode? | Reliability, backup | Medium |
 | Q-017 | Survey risks R-01 → R-08 (`docs/infrastructure.md` §3): separate NAS? backup target? Redis AOF/maxmemory? Redis/Postgres via tailnet or LAN firewall? | Phase 1 | High |
-| Q-018 | Interim archive protocol to LXC 106: Nextcloud WebDAV (proposed P-013) or an SMB share? LXC 106 is stopped with `onboot: 0` — will you start it and enable on boot? | Phase 1 | High |
 | Q-016 | Phase 4 short film needs an image/video generation source — **deferred to Phase 4** | Phase 4 | Low |
 
-Resolved on 2026-10-23: Q-001, Q-005 → Q-012, Q-014, Q-015 (see D-020 → D-032).
+Resolved on 2026-10-23: Q-001, Q-005 → Q-012, Q-014, Q-015 (see D-020 → D-032), Q-018 (D-036).
 
 Infrastructure survey results, risks, and remaining unknowns: `docs/infrastructure.md` §2–§4.

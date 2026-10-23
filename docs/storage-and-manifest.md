@@ -48,7 +48,8 @@ On NAS: `<ARCHIVE_ROOT>/{yyyy}/{mm}/{video_id}/v{n}/` — same layout, without `
 ## 4. Archive procedure (`archive` job) [PROPOSED]
 
 1. Freeze the version: generate `manifest.json` + `checksums.sha256` (SHA-256 of every file).
-2. Copy to NAS into a temp directory `…/v{n}.partial/` through the storage adapter (WebDAV for interim Nextcloud, SMB for the future NAS — P-013, Q-018).
+2. Copy to NAS into a temp directory `…/v{n}.partial/` through the storage adapter (WebDAV for interim Nextcloud per D-036, SMB for the future NAS — P-013).
+   WebDAV notes: create folders with `MKCOL`, upload with `PUT`, list file count/size with `PROPFIND`, rename with `MOVE`. Nextcloud does not compute SHA-256 server-side, so step 3 verifies by **downloading each file back and hashing it** on the worker.
 3. Verify on NAS: file count, total size, SHA-256 of each file matches `checksums.sha256`.
 4. Rename `.partial` → `v{n}` (atomic within the same share).
 5. Write `archive_record` (path, file_count, total_bytes, manifest checksum, verified_at) → `ARCHIVE_VERIFIED`.

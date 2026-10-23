@@ -32,7 +32,8 @@ Never put credentials in this file.
 | S-07 | LXC 103 `lxc-backup` | `192.168.1.103`, Debian 12; `smbd` active; shares `/mnt/data/smb-share` (mounted `/smb`) — **same NVMe as everything else** | `pct config 103`, `systemctl is-active smbd`, `df -h` |
 | S-08 | Backups | **No Proxmox backup jobs** (`/etc/pve/jobs.cfg` empty); `/mnt/data/dump` empty; no root crontab on LXC 102 | `cat /etc/pve/jobs.cfg`, `ls /mnt/data/dump`, `crontab -l` |
 | S-09 | Tailscale | Tailscale 1.102.4 on LXC 104 (`lxc-utils` 100.85.20.21); also `lxc-core` (LXC 101) and `macmini` (100.71.214.125, online). **LXC 102, 112 not in tailnet. No MacBook Pro seen in tailnet.** `--accept-routes` is false | `tailscale status` on LXC 104 |
-| S-11 | LXC 106 `lxc-nextcloud` (the "NAS") | `192.168.1.106`, Ubuntu, 2 cores, 2 GiB RAM; **status stopped, `onboot: 0`**; data `/mnt/data/nextcloud` (106G used) — **same NVMe as production** (S-01). Nextcloud serves WebDAV; the only SMB server seen is LXC 103 | `pct status 106`, `pct config 106`, `du -sh` |
+| S-11 | LXC 106 `lxc-nextcloud` (the "NAS") | `192.168.1.106`, Ubuntu, 2 cores, 2 GiB RAM; started by user 2026-10-23, now **running, `onboot: 1`**; data `/mnt/data/nextcloud` (106G used) — **same NVMe as production** (S-01). Nextcloud serves WebDAV; the only SMB server seen is LXC 103 | `pct status 106`, `pct config 106`, `du -sh` |
+| S-12 | Nextcloud on LXC 106 | **Nextcloud 29.0.16**, installed, not in maintenance; HTTP on **port 8080** (`http://192.168.1.106:8080`, no TLS); database **PostgreSQL on LXC 102** (`dbtype pgsql`), so MariaDB is unused; data dir `/var/www/html/data` | `curl /status.php`, `grep dbtype/dbhost config.php` |
 | S-10 | Mac mini M4 (this machine) | macOS 27.0.1, 16 GiB RAM, **228 GiB SSD with ~31 GiB free**; Node 25.8.1, npm 11.19.0, ffmpeg 9.0.2, Claude Code 2.1.309, Tailscale 1.104.1; no SMB mounts; `sleep 0` currently because `caffeinate` is running | `sysctl`, `sw_vers`, `df -h /`, `pmset -g`, `mount` |
 
 ## 3. Risks found by the survey
@@ -40,15 +41,16 @@ Never put credentials in this file.
 | ID | Risk | Impact | Proposed action (needs approval) |
 |---|---|---|---|
 | R-01 | **Confirmed:** the "NAS" (LXC 106 Nextcloud) and the SMB share (LXC 103) are on the **same single NVMe** as production. Archive and backups share one point of failure with the data they protect | Violates D-014/D-015 intent; one disk failure loses data + archive + backups | **Accepted temporarily (D-033)** until the dedicated NAS is bought; then migrate archive + backups to it |
-| R-09 | LXC 106 is **stopped** with `onboot: 0` | Archive target unavailable; jobs would fail | Decide whether to run LXC 106, or archive via LXC 103 SMB |
-| R-10 | Nextcloud is WebDAV, not SMB; SMB is served by LXC 103 | Archive protocol in docs (SMB) may not match | Decide archive path: SMB on LXC 103, or Nextcloud WebDAV/external storage |
+| R-09 | ~~LXC 106 stopped, `onboot: 0`~~ — **resolved 2026-10-23** (running, `onboot: 1`) | — | — |
+| R-10 | ~~Nextcloud is WebDAV, not SMB~~ — **resolved**: archive uses WebDAV (D-036) | — | — |
+| R-11 | Nextcloud WebDAV is **plain HTTP** (`:8080`, no TLS); the app password and archive files cross the LAN unencrypted | Credential sniffing on LAN | Accepted for now (D-036); later add LXC 106 to tailnet or TLS reverse proxy |
 | R-02 | **No backups found** for LXC 102/104/112 or Postgres | Data loss risk today, independent of this project | Create vzdump job + `pg_dump` to a separate device; run restore test (Phase 1) |
 | R-03 | Redis has **no AOF and no `maxmemory`** | Conflicts with D-002 (persistence + resource limits) | Enable `appendonly yes`, set `maxmemory` + `noeviction` after checking other Redis users (U-03) |
 | R-04 | n8n uses **SQLite**, regular mode, in an LXC with ~230 MiB free RAM | Limited webhook/cron concurrency; harder backup | Benchmark first; consider Postgres backend for n8n (Q-013) and more LXC RAM |
 | R-05 | Postgres and Redis listen on all interfaces of the LAN and are **not in the tailnet** | Worker → Redis traffic would go over LAN, not Tailscale ACL as designed in `docs/security.md` | Decide: add LXC 112 to tailnet, or restrict by LAN firewall to known worker IPs |
 | R-06 | Mac mini has **~31 GiB free** | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
 | R-07 | MacBook Pro M1 offline / not in tailnet (D-034) | Single worker: no redundancy; render and light jobs compete on the Mac mini | Accepted for now; concurrency limits set for one machine; join M1 later (U-17) |
-| R-08 | MariaDB is installed (data dir `/mnt/data/db/mysql`) but inactive; not used by the project (D-035) | None for the pipeline | Optional cleanup: uninstall + remove data only after user approval and a backup |
+| R-08 | MariaDB is installed (data dir `/mnt/data/db/mysql`) but inactive; not used by the project (D-035); Nextcloud also uses PostgreSQL (S-12), so nothing depends on MariaDB | None for the pipeline | Optional cleanup: uninstall + remove data only after user approval and a backup |
 
 ## 4. Still unknown [UNKNOWN]
 
