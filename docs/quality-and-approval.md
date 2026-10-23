@@ -27,7 +27,7 @@ Approvers: allow-list of Telegram user ids; currently only the owner, more can b
 
 ## 3. Automated QA [PROPOSED]
 
-Runs on MacBook Pro M1 (`qa` job), result in `qa/qa-report.json` with each check `PASS`/`WARN`/`FAIL`.
+Runs on the `q:light` stream (`qa` job; Mac mini M4 while MacBook Pro M1 is offline, D-034), result in `qa/qa-report.json` with each check `PASS`/`WARN`/`FAIL`.
 
 | Group | Checks |
 |---|---|

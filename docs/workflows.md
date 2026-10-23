@@ -37,5 +37,5 @@ WF-08 watches everything; WF-99 catches errors from every workflow.
 
 ## Open questions
 
-- Does n8n run in queue mode or regular mode (U-01) — affects Cron and webhook reliability.
+- n8n runs in regular mode with SQLite (S-05); whether to switch to queue mode/PostgreSQL is Q-013.
 - Should the Dispatcher be split per stream to avoid head-of-line blocking — decide after Phase 3 benchmark.

@@ -2,7 +2,7 @@
 
 ## 1. Rules [CONFIRMED]
 
-- Mac SSD is the working area; NAS (SMB) is the archive.
+- Mac SSD is the working area; NAS is the archive. Interim NAS: LXC 106 Nextcloud, on the same disk as production until a dedicated NAS is bought (D-033, R-01).
 - Verify file count, size, and checksum before treating an archive as successful.
 - Never delete the Mac copy before NAS verification succeeds.
 - Keep the Mac working copy for 30 days after a successful NAS transfer.
@@ -20,7 +20,7 @@
 
 ## 3. Directory layout [PROPOSED]
 
-`WORK_ROOT` on Mac and `ARCHIVE_ROOT` on NAS: `[UNKNOWN]` (U-04, U-05, U-06).
+`WORK_ROOT` on Mac and `ARCHIVE_ROOT` on NAS: `[UNKNOWN]` (U-04, U-05; Mac mini has ~31 GiB free, R-06).
 
 ```
 <WORK_ROOT>/videos/{video_id}/v{n}/
@@ -48,7 +48,7 @@ On NAS: `<ARCHIVE_ROOT>/{yyyy}/{mm}/{video_id}/v{n}/` — same layout, without `
 ## 4. Archive procedure (`archive` job) [PROPOSED]
 
 1. Freeze the version: generate `manifest.json` + `checksums.sha256` (SHA-256 of every file).
-2. Copy to NAS into a temp directory `…/v{n}.partial/`.
+2. Copy to NAS into a temp directory `…/v{n}.partial/` through the storage adapter (WebDAV for interim Nextcloud, SMB for the future NAS — P-013, Q-018).
 3. Verify on NAS: file count, total size, SHA-256 of each file matches `checksums.sha256`.
 4. Rename `.partial` → `v{n}` (atomic within the same share).
 5. Write `archive_record` (path, file_count, total_bytes, manifest checksum, verified_at) → `ARCHIVE_VERIFIED`.

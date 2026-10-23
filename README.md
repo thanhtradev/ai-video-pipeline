@@ -25,14 +25,14 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 |---|---|---|
 | n8n | Orchestration, workflow control | LXC 104 `[CONFIRMED]` |
 | PostgreSQL | Source of truth | LXC 102 `[CONFIRMED]` has PostgreSQL |
-| Redis | Queue + coordination | LXC 112 `[CONFIRMED]` (details `[UNKNOWN]`) |
-| Worker service | Runs AI, audio, QA, render tasks | Mac mini M4 (render), MacBook Pro M1 (light) |
+| Redis | Queue + coordination | LXC 112, Redis 7.0.15 `[CONFIRMED]`; AOF/maxmemory not set yet (R-03) |
+| Worker service | Runs AI, audio, QA, render tasks | Mac mini M4 (only active worker); MacBook Pro M1 offline for now (D-034) |
 | Remotion | Video composition | On Mac workers |
 | Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | Mac workers |
 | TTS API | The only external paid API | `[UNKNOWN]` provider (Q-003) |
 | Telegram Bot | Approvals, status, alerts, reports | — |
-| NAS (SMB) | Archive | `[UNKNOWN]` address/path |
-| Beszel / Uptime Kuma | Monitoring | Existing; host `[UNKNOWN]` |
+| NAS | Archive | Interim: LXC 106 Nextcloud `192.168.1.106` (D-033); dedicated NAS planned |
+| Beszel / Uptime Kuma | Monitoring | LXC 104 (Docker) `[CONFIRMED]` |
 
 ## Further reading
 

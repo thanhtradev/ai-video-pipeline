@@ -25,16 +25,16 @@ Everything in this file is `[PROPOSED]` unless stated otherwise.
                          ┌──────────────┴──────────────▼───────────────┐
                          │ Worker service (Tailscale only)             │
                          │  Mac mini M4: render, heavy                 │
-                         │  MacBook Pro M1: audio, subtitles, QA, light│
+                         │  MacBook Pro M1: light (offline now, D-034) │
                          │  → AI provider APIs, Remotion, ffmpeg,      │
                          │    Claude Code CLI (sandboxed workspace)    │
                          └──────────────┬──────────────────────────────┘
-                                        │ SMB copy + checksum verify
+                                        │ copy (WebDAV/SMB) + checksum verify
                                         ▼
                                  ┌─────────────┐
-                                 │ NAS archive │  [UNKNOWN] address/path
+                                 │ NAS archive │  interim: LXC 106 Nextcloud (D-033)
                                  └─────────────┘
-Monitoring: Beszel + Uptime Kuma (existing, host [UNKNOWN]) watch n8n, Postgres, Redis, worker /health.
+Monitoring: Beszel + Uptime Kuma (Docker on LXC 104) watch n8n, Postgres, Redis, worker /health.
 ```
 
 ## 2. Responsibilities
@@ -69,7 +69,7 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 4. **Assets** — bounded parallel jobs: `tts` (paid API, cost guard), `visuals` (code-only: Claude Code + Remotion templates, D-020), `music/sfx` (free royalty-free library, license per track, D-021).
 5. **Subtitles** — from script + actual audio (alignment) → SRT + VTT.
 6. **Preview 720p** + **thumbnail/metadata** — `render_preview` job on Mac mini M4; `thumbnail` (Remotion still) and `metadata` (Claude Code) jobs in parallel (D-026).
-7. **Automated QA** — `qa` job on MacBook Pro M1 (`docs/quality-and-approval.md`).
+7. **Automated QA** — `qa` job on `q:light` (Mac mini M4 while M1 is offline, D-034) (`docs/quality-and-approval.md`).
 8. **Preview approval** — Telegram, includes thumbnail + metadata; QA failures → user decides.
 9. **Final 1080p** — `render_final` job.
 10. **Archive** — copy to NAS, verify file count/size/checksum, write manifest → `COMPLETED`.
@@ -82,7 +82,7 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 - **Return events:** workers send events (`claimed`, `heartbeat`, `progress`, `succeeded`, `failed`) to an n8n webhook over Tailscale, HMAC-signed, with a local outbox for resend when n8n is down. Events are idempotent by `event_id`.
 - **Minimal worker API:** `GET /health`, `GET /capabilities`, `POST /jobs/{id}/cancel` — Tailscale interface only, authenticated.
 
-Proposed streams: `q:render` (M4), `q:heavy` (M4), `q:light` (M1 preferred; M4 takes it when it has no render/heavy work, D-027).
+Proposed streams: `q:render` (M4), `q:heavy` (M4), `q:light` (M1 preferred; M4 takes it when it has no render/heavy work, D-027). While M1 is offline, the Mac mini M4 consumes all streams (D-034).
 
 ## 6. Cross-cutting design rules
 
