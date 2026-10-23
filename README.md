@@ -31,7 +31,7 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 | Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | Mac workers |
 | TTS API | The only external paid API | `[UNKNOWN]` provider (Q-003) |
 | Telegram Bot | Approvals, status, alerts, reports | — |
-| NAS | Archive | Interim: LXC 106 Nextcloud `192.168.1.106` (D-033); dedicated NAS planned |
+| NAS | Archive | Interim: LXC 106 Nextcloud, WebDAV via tailnet `lxc-nextcloud:8080` (D-033, D-036); dedicated NAS planned |
 | Beszel / Uptime Kuma | Monitoring | LXC 104 (Docker) `[CONFIRMED]` |
 
 ## Further reading

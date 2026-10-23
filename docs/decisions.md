@@ -38,7 +38,7 @@
 | D-032 | Starting QA targets: -14 LUFS integrated, -1 dBTP true peak; subtitles max 2 lines, ~42 chars/line, ~17 chars/s; tune after first videos (was Q-010) |
 | D-033 | **Interim NAS = LXC 106 `lxc-nextcloud`** until a dedicated NAS device is bought. Single-disk risk (R-01) accepted for now; archive code must make the target swappable by config |
 | D-034 | MacBook Pro M1 has not joined the tailnet and is treated as **offline** for now; the Mac mini M4 is the only active worker and consumes every stream. Design stays multi-worker so M1 can join later |
-| D-036 | Interim archive transport: **Nextcloud WebDAV** at `http://192.168.1.106:8080`, using a **dedicated Nextcloud user + app password** (not the owner's account). Plain HTTP on LAN accepted for now (R-11) (was Q-018) |
+| D-036 | Interim archive transport: **Nextcloud WebDAV over Tailscale** at `http://lxc-nextcloud:8080` (100.120.60.20), using a **dedicated Nextcloud user + app password** (not the owner's account). WireGuard encrypts the hop; LAN address not used by the pipeline (R-11 mitigated) (was Q-018) |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]
