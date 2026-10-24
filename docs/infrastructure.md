@@ -36,6 +36,21 @@ Never put credentials in this file.
 | S-12 | Nextcloud on LXC 106 | **Nextcloud 29.0.16**, installed, not in maintenance; HTTP on **port 8080** (`http://192.168.1.106:8080`, no TLS); database **PostgreSQL on LXC 102** (`dbtype pgsql`), so MariaDB is unused; data dir `/var/www/html/data`. **Joined tailnet 2026-10-23** as `lxc-nextcloud` / `100.120.60.20`; from the Mac mini: direct connection (1 ms), `trusted_domains` accepts both, WebDAV `PROPFIND` → 401 (auth required, as expected) | `curl /status.php`, `grep dbtype/dbhost config.php`, `tailscale ping`, `curl -X PROPFIND /remote.php/dav/` |
 | S-10 | Mac mini M4 (this machine) | macOS 27.0.1, 16 GiB RAM, **228 GiB SSD with ~31 GiB free**; Node 25.8.1, npm 11.19.0, ffmpeg 9.0.2, Claude Code 2.1.309, Tailscale 1.104.1; no SMB mounts; `sleep 0` currently because `caffeinate` is running | `sysctl`, `sw_vers`, `df -h /`, `pmset -g`, `mount` |
 
+## 2b. Production rollout results (2026-10-24, run by the user per `ops/README.md`, verified read-only by the agent)
+
+| ID | Item | Observed value | Command |
+|---|---|---|---|
+| S-13 | Proxmox backup storage | `local` (`/var/lib/vz`) allows backup content, ~76 GB free; `data` allows only images/rootdir. Only dump present: LXC 106 from 2026-03-25. **No backup job yet** (`/cluster/backup` empty) | `pvesm status`, `pvesh get /storage`, `pvesh get /cluster/backup`, `ls /var/lib/vz/dump` |
+| S-14 | Bind mounts | `/mnt/data/docker-utils` holds `n8n_data`, `kuma_data`, `beszel_data`, `homarr_data`, `portainer_data`, `vaultwarden`, `infisical`; vzdump does not include bind mounts (R-12) | `ls /mnt/data/docker-utils`, `pct config <id>` |
+| S-15 | PostgreSQL databases on LXC 102 | 9 databases besides `postgres` before the rollout (Nextcloud, Infisical, and other applications); all dumped 2026-10-24 to `/var/lib/postgresql/backups/<db>` with SHA-256 | `psql -Atc "SELECT datname FROM pg_database"`, `ls -lR /var/lib/postgresql/backups` |
+| S-16 | Pipeline database | `aivideo` with roles from `ops/postgres/bootstrap.sql`; 5 migrations applied (latest `20261024000500`); grants verified (n8n: no DELETE on `job`, no UPDATE on `stream_config`; worker: no table access, 6 lifecycle functions; PUBLIC: no functions). `pg_hba.conf` per-database allow-list + `reject` above the LAN rule; unlisted host → `pg_hba.conf rejects connection`. Nightly dump 02:30 with Uptime Kuma push | `schema_migrations`, `has_table_privilege`, `has_function_privilege`, `pg_hba_file_rules`, `psql -w -h 192.168.1.102 -d aivideo` |
+| S-17 | Redis on LXC 112 | `appendonly yes`, `maxmemory 256mb`, `noeviction`; ACL users `aivideo-n8n` and `aivideo-worker-mac-mini-m4` as in `ops/redis/acl-setup.redis`. db 0 holds another application's BullMQ queue (182 `bull:*` keys, 6.4 MB); pipeline uses db 1 | `grep redis.conf` (hashes masked), user-run `INFO keyspace`, `--scan`, `INFO memory` |
+| S-18 | Worker on Mac mini | LaunchAgent `com.aivideo.worker` runs from `~/remote-dev/AIVIdeo/ai-video-pipeline` (D-039) with Node 25.8.1 from nvm; secrets in the login Keychain; `/health` OK on `100.71.214.125:8787`; registered in `worker` with heartbeats; `pmset`: `sleep 0`, `autorestart 1`, `disksleep 10` (to set to 0) | `launchctl print`, `curl /health`, `SELECT * FROM worker`, `pmset -g` |
+| S-19 | n8n | Credentials `aivideo-postgres`, `aivideo-redis` (db 1), `aivideo-telegram`; WF-99, WF-08, WF-02 active; scheduled runs successful (WF-02 every 30 s) | n8n event log `n8nEventLog.log`, `pg_stat_activity` |
+| S-20 | Monitoring | Uptime Kuma (LXC 104, container `uptime-kuma`) monitors n8n, Postgres, Redis, worker `/health`, Nextcloud, backup push; Telegram notification; all targets reachable from the container | `docker exec uptime-kuma curl ...` |
+| S-21 | Archive | Nextcloud user `aivideo-archive` with app password (Keychain `aivideo-archive-password`); `archive:selftest` passed both checks (user-reported) | `npm --prefix worker run archive:selftest` |
+| S-22 | Phase 1 smoke test | Job `simulate` went PENDING → READY → QUEUED (dispatcher) → RUNNING → SUCCEEDED (mac-mini-m4); output SHA-256 matches the file on disk | `audit_log`, `job_attempt`, `shasum -a 256` |
+
 ## 3. Risks found by the survey
 
 | ID | Risk | Impact | Proposed action (needs approval) |
@@ -44,10 +59,13 @@ Never put credentials in this file.
 | R-09 | ~~LXC 106 stopped, `onboot: 0`~~ — **resolved 2026-10-23** (running, `onboot: 1`) | — | — |
 | R-10 | ~~Nextcloud is WebDAV, not SMB~~ — **resolved**: archive uses WebDAV (D-036) | — | — |
 | R-11 | Nextcloud WebDAV is plain HTTP (`:8080`, no TLS) | **Mitigated 2026-10-23**: pipeline uses the tailnet address, encrypted by WireGuard (D-036). LAN `192.168.1.106:8080` and the public domain remain open for other clients | Restrict tailnet ACL so only `macmini` reaches `lxc-nextcloud:8080` (U-08) |
-| R-02 | **No backups found** for LXC 102/104/112 or Postgres | Data loss risk today, independent of this project | Runbook ready: `ops/README.md` §1 (vzdump + `pg-backup.sh` + restore test) |
-| R-03 | Redis has **no AOF and no `maxmemory`** | Conflicts with D-002 (persistence + resource limits) | Runbook ready: `ops/redis/README.md` (check U-03 first) |
+| R-02 | **No backups found** for LXC 102/104/112 or Postgres | Data loss risk today, independent of this project | **Partly resolved 2026-10-24**: all Postgres databases dumped, `aivideo` nightly with restore test. Open: Proxmox backup job (`ops/README.md` §1.1) |
+| R-03 | ~~Redis has no AOF and no `maxmemory`~~ — **resolved 2026-10-24** (S-17) | — | — |
 | R-04 | n8n uses **SQLite**, regular mode, in an LXC with ~230 MiB free RAM | Limited webhook/cron concurrency; harder backup | Benchmark first; consider Postgres backend for n8n (Q-013) and more LXC RAM |
-| R-05 | Postgres and Redis listen on all interfaces of the LAN and are **not in the tailnet** | Worker → Redis traffic would go over LAN, not Tailscale ACL as designed in `docs/security.md` | Decide: add LXC 112 to tailnet, or restrict by LAN firewall to known worker IPs |
+| R-05 | Postgres and Redis listen on all interfaces of the LAN and are **not in the tailnet** | Pipeline traffic to them is plain LAN traffic | **Mitigated 2026-10-24**: per-client access instead of a port firewall, because other applications share both servers (D-037, D-038). Residual: any LAN host can attempt to authenticate |
+| R-12 | vzdump does not back up bind mounts (S-14): Postgres data, Docker app data on LXC 104 (n8n, Vaultwarden, Infisical, …), Nextcloud data | A restored container comes back without its data | Postgres covered by `pg-backup.sh`; n8n by `export:*`; file-level backup of `/mnt/data/docker-utils` and `/mnt/data/nextcloud` still open (target: dedicated NAS, R-01) |
+| R-13 | The worker LaunchAgent and the login Keychain need a console login | After a reboot or power cut the worker stays down until someone logs in at the Mac; Uptime Kuma alerts | Accepted for now. Auto-login conflicts with FileVault; revisit if unattended restarts matter |
+| R-14 | n8n's Redis credential defaults to db 0; the worker reads db 1 | Jobs stay `QUEUED` silently (happened once on 2026-10-24; fixed by setting db 1) | Runbook warning (`ops/README.md` §5); Phase 2: alert on jobs `QUEUED` longer than a threshold |
 | R-06 | Mac mini has **~31 GiB free** | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
 | R-07 | MacBook Pro M1 offline / not in tailnet (D-034) | Single worker: no redundancy; render and light jobs compete on the Mac mini | Accepted for now; concurrency limits set for one machine; join M1 later (U-17) |
 | R-08 | MariaDB is installed (data dir `/mnt/data/db/mysql`) but inactive; not used by the project (D-035); Nextcloud also uses PostgreSQL (S-12), so nothing depends on MariaDB | None for the pipeline | Optional cleanup: uninstall + remove data only after user approval and a backup |
@@ -56,23 +74,19 @@ Never put credentials in this file.
 
 | # | Item | Notes |
 |---|---|---|
-| U-03 | Redis: who else uses it, used memory, DB indexes in use | Needs authenticated `INFO`; not read to avoid handling the password |
-| U-04 | Archive folder path and dedicated Nextcloud user on LXC 106; free space is shared with `/mnt/data` (126G free) | See R-01 |
 | U-18 | How the Nextcloud public domain is exposed (Cloudflare Tunnel, port forward + reverse proxy, other) | Internet exposure of the archive account |
 | U-05 | How Macs will mount the archive share, mount path | |
 | U-07 | Remotion + headless Chrome on Mac mini; MacBook Pro M1 tools when it joins | Remotion is per-project (installed with the repo) |
 | U-08 | Tailscale ACL policy content; confirm only `macmini` can reach `lxc-nextcloud:8080` | Admin console |
-| U-09 | Mac mini sleep setting without `caffeinate` | Only worker, must stay awake |
+| U-19 | A client on LXC 101 `lxc-core` (192.168.1.101) connected to `aivideo` as `aivideo_owner` on 2026-10-24 (looks like a DB GUI). New connections from it are now rejected by `pg_hba.conf` | User to identify; add an owner line for it only if it is an admin tool |
 | U-10 | Any backup outside Proxmox (e.g. external tool, HAOS) | S-08 found none on the host |
-| U-11 | Telegram bot, approval chat | |
 | U-12 | ~~n8n webhook reachable from workers~~ — not needed: workers report via PostgreSQL (P-015) | |
-| U-13 | What Uptime Kuma/Beszel monitor today, alert channels | |
 | U-14 | Max plan headless usage limits and terms for automation | |
 | U-15 | Canonical timezone for reports/retention | |
 | U-17 | MacBook Pro M1: tailnet name, macOS, RAM, free SSD, tools | Deferred until it joins (D-034) |
-| — | PostgreSQL database/role list on LXC 102 | Query blocked by the agent's permission policy; user may run `\l` and `\du` |
 
 Resolved by survey: U-01 (S-04, S-05), U-02 (S-02), U-06 for Mac mini (S-10), U-16 (S-06).
+Resolved by the rollout (2026-10-24): U-03 (S-17), U-04 (S-21), U-09 (S-18), U-11 (bot + approval chat created; ids kept out of Git), U-13 (S-20), database list (S-15).
 
 ## 5. Survey commands (read-only)
 
@@ -100,4 +114,4 @@ mount | grep -i smb; tailscale status; pmset -g | grep -E 'sleep|disksleep'
 | Pipeline database | Dedicated database + role `aivideo` on PostgreSQL 15, LXC 102 | Isolate from other data |
 | Worker service | launchd service on each Mac | Auto-restart after reboot |
 | Working dir | Mac mini internal SSD; size budget after R-06 measurement | See `docs/storage-and-manifest.md` |
-| Archive/backup target | Pending U-04 / R-01 | Must not share the Proxmox NVMe |
+| Archive/backup target | Interim: Nextcloud WebDAV on LXC 106 (D-036, S-21); dedicated NAS pending (R-01) | Must not share the Proxmox NVMe |

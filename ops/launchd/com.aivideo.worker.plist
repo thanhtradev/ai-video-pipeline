@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  LaunchAgent for the pipeline worker (P-009). Install for the worker user:
-    cp ops/launchd/com.aivideo.worker.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.aivideo.worker.plist
-  Replace /Users/aivideo with the worker user's home directory.
-  A LaunchAgent runs in the user's login session, which it needs to read the login Keychain.
+  LaunchAgent for the pipeline worker (P-009). Install with the sed command in ops/README.md §4,
+  which replaces /Users/aivideo with the real home and repo paths and prepends the Node binary
+  directory to PATH (launchd does not load the shell profile, so nvm's node is otherwise missing).
+  A LaunchAgent runs in the user's login session, which it needs to read the login Keychain;
+  after a reboot it starts only once the user logs in at the console (R-13).
 -->
 <plist version="1.0">
 <dict>
@@ -20,6 +20,9 @@
   <dict>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <!-- Checkout run-worker.sh starts the worker from (default ~/ai-video-pipeline). -->
+    <key>AIVIDEO_REPO</key>
+    <string>/Users/aivideo/ai-video-pipeline</string>
   </dict>
   <key>RunAtLoad</key>
   <true/>

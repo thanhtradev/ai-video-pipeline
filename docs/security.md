@@ -13,8 +13,12 @@
 ## 2. Network [PROPOSED]
 
 - The worker API listens on the Tailscale interface only (`API_HOST`).
-- Tailscale ACL (`ops/tailscale/acl-snippet.hujson`): Mac mini → Nextcloud WebDAV; LXC 104 → worker API. Postgres and Redis are reached over the LAN with per-client credentials; restrict their ports to known hosts (R-05).
-- Current ACL state: `[UNKNOWN]` (U-08).
+- Tailscale ACL (`ops/tailscale/acl-snippet.hujson`): Mac mini → Nextcloud WebDAV; LXC 104 → worker API.
+- Postgres and Redis are reached over the LAN with per-client credentials and are shared with other
+  applications, so access is limited per client rather than by port firewall `[CONFIRMED 2026-10-24]`:
+  Postgres by a per-database `pg_hba.conf` allow-list ending in `reject` (D-038); Redis by ACL users
+  limited to `q:*`/`nonce:*` (D-037).
+- Current ACL state: default allow-all assumed, not narrowed yet `[UNKNOWN]` (U-08).
 
 ## 3. Authentication [IMPLEMENTED in Phase 1]
 
