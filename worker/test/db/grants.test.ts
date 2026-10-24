@@ -101,6 +101,23 @@ describe('worker role', () => {
     expect(status.rows[0]!.job_block).toBe('BLOCKED');
   });
 
+  test('can ask the cost guard but not change prices', async () => {
+    const id = await queuedJob('q:cost');
+    const guard = await asRole('aivideo_worker', async (client) => {
+      await client.query(`SELECT * FROM job_start($1, 'mac-mini-m4', 60)`, [id]);
+      return client.query<{ decision: string }>(
+        `SELECT decision FROM cost_guard($1, 'mac-mini-m4', 10)`,
+        [id],
+      );
+    });
+    expect(guard.rows[0]!.decision).toBe('DISABLED');
+    await expect(
+      asRole('aivideo_worker', (client) =>
+        client.query('UPDATE provider_price SET unit_price = 0'),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   test('cannot submit briefs or decide approvals', async () => {
     await expect(
       asRole('aivideo_worker', (client) =>

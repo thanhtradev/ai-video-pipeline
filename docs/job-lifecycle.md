@@ -58,15 +58,17 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 - `job.idempotency_key = {video_version_id}:{step}:{input_hash}` — UNIQUE. Creating a duplicate job returns the existing one.
 - `input_hash` = hash of normalized input (prompt, params, model/provider id, input asset checksums).
 - Provider calls: pass an idempotency key when the provider supports it; otherwise the worker checks the checkpoint before calling to avoid paying twice.
+- **Implemented (2b)** for `tts` (ITERA has no idempotency key): per-scene state files in the job workspace (`scene-NN.json`) record the provider task id **before** waiting for it, keyed by voice/model/text. A re-run reuses finished clips and polls a queued task again instead of creating a new one; a failed task (refunded by ITERA) is forgotten so the next attempt queues anew. `cost_record` is idempotent per provider task id.
 - Worker calls are guarded by expected status and `claimed_by`, so duplicate or late calls return `false`/`LOST` instead of changing state.
 
 ## 6. Retry
 
 | Error type | Action |
 |---|---|
-| Network/timeout/5xx/429 | `FAILED_RETRYABLE`, exponential backoff with jitter, max N attempts (proposed default 3, configurable per step) |
+| Network/timeout/5xx | `FAILED_RETRYABLE`, exponential backoff with jitter, max N attempts (proposed default 3, configurable per step) |
 | 4xx due to input, content rejected by provider | `FAILED_PERMANENT` → `NEEDS_DECISION` |
-| Quota / budget exhausted, Claude Code usage limit | `BLOCKED_PROVIDER` / `BLOCKED` — does not count as an attempt; resume after reset/decision, never switch to Claude API. **Implemented (2a)** for usage limits: the worker calls `job_block()` (job `BLOCKED`, one extra attempt granted, video `BLOCKED_PROVIDER`); `job_promote()` resumes both after `CLAUDE_BLOCK_SECONDS`; WF-08 alerts |
+| Quota / budget exhausted, Claude Code usage limit | `BLOCKED_PROVIDER` / `BLOCKED` — does not count as an attempt; resume after reset/decision, never switch to Claude API. **Implemented (2a)** for usage limits: the worker calls `job_block()` (job `BLOCKED`, one extra attempt granted, video `BLOCKED_PROVIDER`); `job_promote()` resumes both after `CLAUDE_BLOCK_SECONDS`; WF-08 alerts. **2b (ITERA):** 429 (after `Retry-After`), 401/403/402, too few credits, missing key/voice, provider disabled or quota exhausted block the same way (`ITERA_BLOCK_SECONDS`) |
+| Over the approved budget, no price | Cost guard refuses before the request → `FAILED_PERMANENT` → `NEEDS_DECISION` (D-023, D-045) |
 | Render/QA error | Render: bounded retry; QA failure: no retry, user decides |
 
 **Never** retry with a different provider/model. Every attempt of a paid step goes through the cost guard again.

@@ -143,6 +143,8 @@ export function createScriptHandler(deps: ScriptHandlerDeps): JobHandler {
         total_seconds: totalSeconds,
         narration_chars: script.scenes.reduce((sum, scene) => sum + scene.narration.length, 0),
         preview: toPreview(script),
+        // The approved scenes travel in the job output: the tts step reads them from PostgreSQL.
+        scenes: script.scenes,
         claude,
       },
     };

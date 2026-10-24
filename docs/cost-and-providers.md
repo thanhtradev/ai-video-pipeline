@@ -14,7 +14,7 @@
 
 ## 2. Provider registry [PROPOSED]
 
-TTS provider: ITERA TTS (D-040); API, price and terms `[UNKNOWN]` until U-20 is answered. Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
+TTS provider: ITERA TTS (D-040), model `eleven_multilingual_v2` (D-043), priced in ITERA credits (`CRD`, D-044). **Implemented (2b):** migration `20261026000100_tts_flow.sql` seeds the ITERA rows disabled; the voice, the price and enabling are a rollout step (`ops/postgres/itera-tts.sql`). Money price per credit and terms `[UNKNOWN]` (U-20). Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
 
 | Table | Key fields |
 |---|---|
@@ -26,9 +26,11 @@ TTS provider: ITERA TTS (D-040); API, price and terms `[UNKNOWN]` until U-20 is 
 
 Price or mapping changes → new (versioned) record, never overwrite; write to `audit_log`.
 
-## 3. Cost guard (WF-04) [PROPOSED]
+## 3. Cost guard
 
-Runs **before every paid step** (including retries):
+**Implemented (2b)** as `cost_guard(job, worker, units)`, called by the worker before **every paid request** (each TTS scene, including retries) — not an n8n workflow (D-045). Answers: `ALLOW` (with the model settings to use), `DISABLED`/`EXHAUSTED` → job BLOCKED until fixed, `NO_PRICE`/`OVER_BUDGET` → NEEDS_DECISION. Every answer is audited. The TTS estimate (narration characters × price + 10%) is recorded as `ESTIMATE` when A1 is requested and shown in the A1 message; approving A1 makes it the budget. The worker also checks the ITERA credit balance before each request.
+
+Design (thresholds not yet implemented are marked in the text):
 
 ```
 estimate = unit_price × estimated_units   (from storyboard: scene count, clip seconds, TTS characters…)
@@ -44,7 +46,9 @@ else ALLOW (write cost_entry kind=ESTIMATE, reserve)
 - Approval model: per-video estimate approved with A1; any spend above the approved estimate → ask the user (D-023). No `daily_threshold` for now (check skipped while unset; Q-002).
 - Per-model concurrency respects `max_concurrency` (counter in Redis, reconciled with Postgres).
 
-## 4. Cost recording [PROPOSED]
+## 4. Cost recording
+
+**Implemented (2b):** `cost_record(job, worker, provider_task_id, units, amount)` stores the provider-reported `credits_deducted` as `ACTUAL`, once per provider task (`cost_entry.external_ref`), even if the job lost its lease. Reports (WF-09) come in 2d.
 
 `cost_entry`: video_version_id, job_id, attempt_id, provider/model, kind (`ESTIMATE`/`ACTUAL`), units, unit_price, amount, currency, price_version, created_at.
 

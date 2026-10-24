@@ -48,7 +48,13 @@ async function completeScript(jobId: string, sha256 = SCRIPT_SHA): Promise<void>
   await db.pool.query('SELECT * FROM job_start($1, $2, 60)', [jobId, WORKER]);
   const output = {
     outputs: [{ path: 'script.json', bytes: 100, sha256 }],
-    result: { title: 'Bầu trời xanh', scene_count: 4, total_seconds: 44, preview: 'Cảnh 1 ...' },
+    result: {
+      title: 'Bầu trời xanh',
+      scene_count: 4,
+      total_seconds: 44,
+      preview: 'Cảnh 1 ...',
+      scenes: [{ narration: 'Cảnh một.' }, { narration: 'Cảnh hai.' }],
+    },
     fromCheckpoint: false,
   };
   await db.pool.query('SELECT job_succeed($1, $2, $3::jsonb)', [

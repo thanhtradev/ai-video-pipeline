@@ -4,23 +4,28 @@ import pg from 'pg';
 import { buildApi } from './api.js';
 import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
+import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
+import { createTtsHandler } from './handlers/tts.js';
 import { createLogger, redactUrl } from './logger.js';
+import { createFfprobe } from './media/ffprobe.js';
 import { createRedisQueue } from './queue/redis-queue.js';
 import type { JobHandler } from './runner.js';
 import { createRedisNonceStore } from './security/redis-nonce-store.js';
+import { createIteraClient } from './tts/itera-client.js';
 import { createWorkerLoop } from './worker-loop.js';
 
 const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
+const ITERA_REQUEST_TIMEOUT_MS = 60_000;
 
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
 );
 
-// Step name -> handler. Phase 2 adds tts, visuals, render, qa, archive.
-function buildHandlers(config: Config): ReadonlyMap<string, JobHandler> {
+// Step name -> handler. Phase 2 adds visuals, render, qa, archive.
+function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHandler> {
   const claude = createClaudeCli({
     bin: config.claude.bin,
     settingsPath: CLAUDE_SETTINGS,
@@ -29,9 +34,27 @@ function buildHandlers(config: Config): ReadonlyMap<string, JobHandler> {
     env: claudeChildEnv(process.env),
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
+  const { itera } = config;
+  const tts = createTtsHandler({
+    itera: itera.apiKey
+      ? createIteraClient({
+          baseUrl: itera.baseUrl,
+          apiKey: itera.apiKey,
+          blockSeconds: itera.blockSeconds,
+          requestTimeoutMs: ITERA_REQUEST_TIMEOUT_MS,
+        })
+      : null,
+    costs: createCostStore(pool),
+    probe: createFfprobe(config.ffprobeBin),
+    workerId: config.workerId,
+    pollMs: itera.pollMs,
+    taskTimeoutMs: itera.taskTimeoutSeconds * 1000,
+    blockSeconds: itera.blockSeconds,
+  });
   return new Map([
     ['simulate', simulateHandler],
     ['script', createScriptHandler({ claude })],
+    ['tts', tts],
   ]);
 }
 
@@ -63,7 +86,7 @@ async function main(): Promise<void> {
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
-    handlers: buildHandlers(config),
+    handlers: buildHandlers(config, pool),
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
