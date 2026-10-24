@@ -45,6 +45,9 @@
 | D-040 | TTS provider: **ITERA TTS** (`itera102.space`), a white-label reseller platform (`api.genmax.io`) running ElevenLabs models (default `eleven_v3`, Vietnamese); credit-based, API key. API details, timestamps, pricing and license terms still to confirm (U-20) (user, 2026-10-25; was Q-003) |
 | D-041 | First video format and Remotion template: **typography explainer** (user, 2026-10-25) |
 | D-042 | Claude Code runs **headless (`claude -p`)** in the worker for text steps; the user confirms the Max plan terms allow it (user, 2026-10-25; Q-004) |
+| D-043 | ITERA narration uses **ElevenLabs `eleven_multilingual_v2`** (`provider: elevenlabs`, `language_code: vi`), **one request per scene**: scene timing comes from each clip's measured length, so no alignment step (user, 2026-10-25; was Q-003). The voice is a registry setting chosen at rollout (`ops/phase-2b.md`) |
+| D-044 | ITERA prices and costs are kept in **ITERA credits**, stored with the pseudo currency `CRD` (`provider_price.unit = per_char`); the money price per credit is converted only for reports (U-20, Q-002) |
+| D-045 | The cost guard is a **SQL function the worker calls before every paid request** (`cost_guard`), not an n8n sub-workflow (WF-04): the worker is where each paid call happens, and per-scene calls must each be checked. Budget = the TTS estimate approved with A1 (D-023); over budget or no price → NEEDS_DECISION; provider off, quota, key, voice or credit problems → BLOCKED until fixed |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]
@@ -73,7 +76,6 @@
 | ID | Question | Impact | Priority |
 |---|---|---|---|
 | Q-002 | Remaining: reporting currency; whether to add a daily cap later | Cost reports | Medium |
-| Q-003 | Provider chosen (D-040); API surveyed (S-24): async create + poll, no timestamps in the TTS response (optional SRT only). Remaining: ITERA engine/model/voice for Vietnamese, money price per credit (U-20). Proposed: one TTS request per scene so scene timing comes from each clip's measured duration (no alignment step for the MVP) | Phase 2b | High |
 | Q-004 | Remaining: how much Max usage does one video consume? The worker logs Claude Code usage per script job (2a) (U-14) | Throughput | Medium |
 | Q-013 | n8n currently uses SQLite in regular mode (S-05). Move n8n to PostgreSQL and/or queue mode? | Reliability, backup | Medium |
 | Q-017 | Remaining from the survey risks: dedicated NAS and backup target for bind-mount data (R-01, R-12); narrowing the Tailscale ACL from allow-all (U-08). Redis persistence and Postgres/Redis access are settled (D-037, D-038) | Reliability | Medium |
