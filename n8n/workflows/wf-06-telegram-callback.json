@@ -1,0 +1,113 @@
+{
+  "id": "aivideoWf06TgCbk",
+  "name": "WF-06 Telegram Callback",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "updates": ["callback_query"], "additionalFields": {} },
+      "id": "6f1d6a10-0000-4000-8000-000000000601",
+      "name": "Telegram button",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } },
+      "webhookId": "6f1d6a10-0000-4000-8000-0000000006ff"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only well-formed A1 callbacks reach the database; anything else is ignored.\nconst query = $input.first().json.callback_query;\nconst match = /^a1:([AGR]):([0-9a-f]{32})$/.exec(query?.data ?? '');\nif (!query || !match) return [];\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nreturn [{\n  json: {\n    queryId: query.id,\n    userId: String(query.from.id),\n    chatId: String(query.message?.chat?.id ?? ''),\n    messageId: String(query.message?.message_id ?? ''),\n    originalText: String(query.message?.text ?? ''),\n    action: actions[match[1]],\n    token: match[2],\n  },\n}];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000602",
+      "name": "Parse callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT result, video_id::text AS video_id, version FROM approval_telegram_decide($1, $2::bigint, $3);",
+        "options": { "queryReplacement": "={{ [$json.token, $json.userId, $json.action] }}" }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000603",
+      "name": "Decide",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [440, 0],
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// approval_telegram_decide() result codes -> short replies. Buttons are removed once the request\n// is settled (decided, superseded, expired); a refused stranger leaves the message untouched.\nconst input = $('Parse callback').first().json;\nconst { result, version } = $input.first().json;\nconst done = { APPROVE: 'Approved', REJECT: 'Rejected (video cancelled)', REGENERATE: `Regenerating as v${version}` };\nconst replies = {\n  OK: done[input.action],\n  NOT_ALLOWED: 'You are not an approver.',\n  NOT_FOUND: 'Unknown approval.',\n  NOT_PENDING: 'Already decided.',\n  EXPIRED: 'This request expired.',\n  SUPERSEDED: 'A newer version exists; this request is no longer valid.',\n  HASH_MISMATCH: 'The script changed after this request; wait for the new request.',\n};\nconst settled = ['OK', 'NOT_PENDING', 'EXPIRED', 'SUPERSEDED'].includes(result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nreturn [{\n  json: {\n    answer: replies[result] ?? `Not applied (${result}).`,\n    settled,\n    chatId: input.chatId,\n    messageId: input.messageId,\n    queryId: input.queryId,\n    editedText: `${input.originalText}\\n\\n${result === 'OK' ? 'Decision' : 'Closed'}: ${replies[result] ?? result} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000604",
+      "name": "Build reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.queryId }}",
+        "additionalFields": { "text": "={{ $json.answer }}", "show_alert": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000605",
+      "name": "Answer button",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Build reply').first().json.settled }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000606",
+      "name": "Settled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Build reply').first().json.chatId }}",
+        "messageId": "={{ $('Build reply').first().json.messageId }}",
+        "text": "={{ $('Build reply').first().json.editedText }}",
+        "additionalFields": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000607",
+      "name": "Remove buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    }
+  ],
+  "connections": {
+    "Telegram button": { "main": [[{ "node": "Parse callback", "type": "main", "index": 0 }]] },
+    "Parse callback": { "main": [[{ "node": "Decide", "type": "main", "index": 0 }]] },
+    "Decide": { "main": [[{ "node": "Build reply", "type": "main", "index": 0 }]] },
+    "Build reply": { "main": [[{ "node": "Answer button", "type": "main", "index": 0 }]] },
+    "Answer button": { "main": [[{ "node": "Settled?", "type": "main", "index": 0 }]] },
+    "Settled?": { "main": [[{ "node": "Remove buttons", "type": "main", "index": 0 }], []] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}

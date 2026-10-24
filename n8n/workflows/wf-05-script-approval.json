@@ -1,0 +1,85 @@
+{
+  "id": "aivideoWf05Apprv",
+  "name": "WF-05 Script Approval Request",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "seconds", "secondsInterval": 30 }] } },
+      "id": "6f1d6a10-0000-4000-8000-000000000501",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, script FROM script_approvals_due();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000502",
+      "name": "Due approvals",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 0],
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One Telegram message per row from script_approvals_due(). System text is English; the script\n// title and preview are quoted Vietnamese video content. Callback data stays under Telegram's\n// 64-byte limit: a1:<A|G|R>:<32-hex token>.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Reminder: script approval pending (A1)'\n    : '[AI Video] Script ready for approval (A1)';\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Title: ${script.title ?? '?'}`,\n    `${script.total_seconds ?? '?'} s, ${script.scene_count ?? '?'} scenes, ${script.narration_chars ?? '?'} narration characters (TTS)`,\n    '',\n    String(script.preview ?? '').slice(0, 3000),\n    '',\n    `Expires: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n  ].join('\\n');\n  return { json: { text, approve: `a1:A:${row.token}`, regenerate: `a1:G:${row.token}`, reject: `a1:R:${row.token}` } };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000503",
+      "name": "Build message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Approve",
+                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Regenerate",
+                    "additionalFields": { "callback_data": "={{ $json.regenerate }}" }
+                  },
+                  {
+                    "text": "Reject",
+                    "additionalFields": { "callback_data": "={{ $json.reject }}" }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000504",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": { "main": [[{ "node": "Due approvals", "type": "main", "index": 0 }]] },
+    "Due approvals": { "main": [[{ "node": "Build message", "type": "main", "index": 0 }]] },
+    "Build message": { "main": [[{ "node": "Send to Telegram", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}
