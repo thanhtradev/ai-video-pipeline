@@ -77,7 +77,7 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 |---|---|---|
 | Worker dies mid-task | Lease/heartbeat expired (WF-08) | Job → `FAILED_RETRYABLE` → `READY`; the next worker checks checkpoint before running |
 | Worker offline for long | `/health` + heartbeat | Notify Telegram; job stays queued; never moved to a worker lacking the capability |
-| Redis restart/message loss | Job `QUEUED` too long, unclaimed | Re-enqueue from Postgres (safe thanks to idempotency) |
+| Redis restart/message loss | Job `QUEUED` > 10 min **and** a worker serving its stream has since found its queues empty (`worker_idle`); a job merely waiting behind a long job is left alone | Re-queue from Postgres (safe: `job_start` drops duplicates) |
 | n8n down | Uptime Kuma | No new dispatch; running jobs finish and report to Postgres directly; crons resume when n8n is back |
 | Postgres down | Uptime Kuma | Dispatch stops; a worker that cannot report keeps its checkpoint; the lease expires and the retry completes from the checkpoint without rework |
 | Approval expired | `expires_at` passed (24h, reminders every 6h, D-028) | Mark expired, offer re-request; never auto-approve |

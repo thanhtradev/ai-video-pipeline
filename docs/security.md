@@ -30,7 +30,7 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
 ```
 
 - Reject if clock skew > 300s, unknown client, bad signature (constant-time compare), or nonce already used (Redis, 10-minute TTL; claimed only after the signature checks out). Covered by `worker/test/unit/hmac.test.ts`.
-- A worker may only report on jobs it has claimed (`job.claimed_by`, enforced in SQL).
+- A worker may only report on jobs it has claimed (`job.claimed_by`, enforced in SQL), and only under its own id: `assert_worker_identity` requires login role `aivideo_worker_<worker_id with - as _>`, so a leaked credential cannot act for another worker (D-010).
 
 ## 4. Workspace isolation [PROPOSED]
 
