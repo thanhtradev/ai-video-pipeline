@@ -89,6 +89,31 @@ describe('worker role', () => {
     expect(started.rows).toHaveLength(1);
   });
 
+  test('can hand a job back when a provider is blocked', async () => {
+    const id = await queuedJob('q:block');
+    const status = await asRole('aivideo_worker', async (client) => {
+      await client.query(`SELECT * FROM job_start($1, 'mac-mini-m4', 60)`, [id]);
+      return client.query<{ job_block: string }>(
+        `SELECT job_block($1, 'mac-mini-m4', 'usage limit', 3600)`,
+        [id],
+      );
+    });
+    expect(status.rows[0]!.job_block).toBe('BLOCKED');
+  });
+
+  test('cannot submit briefs or decide approvals', async () => {
+    await expect(
+      asRole('aivideo_worker', (client) =>
+        client.query(`SELECT * FROM video_submit('w', '{"topic":"abc","duration_seconds":30}')`),
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asRole('aivideo_worker', (client) =>
+        client.query(`SELECT * FROM approval_telegram_decide('t', 1, 'APPROVE')`),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   test('cannot read tables directly', async () => {
     await expect(
       asRole('aivideo_worker', (client) => client.query('SELECT * FROM job')),
@@ -134,6 +159,16 @@ describe('n8n role', () => {
     await asRole('aivideo_n8n', async (client) => {
       await client.query('SELECT * FROM dispatch_all()');
       await client.query('SELECT watchdog_run()');
+    });
+  });
+
+  test('can run the Phase 2a intake and approval entry points', async () => {
+    await asRole('aivideo_n8n', async (client) => {
+      await client.query(
+        `SELECT * FROM video_submit('grants-form', '{"topic":"abc","duration_seconds":30}')`,
+      );
+      await client.query('SELECT * FROM script_approvals_due()');
+      await client.query(`SELECT * FROM approval_telegram_decide('none', 1, 'APPROVE')`);
     });
   });
 
