@@ -1,0 +1,88 @@
+{
+  "id": "aivideoWf02Disp0",
+  "name": "WF-02 Dispatcher",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000201",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT stream, job_id::text AS job_id FROM dispatch_all();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000202",
+      "name": "Claim ready jobs",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 0],
+      "credentials": {
+        "postgres": {
+          "id": "aivideoPgCred001",
+          "name": "aivideo-postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// dispatch_all() may return no rows; only forward real claims.\nreturn $input.all().filter((item) => typeof item.json.job_id === 'string' && item.json.job_id.length > 0);"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000203",
+      "name": "Keep claimed jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $json.stream }}",
+        "messageData": "={{ $json.job_id }}",
+        "tail": true
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000204",
+      "name": "Push to Redis queue",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [660, 0],
+      "credentials": {
+        "redis": {
+          "id": "aivideoRedisCred",
+          "name": "aivideo-redis"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": {
+      "main": [[{ "node": "Claim ready jobs", "type": "main", "index": 0 }]]
+    },
+    "Claim ready jobs": {
+      "main": [[{ "node": "Keep claimed jobs", "type": "main", "index": 0 }]]
+    },
+    "Keep claimed jobs": {
+      "main": [[{ "node": "Push to Redis queue", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,89 @@
+{
+  "id": "aivideoWf08Watch",
+  "name": "WF-08 Watchdog",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000801",
+      "name": "Every minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT watchdog_run() AS summary;",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000802",
+      "name": "Run watchdog",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 0],
+      "credentials": {
+        "postgres": {
+          "id": "aivideoPgCred001",
+          "name": "aivideo-postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Alert only when something was recovered, or when the set of offline workers changes\n// (avoids a message every minute for a worker that stays offline).\nconst raw = $input.first().json.summary;\nconst summary = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst state = $getWorkflowStaticData('global');\nconst offline = (summary.offline_workers || []).join(',');\nconst offlineChanged = offline !== (state.lastOffline || '');\nstate.lastOffline = offline;\n\nconst lines = [];\nif (summary.expired_leases > 0) lines.push(`Expired leases recovered: ${summary.expired_leases}`);\nif (summary.requeued > 0) lines.push(`Lost queue messages re-queued: ${summary.requeued}`);\nif (summary.approvals_expired > 0) lines.push(`Approvals expired: ${summary.approvals_expired}`);\nif (offlineChanged) lines.push(offline ? `Workers offline: ${offline}` : 'All workers back online');\n\nif (lines.length === 0) return [];\nreturn [{ json: { text: ['[AI Video] Watchdog', ...lines].join('\\n') } }];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000803",
+      "name": "Build alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000804",
+      "name": "Notify Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 0],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every minute": {
+      "main": [[{ "node": "Run watchdog", "type": "main", "index": 0 }]]
+    },
+    "Run watchdog": {
+      "main": [[{ "node": "Build alert", "type": "main", "index": 0 }]]
+    },
+    "Build alert": {
+      "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}
