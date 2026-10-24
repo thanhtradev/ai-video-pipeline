@@ -77,7 +77,13 @@ function startHeartbeat(deps: RunnerDeps, jobId: string, controller: AbortContro
 }
 
 async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {
-  const log = deps.logger.child({ jobId: job.jobId, step: job.step, attempt: job.attemptNo });
+  const log = deps.logger.child({
+    videoId: job.videoId,
+    version: job.version,
+    jobId: job.jobId,
+    step: job.step,
+    attempt: job.attemptNo,
+  });
   const workDir = await jobWorkspace(deps.workRoot, job);
 
   const existing = await readValidCheckpoint(workDir);

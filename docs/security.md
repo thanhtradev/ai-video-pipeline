@@ -12,24 +12,25 @@
 
 ## 2. Network [PROPOSED]
 
-- Worker API and the event webhook listen on the Tailscale interface only.
-- Tailscale ACL: worker → only n8n webhook, Redis, (NAS SMB); n8n → worker API; workers cannot reach Proxmox UI, LXC SSH, or Postgres directly.
+- The worker API listens on the Tailscale interface only (`API_HOST`).
+- Tailscale ACL (`ops/tailscale/acl-snippet.hujson`): Mac mini → Nextcloud WebDAV; LXC 104 → worker API. Postgres and Redis are reached over the LAN with per-client credentials; restrict their ports to known hosts (R-05).
 - Current ACL state: `[UNKNOWN]` (U-08).
 
-## 3. Worker authentication and request signing [PROPOSED]
+## 3. Authentication [IMPLEMENTED in Phase 1]
 
-Applies in both directions (n8n → worker API, worker → n8n webhook):
+- **PostgreSQL** (`ops/postgres/`): one login role per client. The worker role can execute only the five lifecycle functions; n8n can read, insert and update but never delete; `PUBLIC` has no function access. Covered by `worker/test/db/grants.test.ts`.
+- **Redis** (`ops/redis/acl-setup.redis`): n8n may only `RPUSH`; the worker may only move/remove queue messages and set nonces. Covered by `worker/test/integration/redis-acl.test.ts`.
+- **Worker API** (n8n → worker) uses request signing:
 
 ```
-X-Worker-Id: mac-mini-m4
+X-Client-Id: n8n
 X-Timestamp: <unix seconds>
 X-Nonce: <uuid>
-X-Signature: hex(HMAC-SHA256(key_of(worker_id), method + "\n" + path + "\n" + timestamp + "\n" + nonce + "\n" + sha256(body)))
+X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + timestamp + "\n" + nonce + "\n" + sha256(body)))
 ```
 
-- Reject if clock skew > 300s, nonce already used (stored in Redis with 10-minute TTL), unknown worker id, or bad signature (constant-time compare).
-- A worker may only report on jobs it has claimed (check `job.claimed_by`).
-- Redis: enable `requirepass`/ACL with a dedicated worker user with minimal rights on the relevant streams.
+- Reject if clock skew > 300s, unknown client, bad signature (constant-time compare), or nonce already used (Redis, 10-minute TTL; claimed only after the signature checks out). Covered by `worker/test/unit/hmac.test.ts`.
+- A worker may only report on jobs it has claimed (`job.claimed_by`, enforced in SQL).
 
 ## 4. Workspace isolation [PROPOSED]
 

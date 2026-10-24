@@ -1,7 +1,7 @@
 # AI Video Production Pipeline (Homelab)
 
 An automated AI video production system running on a homelab, with human approval at decision points.
-**Current status: design (Task 0). No implementation yet.**
+**Current status: Phase 1 (foundation) implemented and tested; production rollout via [`ops/README.md`](ops/README.md).**
 
 ## Goals
 
@@ -47,6 +47,29 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 - `docs/quality-and-approval.md` — QA, Telegram approval
 - `docs/roadmap.md` — phases and acceptance criteria
 - `docs/decisions.md` — confirmed decisions, proposals, open questions
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `db/migrations/` | dbmate SQL migrations: schema, state machines, job/approval/orchestration functions |
+| `worker/` | TypeScript worker service (queue consumer, runner, checkpoints, archive, API) and all tests |
+| `n8n/workflows/` | n8n workflow exports (WF-02, WF-08, WF-99), imported manually |
+| `ops/` | Production runbook, DB roles/grants, Redis ACL, backups, launchd, Tailscale, monitoring |
+| `docs/` | Design documents |
+
+## Development
+
+Requires Node 22+ and Docker. Tests only ever use the local containers.
+
+```bash
+npm ci
+npm run infra:up      # Postgres 15.18, Redis 7.0.15, WebDAV on 127.0.0.1 (5543x/5637x/58080)
+npm test              # 97 tests: SQL state machines, grants, queue, runner, archive, ACL
+npm run typecheck
+npm run format:check
+npm run infra:down    # removes the test containers and their data
+```
 
 ## Operating principles
 
