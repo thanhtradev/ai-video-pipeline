@@ -24,6 +24,8 @@ GRANT EXECUTE ON FUNCTION
   job_succeed(uuid, text, jsonb),
   job_fail(uuid, text, text, boolean),
   job_block(uuid, text, text, integer),
+  cost_guard(uuid, text, numeric),
+  cost_record(uuid, text, text, numeric, numeric),
   worker_heartbeat(text, text[]),
   worker_idle(text)
 TO aivideo_worker;
