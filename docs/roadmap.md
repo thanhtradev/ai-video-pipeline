@@ -28,7 +28,14 @@ user and verified read-only (`docs/infrastructure.md` §2b); smoke job succeeded
 
 ## Phase 2 — Faceless MVP
 
-One video end-to-end from n8n Form to MP4.
+One video end-to-end from n8n Form to MP4. Delivered in slices, each its own PR + rollout:
+
+| Slice | Scope | Status |
+|---|---|---|
+| 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ code + tests · ⏳ rollout `ops/phase-2a.md` |
+| 2b | TTS job (ITERA, D-040), provider registry, cost guard (WF-04), cost recording, estimate in A1 | ⏳ needs U-20 |
+| 2c | Typography template (D-041), music + license, subtitles SRT/VTT, preview 720p + thumbnail | — |
+| 2d | QA, A2, final 1080p, archive + manifest, cost report | — |
 
 | Criteria |
 |---|

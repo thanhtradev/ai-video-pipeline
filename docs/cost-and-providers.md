@@ -14,7 +14,7 @@
 
 ## 2. Provider registry [PROPOSED]
 
-No TTS provider chosen yet — see Q-003. Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
+TTS provider: ITERA TTS (D-040); API, price and terms `[UNKNOWN]` until U-20 is answered. Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
 
 | Table | Key fields |
 |---|---|

@@ -42,6 +42,9 @@
 | D-037 | Redis on LXC 112 is shared with another application (BullMQ, db 0), so **no port firewall**; the pipeline is isolated by ACL users limited to `q:*`/`nonce:*` and uses db 1 (user, rollout 2026-10-24; R-05) |
 | D-038 | Postgres on LXC 102 is shared with other applications, so access to `aivideo` is limited by a **per-database `pg_hba.conf` allow-list ending in `reject`**, placed above the LAN rule; no port firewall (user, rollout 2026-10-24; R-05) |
 | D-039 | The Mac mini worker runs from the development checkout `~/remote-dev/AIVIdeo/ai-video-pipeline`, not a separate deploy clone; it is restarted only when that checkout is on an up-to-date `main` (user, 2026-10-24) |
+| D-040 | TTS provider: **ITERA TTS** (`itera102.space`), a white-label reseller platform (`api.genmax.io`) running ElevenLabs models (default `eleven_v3`, Vietnamese); credit-based, API key. API details, timestamps, pricing and license terms still to confirm (U-20) (user, 2026-10-25; was Q-003) |
+| D-041 | First video format and Remotion template: **typography explainer** (user, 2026-10-25) |
+| D-042 | Claude Code runs **headless (`claude -p`)** in the worker for text steps; the user confirms the Max plan terms allow it (user, 2026-10-25; Q-004) |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]
@@ -59,7 +62,7 @@
 | P-009 | Worker as a launchd service under a dedicated non-admin macOS user | security §4 |
 | P-010 | Template-first Remotion: a few tested templates (typography explainer, top-N list, data chart, quote); Claude Code mainly produces scene JSON, writes new composition code only when needed | architecture §4 |
 | P-011 | Claude Code steps guarded by a usage guard: on usage limit → `BLOCKED_PROVIDER`, wait for reset, no fallback | cost §3 |
-| P-012 | Claude Code text-only steps run with tools disabled in an empty workspace; output validated against JSON schema, bounded retries | security §5 |
+| P-012 | **Implemented (2a):** Claude Code text-only steps run with tools disabled in an empty workspace; output validated against JSON schema, bounded retries | security §5 |
 | P-014 | **Implemented:** Redis reliable lists (`RPUSH` by n8n, `LMOVE` to a per-worker processing list); Postgres stays the source of truth | architecture §5 |
 | P-015 | **Implemented:** workers report through SECURITY DEFINER lifecycle functions with a per-worker login role that can execute nothing else; replaces WF-03 webhook | architecture §5, security §3 |
 | P-016 | **Implemented:** orchestration rules live in tested SQL (`dispatch_all`, `watchdog_run`, approval functions); n8n workflows run one query each | workflows |
@@ -70,8 +73,8 @@
 | ID | Question | Impact | Priority |
 |---|---|---|---|
 | Q-002 | Remaining: reporting currency; whether to add a daily cap later | Cost reports | Medium |
-| Q-003 | TTS provider/voice for Vietnamese (user will provide later). Does it return timestamps (else local Whisper for alignment)? | Phase 2 | High |
-| Q-004 | Remaining: do Max subscription terms allow automated headless use, and how much usage does one video consume? (U-14) | Throughput, compliance | High |
+| Q-003 | Provider chosen (D-040). Remaining: voice, whether the API returns timestamps (else local Whisper for alignment), price per character (U-20) | Phase 2b | High |
+| Q-004 | Remaining: how much Max usage does one video consume? The worker logs Claude Code usage per script job (2a) (U-14) | Throughput | Medium |
 | Q-013 | n8n currently uses SQLite in regular mode (S-05). Move n8n to PostgreSQL and/or queue mode? | Reliability, backup | Medium |
 | Q-017 | Remaining from the survey risks: dedicated NAS and backup target for bind-mount data (R-01, R-12); narrowing the Tailscale ACL from allow-all (U-08). Redis persistence and Postgres/Redis access are settled (D-037, D-038) | Reliability | Medium |
 | Q-016 | Phase 4 short film needs an image/video generation source — **deferred to Phase 4** | Phase 4 | Low |
