@@ -9,18 +9,22 @@ Each phase starts only after the previous one meets its acceptance criteria and 
 
 ## Phase 1 — Foundation
 
-| Item | Acceptance criteria |
-|---|---|
-| Environment inventory | Every U-xx in `docs/infrastructure.md` has a real value or a reason it is not needed yet; date + command recorded |
-| PostgreSQL schema | Versioned migrations for the tables in `docs/architecture.md` §3; tests for valid/invalid transitions; rollback works |
-| Redis/queue | Redis has persistence + `maxmemory` + auth; test: losing Redis → re-enqueue from Postgres with no lost or duplicated jobs |
-| Worker API | `/health`, `/capabilities`, `/jobs/{id}/cancel` on Tailscale only; HMAC + timestamp + nonce; tests reject bad signatures/replays |
-| Security | Tailscale ACL per `docs/security.md`; no secrets in repo (scan); Claude Code permissions configured and checked |
-| Checkpoints | Simulated (non-paid) job killed mid-run → resumes without re-running checkpointed steps |
-| Logging | Logs carry `video_id`/`job_id`, redacted; audit_log works |
-| Monitoring | Uptime Kuma watches n8n, Postgres, Redis, worker `/health`; Telegram alerts |
-| Storage verification | Archive job with test data: verifies file count/size/SHA-256 on NAS; deliberately corrupted file → failure detected |
-| Backup | Daily backup runs; **restore test** succeeds once |
+Status 2026-10-24: code, tests, and runbooks are done on branch `feat/phase-1-foundation`; the
+production rollout (`ops/README.md`) is run by the user. ✅ = verified by automated tests or a
+local rehearsal; ⏳ = waiting for the production step named.
+
+| Item | Acceptance criteria | Status |
+|---|---|---|
+| Environment inventory | Every U-xx in `docs/infrastructure.md` has a real value or a reason it is not needed yet; date + command recorded | ⏳ U-03, U-08, U-09, U-11, U-13, U-14, U-15 need the user |
+| PostgreSQL schema | Versioned migrations for the tables in `docs/architecture.md` §3; tests for valid/invalid transitions; rollback works | ✅ code · ⏳ ops §2 |
+| Redis/queue | Redis has persistence + `maxmemory` + auth; test: losing Redis → re-enqueue from Postgres with no lost or duplicated jobs | ✅ loss/duplicate tests · ⏳ ops §3 |
+| Worker API | `/health` and signed `/capabilities` on Tailscale only; HMAC + timestamp + nonce; tests reject bad signatures/replays. Cancellation goes through the DB heartbeat instead of `/jobs/{id}/cancel` (P-015) | ✅ code · ⏳ ops §4 |
+| Security | Tailscale ACL per `docs/security.md`; no secrets in repo (scan); Claude Code permissions configured and checked | ✅ gitleaks clean, DB/Redis least privilege tested, Claude Code denies `.env`/`curl` · ⏳ ops §6 |
+| Checkpoints | Simulated (non-paid) job killed mid-run → resumes without re-running checkpointed steps | ✅ |
+| Logging | Logs carry `video_id`/`job_id`, redacted; audit_log works | ✅ |
+| Monitoring | Uptime Kuma watches n8n, Postgres, Redis, worker `/health`; Telegram alerts | ✅ WF-08/WF-99 rehearsed · ⏳ ops §5, §7 |
+| Storage verification | Archive job with test data: verifies file count/size/SHA-256 on NAS; deliberately corrupted file → failure detected | ✅ local WebDAV · ⏳ ops §8 on Nextcloud |
+| Backup | Daily backup runs; **restore test** succeeds once | ✅ scripts tested on PG 15 · ⏳ ops §1 |
 
 ## Phase 2 — Faceless MVP
 

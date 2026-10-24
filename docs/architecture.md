@@ -43,7 +43,7 @@ Monitoring: Beszel + Uptime Kuma (Docker on LXC 104) watch n8n, Postgres, Redis,
 |---|---|---|
 | n8n | Receive briefs, create jobs in Postgres, dispatch, handle worker events, cost guard, send/receive Telegram, watchdog | Render, heavy media processing, keep state only inside an execution |
 | PostgreSQL | projects, batches, videos, versions, jobs, attempts, approvals, costs, assets, providers, audit log | Act as a high-frequency polling queue |
-| Redis | Streams per capability, lease/heartbeat, rate-limit/concurrency counters | Be the only holder of state |
+| Redis | Job queue lists per stream, HMAC nonces | Be the only holder of state (leases live in Postgres) |
 | Worker | Claim task, execute, write files to workspace, send signed events, heartbeat | Switch provider on its own, delete files, approve |
 | Claude Code CLI | Code/automation tasks inside the job workspace (e.g. generating/adjusting Remotion compositions) | Deploy, edit production workflows, read out-of-scope secrets |
 | Telegram | Approval and notification channel | Source of state |
@@ -75,14 +75,16 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 10. **Archive** — copy to NAS, verify file count/size/checksum, write manifest → `COMPLETED`.
 11. **Report** — cost per step/video/batch/finished minute sent to Telegram.
 
-## 5. Dispatch and worker communication [PROPOSED]
+## 5. Dispatch and worker communication [IMPLEMENTED in Phase 1 — P-014, P-015]
 
-- **Pull model:** workers pull tasks from Redis Streams (consumer groups) → no inbound port needed for dispatch; an offline worker does not lose tasks.
-- **Dispatcher (n8n)** selects `READY` jobs in Postgres (`FOR UPDATE SKIP LOCKED`), marks them `QUEUED`, then `XADD`s to the capability stream. If Redis loses data, jobs are still `QUEUED`/`READY` in Postgres and get re-enqueued (see recovery).
-- **Return events:** workers send events (`claimed`, `heartbeat`, `progress`, `succeeded`, `failed`) to an n8n webhook over Tailscale, HMAC-signed, with a local outbox for resend when n8n is down. Events are idempotent by `event_id`.
-- **Minimal worker API:** `GET /health`, `GET /capabilities`, `POST /jobs/{id}/cancel` — Tailscale interface only, authenticated.
+- **Dispatch:** WF-02 calls `dispatch_all()` every 30 s. It promotes ready work and claims `READY` jobs per stream in FIFO order (`FOR UPDATE SKIP LOCKED`, limits from `stream_config`), marking them `QUEUED`. n8n then `RPUSH`es each job id onto the Redis list named after the stream. (Redis Streams were dropped: the n8n Redis node cannot `XADD`.)
+- **Pull model:** the worker `LMOVE`s a job id into its own processing list, calls `job_start()`, and removes the message when done. An offline worker loses nothing; messages left in its processing list return to the queue on restart.
+- **Status reporting:** the worker calls the PostgreSQL lifecycle functions directly (`job_start`, `job_heartbeat`, `job_succeed`, `job_fail`, `worker_heartbeat`) with a login role that can execute only those functions; each checks the job is claimed by that worker. No webhook, no outbox: if Postgres is down, the job's lease expires and the checkpoint prevents rework.
+- **Cancellation:** `job_cancel()` marks the job; the worker sees `CANCELLED` on its next heartbeat (every 20 s) and aborts the handler.
+- **Duplicates and loss are harmless:** `job_start()` only accepts `QUEUED` jobs, so a duplicate message is dropped; a lost message is re-queued from Postgres by the watchdog (`job_requeue_stale`, 10 min).
+- **Worker API:** `GET /health` (public, for Uptime Kuma) and `GET /capabilities` (HMAC-signed) on the Tailscale interface.
 
-Proposed streams: `q:render` (M4), `q:heavy` (M4), `q:light` (M1 preferred; M4 takes it when it has no render/heavy work, D-027). While M1 is offline, the Mac mini M4 consumes all streams (D-034).
+Streams: `q:render` (M4), `q:heavy` (M4), `q:light` (M1 preferred; M4 takes it when it has no render/heavy work, D-027). While M1 is offline, the Mac mini M4 consumes all streams (D-034).
 
 ## 6. Cross-cutting design rules
 

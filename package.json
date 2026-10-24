@@ -1,0 +1,22 @@
+{
+  "name": "ai-video-pipeline",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "worker"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "infra:up": "docker compose -f docker-compose.test.yml up -d --wait",
+    "infra:down": "docker compose -f docker-compose.test.yml down -v",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.10"
+  }
+}

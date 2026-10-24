@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchAgent for the pipeline worker (P-009). Install for the worker user:
+    cp ops/launchd/com.aivideo.worker.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.aivideo.worker.plist
+  Replace /Users/aivideo with the worker user's home directory.
+  A LaunchAgent runs in the user's login session, which it needs to read the login Keychain.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.aivideo.worker</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/aivideo/ai-video-pipeline/ops/launchd/run-worker.sh</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+  <!-- SIGTERM lets the worker finish its current job; the lease watchdog covers longer jobs. -->
+  <key>ExitTimeOut</key>
+  <integer>300</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/aivideo/Library/Logs/aivideo-worker.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/aivideo/Library/Logs/aivideo-worker.log</string>
+</dict>
+</plist>

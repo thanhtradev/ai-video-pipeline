@@ -47,6 +47,9 @@ When a real value is surveyed, update `docs/infrastructure.md` with the date and
 3. n8n workflows are versioned as JSON exports in the repo; the user imports them manually.
 4. Database migrations are versioned files with a rollback plan; never run them against production from an agent.
 5. Commits follow Conventional Commits: `feat|fix|refactor|docs|test|chore|perf|ci: ...`.
+6. Before committing: `npm run format:check && npm run typecheck && npm test` (needs `npm run infra:up`).
+   Tests use only the local `docker-compose.test.yml` containers — never a production host.
+7. State rules belong in SQL (migrations + `worker/test/db/`); n8n workflows stay one query per step.
 
 ## 5. Architectural invariants (never violate)
 

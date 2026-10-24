@@ -45,8 +45,8 @@
 
 | ID | Proposal | Reference |
 |---|---|---|
-| P-001 | Workers **pull** from Redis Streams (consumer group, `XAUTOCLAIM` for abandoned tasks) | architecture §5 |
-| P-002 | Workers report results via HMAC-signed n8n webhook + local outbox (no direct Postgres access from workers) | architecture §5 |
+| P-001 | ~~Workers pull from Redis Streams~~ — superseded by P-014 (n8n Redis node has no `XADD`) | architecture §5 |
+| P-002 | ~~Workers report via HMAC-signed n8n webhook + outbox~~ — superseded by P-015 | architecture §5 |
 | P-003 | Idempotency key `{video_version_id}:{step}:{input_hash}`, UNIQUE in the DB | job-lifecycle §5 |
 | P-004 | Revisions after reject → new `video_version`; old-version approvals → `SUPERSEDED` | job-lifecycle §1 |
 | P-005 | Archive via `.partial` directory + rename after SHA-256 verification | storage §4 |
@@ -57,6 +57,9 @@
 | P-010 | Template-first Remotion: a few tested templates (typography explainer, top-N list, data chart, quote); Claude Code mainly produces scene JSON, writes new composition code only when needed | architecture §4 |
 | P-011 | Claude Code steps guarded by a usage guard: on usage limit → `BLOCKED_PROVIDER`, wait for reset, no fallback | cost §3 |
 | P-012 | Claude Code text-only steps run with tools disabled in an empty workspace; output validated against JSON schema, bounded retries | security §5 |
+| P-014 | **Implemented:** Redis reliable lists (`RPUSH` by n8n, `LMOVE` to a per-worker processing list); Postgres stays the source of truth | architecture §5 |
+| P-015 | **Implemented:** workers report through SECURITY DEFINER lifecycle functions with a per-worker login role that can execute nothing else; replaces WF-03 webhook | architecture §5, security §3 |
+| P-016 | **Implemented:** orchestration rules live in tested SQL (`dispatch_all`, `watchdog_run`, approval functions); n8n workflows run one query each | workflows |
 | P-013 | Archive via a storage adapter (`webdav` now for Nextcloud per D-036, `smb` for the future NAS); same `.partial` + SHA-256 verify flow; target selected by config | storage §4 |
 
 ## 3. Open questions

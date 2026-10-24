@@ -1,0 +1,29 @@
+{
+  "name": "@aivideo/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "tsx src/main.ts",
+    "migrate": "dbmate --migrations-dir ../db/migrations --no-dump-schema up",
+    "archive:selftest": "tsx src/tools/archive-selftest.ts"
+  },
+  "dependencies": {
+    "fast-xml-parser": "5.11.2",
+    "fastify": "5.12.7",
+    "ioredis": "6.0.0",
+    "pg": "8.23.1",
+    "pino": "10.4.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/pg": "8.23.1",
+    "dbmate": "2.37.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}

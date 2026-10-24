@@ -44,8 +44,8 @@ Never put credentials in this file.
 | R-09 | ~~LXC 106 stopped, `onboot: 0`~~ — **resolved 2026-10-23** (running, `onboot: 1`) | — | — |
 | R-10 | ~~Nextcloud is WebDAV, not SMB~~ — **resolved**: archive uses WebDAV (D-036) | — | — |
 | R-11 | Nextcloud WebDAV is plain HTTP (`:8080`, no TLS) | **Mitigated 2026-10-23**: pipeline uses the tailnet address, encrypted by WireGuard (D-036). LAN `192.168.1.106:8080` and the public domain remain open for other clients | Restrict tailnet ACL so only `macmini` reaches `lxc-nextcloud:8080` (U-08) |
-| R-02 | **No backups found** for LXC 102/104/112 or Postgres | Data loss risk today, independent of this project | Create vzdump job + `pg_dump` to a separate device; run restore test (Phase 1) |
-| R-03 | Redis has **no AOF and no `maxmemory`** | Conflicts with D-002 (persistence + resource limits) | Enable `appendonly yes`, set `maxmemory` + `noeviction` after checking other Redis users (U-03) |
+| R-02 | **No backups found** for LXC 102/104/112 or Postgres | Data loss risk today, independent of this project | Runbook ready: `ops/README.md` §1 (vzdump + `pg-backup.sh` + restore test) |
+| R-03 | Redis has **no AOF and no `maxmemory`** | Conflicts with D-002 (persistence + resource limits) | Runbook ready: `ops/redis/README.md` (check U-03 first) |
 | R-04 | n8n uses **SQLite**, regular mode, in an LXC with ~230 MiB free RAM | Limited webhook/cron concurrency; harder backup | Benchmark first; consider Postgres backend for n8n (Q-013) and more LXC RAM |
 | R-05 | Postgres and Redis listen on all interfaces of the LAN and are **not in the tailnet** | Worker → Redis traffic would go over LAN, not Tailscale ACL as designed in `docs/security.md` | Decide: add LXC 112 to tailnet, or restrict by LAN firewall to known worker IPs |
 | R-06 | Mac mini has **~31 GiB free** | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
@@ -65,7 +65,7 @@ Never put credentials in this file.
 | U-09 | Mac mini sleep setting without `caffeinate` | Only worker, must stay awake |
 | U-10 | Any backup outside Proxmox (e.g. external tool, HAOS) | S-08 found none on the host |
 | U-11 | Telegram bot, approval chat | |
-| U-12 | n8n webhook URL reachable from workers (LAN `192.168.1.104:5678` or tailnet `100.85.20.21:5678`), reverse proxy, TLS | |
+| U-12 | ~~n8n webhook reachable from workers~~ — not needed: workers report via PostgreSQL (P-015) | |
 | U-13 | What Uptime Kuma/Beszel monitor today, alert channels | |
 | U-14 | Max plan headless usage limits and terms for automation | |
 | U-15 | Canonical timezone for reports/retention | |
