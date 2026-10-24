@@ -45,6 +45,7 @@
 | D-040 | TTS provider: **ITERA TTS** (`itera102.space`), a white-label reseller platform (`api.genmax.io`) running ElevenLabs models (default `eleven_v3`, Vietnamese); credit-based, API key. API details, timestamps, pricing and license terms still to confirm (U-20) (user, 2026-10-25; was Q-003) |
 | D-041 | First video format and Remotion template: **typography explainer** (user, 2026-10-25) |
 | D-042 | Claude Code runs **headless (`claude -p`)** in the worker for text steps; the user confirms the Max plan terms allow it (user, 2026-10-25; Q-004) |
+| D-046 | The worker's Claude Code CLI authenticates with a **long-lived token from `claude setup-token`** (Keychain item `aivideo-claude-oauth-token` → `CLAUDE_CODE_OAUTH_TOKEN` in the CLI's environment only), not the interactive login: refreshing that login needs the login Keychain, which is locked when nobody is logged in at the console (2a rollout, 2026-10-25: `OAuth session expired and could not be refreshed`). A CLI login failure blocks the job (BLOCKED, resumes later) instead of using up its attempts |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]

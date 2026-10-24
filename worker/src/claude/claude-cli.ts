@@ -28,7 +28,7 @@ export interface ClaudeCliOptions {
   bin: string;
   settingsPath: string;
   timeoutMs: number;
-  /** Wait before retrying after a usage limit. */
+  /** Wait before retrying after a usage limit or a login failure. */
   blockSeconds: number;
   /** The complete child environment (PATH, HOME, ...). Nothing else is inherited. */
   env: Readonly<Record<string, string>>;
@@ -39,6 +39,27 @@ const MAX_STDOUT_BYTES = 5 * 1024 * 1024;
 const STDERR_TAIL = 500;
 const KILL_GRACE_MS = 5_000;
 const USAGE_LIMIT = /usage limit|limit reached|out of extra usage/i;
+// A login the worker cannot repair itself (e.g. OAuth refresh against a locked Keychain): block the
+// job until a person fixes it instead of spending its attempts.
+const AUTH_FAILURE = /failed to authenticate|oauth|not logged in|invalid api key|\/login/i;
+// Non-secret variables the CLI needs (HOME for its config), plus the long-lived subscription token
+// from `claude setup-token` (D-046). Nothing else from the worker environment is passed.
+const CHILD_ENV_KEYS = [
+  'PATH',
+  'HOME',
+  'USER',
+  'LOGNAME',
+  'TMPDIR',
+  'LANG',
+  'CLAUDE_CODE_OAUTH_TOKEN',
+] as const;
+
+/** The child environment for the CLI, taken from the worker's environment. */
+export function claudeChildEnv(
+  env: Readonly<Record<string, string | undefined>>,
+): Record<string, string> {
+  return Object.fromEntries(CHILD_ENV_KEYS.flatMap((key) => (env[key] ? [[key, env[key]]] : [])));
+}
 
 interface CliEnvelope {
   is_error?: boolean;
@@ -154,6 +175,12 @@ export function createClaudeCli(options: ClaudeCliOptions): ClaudeRunner {
     if (failed && (USAGE_LIMIT.test(message) || USAGE_LIMIT.test(stderr))) {
       throw new ProviderBlockedError(
         `claude-code usage limit: ${message || stderr}`.slice(0, 300),
+        options.blockSeconds,
+      );
+    }
+    if (failed && (AUTH_FAILURE.test(message) || AUTH_FAILURE.test(stderr))) {
+      throw new ProviderBlockedError(
+        `claude-code login failed (see ops/phase-2a.md §2): ${message || stderr}`.slice(0, 300),
         options.blockSeconds,
       );
     }
