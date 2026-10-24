@@ -1,4 +1,5 @@
 import Fastify, {
+  LogController,
   type FastifyBaseLogger,
   type FastifyInstance,
   type FastifyRequest,
@@ -29,7 +30,7 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
   const logger = options.logger ?? pino({ level: 'silent' });
   const app = Fastify({
     loggerInstance: logger as FastifyBaseLogger,
-    disableRequestLogging: true,
+    logController: new LogController({ disableRequestLogging: true }),
     bodyLimit: 64 * 1024,
   });
 
