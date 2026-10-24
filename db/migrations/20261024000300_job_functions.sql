@@ -144,7 +144,14 @@ $$;
 -- Moves a QUEUED job to RUNNING for one worker. Returns no row when the job is not QUEUED
 -- (duplicate queue message, already running, cancelled), so the worker simply drops the message.
 CREATE FUNCTION job_start(p_job_id uuid, p_worker_id text, p_lease_seconds integer)
-RETURNS TABLE (attempt_no integer, step text, input jsonb, video_version_id uuid)
+RETURNS TABLE (
+  attempt_no integer,
+  step text,
+  input jsonb,
+  video_version_id uuid,
+  video_id uuid,
+  version integer
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, pg_temp
@@ -173,7 +180,9 @@ BEGIN
 
   INSERT INTO job_attempt (job_id, attempt_no, worker_id) VALUES (p_job_id, v_attempt, p_worker_id);
 
-  RETURN QUERY SELECT v_attempt, v_step, v_input, v_version;
+  RETURN QUERY
+  SELECT v_attempt, v_step, v_input, v_version, vv.video_id, vv.version
+  FROM video_version vv WHERE vv.id = v_version;
 END;
 $$;
 
