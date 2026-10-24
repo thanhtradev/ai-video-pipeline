@@ -7,6 +7,9 @@
 #   aivideo-db-password       password of the worker's PostgreSQL login role
 #   aivideo-redis-password    password of the worker's Redis ACL user
 #   aivideo-api-key-n8n       HMAC key shared with n8n for the worker API
+#   aivideo-claude-oauth-token  long-lived Claude Code token from `claude setup-token` (D-046;
+#                             optional, but without it the CLI must refresh its login in a
+#                             possibly locked Keychain and script jobs block)
 set -euo pipefail
 
 CONFIG_FILE="${AIVIDEO_CONFIG:-$HOME/.config/aivideo/worker.env}"
@@ -26,6 +29,9 @@ DATABASE_URL="postgres://${DB_USER}:$(keychain aivideo-db-password)@${DB_HOST}:5
 REDIS_URL="redis://${REDIS_USER}:$(keychain aivideo-redis-password)@${REDIS_HOST}:6379/${REDIS_DB:-1}"
 API_CLIENT_KEYS="{\"n8n\":\"$(keychain aivideo-api-key-n8n)\"}"
 export DATABASE_URL REDIS_URL API_CLIENT_KEYS
+if CLAUDE_CODE_OAUTH_TOKEN="$(keychain aivideo-claude-oauth-token 2>/dev/null)"; then
+  export CLAUDE_CODE_OAUTH_TOKEN
+fi
 
 cd "$REPO_DIR/worker"
 exec npx tsx src/main.ts

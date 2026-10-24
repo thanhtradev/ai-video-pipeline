@@ -76,6 +76,12 @@ switch (mode) {
       1,
     );
     break;
+  case 'MODE:auth-failure':
+    process.stderr.write(
+      'Failed to authenticate: OAuth session expired and could not be refreshed\n',
+    );
+    process.exit(1);
+    break;
   case 'MODE:crash':
     process.stderr.write('internal error\n');
     process.exit(2);

@@ -60,7 +60,7 @@ Claude Code login of the macOS user running the worker (D-039); no `--fallback-m
 - No write access to the NAS archive and no read access to Postgres.
 - Time and turn limits; store a (redacted) transcript in the workspace.
 - Claude Code is the pipeline's only LLM (D-019). Text-only steps (script, storyboard, metadata) run with tools disabled in an empty workspace; code steps (Remotion) may only build/render inside the job workspace.
-- Worker login uses a long-lived Claude Code token stored in macOS Keychain, never in Git or env files committed anywhere.
+- Worker login uses a long-lived Claude Code token (`claude setup-token`) stored in the macOS Keychain (`aivideo-claude-oauth-token`), read by `run-worker.sh` at start and passed only to the CLI process as `CLAUDE_CODE_OAUTH_TOKEN`; never in Git or env files (D-046). `[IMPLEMENTED]`
 - The subscription does not cover TTS or other APIs. Terms/limits of automated headless use: `[UNKNOWN]` (U-14, Q-004).
 
 ## 6. Telegram [PROPOSED]
