@@ -39,6 +39,9 @@
 | D-033 | **Interim NAS = LXC 106 `lxc-nextcloud`** until a dedicated NAS device is bought. Single-disk risk (R-01) accepted for now; archive code must make the target swappable by config |
 | D-034 | MacBook Pro M1 has not joined the tailnet and is treated as **offline** for now; the Mac mini M4 is the only active worker and consumes every stream. Design stays multi-worker so M1 can join later |
 | D-036 | Interim archive transport: **Nextcloud WebDAV over Tailscale** at `http://lxc-nextcloud:8080` (100.120.60.20), using a **dedicated Nextcloud user + app password** (not the owner's account). WireGuard encrypts the hop; LAN address not used by the pipeline (R-11 mitigated) (was Q-018) |
+| D-037 | Redis on LXC 112 is shared with another application (BullMQ, db 0), so **no port firewall**; the pipeline is isolated by ACL users limited to `q:*`/`nonce:*` and uses db 1 (user, rollout 2026-10-24; R-05) |
+| D-038 | Postgres on LXC 102 is shared with other applications, so access to `aivideo` is limited by a **per-database `pg_hba.conf` allow-list ending in `reject`**, placed above the LAN rule; no port firewall (user, rollout 2026-10-24; R-05) |
+| D-039 | The Mac mini worker runs from the development checkout `~/remote-dev/AIVIdeo/ai-video-pipeline`, not a separate deploy clone; it is restarted only when that checkout is on an up-to-date `main` (user, 2026-10-24) |
 | D-035 | The project uses **PostgreSQL only**; MariaDB on LXC 102 is not part of the pipeline (uninstalling it is a separate, user-approved server change) |
 
 ## 2. Proposals awaiting approval [PROPOSED]
@@ -70,7 +73,7 @@
 | Q-003 | TTS provider/voice for Vietnamese (user will provide later). Does it return timestamps (else local Whisper for alignment)? | Phase 2 | High |
 | Q-004 | Remaining: do Max subscription terms allow automated headless use, and how much usage does one video consume? (U-14) | Throughput, compliance | High |
 | Q-013 | n8n currently uses SQLite in regular mode (S-05). Move n8n to PostgreSQL and/or queue mode? | Reliability, backup | Medium |
-| Q-017 | Survey risks R-01 → R-08 (`docs/infrastructure.md` §3): separate NAS? backup target? Redis AOF/maxmemory? Redis/Postgres via tailnet or LAN firewall? | Phase 1 | High |
+| Q-017 | Remaining from the survey risks: dedicated NAS and backup target for bind-mount data (R-01, R-12); narrowing the Tailscale ACL from allow-all (U-08). Redis persistence and Postgres/Redis access are settled (D-037, D-038) | Reliability | Medium |
 | Q-016 | Phase 4 short film needs an image/video generation source — **deferred to Phase 4** | Phase 4 | Low |
 
 Resolved on 2026-10-23: Q-001, Q-005 → Q-012, Q-014, Q-015 (see D-020 → D-032), Q-018 (D-036).

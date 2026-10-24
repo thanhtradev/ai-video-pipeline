@@ -15,7 +15,13 @@ notification used for the pipeline (U-11, U-13).
 For the backup push monitor, append the push call to the cron line so it only fires on success:
 
 ```cron
-30 2 * * * /usr/local/bin/pg-backup.sh --prune >> /var/log/aivideo-backup.log 2>&1 && curl -fsS -m 10 "<uptime-kuma-push-url>" >/dev/null
+30 2 * * * DB_NAME=aivideo /usr/local/bin/pg-backup.sh --prune >> /var/lib/postgresql/aivideo-backup.log 2>&1 && curl -fsS -m 10 "<uptime-kuma-push-url>" >/dev/null
 ```
 
 The push URL contains a token: keep it in the crontab on LXC 102 only, never in Git.
+Test it once without waiting for 02:30:
+`su postgres -s /bin/sh -c 'DB_NAME=aivideo /usr/local/bin/pg-backup.sh' && curl -fsS -m 10 "<push-url>" >/dev/null`.
+
+All targets above were reachable from inside the `uptime-kuma` container on 2026-10-24, including the
+worker over Tailscale. Alert test: `launchctl kill TERM gui/$(id -u)/com.aivideo.worker` (a clean
+exit, so launchd does not restart it), wait for the alert, then `launchctl kickstart gui/$(id -u)/com.aivideo.worker`.

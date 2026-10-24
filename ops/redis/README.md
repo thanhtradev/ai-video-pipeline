@@ -22,6 +22,11 @@ redis-cli CLIENT LIST | awk '{print $2, $3, $NF}'
 If another application uses Redis as a cache that relies on eviction, stop and decide with the
 owner: `noeviction` would make that cache fail when full instead of evicting.
 
+Result 2026-10-24: db 0 holds a BullMQ queue of another application (182 `bull:*` keys, no TTLs,
+6.4 MB, policy already `noeviction`, which BullMQ requires); no `q:*` or `nonce:*` keys existed.
+Redis 7.0 ACLs cannot restrict database numbers, so key patterns are the isolation: never let
+another application use `q:*` or `nonce:*` keys.
+
 ## 2. Persistence and memory limit
 
 LXC 112 has 1 GiB RAM. The pipeline stores only job ids and nonces (kilobytes).
@@ -57,5 +62,12 @@ run admin commands.
 
 ## 4. Network
 
-Redis listens on all interfaces (`bind 0.0.0.0`). Restrict TCP 6379 on LXC 112 to
-LXC 104 (`192.168.1.104`) and the Mac mini, or add LXC 112 to the tailnet (R-05, Q-017).
+Redis listens on all interfaces (`bind 0.0.0.0`). No port firewall: the BullMQ application also
+connects to it. Isolation is the per-client ACL users above and the strong `default` password (D-037).
+
+## 5. n8n credential database
+
+The n8n Redis credential must use **Database Number `1`**. With the default `0`, WF-02 pushes job
+ids into db 0, the worker (db 1) never sees them, and jobs stay `QUEUED` (R-14). To recover a stuck
+message after fixing the credential:
+`redis-cli -n 0 LPOP q:light | xargs -I{} redis-cli -n 1 RPUSH q:light {}`.
