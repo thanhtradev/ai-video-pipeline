@@ -12,6 +12,22 @@ export class PermanentJobError extends Error {
   override name = 'PermanentJobError';
 }
 
+/**
+ * Throw from a handler when a provider refuses for quota/usage reasons (e.g. Claude Code usage
+ * limit). The job waits as BLOCKED and resumes after retryAfterSeconds; it is not a failed attempt
+ * and never switches provider (docs/job-lifecycle.md §6).
+ */
+export class ProviderBlockedError extends Error {
+  override name = 'ProviderBlockedError';
+
+  constructor(
+    message: string,
+    readonly retryAfterSeconds: number,
+  ) {
+    super(message);
+  }
+}
+
 export interface HandlerContext {
   jobId: string;
   attemptNo: number;
@@ -45,6 +61,7 @@ export type RunOutcome =
   | { kind: 'skipped'; jobId: string }
   | { kind: 'succeeded'; jobId: string; fromCheckpoint: boolean }
   | { kind: 'failed'; jobId: string; status: string }
+  | { kind: 'blocked'; jobId: string; status: string }
   | { kind: 'aborted'; jobId: string; reason: string };
 
 const MAX_ERROR_LENGTH = 2000;
@@ -137,6 +154,19 @@ async function runHandler(deps: RunnerDeps, lease: Lease, workDir: string): Prom
     });
   } catch (error: unknown) {
     if (controller.signal.aborted) return aborted(lease);
+    if (error instanceof ProviderBlockedError) {
+      log.warn(
+        { err: errorMessage(error), retryAfterSeconds: error.retryAfterSeconds },
+        'provider blocked',
+      );
+      const status = await deps.store.block(
+        job.jobId,
+        deps.workerId,
+        errorMessage(error),
+        error.retryAfterSeconds,
+      );
+      return { kind: 'blocked', jobId: job.jobId, status };
+    }
     const retryable = !(error instanceof PermanentJobError);
     log.warn({ err: errorMessage(error), retryable }, 'handler failed');
     const status = await deps.store.fail(job.jobId, deps.workerId, errorMessage(error), retryable);

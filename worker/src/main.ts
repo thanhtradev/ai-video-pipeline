@@ -1,8 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
-import { loadConfig } from './config.js';
+import { createClaudeCli } from './claude/claude-cli.js';
+import { loadConfig, type Config } from './config.js';
 import { createJobStore } from './db/job-store.js';
+import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
 import { createLogger, redactUrl } from './logger.js';
 import { createRedisQueue } from './queue/redis-queue.js';
@@ -12,8 +15,31 @@ import { createWorkerLoop } from './worker-loop.js';
 
 const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
 
-// Step name -> handler. Phase 2 adds script, tts, visuals, render, qa, archive.
-const HANDLERS: ReadonlyMap<string, JobHandler> = new Map([['simulate', simulateHandler]]);
+const CLAUDE_SETTINGS = fileURLToPath(
+  new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
+);
+// Non-secret variables the Claude Code CLI needs (HOME for its login); nothing else is passed.
+const CLAUDE_ENV_KEYS = ['PATH', 'HOME', 'USER', 'LOGNAME', 'TMPDIR', 'LANG'] as const;
+
+function claudeEnv(env: NodeJS.ProcessEnv): Record<string, string> {
+  return Object.fromEntries(CLAUDE_ENV_KEYS.flatMap((key) => (env[key] ? [[key, env[key]]] : [])));
+}
+
+// Step name -> handler. Phase 2 adds tts, visuals, render, qa, archive.
+function buildHandlers(config: Config): ReadonlyMap<string, JobHandler> {
+  const claude = createClaudeCli({
+    bin: config.claude.bin,
+    settingsPath: CLAUDE_SETTINGS,
+    timeoutMs: config.claude.timeoutSeconds * 1000,
+    blockSeconds: config.claude.blockSeconds,
+    env: claudeEnv(process.env),
+    ...(config.claude.model ? { model: config.claude.model } : {}),
+  });
+  return new Map([
+    ['simulate', simulateHandler],
+    ['script', createScriptHandler({ claude })],
+  ]);
+}
 
 async function main(): Promise<void> {
   const config = loadConfig(process.env);
@@ -43,7 +69,7 @@ async function main(): Promise<void> {
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
-    handlers: HANDLERS,
+    handlers: buildHandlers(config),
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
