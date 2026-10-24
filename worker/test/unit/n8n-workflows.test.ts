@@ -151,6 +151,27 @@ describe('WF-05 Script Approval Request', () => {
     expect(out!.json.approve).toBe(`a1:A:${token}`);
   });
 
+  test('shows the TTS budget that approving accepts, or that none is set', () => {
+    const withBudget = runCode('wf-05-script-approval.json', 'Build message', {
+      input: [
+        {
+          json: {
+            ...row,
+            script: { ...row.script, tts_estimate: { units: 420, amount: 462, currency: 'CRD' } },
+          },
+        },
+      ],
+    });
+    const without = runCode('wf-05-script-approval.json', 'Build message', {
+      input: [{ json: { ...row, script: { ...row.script, tts_estimate: null } } }],
+    });
+
+    expect(withBudget[0]!.json.text).toContain(
+      'TTS budget: up to 462 ITERA credits (420 characters)',
+    );
+    expect(without[0]!.json.text).toContain('approving allows no TTS spend');
+  });
+
   test('labels reminders and skips empty results', () => {
     const outputs = runCode('wf-05-script-approval.json', 'Build message', {
       input: [{ json: { ...row, kind: 'REMINDER' } }, { json: {} }],
