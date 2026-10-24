@@ -1,4 +1,9 @@
-import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
+import Fastify, {
+  type FastifyBaseLogger,
+  type FastifyInstance,
+  type FastifyRequest,
+} from 'fastify';
+import pino, { type Logger } from 'pino';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
 
 // Worker API (docs/architecture.md §5). Bind to the Tailscale interface only.
@@ -10,6 +15,8 @@ export interface ApiOptions {
   clientKeys: Readonly<Record<string, string>>;
   nonces: NonceStore;
   activeJobs: () => number;
+  /** Worker logger; rejected requests are logged with their reason. */
+  logger?: Logger;
 }
 
 interface ApiResponse<T> {
@@ -19,7 +26,12 @@ interface ApiResponse<T> {
 }
 
 export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
-  const app = Fastify({ logger: false, bodyLimit: 64 * 1024 });
+  const logger = options.logger ?? pino({ level: 'silent' });
+  const app = Fastify({
+    loggerInstance: logger as FastifyBaseLogger,
+    disableRequestLogging: true,
+    bodyLimit: 64 * 1024,
+  });
 
   // Keep the raw body so signatures are computed over exactly what was sent.
   app.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, done) => {

@@ -67,6 +67,50 @@ describe('worker loop', () => {
   });
 });
 
+describe('worker liveness', () => {
+  test('refreshes last_seen_at during a long job and reports idle afterwards', async () => {
+    const stream = uniqueStream();
+    const batchId = await createBatch(db.pool);
+    const { versionId } = await createVideo(db.pool, batchId, 1);
+    const jobId = await createJob(db.pool, versionId, 'simulate', { stream });
+    await db.pool.query(`UPDATE job SET input = '{"durationMs":600}' WHERE id = $1`, [jobId]);
+    await db.pool.query('SELECT job_id FROM dispatch_claim($1, 5)', [stream]);
+    await redis.rpush(stream, jobId);
+
+    const loop = createWorkerLoop({
+      store: createJobStore(db.pool),
+      queue: createRedisQueue(redis, { workerId: 'live-worker', streams: [stream] }),
+      handlers: new Map([['simulate', simulateHandler]]),
+      workRoot: await mkdtemp(join(tmpdir(), 'live-')),
+      workerId: 'live-worker',
+      streams: [stream],
+      leaseSeconds: 60,
+      heartbeatMs: 1000,
+      pollIntervalMs: 20,
+      workerHeartbeatMs: 100,
+      idleReportMs: 50,
+      logger: pino({ level: 'silent' }),
+    });
+    const seen = async (): Promise<{ last_seen_at: Date; last_idle_at: Date | null }> =>
+      (
+        await db.pool.query(
+          `SELECT last_seen_at, last_idle_at FROM worker WHERE id = 'live-worker'`,
+        )
+      ).rows[0];
+
+    loop.start();
+    await waitFor(async () => (await jobStatus(db.pool, jobId)) === 'RUNNING');
+    const atStart = (await seen()).last_seen_at;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect((await jobStatus(db.pool, jobId)) === 'RUNNING').toBe(true);
+    expect((await seen()).last_seen_at.getTime()).toBeGreaterThan(atStart.getTime());
+
+    await waitFor(async () => (await jobStatus(db.pool, jobId)) === 'SUCCEEDED');
+    await waitFor(async () => (await seen()).last_idle_at !== null);
+    await loop.stop();
+  });
+});
+
 describe('redis nonce store', () => {
   test('claims a nonce once', async () => {
     const nonces = createRedisNonceStore(redis);

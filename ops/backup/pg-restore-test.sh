@@ -12,7 +12,8 @@ sha256() {
   if command -v sha256sum >/dev/null; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi
 }
 
-latest="$(ls -1t "${BACKUP_DIR}/${DB_NAME}"-*.dump 2>/dev/null | head -n 1)"
+# `|| true`: with pipefail, ls failing on "no match" must not abort before the message below.
+latest="$(ls -1t "${BACKUP_DIR}/${DB_NAME}"-*.dump 2>/dev/null | head -n 1 || true)"
 [[ -n "$latest" ]] || { echo "no dump found in ${BACKUP_DIR}" >&2; exit 1; }
 
 expected="$(cut -d' ' -f1 "${latest}.sha256")"

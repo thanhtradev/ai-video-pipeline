@@ -4,6 +4,29 @@
 -- Worker-facing functions are SECURITY DEFINER so the worker role needs only EXECUTE (ops/postgres).
 -- Every transition is guarded by an expected-status condition, so duplicate or late calls are no-ops.
 
+-- Binds the worker id passed by the caller to the database login (D-010): a login role in group
+-- aivideo_worker may only act as the worker named after it (aivideo_worker_<id, '-' -> '_'>),
+-- so a leaked credential cannot touch another worker's jobs. Owner, n8n and superusers are trusted.
+CREATE FUNCTION assert_worker_identity(p_worker_id text) RETURNS void
+LANGUAGE plpgsql STABLE
+AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'aivideo_worker') THEN
+    RETURN;
+  END IF;
+  IF (SELECT rolsuper FROM pg_roles WHERE rolname = session_user) THEN
+    RETURN;
+  END IF;
+  IF NOT pg_has_role(session_user, 'aivideo_worker', 'MEMBER') THEN
+    RETURN;
+  END IF;
+  IF session_user::text <> 'aivideo_worker_' || replace(p_worker_id, '-', '_') THEN
+    RAISE EXCEPTION 'worker identity mismatch: login % cannot act as worker %', session_user, p_worker_id
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+END;
+$$;
+
 CREATE FUNCTION video_create(p_batch_id uuid, p_sequence integer, p_aspect_ratio text, p_brief jsonb)
 RETURNS TABLE (video_id uuid, version_id uuid)
 LANGUAGE plpgsql
@@ -163,6 +186,7 @@ DECLARE
   v_input jsonb;
   v_version uuid;
 BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
   PERFORM set_config('app.actor', p_worker_id, true);
 
   UPDATE job
@@ -197,6 +221,7 @@ DECLARE
   v_status text;
   v_claimed_by text;
 BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
   SELECT status, claimed_by INTO v_status, v_claimed_by FROM job WHERE id = p_job_id FOR UPDATE;
   IF NOT FOUND THEN
     RETURN 'NOT_FOUND';
@@ -223,6 +248,7 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
   PERFORM set_config('app.actor', p_worker_id, true);
 
   UPDATE job
@@ -296,6 +322,7 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
   PERFORM set_config('app.actor', p_worker_id, true);
   PERFORM 1 FROM job
   WHERE id = p_job_id AND status = 'RUNNING' AND claimed_by = p_worker_id
@@ -344,8 +371,10 @@ BEGIN
 END;
 $$;
 
--- Watchdog: QUEUED jobs never started (queue message lost, e.g. Redis restart) go back to READY.
--- Safe because job_start only accepts QUEUED jobs: a late duplicate message is dropped.
+-- Watchdog: a QUEUED job counts as lost (queue message gone, e.g. Redis restart) only when it is
+-- older than p_older_than AND a worker serving its stream has since found every queue empty.
+-- Otherwise it may just be waiting behind a long job. The 30 s grace covers the gap between the
+-- dispatcher's claim and its RPUSH. Re-queueing is safe: job_start drops duplicate messages.
 CREATE FUNCTION job_requeue_stale(p_older_than interval) RETURNS integer
 LANGUAGE plpgsql
 AS $$
@@ -353,21 +382,41 @@ DECLARE
   v_count integer;
 BEGIN
   PERFORM set_config('app.actor', 'watchdog', true);
-  UPDATE job SET status = 'READY', queued_at = NULL
-  WHERE status = 'QUEUED' AND queued_at < now() - p_older_than;
+  UPDATE job j SET status = 'READY', queued_at = NULL
+  WHERE j.status = 'QUEUED'
+    AND j.queued_at < now() - p_older_than
+    AND EXISTS (
+      SELECT 1 FROM worker w
+      WHERE j.stream = ANY (w.capabilities) AND w.last_idle_at > j.queued_at + interval '30 seconds'
+    );
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
 $$;
 
 CREATE FUNCTION worker_heartbeat(p_worker_id text, p_capabilities text[]) RETURNS void
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
+BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
   INSERT INTO worker (id, capabilities, last_seen_at)
   VALUES (p_worker_id, p_capabilities, now())
   ON CONFLICT (id) DO UPDATE SET capabilities = excluded.capabilities, last_seen_at = excluded.last_seen_at;
+END;
+$$;
+
+-- Called (throttled) when the worker polls and every queue it serves is empty.
+CREATE FUNCTION worker_idle(p_worker_id text) RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  PERFORM assert_worker_identity(p_worker_id);
+  UPDATE worker SET last_idle_at = now(), last_seen_at = now() WHERE id = p_worker_id;
+END;
 $$;
 
 CREATE FUNCTION worker_offline(p_after interval)
@@ -380,6 +429,7 @@ $$;
 -- migrate:down
 
 DROP FUNCTION worker_offline(interval);
+DROP FUNCTION worker_idle(text);
 DROP FUNCTION worker_heartbeat(text, text[]);
 DROP FUNCTION job_requeue_stale(interval);
 DROP FUNCTION job_expire_leases();
@@ -393,3 +443,4 @@ DROP FUNCTION dispatch_claim(text, integer);
 DROP FUNCTION job_promote();
 DROP FUNCTION job_create(uuid, text, text, jsonb, text, uuid[], integer);
 DROP FUNCTION video_create(uuid, integer, text, jsonb);
+DROP FUNCTION assert_worker_identity(text);

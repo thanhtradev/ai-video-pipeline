@@ -1,5 +1,7 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, mkdtemp, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, symlink, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import pino from 'pino';
@@ -93,6 +95,54 @@ describe('archiveDirectory', () => {
     await expect(archiveDirectory({ target, localDir, remoteDir, logger })).rejects.toBeInstanceOf(
       ArchiveConflictError,
     );
+  });
+});
+
+describe('archiveDirectory local collection', () => {
+  test('accepts a trailing slash on localDir and skips node_modules', async () => {
+    await mkdir(join(localDir, 'remotion', 'node_modules', 'pkg'), { recursive: true });
+    await writeFile(join(localDir, 'remotion', 'node_modules', 'pkg', 'index.js'), 'x');
+    await writeFile(join(localDir, 'remotion', 'package-lock.json'), '{}');
+
+    const result = await archiveDirectory({ target, localDir: `${localDir}/`, remoteDir, logger });
+
+    const remote = (await target.list(remoteDir)).map((entry) => entry.path).sort();
+    expect(remote).toContain('remotion/package-lock.json');
+    expect(remote).toContain('renders/final 1080p.mp4');
+    expect(remote.some((path) => path.includes('node_modules'))).toBe(false);
+    expect(result.fileCount).toBe(5);
+  });
+
+  test('refuses to archive a directory containing symlinks', async () => {
+    await symlink(join(localDir, 'manifest.json'), join(localDir, 'renders', 'link.json'));
+
+    await expect(archiveDirectory({ target, localDir, remoteDir, logger })).rejects.toThrow(
+      /symlink.*renders\/link\.json/,
+    );
+    expect(await target.exists(`${remoteDir}.partial`)).toBe(false);
+  });
+});
+
+describe('webdav timeouts', () => {
+  test('a server that never answers fails the request instead of hanging', async () => {
+    const server = createServer(() => {
+      // Accept the connection, never respond.
+    });
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const { port } = server.address() as AddressInfo;
+    const stuck = createWebdavTarget({
+      baseUrl: `http://127.0.0.1:${port}/`,
+      username: 'u',
+      password: 'p',
+      requestTimeoutMs: 200,
+    });
+
+    try {
+      await expect(stuck.exists('anything')).rejects.toThrow(/timed out/);
+    } finally {
+      server.closeAllConnections();
+      server.close();
+    }
   });
 });
 

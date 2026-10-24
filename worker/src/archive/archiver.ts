@@ -1,5 +1,5 @@
 import { readdir } from 'node:fs/promises';
-import { dirname, join, sep } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { Logger } from 'pino';
 import { sha256File, writeFileAtomic, type FileDigest } from '../storage/checkpoint.js';
 import type { ArchiveTarget } from './webdav-target.js';
@@ -9,7 +9,9 @@ import type { ArchiveTarget } from './webdav-target.js';
 // Never deletes anything, locally or remotely.
 
 export const CHECKSUMS_FILE = 'checksums.sha256';
+// jobs/ holds per-attempt scratch space; node_modules is reproducible from the lockfile (manifest).
 const EXCLUDED_TOP_LEVEL = new Set(['jobs']);
+const EXCLUDED_ANYWHERE = new Set(['node_modules']);
 
 export class ArchiveVerificationError extends Error {
   override name = 'ArchiveVerificationError';
@@ -17,6 +19,11 @@ export class ArchiveVerificationError extends Error {
 
 export class ArchiveConflictError extends Error {
   override name = 'ArchiveConflictError';
+}
+
+/** The working directory cannot be archived as-is (e.g. it contains symlinks). */
+export class ArchiveSourceError extends Error {
+  override name = 'ArchiveSourceError';
 }
 
 export interface ArchiveInput {
@@ -36,18 +43,30 @@ export interface ArchiveResult {
 
 type Expected = Map<string, FileDigest>;
 
+function isExcluded(path: string): boolean {
+  const segments = path.split('/');
+  return (
+    path === CHECKSUMS_FILE ||
+    EXCLUDED_TOP_LEVEL.has(segments[0]!) ||
+    segments.some((segment) => EXCLUDED_ANYWHERE.has(segment))
+  );
+}
+
+/** Relative, '/'-separated paths of every regular file to archive. Symlinks are refused, not
+ * skipped: silently leaving a file out would let verification pass on an incomplete archive. */
 async function collectFiles(localDir: string): Promise<string[]> {
-  const entries = await readdir(localDir, { recursive: true, withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile())
-    .map((entry) =>
-      join(entry.parentPath, entry.name)
-        .slice(localDir.length + 1)
-        .split(sep)
-        .join('/'),
-    )
-    .filter((path) => !EXCLUDED_TOP_LEVEL.has(path.split('/')[0]!) && path !== CHECKSUMS_FILE)
-    .sort();
+  const root = resolve(localDir);
+  const entries = await readdir(root, { recursive: true, withFileTypes: true });
+  const files: string[] = [];
+  for (const entry of entries) {
+    const path = relative(root, join(entry.parentPath, entry.name)).split(sep).join('/');
+    if (isExcluded(path)) continue;
+    if (entry.isSymbolicLink()) {
+      throw new ArchiveSourceError(`cannot archive symlink ${path}; replace it with the real file`);
+    }
+    if (entry.isFile()) files.push(path);
+  }
+  return files.sort();
 }
 
 async function buildChecksums(localDir: string): Promise<Expected> {
@@ -100,7 +119,8 @@ function summarize(remoteDir: string, expected: Expected): ArchiveResult {
 }
 
 export async function archiveDirectory(input: ArchiveInput): Promise<ArchiveResult> {
-  const { target, localDir, remoteDir, logger } = input;
+  const { target, remoteDir, logger } = input;
+  const localDir = resolve(input.localDir);
   const expected = await buildChecksums(localDir);
 
   if (await target.exists(remoteDir)) {

@@ -76,3 +76,18 @@ export async function setVersionStatus(
     await pool.query('UPDATE video_version SET status = $2 WHERE id = $1', [versionId, status]);
   }
 }
+
+/** Records that a worker serving `streams` just found every queue empty. */
+export async function markWorkerIdle(
+  pool: pg.Pool,
+  workerId: string,
+  streams: string[],
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO worker (id, capabilities, last_seen_at, last_idle_at)
+     VALUES ($1, $2, now(), now())
+     ON CONFLICT (id) DO UPDATE
+       SET capabilities = excluded.capabilities, last_seen_at = now(), last_idle_at = now()`,
+    [workerId, streams],
+  );
+}

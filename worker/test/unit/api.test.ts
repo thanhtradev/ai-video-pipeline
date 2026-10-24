@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import pino from 'pino';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { buildApi } from '../../src/api.js';
 import { createMemoryNonceStore, signRequest } from '../../src/security/hmac.js';
@@ -58,6 +59,25 @@ describe('worker api', () => {
 
     const replay = await app.inject({ method: 'GET', url: '/capabilities', headers });
     expect(replay.statusCode).toBe(401);
+  });
+
+  test('logs the reason for rejected requests', async () => {
+    const lines: string[] = [];
+    const logger = pino({ level: 'warn' }, { write: (line: string) => void lines.push(line) });
+    const logged = await buildApi({
+      workerId: 'mac-mini-m4',
+      streams: ['q:light'],
+      clientKeys: { n8n: KEY },
+      nonces: createMemoryNonceStore(),
+      activeJobs: () => 0,
+      logger,
+    });
+    const headers = { ...signedHeaders('/capabilities'), 'x-signature': 'ab'.repeat(32) };
+
+    await logged.inject({ method: 'GET', url: '/capabilities', headers });
+    await logged.close();
+
+    expect(lines.join('')).toMatch(/"reason":"bad_signature".*rejected unsigned request/);
   });
 
   test('unknown routes return 404', async () => {

@@ -96,7 +96,10 @@ CREATE TABLE job_attempt (
 CREATE TABLE worker (
   id text PRIMARY KEY,
   capabilities text[] NOT NULL DEFAULT '{}',
-  last_seen_at timestamptz
+  last_seen_at timestamptz,
+  -- Last time the worker found every queue it serves empty; lets the watchdog tell a lost queue
+  -- message from one that is only waiting behind a long job.
+  last_idle_at timestamptz
 );
 
 CREATE TABLE approver (

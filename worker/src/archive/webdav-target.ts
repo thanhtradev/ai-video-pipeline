@@ -31,6 +31,18 @@ export interface WebdavOptions {
   baseUrl: string;
   username: string;
   password: string;
+  /** Metadata requests (PROPFIND, MKCOL, MOVE). */
+  requestTimeoutMs?: number;
+  /** File uploads and downloads, including reading the body. */
+  transferTimeoutMs?: number;
+}
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 60_000;
+const DEFAULT_TRANSFER_TIMEOUT_MS = 30 * 60_000;
+const TRANSFER_METHODS = new Set(['PUT', 'GET']);
+
+function isTimeout(error: unknown): boolean {
+  return error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
 }
 
 interface PropfindEntry {
@@ -88,16 +100,34 @@ export function createWebdavTarget(options: WebdavOptions): ArchiveTarget {
     return new URL(`${encoded}${trailingSlash && encoded ? '/' : ''}`, base);
   }
 
+  function timeoutFor(method: string): number {
+    return TRANSFER_METHODS.has(method)
+      ? (options.transferTimeoutMs ?? DEFAULT_TRANSFER_TIMEOUT_MS)
+      : (options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS);
+  }
+
+  function timeoutError(method: string, remotePath: string): Error {
+    return new Error(`WebDAV ${method} ${remotePath} timed out after ${timeoutFor(method)} ms`);
+  }
+
+  // Every request has a deadline so an unresponsive NAS fails the job instead of hanging it.
   async function request(
     method: string,
     remotePath: string,
     init: { headers?: Record<string, string>; body?: BodyInit; trailingSlash?: boolean } = {},
   ): Promise<Response> {
-    const response = await fetch(urlFor(remotePath, init.trailingSlash), {
-      method,
-      headers: { authorization, ...init.headers },
-      ...(init.body === undefined ? {} : { body: init.body, duplex: 'half' }),
-    } as RequestInit);
+    let response: Response;
+    try {
+      response = await fetch(urlFor(remotePath, init.trailingSlash), {
+        method,
+        headers: { authorization, ...init.headers },
+        signal: AbortSignal.timeout(timeoutFor(method)),
+        ...(init.body === undefined ? {} : { body: init.body, duplex: 'half' }),
+      } as RequestInit);
+    } catch (error: unknown) {
+      if (isTimeout(error)) throw timeoutError(method, remotePath);
+      throw error;
+    }
     if (response.status === 401 || response.status === 403) {
       throw new Error(`WebDAV ${method} ${remotePath} failed: ${response.status}`);
     }
@@ -179,9 +209,14 @@ export function createWebdavTarget(options: WebdavOptions): ArchiveTarget {
       await expectOk(response, 'GET', remotePath);
       const hash = createHash('sha256');
       let bytes = 0;
-      for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
-        hash.update(chunk);
-        bytes += chunk.length;
+      try {
+        for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
+          hash.update(chunk);
+          bytes += chunk.length;
+        }
+      } catch (error: unknown) {
+        if (isTimeout(error)) throw timeoutError('GET', remotePath);
+        throw error;
       }
       return { sha256: hash.digest('hex'), bytes };
     },

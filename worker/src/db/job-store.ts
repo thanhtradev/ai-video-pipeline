@@ -21,6 +21,8 @@ export interface JobStore {
   succeed: (jobId: string, workerId: string, output: Record<string, unknown>) => Promise<boolean>;
   fail: (jobId: string, workerId: string, error: string, retryable: boolean) => Promise<string>;
   workerHeartbeat: (workerId: string, streams: readonly string[]) => Promise<void>;
+  /** Records that every queue this worker serves was empty (watchdog lost-message detection). */
+  workerIdle: (workerId: string) => Promise<void>;
 }
 
 interface StartRow {
@@ -79,6 +81,10 @@ export function createJobStore(pool: pg.Pool): JobStore {
 
     workerHeartbeat: async (workerId, streams) => {
       await pool.query('SELECT worker_heartbeat($1, $2)', [workerId, streams]);
+    },
+
+    workerIdle: async (workerId) => {
+      await pool.query('SELECT worker_idle($1)', [workerId]);
     },
   };
 }

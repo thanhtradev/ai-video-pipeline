@@ -1,6 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/db.js';
-import { createBatch, createJob, createVideo, jobStatus } from '../helpers/fixtures.js';
+import {
+  createBatch,
+  createJob,
+  createVideo,
+  jobStatus,
+  markWorkerIdle,
+} from '../helpers/fixtures.js';
 
 let db: TestDb;
 
@@ -76,6 +82,8 @@ describe('watchdog_run', () => {
     await db.pool.query(
       `INSERT INTO worker (id, last_seen_at) VALUES ('macbook-pro-m1', now() - interval '1 day')`,
     );
+
+    await markWorkerIdle(db.pool, 'mac-mini-m4', ['q:watch']);
 
     const result = await db.pool.query<{ watchdog_run: Record<string, unknown> }>(
       'SELECT watchdog_run()',

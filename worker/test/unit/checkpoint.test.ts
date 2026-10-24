@@ -67,6 +67,11 @@ describe('checkpoint', () => {
     expect(await readValidCheckpoint(dir)).toBeNull();
   });
 
+  test('an unparseable checkpoint file is treated as no checkpoint', async () => {
+    await writeFile(join(dir, 'checkpoint.json'), '{"version":1,');
+    expect(await readValidCheckpoint(dir)).toBeNull();
+  });
+
   test('no checkpoint file means no checkpoint', async () => {
     expect(await readValidCheckpoint(dir)).toBeNull();
   });

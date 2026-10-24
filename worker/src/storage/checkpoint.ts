@@ -89,7 +89,14 @@ export async function readValidCheckpoint(jobDir: string): Promise<Checkpoint | 
     throw error;
   }
 
-  const parsed = checkpointSchema.safeParse(JSON.parse(raw));
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    // Corrupt checkpoint: treat as absent so the step simply runs again.
+    return null;
+  }
+  const parsed = checkpointSchema.safeParse(json);
   if (!parsed.success) return null;
 
   for (const output of parsed.data.outputs) {

@@ -4,12 +4,17 @@ import { runNextJob, type RunnerDeps } from './runner.js';
 // Sequential poll loop: one job at a time per worker process (Phase 1).
 // Concurrency per stream is limited centrally by dispatch_claim.
 
-const WORKER_HEARTBEAT_MS = 30_000;
+const DEFAULT_WORKER_HEARTBEAT_MS = 30_000;
+const DEFAULT_IDLE_REPORT_MS = 10_000;
 const ERROR_BACKOFF_MS = 5_000;
 
 export interface WorkerLoopDeps extends RunnerDeps {
   streams: readonly string[];
   pollIntervalMs: number;
+  /** Liveness for the watchdog; runs on its own timer so long jobs do not look like outages. */
+  workerHeartbeatMs?: number;
+  /** Minimum gap between "all queues empty" reports (used to detect lost queue messages). */
+  idleReportMs?: number;
 }
 
 export interface WorkerLoop {
@@ -19,17 +24,32 @@ export interface WorkerLoop {
   activeJobs: () => number;
 }
 
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
+  const workerHeartbeatMs = deps.workerHeartbeatMs ?? DEFAULT_WORKER_HEARTBEAT_MS;
+  const idleReportMs = deps.idleReportMs ?? DEFAULT_IDLE_REPORT_MS;
   let running = false;
   let active = 0;
-  let lastWorkerHeartbeat = 0;
+  let lastIdleReport = 0;
+  let heartbeatTimer: NodeJS.Timeout | undefined;
   let loopDone: Promise<void> = Promise.resolve();
   const stopController = new AbortController();
 
-  async function reportWorkerHeartbeat(): Promise<void> {
-    if (Date.now() - lastWorkerHeartbeat < WORKER_HEARTBEAT_MS) return;
-    await deps.store.workerHeartbeat(deps.workerId, deps.streams);
-    lastWorkerHeartbeat = Date.now();
+  function sendWorkerHeartbeat(): void {
+    deps.store
+      .workerHeartbeat(deps.workerId, deps.streams)
+      .catch((error: unknown) =>
+        deps.logger.warn({ err: errorText(error) }, 'worker heartbeat failed'),
+      );
+  }
+
+  async function reportIdle(): Promise<void> {
+    if (Date.now() - lastIdleReport < idleReportMs) return;
+    lastIdleReport = Date.now();
+    await deps.store.workerIdle(deps.workerId);
   }
 
   async function idle(ms: number): Promise<void> {
@@ -43,18 +63,18 @@ export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
   async function loop(): Promise<void> {
     while (running) {
       try {
-        await reportWorkerHeartbeat();
         active = 1;
         const outcome = await runNextJob(deps);
         active = 0;
-        if (outcome.kind === 'idle') await idle(deps.pollIntervalMs);
-        else deps.logger.info({ outcome }, 'job finished');
+        if (outcome.kind === 'idle') {
+          await reportIdle();
+          await idle(deps.pollIntervalMs);
+        } else {
+          deps.logger.info({ outcome }, 'job finished');
+        }
       } catch (error: unknown) {
         active = 0;
-        deps.logger.error(
-          { err: error instanceof Error ? error.message : String(error) },
-          'worker loop error',
-        );
+        deps.logger.error({ err: errorText(error) }, 'worker loop error');
         await idle(ERROR_BACKOFF_MS);
       }
     }
@@ -64,12 +84,15 @@ export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
     start: () => {
       if (running) return;
       running = true;
+      sendWorkerHeartbeat();
+      heartbeatTimer = setInterval(sendWorkerHeartbeat, workerHeartbeatMs);
       loopDone = loop();
     },
     stop: async () => {
       running = false;
       stopController.abort();
       await loopDone;
+      clearInterval(heartbeatTimer);
     },
     activeJobs: () => active,
   };

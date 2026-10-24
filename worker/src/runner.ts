@@ -76,23 +76,44 @@ function startHeartbeat(deps: RunnerDeps, jobId: string, controller: AbortContro
   return () => clearInterval(timer);
 }
 
-async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {
-  const log = deps.logger.child({
-    videoId: job.videoId,
-    version: job.version,
-    jobId: job.jobId,
-    step: job.step,
-    attempt: job.attemptNo,
-  });
-  const workDir = await jobWorkspace(deps.workRoot, job);
+interface Lease {
+  job: StartedJob;
+  controller: AbortController;
+  log: Logger;
+}
 
-  const existing = await readValidCheckpoint(workDir);
-  if (existing) {
-    log.info('valid checkpoint found, skipping handler');
-    await deps.store.succeed(job.jobId, deps.workerId, checkpointOutput(existing, true));
-    return { kind: 'succeeded', jobId: job.jobId, fromCheckpoint: true };
+function aborted(lease: Lease): RunOutcome {
+  return {
+    kind: 'aborted',
+    jobId: lease.job.jobId,
+    reason: String(lease.controller.signal.reason),
+  };
+}
+
+/** Reports success; a false return means the job is no longer ours (lease expired, cancelled). */
+async function finish(
+  deps: RunnerDeps,
+  lease: Lease,
+  checkpoint: Checkpoint,
+  fromCheckpoint: boolean,
+): Promise<RunOutcome> {
+  const { job, controller, log } = lease;
+  const ok = await deps.store.succeed(
+    job.jobId,
+    deps.workerId,
+    checkpointOutput(checkpoint, fromCheckpoint),
+  );
+  if (!ok) {
+    const reason = controller.signal.aborted ? String(controller.signal.reason) : 'LOST';
+    log.warn({ reason }, 'job finished but could not be reported as succeeded');
+    return { kind: 'aborted', jobId: job.jobId, reason };
   }
+  log.info({ fromCheckpoint }, 'job succeeded');
+  return { kind: 'succeeded', jobId: job.jobId, fromCheckpoint };
+}
 
+async function runHandler(deps: RunnerDeps, lease: Lease, workDir: string): Promise<RunOutcome> {
+  const { job, controller, log } = lease;
   const handler = deps.handlers.get(job.step);
   if (!handler) {
     const status = await deps.store.fail(
@@ -104,8 +125,6 @@ async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {
     return { kind: 'failed', jobId: job.jobId, status };
   }
 
-  const controller = new AbortController();
-  const stopHeartbeat = startHeartbeat(deps, job.jobId, controller);
   let result: HandlerResult;
   try {
     result = await handler({
@@ -117,25 +136,41 @@ async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {
       logger: log,
     });
   } catch (error: unknown) {
-    if (controller.signal.aborted) {
-      return { kind: 'aborted', jobId: job.jobId, reason: String(controller.signal.reason) };
-    }
+    if (controller.signal.aborted) return aborted(lease);
     const retryable = !(error instanceof PermanentJobError);
     log.warn({ err: errorMessage(error), retryable }, 'handler failed');
     const status = await deps.store.fail(job.jobId, deps.workerId, errorMessage(error), retryable);
     return { kind: 'failed', jobId: job.jobId, status };
+  }
+  if (controller.signal.aborted) return aborted(lease);
+
+  const checkpoint = await writeCheckpoint(workDir, result.outputs, result.result);
+  return finish(deps, lease, checkpoint, false);
+}
+
+async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {
+  const log = deps.logger.child({
+    videoId: job.videoId,
+    version: job.version,
+    jobId: job.jobId,
+    step: job.step,
+    attempt: job.attemptNo,
+  });
+  const controller = new AbortController();
+  // The lease stays alive for the whole attempt, including hashing large outputs for checkpoints.
+  const stopHeartbeat = startHeartbeat(deps, job.jobId, controller);
+  const lease: Lease = { job, controller, log };
+  try {
+    const workDir = await jobWorkspace(deps.workRoot, job);
+    const existing = await readValidCheckpoint(workDir);
+    if (existing) {
+      log.info('valid checkpoint found, skipping handler');
+      return await finish(deps, lease, existing, true);
+    }
+    return await runHandler(deps, lease, workDir);
   } finally {
     stopHeartbeat();
   }
-
-  if (controller.signal.aborted) {
-    return { kind: 'aborted', jobId: job.jobId, reason: String(controller.signal.reason) };
-  }
-
-  const checkpoint = await writeCheckpoint(workDir, result.outputs, result.result);
-  await deps.store.succeed(job.jobId, deps.workerId, checkpointOutput(checkpoint, false));
-  log.info('job succeeded');
-  return { kind: 'succeeded', jobId: job.jobId, fromCheckpoint: false };
 }
 
 /** Takes one message from the queue and runs it. Infrastructure errors propagate to the caller. */

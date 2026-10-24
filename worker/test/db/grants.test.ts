@@ -1,10 +1,13 @@
 import { readFile } from 'node:fs/promises';
-import type pg from 'pg';
+import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/db.js';
 import { createBatch, createJob, createVideo } from '../helpers/fixtures.js';
 
 const GRANTS_SQL = new URL('../../../ops/postgres/grants.sql', import.meta.url);
+// Test-only login for the per-machine worker role (ops/postgres/bootstrap.sql naming).
+const WORKER_LOGIN = 'aivideo_worker_mac_mini_m4';
+const WORKER_LOGIN_PASSWORD = 'local-test-only';
 
 let db: TestDb;
 let jobId: string;
@@ -16,6 +19,37 @@ async function ensureRole(role: string): Promise<void> {
       CREATE ROLE ${role} NOLOGIN;
     EXCEPTION WHEN duplicate_object OR unique_violation THEN NULL;
     END $$;`);
+}
+
+async function ensureWorkerLogin(): Promise<void> {
+  await db.pool.query(`
+    DO $$ BEGIN
+      CREATE ROLE ${WORKER_LOGIN} LOGIN IN ROLE aivideo_worker;
+    EXCEPTION WHEN duplicate_object OR unique_violation THEN NULL;
+    END $$;`);
+  await db.pool.query(`ALTER ROLE ${WORKER_LOGIN} PASSWORD '${WORKER_LOGIN_PASSWORD}'`);
+}
+
+/** Connects with the real worker login, so session_user is the worker role (not a superuser). */
+async function asWorkerLogin<T>(work: (client: pg.Client) => Promise<T>): Promise<T> {
+  const url = new URL(db.url);
+  url.username = WORKER_LOGIN;
+  url.password = WORKER_LOGIN_PASSWORD;
+  const client = new pg.Client({ connectionString: url.toString() });
+  await client.connect();
+  try {
+    return await work(client);
+  } finally {
+    await client.end();
+  }
+}
+
+async function queuedJob(stream: string): Promise<string> {
+  const batchId = await createBatch(db.pool);
+  const { versionId } = await createVideo(db.pool, batchId, 1);
+  const id = await createJob(db.pool, versionId, 'simulate', { stream });
+  await db.pool.query('SELECT * FROM dispatch_claim($1, 1)', [stream]);
+  return id;
 }
 
 async function asRole<T>(role: string, work: (client: pg.PoolClient) => Promise<T>): Promise<T> {
@@ -34,6 +68,7 @@ beforeAll(async () => {
   db = await createTestDb();
   await ensureRole('aivideo_n8n');
   await ensureRole('aivideo_worker');
+  await ensureWorkerLogin();
   await db.pool.query(await readFile(GRANTS_SQL, 'utf8'));
 
   const batchId = await createBatch(db.pool);
@@ -70,6 +105,30 @@ describe('worker role', () => {
   });
 });
 
+describe('worker login identity (D-010)', () => {
+  test('may act as its own worker id', async () => {
+    const id = await queuedJob('q:identity-ok');
+    const started = await asWorkerLogin((client) =>
+      client.query(`SELECT * FROM job_start($1, 'mac-mini-m4', 60)`, [id]),
+    );
+    expect(started.rows).toHaveLength(1);
+  });
+
+  test('cannot act as another worker', async () => {
+    const id = await queuedJob('q:identity-bad');
+    await expect(
+      asWorkerLogin((client) =>
+        client.query(`SELECT * FROM job_start($1, 'macbook-pro-m1', 60)`, [id]),
+      ),
+    ).rejects.toThrow(/worker identity mismatch/);
+    await expect(
+      asWorkerLogin((client) =>
+        client.query(`SELECT job_succeed($1, 'macbook-pro-m1', '{}'::jsonb)`, [id]),
+      ),
+    ).rejects.toThrow(/worker identity mismatch/);
+  });
+});
+
 describe('n8n role', () => {
   test('can dispatch and run the watchdog', async () => {
     await asRole('aivideo_n8n', async (client) => {
@@ -84,6 +143,26 @@ describe('n8n role', () => {
     ).rejects.toThrow(/permission denied/);
     await expect(
       asRole('aivideo_n8n', (client) => client.query(`UPDATE audit_log SET actor = 'x'`)),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  test('cannot change the state machine or stream limits', async () => {
+    await expect(
+      asRole('aivideo_n8n', (client) =>
+        client.query(
+          `INSERT INTO video_status_transition VALUES ('AWAITING_PREVIEW_APPROVAL', 'ARCHIVING')`,
+        ),
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asRole('aivideo_n8n', (client) =>
+        client.query(`UPDATE job_status_transition SET to_status = 'READY'`),
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asRole('aivideo_n8n', (client) =>
+        client.query('UPDATE stream_config SET max_in_flight = 99'),
+      ),
     ).rejects.toThrow(/permission denied/);
   });
 });

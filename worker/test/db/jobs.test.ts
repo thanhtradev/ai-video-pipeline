@@ -5,6 +5,7 @@ import {
   createJob,
   createVideo,
   jobStatus,
+  markWorkerIdle,
   setVersionStatus,
   versionStatus,
 } from '../helpers/fixtures.js';
@@ -230,6 +231,8 @@ describe('recovery', () => {
     await db.pool.query(`UPDATE job SET queued_at = now() - interval '1 hour' WHERE id = $1`, [
       jobId,
     ]);
+    // The worker serving q:lost later polled and found the queue empty: the message is gone.
+    await markWorkerIdle(db.pool, 'worker-lost', ['q:lost']);
 
     const requeued = await db.pool.query(`SELECT job_requeue_stale(interval '10 minutes') AS n`);
     expect(requeued.rows[0].n).toBe(1);
@@ -237,5 +240,25 @@ describe('recovery', () => {
 
     expect(await start(jobId)).toBe(1);
     expect(await start(jobId)).toBeNull();
+  });
+
+  test('a job waiting behind a long job is not re-queued', async () => {
+    const batchId = await createBatch(db.pool);
+    const { versionId } = await createVideo(db.pool, batchId, 1);
+    const jobId = await createJob(db.pool, versionId, 'x', { stream: 'q:waiting' });
+    await dispatch('q:waiting');
+    await db.pool.query(`UPDATE job SET queued_at = now() - interval '1 hour' WHERE id = $1`, [
+      jobId,
+    ]);
+    // The only worker for q:waiting has been busy (never idle) since the job was queued.
+    await db.pool.query(
+      `INSERT INTO worker (id, capabilities, last_seen_at, last_idle_at)
+       VALUES ('worker-busy', '{q:waiting}', now(), now() - interval '2 hours')`,
+    );
+
+    const requeued = await db.pool.query(`SELECT job_requeue_stale(interval '10 minutes') AS n`);
+
+    expect(requeued.rows[0].n).toBe(0);
+    expect(await jobStatus(db.pool, jobId)).toBe('QUEUED');
   });
 });

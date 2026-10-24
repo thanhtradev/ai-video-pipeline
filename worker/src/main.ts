@@ -59,6 +59,7 @@ async function main(): Promise<void> {
     clientKeys: config.apiClientKeys,
     nonces: createRedisNonceStore(redis),
     activeJobs: loop.activeJobs,
+    logger,
   });
   await api.listen({ host: config.apiHost, port: config.apiPort });
   loop.start();

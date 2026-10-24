@@ -13,7 +13,13 @@ import {
   type RunnerDeps,
 } from '../../src/runner.js';
 import { createTestDb, type TestDb } from '../helpers/db.js';
-import { createBatch, createJob, createVideo, jobStatus } from '../helpers/fixtures.js';
+import {
+  createBatch,
+  createJob,
+  createVideo,
+  jobStatus,
+  markWorkerIdle,
+} from '../helpers/fixtures.js';
 import { createTestRedis, uniqueStream } from '../helpers/redis.js';
 
 let db: TestDb;
@@ -165,6 +171,47 @@ describe('runNextJob', () => {
   });
 });
 
+describe('finalizing', () => {
+  test('reports LOST when the job was taken away before succeed', async () => {
+    const h = await setup();
+    await h.dispatch();
+    const lostStore: JobStore = { ...store, succeed: async () => false };
+
+    expect(await runNextJob(h.deps({ simulate: writeResult }, { store: lostStore }))).toEqual({
+      kind: 'aborted',
+      jobId: h.jobId,
+      reason: 'LOST',
+    });
+  });
+
+  test('keeps the lease alive while checkpointing and reporting', async () => {
+    const h = await setup();
+    await h.dispatch();
+    let heartbeats = 0;
+    let heartbeatsDuringSucceed = 0;
+    let inSucceed = false;
+    const slowStore: JobStore = {
+      ...store,
+      heartbeat: async (...args) => {
+        heartbeats += 1;
+        if (inSucceed) heartbeatsDuringSucceed += 1;
+        return store.heartbeat(...args);
+      },
+      succeed: async (...args) => {
+        inSucceed = true;
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        inSucceed = false;
+        return store.succeed(...args);
+      },
+    };
+
+    await runNextJob(h.deps({ simulate: writeResult }, { store: slowStore }));
+
+    expect(heartbeats).toBeGreaterThan(0);
+    expect(heartbeatsDuringSucceed).toBeGreaterThan(0);
+  });
+});
+
 describe('crash recovery', () => {
   test('a worker killed after checkpoint resumes without re-running the handler', async () => {
     const h = await setup();
@@ -220,6 +267,7 @@ describe('crash recovery', () => {
     await db.pool.query(`UPDATE job SET queued_at = now() - interval '1 hour' WHERE id = $1`, [
       h.jobId,
     ]);
+    await markWorkerIdle(db.pool, 'mac-mini-m4', [h.stream]);
     await db.pool.query(`SELECT job_requeue_stale(interval '10 minutes')`);
     await h.dispatch();
     await redis.rpush(h.stream, h.jobId);
