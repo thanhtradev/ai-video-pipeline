@@ -7,9 +7,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "tsx src/main.ts",
-    "migrate": "dbmate --migrations-dir ../db/migrations --no-dump-schema up"
+    "migrate": "dbmate --migrations-dir ../db/migrations --no-dump-schema up",
+    "archive:selftest": "tsx src/tools/archive-selftest.ts"
   },
   "dependencies": {
+    "fast-xml-parser": "5.11.2",
     "fastify": "5.12.7",
     "ioredis": "6.0.0",
     "pg": "8.23.1",
