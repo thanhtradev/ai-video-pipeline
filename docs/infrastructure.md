@@ -49,6 +49,7 @@ Never put credentials in this file.
 | S-19 | n8n | Credentials `aivideo-postgres`, `aivideo-redis` (db 1), `aivideo-telegram`; WF-99, WF-08, WF-02 active; scheduled runs successful (WF-02 every 30 s) | n8n event log `n8nEventLog.log`, `pg_stat_activity` |
 | S-20 | Monitoring | Uptime Kuma (LXC 104, container `uptime-kuma`) monitors n8n, Postgres, Redis, worker `/health`, Nextcloud, backup push; Telegram notification; all targets reachable from the container | `docker exec uptime-kuma curl ...` |
 | S-21 | Archive | Nextcloud user `aivideo-archive` with app password (Keychain `aivideo-archive-password`); `archive:selftest` passed both checks (user-reported) | `npm --prefix worker run archive:selftest` |
+| S-23 | Claude Code CLI on the Mac mini | 2.1.310 at `~/.local/bin/claude` (symlink to `~/.local/share/claude/versions/`), not on launchd's PATH → `CLAUDE_BIN` in `worker.env`; headless flags `--json-schema`, `--tools`, `--strict-mcp-config`, `--setting-sources`, `--no-session-persistence` present; `--bare` refuses OAuth (Max) logins, so it is not used | `claude --version`, `claude --help` (2026-10-25) |
 | S-22 | Phase 1 smoke test | Job `simulate` went PENDING → READY → QUEUED (dispatcher) → RUNNING → SUCCEEDED (mac-mini-m4); output SHA-256 matches the file on disk | `audit_log`, `job_attempt`, `shasum -a 256` |
 
 ## 3. Risks found by the survey
@@ -81,7 +82,9 @@ Never put credentials in this file.
 | U-19 | A client on LXC 101 `lxc-core` (192.168.1.101) connected to `aivideo` as `aivideo_owner` on 2026-10-24 (looks like a DB GUI). New connections from it are now rejected by `pg_hba.conf` | User to identify; add an owner line for it only if it is an admin tool |
 | U-10 | Any backup outside Proxmox (e.g. external tool, HAOS) | S-08 found none on the host |
 | U-12 | ~~n8n webhook reachable from workers~~ — not needed: workers report via PostgreSQL (P-015) | |
-| U-14 | Max plan headless usage limits and terms for automation | |
+| U-14 | Max plan headless usage limits and terms for automation | Terms confirmed by the user (D-042); usage per video measured from the worker's `script written` log |
+| U-20 | ITERA TTS (D-040): API docs (behind login, "Download Documents"), auth header, endpoints, output formats, word/character timestamps, credit price per character, rate limits, commercial-use and data terms | Public page survey 2026-10-25 (`curl https://itera102.space/`, bundle): white-label on `api.genmax.io`, ElevenLabs voices/models, default `eleven_v3` + Vietnamese, API key, credits refunded on failed renders, "over 70 languages", commercial use "under your plan". Needed before slice 2b |
+| U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) and the brief form (WF-01) | Telegram can only deliver button presses to a public HTTPS webhook |
 | U-15 | Canonical timezone for reports/retention | |
 | U-17 | MacBook Pro M1: tailnet name, macOS, RAM, free SSD, tools | Deferred until it joins (D-034) |
 

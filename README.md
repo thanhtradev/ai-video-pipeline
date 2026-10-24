@@ -1,7 +1,7 @@
 # AI Video Production Pipeline (Homelab)
 
 An automated AI video production system running on a homelab, with human approval at decision points.
-**Current status: Phase 1 (foundation) implemented and tested; production rollout via [`ops/README.md`](ops/README.md).**
+**Current status: Phase 1 in production (2026-10-24). Phase 2a (brief → script → Telegram approval) implemented; rollout via [`ops/phase-2a.md`](ops/phase-2a.md).**
 
 ## Goals
 
@@ -25,11 +25,11 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 |---|---|---|
 | n8n | Orchestration, workflow control | LXC 104 `[CONFIRMED]` |
 | PostgreSQL | Source of truth | LXC 102 `[CONFIRMED]` has PostgreSQL |
-| Redis | Queue + coordination | LXC 112, Redis 7.0.15 `[CONFIRMED]`; AOF/maxmemory not set yet (R-03) |
+| Redis | Queue + coordination | LXC 112, Redis 7.0.15 `[CONFIRMED]`; AOF + `maxmemory` + ACL users (2026-10-24) |
 | Worker service | Runs AI, audio, QA, render tasks | Mac mini M4 (only active worker); MacBook Pro M1 offline for now (D-034) |
 | Remotion | Video composition | On Mac workers |
 | Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | Mac workers |
-| TTS API | The only external paid API | `[UNKNOWN]` provider (Q-003) |
+| TTS API | The only external paid API | ITERA TTS (ElevenLabs models via a reseller, D-040); API details `[UNKNOWN]` (U-20) |
 | Telegram Bot | Approvals, status, alerts, reports | — |
 | NAS | Archive | Interim: LXC 106 Nextcloud, WebDAV via tailnet `lxc-nextcloud:8080` (D-033, D-036); dedicated NAS planned |
 | Beszel / Uptime Kuma | Monitoring | LXC 104 (Docker) `[CONFIRMED]` |
@@ -54,7 +54,7 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 |---|---|
 | `db/migrations/` | dbmate SQL migrations: schema, state machines, job/approval/orchestration functions |
 | `worker/` | TypeScript worker service (queue consumer, runner, checkpoints, archive, API) and all tests |
-| `n8n/workflows/` | n8n workflow exports (WF-02, WF-08, WF-99), imported manually |
+| `n8n/workflows/` | n8n workflow exports (WF-01, WF-02, WF-05, WF-06, WF-08, WF-99), imported manually |
 | `ops/` | Production runbook, DB roles/grants, Redis ACL, backups, launchd, Tailscale, monitoring |
 | `docs/` | Design documents |
 

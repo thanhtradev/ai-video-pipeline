@@ -34,6 +34,11 @@ const envSchema = z
     HEARTBEAT_SECONDS: z.coerce.number().int().min(1).default(20),
     POLL_INTERVAL_MS: z.coerce.number().int().min(100).default(1000),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    // Claude Code CLI (D-042). launchd's PATH does not include ~/.local/bin: use an absolute path.
+    CLAUDE_BIN: z.string().min(1).default('claude'),
+    CLAUDE_MODEL: z.string().min(1).optional(),
+    CLAUDE_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(600),
+    CLAUDE_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
   })
   .refine((env) => env.HEARTBEAT_SECONDS * 2 <= env.LEASE_SECONDS, {
     path: ['HEARTBEAT_SECONDS'],
@@ -53,6 +58,13 @@ export interface Config {
   heartbeatSeconds: number;
   pollIntervalMs: number;
   logLevel: string;
+  claude: {
+    bin: string;
+    model: string | undefined;
+    timeoutSeconds: number;
+    /** How long a job waits after a usage limit before it is retried. */
+    blockSeconds: number;
+  };
 }
 
 /** Validates the environment at startup; errors name the variables but never their values. */
@@ -78,5 +90,11 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     heartbeatSeconds: e.HEARTBEAT_SECONDS,
     pollIntervalMs: e.POLL_INTERVAL_MS,
     logLevel: e.LOG_LEVEL,
+    claude: {
+      bin: e.CLAUDE_BIN,
+      model: e.CLAUDE_MODEL,
+      timeoutSeconds: e.CLAUDE_TIMEOUT_SECONDS,
+      blockSeconds: e.CLAUDE_BLOCK_SECONDS,
+    },
   };
 }

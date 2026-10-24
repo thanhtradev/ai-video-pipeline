@@ -23,6 +23,7 @@ GRANT EXECUTE ON FUNCTION
   job_heartbeat(uuid, text, integer),
   job_succeed(uuid, text, jsonb),
   job_fail(uuid, text, text, boolean),
+  job_block(uuid, text, text, integer),
   worker_heartbeat(text, text[]),
   worker_idle(text)
 TO aivideo_worker;

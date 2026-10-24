@@ -8,6 +8,7 @@ import { createJobStore, type JobStore } from '../../src/db/job-store.js';
 import { createRedisQueue } from '../../src/queue/redis-queue.js';
 import {
   PermanentJobError,
+  ProviderBlockedError,
   runNextJob,
   type JobHandler,
   type RunnerDeps,
@@ -127,6 +128,25 @@ describe('runNextJob', () => {
       kind: 'failed',
       status: 'FAILED_PERMANENT',
     });
+  });
+
+  test('a ProviderBlockedError blocks the job instead of failing it', async () => {
+    const h = await setup();
+    await h.dispatch();
+    const limited: JobHandler = async () => {
+      throw new ProviderBlockedError('claude-code usage limit reached', 1800);
+    };
+
+    expect(await runNextJob(h.deps({ simulate: limited }))).toMatchObject({
+      kind: 'blocked',
+      jobId: h.jobId,
+    });
+    expect(await jobStatus(db.pool, h.jobId)).toBe('BLOCKED');
+    const job = await db.pool.query<{ wait_seconds: number }>(
+      `SELECT extract(epoch FROM next_attempt_at - now())::int AS wait_seconds FROM job WHERE id = $1`,
+      [h.jobId],
+    );
+    expect(job.rows[0]!.wait_seconds).toBeGreaterThan(1700);
   });
 
   test('an unknown step fails permanently', async () => {

@@ -47,6 +47,12 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
 
 `[CONFIRMED]`: Claude Code never deploys to production or edits production workflows directly; code changes go through branch/PR, tests, and review.
 
+**Implemented (2a)** for text steps (`worker/src/claude/claude-cli.ts`): `claude -p` with `--tools ""`
+(no tools), `--strict-mcp-config` (no MCP servers), `--setting-sources project`, the pipeline deny-list
+`ops/claude/pipeline-settings.json`, `--no-session-persistence`, a JSON schema, a timeout, and a child
+environment of only `PATH`, `HOME`, `USER`, `LOGNAME`, `TMPDIR`, `LANG` (no worker secrets). It uses the
+Claude Code login of the macOS user running the worker (D-039); no `--fallback-model` is ever passed.
+
 `[PROPOSED]` when Claude Code runs inside the pipeline (headless):
 - `cwd` = job workspace; read/write only inside it.
 - Claude Code `permissions` config: deny `Bash(ssh:*)`, `Bash(scp:*)`, `Bash(rm:*)`, `Bash(curl:*)` to internal hosts, `Bash(git push:*)`, reading `.env*` files; allow the minimum for Node/Remotion builds.

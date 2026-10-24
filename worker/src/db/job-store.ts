@@ -20,6 +20,13 @@ export interface JobStore {
   heartbeat: (jobId: string, workerId: string, leaseSeconds: number) => Promise<HeartbeatStatus>;
   succeed: (jobId: string, workerId: string, output: Record<string, unknown>) => Promise<boolean>;
   fail: (jobId: string, workerId: string, error: string, retryable: boolean) => Promise<string>;
+  /** Provider usage limit: BLOCKED until retryAfterSeconds pass. Returns BLOCKED or LOST. */
+  block: (
+    jobId: string,
+    workerId: string,
+    reason: string,
+    retryAfterSeconds: number,
+  ) => Promise<string>;
   workerHeartbeat: (workerId: string, streams: readonly string[]) => Promise<void>;
   /** Records that every queue this worker serves was empty (watchdog lost-message detection). */
   workerIdle: (workerId: string) => Promise<void>;
@@ -75,6 +82,14 @@ export function createJobStore(pool: pg.Pool): JobStore {
       const result = await pool.query<{ status: string }>(
         'SELECT job_fail($1, $2, $3, $4) AS status',
         [jobId, workerId, error, retryable],
+      );
+      return result.rows[0]!.status;
+    },
+
+    block: async (jobId, workerId, reason, retryAfterSeconds) => {
+      const result = await pool.query<{ status: string }>(
+        'SELECT job_block($1, $2, $3, $4) AS status',
+        [jobId, workerId, reason, Math.round(retryAfterSeconds)],
       );
       return result.rows[0]!.status;
     },

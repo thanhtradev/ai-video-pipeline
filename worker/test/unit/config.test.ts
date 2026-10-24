@@ -19,6 +19,31 @@ describe('loadConfig', () => {
     expect(config.heartbeatSeconds).toBe(20);
   });
 
+  test('defaults the Claude Code CLI settings', () => {
+    expect(loadConfig(VALID_ENV).claude).toEqual({
+      bin: 'claude',
+      model: undefined,
+      timeoutSeconds: 600,
+      blockSeconds: 3600,
+    });
+  });
+
+  test('reads Claude Code CLI overrides', () => {
+    const config = loadConfig({
+      ...VALID_ENV,
+      CLAUDE_BIN: '/Users/aivideo/.local/bin/claude',
+      CLAUDE_MODEL: 'opus',
+      CLAUDE_TIMEOUT_SECONDS: '900',
+      CLAUDE_BLOCK_SECONDS: '1800',
+    });
+    expect(config.claude).toEqual({
+      bin: '/Users/aivideo/.local/bin/claude',
+      model: 'opus',
+      timeoutSeconds: 900,
+      blockSeconds: 1800,
+    });
+  });
+
   test('lists invalid variables without echoing their values', () => {
     const env = { ...VALID_ENV, WORK_ROOT: 'relative/path', DATABASE_URL: undefined };
     expect(() => loadConfig(env)).toThrow(/WORK_ROOT/);

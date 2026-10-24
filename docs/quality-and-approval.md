@@ -4,7 +4,7 @@
 
 | Point | Sent for approval | Outcome |
 |---|---|---|
-| A1 — Script/storyboard | Script summary, scene list, cost estimate, assets with unclear license | Approve / Revise (with note) / Reject |
+| A1 — Script/storyboard | Script summary, scene list, cost estimate, assets with unclear license | Approve / Revise (with note) / Reject. **Implemented (2a):** Approve / Regenerate (new version, same brief) / Reject (cancel); the cost estimate is added with TTS pricing (2b); revise-with-note later |
 | A2 — Preview 720p | Preview link, thumbnail, metadata (title/description/tags), QA report, cost so far, estimate for the rest | Approve / Revise / Reject |
 | Ad-hoc decision | Cost over threshold, provider/model change, QA failure, unclear license, file deletion request | Situation-specific choices |
 
