@@ -1,0 +1,19 @@
+// Tailscale ACL additions for the pipeline (docs/security.md §2, U-08, R-11).
+// Merge into the tailnet policy in the admin console; use "Preview rules" before saving.
+// WARNING: if your policy still has the default allow-all rule, these rules add nothing until
+// it is narrowed. Keep a rule for your own devices so you do not lock yourself out.
+{
+  "hosts": {
+    "macmini": "100.71.214.125",
+    "lxc-utils": "100.85.20.21",
+    "lxc-nextcloud": "100.120.60.20",
+  },
+  "acls": [
+    // Worker -> interim NAS (Nextcloud WebDAV, D-036).
+    { "action": "accept", "src": ["macmini"], "dst": ["lxc-nextcloud:8080"] },
+    // n8n and Uptime Kuma (LXC 104) -> worker API (/health, signed endpoints).
+    { "action": "accept", "src": ["lxc-utils"], "dst": ["macmini:8787"] },
+    // Your personal devices: list them explicitly instead of allow-all, e.g.
+    // { "action": "accept", "src": ["<your-laptop>", "<your-phone>"], "dst": ["*:*"] },
+  ],
+}

@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Same versions as production (docs/infrastructure.md S-02, S-03) and docker-compose.test.yml.
+    services:
+      postgres:
+        image: postgres:15.18
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test" --health-interval 2s --health-retries 30
+      redis:
+        image: redis:7.0.15
+        ports: ['56379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 2s --health-retries 30
+      webdav:
+        image: bytemark/webdav:2.4
+        env:
+          AUTH_TYPE: Basic
+          USERNAME: archive
+          PASSWORD: archive
+        ports: ['58080:80']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

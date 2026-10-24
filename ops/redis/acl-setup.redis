@@ -1,0 +1,6 @@
+# Redis 7 ACL users for the pipeline (LXC 112). Least privilege per client.
+# Replace each __..._PASSWORD__ with a generated value (openssl rand -hex 32) when applying;
+# never commit real values. Apply with redis-cli as an admin, then run ACL SAVE or CONFIG REWRITE.
+# Keys: q:* (job queues and per-worker processing lists), nonce:* (HMAC replay protection).
+ACL SETUSER aivideo-n8n on >__N8N_PASSWORD__ resetkeys ~q:* resetchannels -@all +rpush +llen +ping +select +info +client|setname
+ACL SETUSER aivideo-worker-mac-mini-m4 on >__WORKER_PASSWORD__ resetkeys ~q:* ~nonce:* resetchannels -@all +lmove +lrem +llen +set +ping +select +info +client|setname
