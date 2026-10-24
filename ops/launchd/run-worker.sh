@@ -7,6 +7,7 @@
 #   aivideo-db-password       password of the worker's PostgreSQL login role
 #   aivideo-redis-password    password of the worker's Redis ACL user
 #   aivideo-api-key-n8n       HMAC key shared with n8n for the worker API
+#   aivideo-itera-api-key     ITERA TTS API key (optional: without it tts jobs wait as BLOCKED)
 set -euo pipefail
 
 CONFIG_FILE="${AIVIDEO_CONFIG:-$HOME/.config/aivideo/worker.env}"
@@ -26,6 +27,9 @@ DATABASE_URL="postgres://${DB_USER}:$(keychain aivideo-db-password)@${DB_HOST}:5
 REDIS_URL="redis://${REDIS_USER}:$(keychain aivideo-redis-password)@${REDIS_HOST}:6379/${REDIS_DB:-1}"
 API_CLIENT_KEYS="{\"n8n\":\"$(keychain aivideo-api-key-n8n)\"}"
 export DATABASE_URL REDIS_URL API_CLIENT_KEYS
+if ITERA_API_KEY="$(keychain aivideo-itera-api-key 2>/dev/null)"; then
+  export ITERA_API_KEY
+fi
 
 cd "$REPO_DIR/worker"
 exec npx tsx src/main.ts

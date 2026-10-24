@@ -2,6 +2,7 @@ import { isAbsolute } from 'node:path';
 import { z } from 'zod';
 
 const MIN_CLIENT_KEY_LENGTH = 32;
+const MIN_ITERA_KEY_LENGTH = 16;
 
 const streamList = z
   .string()
@@ -39,6 +40,15 @@ const envSchema = z
     CLAUDE_MODEL: z.string().min(1).optional(),
     CLAUDE_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(600),
     CLAUDE_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
+    // ITERA TTS (D-040, S-24). The key comes from the Keychain (run-worker.sh); without it tts
+    // jobs wait as BLOCKED.
+    ITERA_BASE_URL: z.url({ protocol: /^https$/ }).default('https://api.genmax.io'),
+    ITERA_API_KEY: z.string().min(MIN_ITERA_KEY_LENGTH).optional(),
+    ITERA_POLL_MS: z.coerce.number().int().min(500).default(2000),
+    ITERA_TASK_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(300),
+    ITERA_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
+    // ffmpeg's ffprobe measures clip durations; launchd's PATH includes /opt/homebrew/bin.
+    FFPROBE_BIN: z.string().min(1).default('ffprobe'),
   })
   .refine((env) => env.HEARTBEAT_SECONDS * 2 <= env.LEASE_SECONDS, {
     path: ['HEARTBEAT_SECONDS'],
@@ -65,6 +75,15 @@ export interface Config {
     /** How long a job waits after a usage limit before it is retried. */
     blockSeconds: number;
   };
+  itera: {
+    baseUrl: string;
+    apiKey: string | undefined;
+    pollMs: number;
+    taskTimeoutSeconds: number;
+    /** How long a job waits after a key, credit, quota, or configuration problem. */
+    blockSeconds: number;
+  };
+  ffprobeBin: string;
 }
 
 /** Validates the environment at startup; errors name the variables but never their values. */
@@ -96,5 +115,13 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
       timeoutSeconds: e.CLAUDE_TIMEOUT_SECONDS,
       blockSeconds: e.CLAUDE_BLOCK_SECONDS,
     },
+    itera: {
+      baseUrl: e.ITERA_BASE_URL,
+      apiKey: e.ITERA_API_KEY,
+      pollMs: e.ITERA_POLL_MS,
+      taskTimeoutSeconds: e.ITERA_TASK_TIMEOUT_SECONDS,
+      blockSeconds: e.ITERA_BLOCK_SECONDS,
+    },
+    ffprobeBin: e.FFPROBE_BIN,
   };
 }

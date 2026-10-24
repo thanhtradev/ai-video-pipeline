@@ -44,6 +44,28 @@ describe('loadConfig', () => {
     });
   });
 
+  test('defaults the ITERA settings and keeps the key optional', () => {
+    expect(loadConfig(VALID_ENV)).toMatchObject({
+      itera: {
+        baseUrl: 'https://api.genmax.io',
+        apiKey: undefined,
+        pollMs: 2000,
+        taskTimeoutSeconds: 300,
+        blockSeconds: 3600,
+      },
+      ffprobeBin: 'ffprobe',
+    });
+    expect(loadConfig({ ...VALID_ENV, ITERA_API_KEY: 'k'.repeat(40) }).itera.apiKey).toBe(
+      'k'.repeat(40),
+    );
+  });
+
+  test('accepts only an https ITERA base url', () => {
+    expect(() => loadConfig({ ...VALID_ENV, ITERA_BASE_URL: 'http://api.genmax.io' })).toThrow(
+      /ITERA_BASE_URL/,
+    );
+  });
+
   test('lists invalid variables without echoing their values', () => {
     const env = { ...VALID_ENV, WORK_ROOT: 'relative/path', DATABASE_URL: undefined };
     expect(() => loadConfig(env)).toThrow(/WORK_ROOT/);

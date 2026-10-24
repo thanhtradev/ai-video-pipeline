@@ -75,6 +75,7 @@ describe('script handler', () => {
       scene_count: 3,
       total_seconds: 26,
       narration_chars: SCRIPT.scenes.reduce((n, s) => n + s.narration.length, 0),
+      scenes: SCRIPT.scenes,
       claude: { duration_ms: 900, num_turns: 1, usage: { output_tokens: 10 } },
     });
     expect(String(result.result.preview)).toContain('Tán xạ Rayleigh');
