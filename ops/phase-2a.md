@@ -40,8 +40,21 @@ unset PGPASSWORD DATABASE_URL
    ```bash
    printf 'CLAUDE_BIN=%s\nCLAUDE_TIMEOUT_SECONDS=600\nCLAUDE_BLOCK_SECONDS=3600\n' "$(which claude)" >> ~/.config/aivideo/worker.env
    ```
-2. The worker uses the Claude Code login of your macOS user. Check it works headless (one tiny
-   request on the Max plan): `claude -p --tools "" "Reply with OK"` → `OK`.
+2. Give the worker its own long-lived Claude Code token (D-046). The interactive login cannot be
+   refreshed by the worker while the login Keychain is locked. On the Mac (a browser opens, or a URL
+   is printed to open elsewhere):
+   ```bash
+   claude setup-token                      # prints a token starting with sk-ant-oat01-
+   security unlock-keychain ~/Library/Keychains/login.keychain-db    # only over SSH
+   security add-generic-password -a aivideo -s aivideo-claude-oauth-token -w
+   ```
+   Paste the token at the two `security` prompts (it is not echoed); never into chat or files.
+   Check it works headless (one tiny request on the Max plan):
+   ```bash
+   security find-generic-password -a aivideo -s aivideo-claude-oauth-token -w >/dev/null && echo stored
+   CLAUDE_CODE_OAUTH_TOKEN="$(security find-generic-password -a aivideo -s aivideo-claude-oauth-token -w)" \
+     claude -p --tools "" "Reply with OK"    # → OK
+   ```
 3. Restart: `launchctl kickstart -k gui/$(id -u)/com.aivideo.worker`; the log shows `worker ready`.
 
 ## 3. n8n (LXC 104)

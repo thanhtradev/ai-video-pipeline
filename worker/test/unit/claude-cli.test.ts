@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { createClaudeCli, type ClaudeRunner } from '../../src/claude/claude-cli.js';
+import { claudeChildEnv, createClaudeCli, type ClaudeRunner } from '../../src/claude/claude-cli.js';
 import { ProviderBlockedError } from '../../src/runner.js';
 
 const FAKE_CLAUDE = fileURLToPath(new URL('../fixtures/fake-claude.mjs', import.meta.url));
@@ -88,6 +88,31 @@ describe('claude cli', () => {
 
     expect(error).toBeInstanceOf(ProviderBlockedError);
     expect((error as ProviderBlockedError).retryAfterSeconds).toBe(3600);
+  });
+
+  test('a login failure blocks the job instead of spending attempts', async () => {
+    const error = await run('auth-failure').catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ProviderBlockedError);
+    expect((error as Error).message).toMatch(/login failed.*OAuth session expired/s);
+  });
+
+  test('the child environment keeps the CLI token and drops worker secrets', () => {
+    const env = claudeChildEnv({
+      PATH: '/usr/bin',
+      HOME: '/Users/test',
+      CLAUDE_CODE_OAUTH_TOKEN: 'token-value',
+      DATABASE_URL: 'postgres://secret',
+      REDIS_URL: 'redis://secret',
+      API_CLIENT_KEYS: '{}',
+      ITERA_API_KEY: 'secret',
+    });
+
+    expect(env).toEqual({
+      PATH: '/usr/bin',
+      HOME: '/Users/test',
+      CLAUDE_CODE_OAUTH_TOKEN: 'token-value',
+    });
   });
 
   test('a crash is a retryable error with the stderr tail', async () => {

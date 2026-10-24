@@ -43,7 +43,9 @@ export const SCRIPT_SCHEMA = z.object({
 export type Script = z.infer<typeof SCRIPT_SCHEMA>;
 type Brief = z.infer<typeof briefSchema>;
 
-const SCRIPT_JSON_SCHEMA = z.toJSONSchema(SCRIPT_SCHEMA);
+// Claude Code's --json-schema validator knows draft-07 but rejects zod's default draft 2020-12
+// ("no schema with key or ref"), verified with CLI 2.1.310 on 2026-10-25.
+const SCRIPT_JSON_SCHEMA = z.toJSONSchema(SCRIPT_SCHEMA, { target: 'draft-7' });
 
 const SYSTEM_PROMPT = [
   'You write scripts for short faceless vertical videos (YouTube Shorts, TikTok) in Vietnamese.',

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
-import { createClaudeCli } from './claude/claude-cli.js';
+import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
@@ -23,12 +23,6 @@ const ITERA_REQUEST_TIMEOUT_MS = 60_000;
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
 );
-// Non-secret variables the Claude Code CLI needs (HOME for its login); nothing else is passed.
-const CLAUDE_ENV_KEYS = ['PATH', 'HOME', 'USER', 'LOGNAME', 'TMPDIR', 'LANG'] as const;
-
-function claudeEnv(env: NodeJS.ProcessEnv): Record<string, string> {
-  return Object.fromEntries(CLAUDE_ENV_KEYS.flatMap((key) => (env[key] ? [[key, env[key]]] : [])));
-}
 
 // Step name -> handler. Phase 2 adds visuals, render, qa, archive.
 function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHandler> {
@@ -37,7 +31,7 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
     settingsPath: CLAUDE_SETTINGS,
     timeoutMs: config.claude.timeoutSeconds * 1000,
     blockSeconds: config.claude.blockSeconds,
-    env: claudeEnv(process.env),
+    env: claudeChildEnv(process.env),
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
   const { itera } = config;

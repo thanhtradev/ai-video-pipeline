@@ -101,6 +101,8 @@ describe('script handler', () => {
     expect(request.prompt).toContain('Vì sao bầu trời có màu xanh?');
     expect(request.prompt).toMatch(/at most 30 seconds/);
     expect(request.jsonSchema).toMatchObject({
+      // The CLI rejects draft 2020-12 schemas (zod's default target).
+      $schema: 'http://json-schema.org/draft-07/schema#',
       type: 'object',
       required: ['title', 'hook', 'scenes'],
     });
