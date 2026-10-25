@@ -231,6 +231,18 @@ describe('tts handler', () => {
     );
   });
 
+  test("accepts one act of an episode per request, up to eleven_v4's 10000 characters", async () => {
+    balance = 100_000;
+    const act = { index: 1, text: `[punchy] ${'Bạn vỗ tay. '.repeat(900)}`.slice(0, 10_000) };
+    await createTtsHandler(deps())(context({ ...INPUT, scenes: [act] }));
+    expect(created[0]!.text).toBe(act.text);
+
+    const tooLong = { index: 1, text: 'a'.repeat(10_001) };
+    await expect(
+      createTtsHandler(deps())(context({ ...INPUT, scenes: [tooLong] })),
+    ).rejects.toBeInstanceOf(PermanentJobError);
+  });
+
   test('ignores a corrupt scene state file', async () => {
     await writeFile(join(workDir, 'scene-01.json'), '{not json');
     await createTtsHandler(deps())(context());

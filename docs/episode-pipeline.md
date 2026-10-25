@@ -58,7 +58,8 @@ from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with 
 ## 4. TTS
 
 Model `eleven_v4` (1 credit/char, ≤ 10000 chars per request), Vietnamese voice
-`47rM9DW5VmjOw23BVHWi`, enabled by a rollout SQL like `ops/postgres/itera-tts.sql`. One request
+`47rM9DW5VmjOw23BVHWi`: registered by migration `20261028000200`, then made the one enabled TTS
+model by `ops/postgres/itera-tts.sql`. One request
 per act: an act's lines joined with newlines, tags included. `eleven_v4` honours the audio tags
 (`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The A1 estimate counts the same text.
 
@@ -119,10 +120,12 @@ captions, sidecar SRT from the word timings.
 
 ## 9. Rollout slices
 
+Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
+
 | Slice | Content | User rollout |
 |---|---|---|
-| B1 | ✅ episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import (with B2) |
-| B2 | `eleven_v4` + voice, per-act TTS | migration, `itera-tts.sql` |
+| B1 | ✅ episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import |
+| B2 | ✅ `eleven_v4` + voice, per-act TTS, no typography preview for episodes | migration, `itera-tts.sql` |
 | B3 | timing job (whisper.cpp + port of build_timing/check_cuts) | `brew install whisper-cpp`, model download |
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
 | C2 | episode_code job, workspace, gates | migration |

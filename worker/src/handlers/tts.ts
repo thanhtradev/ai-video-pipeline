@@ -19,9 +19,15 @@ import {
 // cost_record after it. Per-scene state files make re-runs free: a finished scene is reused, and
 // a queued provider task is polled again instead of being paid for twice.
 
+// A scene is one Short scene or one episode act; eleven_v4 takes up to 10000 characters per
+// request (D-050), and the episode script step keeps every act under that.
+const MAX_SCENE_CHARS = 10_000;
+
 const inputSchema = z.object({
   scenes: z
-    .array(z.object({ index: z.number().int().min(1), text: z.string().min(1).max(1000) }))
+    .array(
+      z.object({ index: z.number().int().min(1), text: z.string().min(1).max(MAX_SCENE_CHARS) }),
+    )
     .min(1)
     .max(20),
   provider_model_id: z.uuid(),

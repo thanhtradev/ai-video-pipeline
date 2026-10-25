@@ -13,10 +13,16 @@ const FULL_BRIEF = [
   '1.1 MỐC "Nếu bạn dừng được thời gian": ECU hai bàn tay vỗ vào nhau.',
 ].join('\n');
 
+const OWNER = 111;
+const WORKER = 'mac-mini-m4';
+
 let db: TestDb;
 
 beforeAll(async () => {
   db = await createTestDb();
+  await db.pool.query(`INSERT INTO approver (telegram_user_id, name) VALUES ($1, 'owner')`, [
+    OWNER,
+  ]);
 });
 
 afterAll(async () => {
@@ -104,5 +110,55 @@ describe('video_submit with an episode brief', () => {
     ['long notes', { format: 'episode', topic: 'x'.repeat(10), notes: 'a'.repeat(2001) }],
   ])('rejects an invalid episode brief: %s', async (name, brief) => {
     await expect(submit(`bad-ep-${name}`, brief)).rejects.toThrow(/invalid brief/);
+  });
+});
+
+/** Runs the script job to success with an episode result (one scene per act), like the worker. */
+async function completeEpisodeScript(jobId: string, acts: string[]): Promise<void> {
+  await db.pool.query(`UPDATE job SET status = 'QUEUED', queued_at = now() WHERE id = $1`, [jobId]);
+  await db.pool.query('SELECT * FROM job_start($1, $2, 60)', [jobId, WORKER]);
+  const output = {
+    outputs: [{ path: 'script.json', bytes: 100, sha256: 'b'.repeat(64) }],
+    result: {
+      format: 'episode',
+      title: 'Nếu bạn dừng được thời gian 30 giây?',
+      act_count: acts.length,
+      scenes: acts.map((narration) => ({ narration })),
+    },
+    fromCheckpoint: false,
+  };
+  await db.pool.query('SELECT job_succeed($1, $2, $3::jsonb)', [
+    jobId,
+    WORKER,
+    JSON.stringify(output),
+  ]);
+}
+
+describe('A1 approval of an episode', () => {
+  test('creates one TTS request per act and no typography preview', async () => {
+    const acts = ['[punchy] Nếu bạn dừng được thời gian…', '[explaining] Luật thế này.\nVỗ tay.'];
+    const submitted = await submit('ep-approve', { format: 'episode', topic: 'Dừng thời gian' });
+    await completeEpisodeScript(submitted.job_id, acts);
+    const due = await db.pool.query<{ video_version_id: string; token: string }>(
+      'SELECT video_version_id, token FROM script_approvals_due()',
+    );
+    const { token } = due.rows.find((row) => row.video_version_id === submitted.version_id)!;
+
+    const decided = await db.pool.query<{ result: string }>(
+      `SELECT * FROM approval_telegram_decide($1, $2, 'APPROVE')`,
+      [token, OWNER],
+    );
+
+    expect(decided.rows[0]!.result).toBe('OK');
+    expect(await versionStatus(db.pool, submitted.version_id)).toBe('GENERATING_ASSETS');
+    const jobs = await db.pool.query<{ step: string; input: { scenes?: object[] } }>(
+      `SELECT step, input FROM job WHERE video_version_id = $1 AND step <> 'script'`,
+      [submitted.version_id],
+    );
+    expect(jobs.rows.map((job) => job.step)).toEqual(['tts']);
+    expect(jobs.rows[0]!.input.scenes).toEqual([
+      { index: 1, text: acts[0] },
+      { index: 2, text: acts[1] },
+    ]);
   });
 });
