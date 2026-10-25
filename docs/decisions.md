@@ -80,6 +80,7 @@
 | P-015 | **Implemented:** workers report through SECURITY DEFINER lifecycle functions with a per-worker login role that can execute nothing else; replaces WF-03 webhook | architecture §5, security §3 |
 | P-016 | **Implemented:** orchestration rules live in tested SQL (`dispatch_all`, `watchdog_run`, approval functions); n8n workflows run one query each | workflows |
 | P-013 | Archive via a storage adapter (`webdav` now for Nextcloud per D-036, `smb` for the future NAS); same `.partial` + SHA-256 verify flow; target selected by config | storage §4 |
+| P-017 | **Progress check** (requested by the user 2026-10-26, for a later phase): Telegram `/status` lists the active videos (title, status, current step, step n of N, time in step, approval waiting); `/status <first 8 chars of video id>` shows each job (status, attempts, duration, last error), the cost so far, the agent turn and the render progress. Data from one SQL function `video_progress()` (P-016); long steps report progress through the job heartbeat (new `job.progress` jsonb: agent turn and gate results, timing stage, rendered frames). Commands are handled in WF-06, since a bot has one webhook; only approvers get answers. Optional: one status message per video, edited in place at each step instead of new messages | roadmap Phase 3, workflows |
 
 ## 3. Open questions
 
