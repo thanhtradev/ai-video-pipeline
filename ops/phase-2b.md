@@ -4,7 +4,7 @@ Run by the user, in order, after the Phase 2b PR is merged and Phase 2a is live
 ([phase-2a.md](phase-2a.md)). Conventions as in [README.md](README.md). This is the first step that
 **spends money**: nothing is spent until step 4 enables the provider.
 
-What it adds: migration `20261026000100_tts_flow.sql` (TTS registry row, A1 estimate, `cost_guard`,
+What it adds: migrations `20261026000100_tts_flow.sql` and `20261026000200_tts_model_eleven_v3.sql` (TTS registry row, A1 estimate, `cost_guard`,
 `cost_record`, the `tts` job created on A1 approval), the worker `tts` step, and a change to WF-05
 (the A1 message shows the TTS budget).
 
@@ -27,21 +27,25 @@ security add-generic-password -a aivideo -s aivideo-itera-api-key -w
 
 ## 2. Choose the voice and read the price (free, read-only API calls)
 
-A helper that sends the key as a header from stdin (it never appears in `ps` or history):
+A helper that sends the key as a header from stdin (it never appears in `ps` or history). Paste it
+as these three lines: on one line, zsh's `url-quote-magic` (Oh My Zsh) inserts a `\` before the `;`
+after the URL and breaks the function (the API then answers 401 or 500):
 
 ```bash
-itera() { security find-generic-password -a aivideo -s aivideo-itera-api-key -w \
-  | sed 's/^/xi-api-key: /' | curl -sS --fail-with-body -H @- "https://api.genmax.io$1"; }
+itera() {
+  security find-generic-password -a aivideo -s aivideo-itera-api-key -w | sed 's/^/xi-api-key: /' | curl -sS --fail-with-body -H @- "https://api.genmax.io$1"
+}
 itera /v1/auth/me | jq '{credit_balance}'
-itera /v1/models | jq '.[] | select(.model_id == "eleven_multilingual_v2")
+itera /v1/models | jq '.[] | select(.model_id == "eleven_v3")
   | {model_id, model_rates, max_chars: .maximum_text_length_per_request,
-     vietnamese: any(.languages[]; .language_id == "vi")}'
-itera '/v1/shared-voices?required_languages=vi&page_size=30' \
+     vietnamese: ((.languages // []) | any(.language_id == "vi"))}'
+itera '/v1/shared-voices?page_size=30&sort=trending&required_languages=vi' \
   | jq -r '.voices[] | [.voice_id, .name, .gender, .age, .use_case, .preview_url] | @tsv'
 ```
 
 Listen to the `preview_url`s and pick a Vietnamese voice. `model_rates.character_cost_multiplier`
-is the starting price in **credits per character**. Check: `vietnamese` is `true`.
+is the starting price in **credits per character**. Check: `vietnamese` is `true` (the model is
+`eleven_v3`, D-043; `eleven_multilingual_v2` has no Vietnamese).
 
 ## 3. Backup, then migrate (Mac, repo on an up-to-date `main`)
 
@@ -57,7 +61,7 @@ read -rs PGPASSWORD && export PGPASSWORD                       # owner password
 export DATABASE_URL="postgres://aivideo_owner@192.168.1.102:5432/aivideo?sslmode=disable"
 npx dbmate --migrations-dir db/migrations --no-dump-schema up
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ops/postgres/grants.sql
-psql "$DATABASE_URL" -c "SELECT max(version) FROM schema_migrations;"   # 20261026000100
+psql "$DATABASE_URL" -c "SELECT max(version) FROM schema_migrations;"   # 20261026000200
 ```
 
 ## 4. Configure and enable ITERA (same shell)

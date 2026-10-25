@@ -84,7 +84,7 @@ describe('itera client', () => {
       {
         voiceId: 'voice/1',
         text: 'Xin chào',
-        modelId: 'eleven_multilingual_v2',
+        modelId: 'eleven_v3',
         provider: 'elevenlabs',
         languageCode: 'vi',
       },
@@ -99,7 +99,7 @@ describe('itera client', () => {
     });
     expect(JSON.parse(seen[0]!.body)).toEqual({
       text: 'Xin chào',
-      model_id: 'eleven_multilingual_v2',
+      model_id: 'eleven_v3',
       provider: 'elevenlabs',
       language_code: 'vi',
     });
