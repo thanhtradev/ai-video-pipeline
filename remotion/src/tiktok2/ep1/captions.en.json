@@ -1,0 +1,10014 @@
+{
+"_doc": "Mốc từng từ (ms theo file giọng gốc), whisper large-v3-turbo căn với lời SRT.",
+"voice": "Kênh tiktok 2 (tiếng anh)/Voice/ep1/ep1 tiktok2 EN.mp3",
+"captions": [
+{
+"line": "L001",
+"text": "What",
+"startMs": 160,
+"endMs": 240,
+"timestampMs": 200,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "if",
+"startMs": 220,
+"endMs": 300,
+"timestampMs": 260,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "you",
+"startMs": 281,
+"endMs": 508,
+"timestampMs": 394,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "could",
+"startMs": 508,
+"endMs": 825,
+"timestampMs": 666,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "turn",
+"startMs": 825,
+"endMs": 1022,
+"timestampMs": 923,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "invisible",
+"startMs": 1022,
+"endMs": 1360,
+"timestampMs": 1191,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "but",
+"startMs": 1680,
+"endMs": 2018,
+"timestampMs": 1849,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "only",
+"startMs": 2018,
+"endMs": 2098,
+"timestampMs": 2058,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "while",
+"startMs": 2098,
+"endMs": 2258,
+"timestampMs": 2178,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "holding",
+"startMs": 2258,
+"endMs": 2640,
+"timestampMs": 2449,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "your",
+"startMs": 2640,
+"endMs": 2791,
+"timestampMs": 2715,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "breath?",
+"startMs": 2791,
+"endMs": 3060,
+"timestampMs": 2925,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "Mom",
+"startMs": 3620,
+"endMs": 3957,
+"timestampMs": 3789,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "is",
+"startMs": 3957,
+"endMs": 4160,
+"timestampMs": 4059,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "holding",
+"startMs": 4160,
+"endMs": 4438,
+"timestampMs": 4299,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "your",
+"startMs": 4438,
+"endMs": 4708,
+"timestampMs": 4573,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "math",
+"startMs": 4708,
+"endMs": 4978,
+"timestampMs": 4843,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "test.",
+"startMs": 4978,
+"endMs": 5250,
+"timestampMs": 5114,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "Three",
+"startMs": 5560,
+"endMs": 5940,
+"timestampMs": 5750,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "out",
+"startMs": 5940,
+"endMs": 6058,
+"timestampMs": 5999,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "of",
+"startMs": 6058,
+"endMs": 6185,
+"timestampMs": 6121,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "ten.",
+"startMs": 6185,
+"endMs": 6380,
+"timestampMs": 6282,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "Red",
+"startMs": 6750,
+"endMs": 7040,
+"timestampMs": 6895,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "ink.",
+"startMs": 7040,
+"endMs": 7330,
+"timestampMs": 7185,
+"confidence": 1
+},
+{
+"line": "L006",
+"text": "Again.",
+"startMs": 7660,
+"endMs": 8110,
+"timestampMs": 7885,
+"confidence": 1
+},
+{
+"line": "L007",
+"text": "Look.",
+"startMs": 8580,
+"endMs": 9010,
+"timestampMs": 8795,
+"confidence": 1
+},
+{
+"line": "L008",
+"text": "You",
+"startMs": 9320,
+"endMs": 9628,
+"timestampMs": 9474,
+"confidence": 1
+},
+{
+"line": "L008",
+"text": "panic.",
+"startMs": 9628,
+"endMs": 10060,
+"timestampMs": 9844,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "You",
+"startMs": 10200,
+"endMs": 10634,
+"timestampMs": 10417,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "take",
+"startMs": 10634,
+"endMs": 10786,
+"timestampMs": 10710,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "a",
+"startMs": 10786,
+"endMs": 10877,
+"timestampMs": 10831,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "deep",
+"startMs": 10877,
+"endMs": 11200,
+"timestampMs": 11038,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "breath.",
+"startMs": 11200,
+"endMs": 11600,
+"timestampMs": 11400,
+"confidence": 1
+},
+{
+"line": "L010",
+"text": "And",
+"startMs": 11850,
+"endMs": 12099,
+"timestampMs": 11974,
+"confidence": 1
+},
+{
+"line": "L010",
+"text": "hold",
+"startMs": 12099,
+"endMs": 12261,
+"timestampMs": 12180,
+"confidence": 1
+},
+{
+"line": "L010",
+"text": "it.",
+"startMs": 12261,
+"endMs": 12410,
+"timestampMs": 12335,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "Mom",
+"startMs": 12890,
+"endMs": 13247,
+"timestampMs": 13068,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "looks",
+"startMs": 13247,
+"endMs": 13490,
+"timestampMs": 13368,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "up.",
+"startMs": 13490,
+"endMs": 13690,
+"timestampMs": 13590,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "The",
+"startMs": 13830,
+"endMs": 14190,
+"timestampMs": 14010,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "spot",
+"startMs": 14190,
+"endMs": 14270,
+"timestampMs": 14230,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "where",
+"startMs": 14250,
+"endMs": 14542,
+"timestampMs": 14396,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "you",
+"startMs": 14542,
+"endMs": 14674,
+"timestampMs": 14608,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "were",
+"startMs": 14674,
+"endMs": 14893,
+"timestampMs": 14783,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "standing",
+"startMs": 14893,
+"endMs": 15260,
+"timestampMs": 15077,
+"confidence": 1
+},
+{
+"line": "L013",
+"text": "is",
+"startMs": 15530,
+"endMs": 15766,
+"timestampMs": 15648,
+"confidence": 1
+},
+{
+"line": "L013",
+"text": "empty.",
+"startMs": 15766,
+"endMs": 16180,
+"timestampMs": 15973,
+"confidence": 1
+},
+{
+"line": "L014",
+"text": "Huh?",
+"startMs": 16410,
+"endMs": 16690,
+"timestampMs": 16550,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "Where'd",
+"startMs": 16960,
+"endMs": 17212,
+"timestampMs": 17086,
+"confidence": 0.5
+},
+{
+"line": "L015",
+"text": "he",
+"startMs": 17212,
+"endMs": 17356,
+"timestampMs": 17284,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "go?",
+"startMs": 17356,
+"endMs": 17500,
+"timestampMs": 17428,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "Ten",
+"startMs": 17800,
+"endMs": 18107,
+"timestampMs": 17954,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "seconds.",
+"startMs": 18107,
+"endMs": 18660,
+"timestampMs": 18384,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "Mom",
+"startMs": 18770,
+"endMs": 19238,
+"timestampMs": 19004,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "checks",
+"startMs": 19238,
+"endMs": 19409,
+"timestampMs": 19324,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "under",
+"startMs": 19409,
+"endMs": 19760,
+"timestampMs": 19585,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "the",
+"startMs": 19760,
+"endMs": 19973,
+"timestampMs": 19867,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "table.",
+"startMs": 19973,
+"endMs": 20310,
+"timestampMs": 20142,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "Twenty",
+"startMs": 20590,
+"endMs": 20999,
+"timestampMs": 20795,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "seconds.",
+"startMs": 20999,
+"endMs": 21460,
+"timestampMs": 21230,
+"confidence": 1
+},
+{
+"line": "L019",
+"text": "Mom",
+"startMs": 21710,
+"endMs": 22268,
+"timestampMs": 21989,
+"confidence": 1
+},
+{
+"line": "L019",
+"text": "opens",
+"startMs": 22268,
+"endMs": 22348,
+"timestampMs": 22308,
+"confidence": 1
+},
+{
+"line": "L019",
+"text": "the",
+"startMs": 22348,
+"endMs": 22587,
+"timestampMs": 22468,
+"confidence": 1
+},
+{
+"line": "L019",
+"text": "fridge.",
+"startMs": 22587,
+"endMs": 23000,
+"timestampMs": 22794,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "Nobody",
+"startMs": 23240,
+"endMs": 23598,
+"timestampMs": 23419,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "knows",
+"startMs": 23598,
+"endMs": 23894,
+"timestampMs": 23746,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "why",
+"startMs": 23894,
+"endMs": 24068,
+"timestampMs": 23981,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "she",
+"startMs": 24068,
+"endMs": 24242,
+"timestampMs": 24155,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "opens",
+"startMs": 24242,
+"endMs": 24538,
+"timestampMs": 24390,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "the",
+"startMs": 24538,
+"endMs": 24712,
+"timestampMs": 24625,
+"confidence": 1
+},
+{
+"line": "L020",
+"text": "fridge.",
+"startMs": 24712,
+"endMs": 25030,
+"timestampMs": 24871,
+"confidence": 1
+},
+{
+"line": "L021",
+"text": "Thirty",
+"startMs": 25420,
+"endMs": 25806,
+"timestampMs": 25613,
+"confidence": 1
+},
+{
+"line": "L021",
+"text": "seconds.",
+"startMs": 25806,
+"endMs": 26240,
+"timestampMs": 26023,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "Your",
+"startMs": 26540,
+"endMs": 26980,
+"timestampMs": 26760,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "face",
+"startMs": 26980,
+"endMs": 27068,
+"timestampMs": 27024,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "is",
+"startMs": 27068,
+"endMs": 27225,
+"timestampMs": 27147,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "burning.",
+"startMs": 27225,
+"endMs": 27610,
+"timestampMs": 27417,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "Forty",
+"startMs": 28000,
+"endMs": 28429,
+"timestampMs": 28214,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "seconds.",
+"startMs": 28429,
+"endMs": 28980,
+"timestampMs": 28704,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "Mom",
+"startMs": 29230,
+"endMs": 29654,
+"timestampMs": 29442,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "turns",
+"startMs": 29654,
+"endMs": 29866,
+"timestampMs": 29760,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "around.",
+"startMs": 29866,
+"endMs": 30290,
+"timestampMs": 30078,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "Staring",
+"startMs": 30390,
+"endMs": 31034,
+"timestampMs": 30712,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "right",
+"startMs": 31034,
+"endMs": 31114,
+"timestampMs": 31074,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "at",
+"startMs": 31094,
+"endMs": 31183,
+"timestampMs": 31139,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "where",
+"startMs": 31183,
+"endMs": 31579,
+"timestampMs": 31381,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "you're",
+"startMs": 31579,
+"endMs": 31800,
+"timestampMs": 31689,
+"confidence": 0.5
+},
+{
+"line": "L025",
+"text": "standing.",
+"startMs": 31800,
+"endMs": 32240,
+"timestampMs": 32020,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "You",
+"startMs": 32590,
+"endMs": 32915,
+"timestampMs": 32752,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "breathe",
+"startMs": 32915,
+"endMs": 33143,
+"timestampMs": 33029,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "out.",
+"startMs": 33143,
+"endMs": 33340,
+"timestampMs": 33241,
+"confidence": 1
+},
+{
+"line": "L027",
+"text": "Phew.",
+"startMs": 33630,
+"endMs": 34210,
+"timestampMs": 33920,
+"confidence": 1
+},
+{
+"line": "L028",
+"text": "Right",
+"startMs": 34560,
+"endMs": 35026,
+"timestampMs": 34793,
+"confidence": 1
+},
+{
+"line": "L028",
+"text": "in",
+"startMs": 35026,
+"endMs": 35106,
+"timestampMs": 35066,
+"confidence": 1
+},
+{
+"line": "L028",
+"text": "her",
+"startMs": 35088,
+"endMs": 35316,
+"timestampMs": 35202,
+"confidence": 1
+},
+{
+"line": "L028",
+"text": "face.",
+"startMs": 35316,
+"endMs": 35600,
+"timestampMs": 35458,
+"confidence": 1
+},
+{
+"line": "L029",
+"text": "AH!",
+"startMs": 35890,
+"endMs": 37370,
+"timestampMs": 36630,
+"confidence": 0.5
+},
+{
+"line": "L030",
+"text": "Mom",
+"startMs": 37380,
+"endMs": 37578,
+"timestampMs": 37479,
+"confidence": 1
+},
+{
+"line": "L030",
+"text": "doesn't",
+"startMs": 37578,
+"endMs": 38047,
+"timestampMs": 37812,
+"confidence": 0.5
+},
+{
+"line": "L030",
+"text": "punish",
+"startMs": 38047,
+"endMs": 38273,
+"timestampMs": 38160,
+"confidence": 1
+},
+{
+"line": "L030",
+"text": "you",
+"startMs": 38273,
+"endMs": 38438,
+"timestampMs": 38355,
+"confidence": 1
+},
+{
+"line": "L030",
+"text": "for",
+"startMs": 38438,
+"endMs": 38604,
+"timestampMs": 38521,
+"confidence": 1
+},
+{
+"line": "L030",
+"text": "the",
+"startMs": 38604,
+"endMs": 38763,
+"timestampMs": 38683,
+"confidence": 1
+},
+{
+"line": "L030",
+"text": "three.",
+"startMs": 38763,
+"endMs": 39040,
+"timestampMs": 38902,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "She",
+"startMs": 39270,
+"endMs": 39616,
+"timestampMs": 39443,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "punishes",
+"startMs": 39616,
+"endMs": 39953,
+"timestampMs": 39785,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "you",
+"startMs": 39953,
+"endMs": 40141,
+"timestampMs": 40047,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "for",
+"startMs": 40141,
+"endMs": 40329,
+"timestampMs": 40235,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "scaring",
+"startMs": 40329,
+"endMs": 40755,
+"timestampMs": 40542,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "her",
+"startMs": 40755,
+"endMs": 40943,
+"timestampMs": 40849,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "half",
+"startMs": 40943,
+"endMs": 41180,
+"timestampMs": 41061,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "to",
+"startMs": 41180,
+"endMs": 41309,
+"timestampMs": 41244,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "death.",
+"startMs": 41309,
+"endMs": 41600,
+"timestampMs": 41454,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "Here's",
+"startMs": 41930,
+"endMs": 42200,
+"timestampMs": 42065,
+"confidence": 0.5
+},
+{
+"line": "L032",
+"text": "how",
+"startMs": 42200,
+"endMs": 42417,
+"timestampMs": 42308,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "it",
+"startMs": 42417,
+"endMs": 42605,
+"timestampMs": 42511,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "works.",
+"startMs": 42605,
+"endMs": 42920,
+"timestampMs": 42762,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "Hold",
+"startMs": 43210,
+"endMs": 43630,
+"timestampMs": 43420,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "your",
+"startMs": 43630,
+"endMs": 43718,
+"timestampMs": 43674,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "breath,",
+"startMs": 43718,
+"endMs": 44226,
+"timestampMs": 43972,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "and",
+"startMs": 44226,
+"endMs": 44598,
+"timestampMs": 44412,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "you",
+"startMs": 44598,
+"endMs": 44678,
+"timestampMs": 44638,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "disappear.",
+"startMs": 44658,
+"endMs": 45160,
+"timestampMs": 44909,
+"confidence": 1
+},
+{
+"line": "L034",
+"text": "Completely.",
+"startMs": 45480,
+"endMs": 46160,
+"timestampMs": 45820,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "Your",
+"startMs": 46440,
+"endMs": 46939,
+"timestampMs": 46690,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "clothes,",
+"startMs": 46939,
+"endMs": 47362,
+"timestampMs": 47151,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "your",
+"startMs": 47362,
+"endMs": 47832,
+"timestampMs": 47597,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "sandals,",
+"startMs": 47832,
+"endMs": 48284,
+"timestampMs": 48058,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "the",
+"startMs": 48284,
+"endMs": 48495,
+"timestampMs": 48389,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "bag",
+"startMs": 48495,
+"endMs": 48744,
+"timestampMs": 48620,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "in",
+"startMs": 48744,
+"endMs": 48889,
+"timestampMs": 48816,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "your",
+"startMs": 48889,
+"endMs": 49138,
+"timestampMs": 49013,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "hand",
+"startMs": 49138,
+"endMs": 49685,
+"timestampMs": 49412,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "gone",
+"startMs": 49685,
+"endMs": 50012,
+"timestampMs": 49849,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "too.",
+"startMs": 50012,
+"endMs": 50300,
+"timestampMs": 50156,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "Breathe",
+"startMs": 50530,
+"endMs": 50966,
+"timestampMs": 50748,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "out",
+"startMs": 50966,
+"endMs": 51344,
+"timestampMs": 51155,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "even",
+"startMs": 51344,
+"endMs": 51647,
+"timestampMs": 51496,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "a",
+"startMs": 51647,
+"endMs": 51727,
+"timestampMs": 51687,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "little",
+"startMs": 51707,
+"endMs": 52234,
+"timestampMs": 51971,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "and",
+"startMs": 52234,
+"endMs": 52575,
+"timestampMs": 52405,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "you're",
+"startMs": 52575,
+"endMs": 52859,
+"timestampMs": 52717,
+"confidence": 0.5
+},
+{
+"line": "L036",
+"text": "back.",
+"startMs": 52859,
+"endMs": 53200,
+"timestampMs": 53030,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "And",
+"startMs": 53650,
+"endMs": 54067,
+"timestampMs": 53858,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "talking?",
+"startMs": 54067,
+"endMs": 54450,
+"timestampMs": 54258,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "Talking",
+"startMs": 54450,
+"endMs": 54883,
+"timestampMs": 54667,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "is",
+"startMs": 54883,
+"endMs": 54963,
+"timestampMs": 54923,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "breathing",
+"startMs": 54960,
+"endMs": 55470,
+"timestampMs": 55215,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "out.",
+"startMs": 55470,
+"endMs": 55710,
+"timestampMs": 55590,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "While",
+"startMs": 55920,
+"endMs": 56285,
+"timestampMs": 56102,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "you're",
+"startMs": 56285,
+"endMs": 56470,
+"timestampMs": 56378,
+"confidence": 0.5
+},
+{
+"line": "L038",
+"text": "invisible,",
+"startMs": 56470,
+"endMs": 57031,
+"timestampMs": 56751,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "you",
+"startMs": 57031,
+"endMs": 57380,
+"timestampMs": 57205,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "can't",
+"startMs": 57380,
+"endMs": 57740,
+"timestampMs": 57560,
+"confidence": 0.5
+},
+{
+"line": "L038",
+"text": "say",
+"startMs": 57740,
+"endMs": 57994,
+"timestampMs": 57867,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "a",
+"startMs": 57994,
+"endMs": 58074,
+"timestampMs": 58034,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "word.",
+"startMs": 58057,
+"endMs": 58370,
+"timestampMs": 58214,
+"confidence": 1
+},
+{
+"line": "L039",
+"text": "Not",
+"startMs": 58650,
+"endMs": 59005,
+"timestampMs": 58828,
+"confidence": 1
+},
+{
+"line": "L039",
+"text": "one.",
+"startMs": 59005,
+"endMs": 59360,
+"timestampMs": 59182,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "Remember",
+"startMs": 59520,
+"endMs": 59889,
+"timestampMs": 59704,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "that.",
+"startMs": 59889,
+"endMs": 60110,
+"timestampMs": 59999,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "It",
+"startMs": 60350,
+"endMs": 60608,
+"timestampMs": 60479,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "matters",
+"startMs": 60608,
+"endMs": 60968,
+"timestampMs": 60788,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "later.",
+"startMs": 60968,
+"endMs": 61300,
+"timestampMs": 61134,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "And",
+"startMs": 61480,
+"endMs": 61776,
+"timestampMs": 61628,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "this",
+"startMs": 61776,
+"endMs": 61888,
+"timestampMs": 61832,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "part",
+"startMs": 61888,
+"endMs": 62122,
+"timestampMs": 62005,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "is",
+"startMs": 62122,
+"endMs": 62234,
+"timestampMs": 62178,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "real:",
+"startMs": 62234,
+"endMs": 62450,
+"timestampMs": 62342,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "most",
+"startMs": 62790,
+"endMs": 63192,
+"timestampMs": 62991,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "people",
+"startMs": 63192,
+"endMs": 63298,
+"timestampMs": 63245,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "can",
+"startMs": 63298,
+"endMs": 63470,
+"timestampMs": 63384,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "hold",
+"startMs": 63470,
+"endMs": 63652,
+"timestampMs": 63561,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "their",
+"startMs": 63652,
+"endMs": 63930,
+"timestampMs": 63791,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "breath",
+"startMs": 63930,
+"endMs": 64207,
+"timestampMs": 64068,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "for",
+"startMs": 64207,
+"endMs": 64360,
+"timestampMs": 64284,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "about",
+"startMs": 64360,
+"endMs": 64609,
+"timestampMs": 64485,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "thirty",
+"startMs": 64609,
+"endMs": 64925,
+"timestampMs": 64767,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "seconds",
+"startMs": 64925,
+"endMs": 65270,
+"timestampMs": 65098,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "to",
+"startMs": 65270,
+"endMs": 65366,
+"timestampMs": 65318,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "a",
+"startMs": 65366,
+"endMs": 65446,
+"timestampMs": 65406,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "minute.",
+"startMs": 65426,
+"endMs": 65690,
+"timestampMs": 65558,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "And",
+"startMs": 66000,
+"endMs": 66461,
+"timestampMs": 66231,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "that",
+"startMs": 66461,
+"endMs": 66541,
+"timestampMs": 66501,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "urge",
+"startMs": 66521,
+"endMs": 66843,
+"timestampMs": 66682,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "to",
+"startMs": 66843,
+"endMs": 66923,
+"timestampMs": 66883,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "breathe?",
+"startMs": 66903,
+"endMs": 67428,
+"timestampMs": 67165,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "It's",
+"startMs": 67428,
+"endMs": 67856,
+"timestampMs": 67642,
+"confidence": 0.5
+},
+{
+"line": "L044",
+"text": "not",
+"startMs": 67856,
+"endMs": 68257,
+"timestampMs": 68056,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "from",
+"startMs": 68257,
+"endMs": 68337,
+"timestampMs": 68297,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "running",
+"startMs": 68317,
+"endMs": 68698,
+"timestampMs": 68508,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "out",
+"startMs": 68698,
+"endMs": 68879,
+"timestampMs": 68789,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "of",
+"startMs": 68879,
+"endMs": 68999,
+"timestampMs": 68939,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "oxygen.",
+"startMs": 68999,
+"endMs": 69380,
+"timestampMs": 69190,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "It's",
+"startMs": 69730,
+"endMs": 69892,
+"timestampMs": 69811,
+"confidence": 0.5
+},
+{
+"line": "L045",
+"text": "carbon",
+"startMs": 69892,
+"endMs": 70000,
+"timestampMs": 69946,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "dioxide",
+"startMs": 70000,
+"endMs": 70469,
+"timestampMs": 70235,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "building",
+"startMs": 70469,
+"endMs": 71003,
+"timestampMs": 70736,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "up",
+"startMs": 71003,
+"endMs": 71133,
+"timestampMs": 71068,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "in",
+"startMs": 71133,
+"endMs": 71264,
+"timestampMs": 71199,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "your",
+"startMs": 71264,
+"endMs": 71547,
+"timestampMs": 71406,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "blood.",
+"startMs": 71547,
+"endMs": 71830,
+"timestampMs": 71689,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "Your",
+"startMs": 72040,
+"endMs": 72509,
+"timestampMs": 72274,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "body",
+"startMs": 72509,
+"endMs": 72589,
+"timestampMs": 72549,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "screams",
+"startMs": 72569,
+"endMs": 72917,
+"timestampMs": 72743,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "long",
+"startMs": 72917,
+"endMs": 73151,
+"timestampMs": 73034,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "before",
+"startMs": 73151,
+"endMs": 73592,
+"timestampMs": 73372,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "you're",
+"startMs": 73592,
+"endMs": 73854,
+"timestampMs": 73723,
+"confidence": 0.5
+},
+{
+"line": "L046",
+"text": "actually",
+"startMs": 73854,
+"endMs": 74323,
+"timestampMs": 74089,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "in",
+"startMs": 74323,
+"endMs": 74435,
+"timestampMs": 74379,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "danger.",
+"startMs": 74435,
+"endMs": 74790,
+"timestampMs": 74613,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "Which",
+"startMs": 75040,
+"endMs": 75462,
+"timestampMs": 75251,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "means",
+"startMs": 75462,
+"endMs": 75654,
+"timestampMs": 75558,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "your",
+"startMs": 75654,
+"endMs": 75884,
+"timestampMs": 75769,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "superpower",
+"startMs": 75884,
+"endMs": 76390,
+"timestampMs": 76137,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "has",
+"startMs": 76640,
+"endMs": 76905,
+"timestampMs": 76772,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "an",
+"startMs": 76905,
+"endMs": 76993,
+"timestampMs": 76949,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "expiration",
+"startMs": 76993,
+"endMs": 77426,
+"timestampMs": 77209,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "date.",
+"startMs": 77426,
+"endMs": 77650,
+"timestampMs": 77538,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "About",
+"startMs": 77980,
+"endMs": 78295,
+"timestampMs": 78137,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "forty",
+"startMs": 78295,
+"endMs": 78620,
+"timestampMs": 78457,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "seconds",
+"startMs": 78620,
+"endMs": 79082,
+"timestampMs": 78851,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "at",
+"startMs": 79082,
+"endMs": 79171,
+"timestampMs": 79127,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "a",
+"startMs": 79171,
+"endMs": 79251,
+"timestampMs": 79211,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "time.",
+"startMs": 79231,
+"endMs": 79480,
+"timestampMs": 79355,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "First,",
+"startMs": 79920,
+"endMs": 80509,
+"timestampMs": 80214,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "you",
+"startMs": 80509,
+"endMs": 80589,
+"timestampMs": 80549,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "have",
+"startMs": 80569,
+"endMs": 80775,
+"timestampMs": 80672,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "to",
+"startMs": 80775,
+"endMs": 81136,
+"timestampMs": 80955,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "relearn",
+"startMs": 81136,
+"endMs": 81326,
+"timestampMs": 81231,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "everything.",
+"startMs": 81326,
+"endMs": 81870,
+"timestampMs": 81598,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "Laughing",
+"startMs": 82100,
+"endMs": 82494,
+"timestampMs": 82297,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "is",
+"startMs": 82494,
+"endMs": 82631,
+"timestampMs": 82562,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "breathing",
+"startMs": 82631,
+"endMs": 83033,
+"timestampMs": 82832,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "out.",
+"startMs": 83033,
+"endMs": 83220,
+"timestampMs": 83127,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "You're",
+"startMs": 83650,
+"endMs": 83875,
+"timestampMs": 83762,
+"confidence": 0.5
+},
+{
+"line": "L052",
+"text": "invisible",
+"startMs": 83875,
+"endMs": 84285,
+"timestampMs": 84080,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "behind",
+"startMs": 84285,
+"endMs": 84629,
+"timestampMs": 84457,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "your",
+"startMs": 84629,
+"endMs": 84856,
+"timestampMs": 84743,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "classmate",
+"startMs": 84856,
+"endMs": 85495,
+"timestampMs": 85175,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "Huy",
+"startMs": 85495,
+"endMs": 85600,
+"timestampMs": 85547,
+"confidence": 0.5
+},
+{
+"line": "L052",
+"text": "when",
+"startMs": 85600,
+"endMs": 85826,
+"timestampMs": 85713,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "he",
+"startMs": 85826,
+"endMs": 85934,
+"timestampMs": 85880,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "drops",
+"startMs": 85934,
+"endMs": 86225,
+"timestampMs": 86079,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "his",
+"startMs": 86225,
+"endMs": 86397,
+"timestampMs": 86311,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "snack",
+"startMs": 86397,
+"endMs": 86936,
+"timestampMs": 86667,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "and",
+"startMs": 86936,
+"endMs": 87346,
+"timestampMs": 87141,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "you",
+"startMs": 87346,
+"endMs": 87475,
+"timestampMs": 87410,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "laugh.",
+"startMs": 87475,
+"endMs": 87790,
+"timestampMs": 87633,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "You",
+"startMs": 87920,
+"endMs": 88361,
+"timestampMs": 88140,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "pop",
+"startMs": 88361,
+"endMs": 88441,
+"timestampMs": 88401,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "back",
+"startMs": 88421,
+"endMs": 88728,
+"timestampMs": 88575,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "into",
+"startMs": 88728,
+"endMs": 89106,
+"timestampMs": 88917,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "view.",
+"startMs": 89106,
+"endMs": 89430,
+"timestampMs": 89268,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "Right",
+"startMs": 89770,
+"endMs": 90108,
+"timestampMs": 89939,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "behind",
+"startMs": 90108,
+"endMs": 90430,
+"timestampMs": 90269,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "him.",
+"startMs": 90430,
+"endMs": 90650,
+"timestampMs": 90540,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "Huy",
+"startMs": 90970,
+"endMs": 91262,
+"timestampMs": 91116,
+"confidence": 0.5
+},
+{
+"line": "L055",
+"text": "screams",
+"startMs": 91262,
+"endMs": 91900,
+"timestampMs": 91581,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "louder",
+"startMs": 91900,
+"endMs": 92274,
+"timestampMs": 92087,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "than",
+"startMs": 92274,
+"endMs": 92608,
+"timestampMs": 92441,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "Mom.",
+"startMs": 92608,
+"endMs": 92900,
+"timestampMs": 92754,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "Sneeze.",
+"startMs": 93170,
+"endMs": 93990,
+"timestampMs": 93580,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "Visible.",
+"startMs": 94320,
+"endMs": 94990,
+"timestampMs": 94655,
+"confidence": 1
+},
+{
+"line": "L058",
+"text": "Yawn.",
+"startMs": 95310,
+"endMs": 95890,
+"timestampMs": 95600,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "Visible.",
+"startMs": 96020,
+"endMs": 96610,
+"timestampMs": 96315,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "And",
+"startMs": 96880,
+"endMs": 97247,
+"timestampMs": 97063,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "the",
+"startMs": 97247,
+"endMs": 97327,
+"timestampMs": 97287,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "worst",
+"startMs": 97307,
+"endMs": 97552,
+"timestampMs": 97429,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "one:",
+"startMs": 97552,
+"endMs": 97750,
+"timestampMs": 97651,
+"confidence": 1
+},
+{
+"line": "L061",
+"text": "hiccups.",
+"startMs": 97990,
+"endMs": 98590,
+"timestampMs": 98290,
+"confidence": 1
+},
+{
+"line": "L062",
+"text": "Visible.",
+"startMs": 98880,
+"endMs": 99480,
+"timestampMs": 99180,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "Gone.",
+"startMs": 99760,
+"endMs": 100300,
+"timestampMs": 100030,
+"confidence": 1
+},
+{
+"line": "L064",
+"text": "Visible.",
+"startMs": 100490,
+"endMs": 101040,
+"timestampMs": 100765,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "Gone.",
+"startMs": 101310,
+"endMs": 102110,
+"timestampMs": 101710,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "Visible.",
+"startMs": 102120,
+"endMs": 102320,
+"timestampMs": 102220,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "Like",
+"startMs": 102540,
+"endMs": 102983,
+"timestampMs": 102761,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "Lunar",
+"startMs": 102983,
+"endMs": 103120,
+"timestampMs": 103051,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "New",
+"startMs": 103120,
+"endMs": 103267,
+"timestampMs": 103193,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "Year",
+"startMs": 103267,
+"endMs": 103510,
+"timestampMs": 103388,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "string",
+"startMs": 103510,
+"endMs": 103868,
+"timestampMs": 103689,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "lights.",
+"startMs": 103868,
+"endMs": 104200,
+"timestampMs": 104034,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "Only",
+"startMs": 104360,
+"endMs": 104776,
+"timestampMs": 104568,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "one",
+"startMs": 104776,
+"endMs": 104890,
+"timestampMs": 104833,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "person",
+"startMs": 104890,
+"endMs": 105348,
+"timestampMs": 105119,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "is",
+"startMs": 105348,
+"endMs": 105494,
+"timestampMs": 105421,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "never",
+"startMs": 105494,
+"endMs": 105868,
+"timestampMs": 105681,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "fooled.",
+"startMs": 105868,
+"endMs": 106270,
+"timestampMs": 106069,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "Bin.",
+"startMs": 106510,
+"endMs": 107070,
+"timestampMs": 106790,
+"confidence": 0.5
+},
+{
+"line": "L070",
+"text": "Your",
+"startMs": 107460,
+"endMs": 107875,
+"timestampMs": 107667,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "little",
+"startMs": 107875,
+"endMs": 107955,
+"timestampMs": 107915,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "brother.",
+"startMs": 107935,
+"endMs": 108180,
+"timestampMs": 108057,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "Five",
+"startMs": 108420,
+"endMs": 108788,
+"timestampMs": 108604,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "years",
+"startMs": 108788,
+"endMs": 108954,
+"timestampMs": 108871,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "old.",
+"startMs": 108954,
+"endMs": 109160,
+"timestampMs": 109057,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "Hide",
+"startMs": 109350,
+"endMs": 109430,
+"timestampMs": 109390,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "and",
+"startMs": 109410,
+"endMs": 109563,
+"timestampMs": 109487,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "seek:",
+"startMs": 109563,
+"endMs": 110065,
+"timestampMs": 109814,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "you",
+"startMs": 110065,
+"endMs": 110545,
+"timestampMs": 110305,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "stand",
+"startMs": 110545,
+"endMs": 110641,
+"timestampMs": 110593,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "invisible",
+"startMs": 110641,
+"endMs": 111089,
+"timestampMs": 110865,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "in",
+"startMs": 111089,
+"endMs": 111206,
+"timestampMs": 111148,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "the",
+"startMs": 111206,
+"endMs": 111388,
+"timestampMs": 111297,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "middle",
+"startMs": 111388,
+"endMs": 111750,
+"timestampMs": 111569,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "of",
+"startMs": 111750,
+"endMs": 111868,
+"timestampMs": 111809,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "the",
+"startMs": 111868,
+"endMs": 112049,
+"timestampMs": 111958,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "living",
+"startMs": 112049,
+"endMs": 112412,
+"timestampMs": 112230,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "room.",
+"startMs": 112412,
+"endMs": 112660,
+"timestampMs": 112536,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "Bin",
+"startMs": 113040,
+"endMs": 113313,
+"timestampMs": 113177,
+"confidence": 0.5
+},
+{
+"line": "L073",
+"text": "covers",
+"startMs": 113313,
+"endMs": 113628,
+"timestampMs": 113471,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "his",
+"startMs": 113628,
+"endMs": 113855,
+"timestampMs": 113742,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "eyes,",
+"startMs": 113855,
+"endMs": 114416,
+"timestampMs": 114135,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "counts",
+"startMs": 114416,
+"endMs": 114849,
+"timestampMs": 114633,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "to",
+"startMs": 114849,
+"endMs": 115007,
+"timestampMs": 114928,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "ten.",
+"startMs": 115007,
+"endMs": 115280,
+"timestampMs": 115143,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "Then",
+"startMs": 115520,
+"endMs": 115817,
+"timestampMs": 115669,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "walks",
+"startMs": 115817,
+"endMs": 115974,
+"timestampMs": 115896,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "straight",
+"startMs": 115974,
+"endMs": 116376,
+"timestampMs": 116175,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "to",
+"startMs": 116376,
+"endMs": 116499,
+"timestampMs": 116438,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "you.",
+"startMs": 116499,
+"endMs": 116680,
+"timestampMs": 116589,
+"confidence": 1
+},
+{
+"line": "L075",
+"text": "Got",
+"startMs": 116940,
+"endMs": 117250,
+"timestampMs": 117095,
+"confidence": 1
+},
+{
+"line": "L075",
+"text": "you!",
+"startMs": 117250,
+"endMs": 117560,
+"timestampMs": 117405,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "How",
+"startMs": 117570,
+"endMs": 117831,
+"timestampMs": 117700,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "did",
+"startMs": 117831,
+"endMs": 117978,
+"timestampMs": 117905,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "you",
+"startMs": 117978,
+"endMs": 118182,
+"timestampMs": 118080,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "see",
+"startMs": 118182,
+"endMs": 118387,
+"timestampMs": 118285,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "me?",
+"startMs": 118387,
+"endMs": 118550,
+"timestampMs": 118468,
+"confidence": 1
+},
+{
+"line": "L077",
+"text": "I",
+"startMs": 118750,
+"endMs": 118897,
+"timestampMs": 118823,
+"confidence": 1
+},
+{
+"line": "L077",
+"text": "didn't",
+"startMs": 118897,
+"endMs": 119233,
+"timestampMs": 119065,
+"confidence": 0.5
+},
+{
+"line": "L077",
+"text": "see",
+"startMs": 119233,
+"endMs": 119435,
+"timestampMs": 119334,
+"confidence": 1
+},
+{
+"line": "L077",
+"text": "you.",
+"startMs": 119435,
+"endMs": 119680,
+"timestampMs": 119558,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "You",
+"startMs": 120030,
+"endMs": 120412,
+"timestampMs": 120221,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "hold",
+"startMs": 120412,
+"endMs": 120492,
+"timestampMs": 120452,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "your",
+"startMs": 120472,
+"endMs": 120645,
+"timestampMs": 120559,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "breath",
+"startMs": 120645,
+"endMs": 121065,
+"timestampMs": 120855,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "really",
+"startMs": 121065,
+"endMs": 121316,
+"timestampMs": 121190,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "loud.",
+"startMs": 121316,
+"endMs": 121550,
+"timestampMs": 121433,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "But",
+"startMs": 121810,
+"endMs": 122139,
+"timestampMs": 121975,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "then",
+"startMs": 122139,
+"endMs": 122219,
+"timestampMs": 122179,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "it",
+"startMs": 122205,
+"endMs": 122318,
+"timestampMs": 122261,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "gets",
+"startMs": 122318,
+"endMs": 122553,
+"timestampMs": 122436,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "fun.",
+"startMs": 122553,
+"endMs": 122730,
+"timestampMs": 122642,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "Full",
+"startMs": 123040,
+"endMs": 123515,
+"timestampMs": 123278,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "moon",
+"startMs": 123515,
+"endMs": 123661,
+"timestampMs": 123588,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "day.",
+"startMs": 123661,
+"endMs": 123920,
+"timestampMs": 123791,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "The",
+"startMs": 124210,
+"endMs": 124591,
+"timestampMs": 124401,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "family",
+"startMs": 124591,
+"endMs": 124761,
+"timestampMs": 124676,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "altar",
+"startMs": 124761,
+"endMs": 125062,
+"timestampMs": 124912,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "is",
+"startMs": 125062,
+"endMs": 125233,
+"timestampMs": 125148,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "loaded",
+"startMs": 125233,
+"endMs": 125554,
+"timestampMs": 125393,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "with",
+"startMs": 125554,
+"endMs": 125794,
+"timestampMs": 125674,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "fruit,",
+"startMs": 125794,
+"endMs": 126316,
+"timestampMs": 126055,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "sweet",
+"startMs": 126316,
+"endMs": 126667,
+"timestampMs": 126491,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "rice",
+"startMs": 126667,
+"endMs": 126947,
+"timestampMs": 126807,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "cakes,",
+"startMs": 126947,
+"endMs": 127539,
+"timestampMs": 127243,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "dessert.",
+"startMs": 127539,
+"endMs": 128000,
+"timestampMs": 127770,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "You",
+"startMs": 128410,
+"endMs": 128784,
+"timestampMs": 128597,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "hold",
+"startMs": 128784,
+"endMs": 128864,
+"timestampMs": 128824,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "your",
+"startMs": 128844,
+"endMs": 129002,
+"timestampMs": 128923,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "breath.",
+"startMs": 129002,
+"endMs": 129280,
+"timestampMs": 129141,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "You",
+"startMs": 129590,
+"endMs": 129958,
+"timestampMs": 129774,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "eat",
+"startMs": 129958,
+"endMs": 130038,
+"timestampMs": 129998,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "a",
+"startMs": 130018,
+"endMs": 130098,
+"timestampMs": 130058,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "rice",
+"startMs": 130078,
+"endMs": 130289,
+"timestampMs": 130184,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "cake.",
+"startMs": 130289,
+"endMs": 130510,
+"timestampMs": 130400,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "Mom",
+"startMs": 131010,
+"endMs": 131491,
+"timestampMs": 131250,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "turns",
+"startMs": 131491,
+"endMs": 131571,
+"timestampMs": 131531,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "around.",
+"startMs": 131568,
+"endMs": 131940,
+"timestampMs": 131754,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "Half",
+"startMs": 132320,
+"endMs": 132723,
+"timestampMs": 132522,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "the",
+"startMs": 132723,
+"endMs": 132803,
+"timestampMs": 132763,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "plate",
+"startMs": 132783,
+"endMs": 133041,
+"timestampMs": 132912,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "is",
+"startMs": 133041,
+"endMs": 133161,
+"timestampMs": 133101,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "gone.",
+"startMs": 133161,
+"endMs": 133390,
+"timestampMs": 133275,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "Mom",
+"startMs": 133770,
+"endMs": 134199,
+"timestampMs": 133984,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "lights",
+"startMs": 134199,
+"endMs": 134335,
+"timestampMs": 134267,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "three",
+"startMs": 134335,
+"endMs": 134657,
+"timestampMs": 134496,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "more",
+"startMs": 134657,
+"endMs": 134901,
+"timestampMs": 134779,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "incense",
+"startMs": 134901,
+"endMs": 135349,
+"timestampMs": 135125,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "sticks.",
+"startMs": 135349,
+"endMs": 135710,
+"timestampMs": 135530,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "Grandma",
+"startMs": 136150,
+"endMs": 136622,
+"timestampMs": 136386,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "and",
+"startMs": 136622,
+"endMs": 136705,
+"timestampMs": 136664,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "Grandpa",
+"startMs": 136705,
+"endMs": 137095,
+"timestampMs": 136900,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "came",
+"startMs": 137095,
+"endMs": 137319,
+"timestampMs": 137207,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "to",
+"startMs": 137319,
+"endMs": 137427,
+"timestampMs": 137373,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "eat.",
+"startMs": 137427,
+"endMs": 137620,
+"timestampMs": 137523,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "Thank",
+"startMs": 137950,
+"endMs": 138030,
+"timestampMs": 137990,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "you,",
+"startMs": 138010,
+"endMs": 138514,
+"timestampMs": 138262,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "Grandma,",
+"startMs": 138514,
+"endMs": 139266,
+"timestampMs": 138890,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "Grandpa.",
+"startMs": 139266,
+"endMs": 139830,
+"timestampMs": 139548,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "You",
+"startMs": 140050,
+"endMs": 140579,
+"timestampMs": 140314,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "decide",
+"startMs": 140579,
+"endMs": 140662,
+"timestampMs": 140620,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "you",
+"startMs": 140662,
+"endMs": 140866,
+"timestampMs": 140764,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "will",
+"startMs": 140866,
+"endMs": 141135,
+"timestampMs": 141001,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "never,",
+"startMs": 141135,
+"endMs": 141645,
+"timestampMs": 141390,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "ever",
+"startMs": 141645,
+"endMs": 141951,
+"timestampMs": 141798,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "tell",
+"startMs": 141951,
+"endMs": 142146,
+"timestampMs": 142049,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "her.",
+"startMs": 142146,
+"endMs": 142390,
+"timestampMs": 142268,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "You",
+"startMs": 142650,
+"endMs": 142984,
+"timestampMs": 142817,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "sneak",
+"startMs": 142984,
+"endMs": 143064,
+"timestampMs": 143024,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "into",
+"startMs": 143055,
+"endMs": 143258,
+"timestampMs": 143156,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "the",
+"startMs": 143258,
+"endMs": 143497,
+"timestampMs": 143377,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "teachers'",
+"startMs": 143497,
+"endMs": 143865,
+"timestampMs": 143681,
+"confidence": 0.5
+},
+{
+"line": "L090",
+"text": "office.",
+"startMs": 143865,
+"endMs": 144160,
+"timestampMs": 144013,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "The",
+"startMs": 144370,
+"endMs": 144755,
+"timestampMs": 144562,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "literature",
+"startMs": 144755,
+"endMs": 145130,
+"timestampMs": 144942,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "exam",
+"startMs": 145130,
+"endMs": 145327,
+"timestampMs": 145228,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "is",
+"startMs": 145327,
+"endMs": 145439,
+"timestampMs": 145383,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "sitting",
+"startMs": 145439,
+"endMs": 145833,
+"timestampMs": 145636,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "right",
+"startMs": 145833,
+"endMs": 146115,
+"timestampMs": 145974,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "on",
+"startMs": 146115,
+"endMs": 146227,
+"timestampMs": 146171,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "the",
+"startMs": 146227,
+"endMs": 146396,
+"timestampMs": 146312,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "desk.",
+"startMs": 146396,
+"endMs": 146630,
+"timestampMs": 146513,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "You",
+"startMs": 147450,
+"endMs": 147639,
+"timestampMs": 147545,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "read",
+"startMs": 147639,
+"endMs": 148083,
+"timestampMs": 147861,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "question",
+"startMs": 148083,
+"endMs": 148484,
+"timestampMs": 148284,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "one.",
+"startMs": 148484,
+"endMs": 148730,
+"timestampMs": 148607,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "Question",
+"startMs": 149090,
+"endMs": 149757,
+"timestampMs": 149423,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "two.",
+"startMs": 149757,
+"endMs": 150090,
+"timestampMs": 149923,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "Question",
+"startMs": 150490,
+"endMs": 151122,
+"timestampMs": 150806,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "three",
+"startMs": 151122,
+"endMs": 151526,
+"timestampMs": 151324,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "is",
+"startMs": 151526,
+"endMs": 151675,
+"timestampMs": 151600,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "way",
+"startMs": 151675,
+"endMs": 151912,
+"timestampMs": 151793,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "too",
+"startMs": 151912,
+"endMs": 152149,
+"timestampMs": 152030,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "long.",
+"startMs": 152149,
+"endMs": 152470,
+"timestampMs": 152309,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "You",
+"startMs": 152800,
+"endMs": 153011,
+"timestampMs": 152905,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "breathe.",
+"startMs": 153011,
+"endMs": 153390,
+"timestampMs": 153200,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "The",
+"startMs": 153760,
+"endMs": 154076,
+"timestampMs": 153918,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "principal",
+"startMs": 154076,
+"endMs": 154535,
+"timestampMs": 154305,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "is",
+"startMs": 154535,
+"endMs": 154650,
+"timestampMs": 154593,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "making",
+"startMs": 154650,
+"endMs": 155033,
+"timestampMs": 154841,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "tea.",
+"startMs": 155033,
+"endMs": 155260,
+"timestampMs": 155146,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "Right",
+"startMs": 155540,
+"endMs": 155845,
+"timestampMs": 155692,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "next",
+"startMs": 155845,
+"endMs": 156054,
+"timestampMs": 155949,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "to",
+"startMs": 156054,
+"endMs": 156158,
+"timestampMs": 156106,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "you.",
+"startMs": 156158,
+"endMs": 156340,
+"timestampMs": 156249,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "Three",
+"startMs": 156640,
+"endMs": 157010,
+"timestampMs": 156825,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "days",
+"startMs": 157010,
+"endMs": 157100,
+"timestampMs": 157055,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "of",
+"startMs": 157100,
+"endMs": 157200,
+"timestampMs": 157150,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "cleaning",
+"startMs": 157200,
+"endMs": 157682,
+"timestampMs": 157441,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "the",
+"startMs": 157682,
+"endMs": 157772,
+"timestampMs": 157727,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "school",
+"startMs": 157772,
+"endMs": 158052,
+"timestampMs": 157912,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "toilets.",
+"startMs": 158052,
+"endMs": 158370,
+"timestampMs": 158211,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "So",
+"startMs": 158620,
+"endMs": 158761,
+"timestampMs": 158690,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "you",
+"startMs": 158761,
+"endMs": 159025,
+"timestampMs": 158893,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "train.",
+"startMs": 159025,
+"endMs": 159340,
+"timestampMs": 159182,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "Forty",
+"startMs": 159690,
+"endMs": 160044,
+"timestampMs": 159867,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "seconds.",
+"startMs": 160044,
+"endMs": 160500,
+"timestampMs": 160272,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "One",
+"startMs": 160710,
+"endMs": 160910,
+"timestampMs": 160810,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "minute.",
+"startMs": 160910,
+"endMs": 161230,
+"timestampMs": 161070,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "A",
+"startMs": 161570,
+"endMs": 161896,
+"timestampMs": 161733,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "minute",
+"startMs": 161896,
+"endMs": 161994,
+"timestampMs": 161945,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "and",
+"startMs": 161994,
+"endMs": 162172,
+"timestampMs": 162083,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "a",
+"startMs": 162172,
+"endMs": 162252,
+"timestampMs": 162212,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "half.",
+"startMs": 162232,
+"endMs": 162440,
+"timestampMs": 162336,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "Two",
+"startMs": 162670,
+"endMs": 162927,
+"timestampMs": 162799,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "minutes.",
+"startMs": 162927,
+"endMs": 163390,
+"timestampMs": 163159,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "And",
+"startMs": 163490,
+"endMs": 163934,
+"timestampMs": 163712,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "this",
+"startMs": 163934,
+"endMs": 164014,
+"timestampMs": 163974,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "part",
+"startMs": 163998,
+"endMs": 164366,
+"timestampMs": 164182,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "is",
+"startMs": 164366,
+"endMs": 164446,
+"timestampMs": 164406,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "real:",
+"startMs": 164431,
+"endMs": 164700,
+"timestampMs": 164566,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "when",
+"startMs": 165040,
+"endMs": 165460,
+"timestampMs": 165250,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "your",
+"startMs": 165460,
+"endMs": 165540,
+"timestampMs": 165500,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "face",
+"startMs": 165540,
+"endMs": 165790,
+"timestampMs": 165665,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "touches",
+"startMs": 165790,
+"endMs": 166230,
+"timestampMs": 166010,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "cold",
+"startMs": 166230,
+"endMs": 166480,
+"timestampMs": 166355,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "water,",
+"startMs": 166480,
+"endMs": 166961,
+"timestampMs": 166720,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "your",
+"startMs": 166961,
+"endMs": 167371,
+"timestampMs": 167166,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "body",
+"startMs": 167371,
+"endMs": 167551,
+"timestampMs": 167461,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "flips",
+"startMs": 167551,
+"endMs": 167941,
+"timestampMs": 167746,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "on",
+"startMs": 167941,
+"endMs": 168021,
+"timestampMs": 167981,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "something",
+"startMs": 168001,
+"endMs": 168581,
+"timestampMs": 168291,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "called",
+"startMs": 168581,
+"endMs": 168841,
+"timestampMs": 168711,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "the",
+"startMs": 168841,
+"endMs": 169071,
+"timestampMs": 168956,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "diving",
+"startMs": 169071,
+"endMs": 169301,
+"timestampMs": 169186,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "reflex.",
+"startMs": 169301,
+"endMs": 169660,
+"timestampMs": 169481,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "Your",
+"startMs": 170040,
+"endMs": 170557,
+"timestampMs": 170299,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "heart",
+"startMs": 170557,
+"endMs": 170637,
+"timestampMs": 170597,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "slows",
+"startMs": 170617,
+"endMs": 170925,
+"timestampMs": 170771,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "down.",
+"startMs": 170925,
+"endMs": 171190,
+"timestampMs": 171057,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "You",
+"startMs": 171470,
+"endMs": 171781,
+"timestampMs": 171625,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "can",
+"startMs": 171781,
+"endMs": 171926,
+"timestampMs": 171854,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "hold",
+"startMs": 171926,
+"endMs": 172061,
+"timestampMs": 171993,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "your",
+"startMs": 172061,
+"endMs": 172299,
+"timestampMs": 172180,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "breath",
+"startMs": 172299,
+"endMs": 172662,
+"timestampMs": 172481,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "longer.",
+"startMs": 172662,
+"endMs": 172980,
+"timestampMs": 172821,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "So",
+"startMs": 173150,
+"endMs": 173533,
+"timestampMs": 173341,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "every",
+"startMs": 173533,
+"endMs": 173774,
+"timestampMs": 173653,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "morning,",
+"startMs": 173774,
+"endMs": 174378,
+"timestampMs": 174076,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "you",
+"startMs": 174378,
+"endMs": 174711,
+"timestampMs": 174544,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "dunk",
+"startMs": 174711,
+"endMs": 174962,
+"timestampMs": 174836,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "your",
+"startMs": 174962,
+"endMs": 175093,
+"timestampMs": 175028,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "face",
+"startMs": 175093,
+"endMs": 175435,
+"timestampMs": 175264,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "in",
+"startMs": 175435,
+"endMs": 175515,
+"timestampMs": 175475,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "a",
+"startMs": 175495,
+"endMs": 175575,
+"timestampMs": 175535,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "bowl",
+"startMs": 175555,
+"endMs": 175808,
+"timestampMs": 175682,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "of",
+"startMs": 175808,
+"endMs": 175939,
+"timestampMs": 175873,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "ice",
+"startMs": 175939,
+"endMs": 176120,
+"timestampMs": 176030,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "water.",
+"startMs": 176120,
+"endMs": 176440,
+"timestampMs": 176280,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "Mom",
+"startMs": 177030,
+"endMs": 177582,
+"timestampMs": 177306,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "thinks",
+"startMs": 177582,
+"endMs": 177662,
+"timestampMs": 177622,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "it's",
+"startMs": 177642,
+"endMs": 177884,
+"timestampMs": 177763,
+"confidence": 0.5
+},
+{
+"line": "L109",
+"text": "a",
+"startMs": 177884,
+"endMs": 177964,
+"timestampMs": 177924,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "skincare",
+"startMs": 177944,
+"endMs": 178376,
+"timestampMs": 178160,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "routine.",
+"startMs": 178376,
+"endMs": 178780,
+"timestampMs": 178578,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "The",
+"startMs": 179010,
+"endMs": 179467,
+"timestampMs": 179238,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "world",
+"startMs": 179467,
+"endMs": 179547,
+"timestampMs": 179507,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "record",
+"startMs": 179527,
+"endMs": 179815,
+"timestampMs": 179671,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "for",
+"startMs": 179815,
+"endMs": 179983,
+"timestampMs": 179899,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "holding",
+"startMs": 179983,
+"endMs": 180440,
+"timestampMs": 180212,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "your",
+"startMs": 180440,
+"endMs": 180619,
+"timestampMs": 180530,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "breath",
+"startMs": 180619,
+"endMs": 181056,
+"timestampMs": 180838,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "is",
+"startMs": 181056,
+"endMs": 181136,
+"timestampMs": 181096,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "over",
+"startMs": 181116,
+"endMs": 181315,
+"timestampMs": 181215,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "eleven",
+"startMs": 181315,
+"endMs": 181632,
+"timestampMs": 181473,
+"confidence": 0.5
+},
+{
+"line": "L110",
+"text": "minutes.",
+"startMs": 181632,
+"endMs": 181990,
+"timestampMs": 181811,
+"confidence": 1
+},
+{
+"line": "L111",
+"text": "You",
+"startMs": 182230,
+"endMs": 182584,
+"timestampMs": 182407,
+"confidence": 1
+},
+{
+"line": "L111",
+"text": "get",
+"startMs": 182584,
+"endMs": 182664,
+"timestampMs": 182624,
+"confidence": 1
+},
+{
+"line": "L111",
+"text": "three.",
+"startMs": 182644,
+"endMs": 182880,
+"timestampMs": 182762,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "And",
+"startMs": 183260,
+"endMs": 183668,
+"timestampMs": 183464,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "for",
+"startMs": 183668,
+"endMs": 183756,
+"timestampMs": 183712,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "you,",
+"startMs": 183756,
+"endMs": 184182,
+"timestampMs": 183969,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "three",
+"startMs": 184182,
+"endMs": 184599,
+"timestampMs": 184390,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "minutes",
+"startMs": 184599,
+"endMs": 184820,
+"timestampMs": 184709,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "is",
+"startMs": 184820,
+"endMs": 184953,
+"timestampMs": 184887,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "enough",
+"startMs": 184953,
+"endMs": 185246,
+"timestampMs": 185099,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "to",
+"startMs": 185246,
+"endMs": 185352,
+"timestampMs": 185299,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "do",
+"startMs": 185352,
+"endMs": 185530,
+"timestampMs": 185441,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "almost",
+"startMs": 185940,
+"endMs": 186273,
+"timestampMs": 186107,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "anything.",
+"startMs": 186273,
+"endMs": 186690,
+"timestampMs": 186482,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "Then",
+"startMs": 187280,
+"endMs": 187627,
+"timestampMs": 187454,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "the",
+"startMs": 187627,
+"endMs": 187843,
+"timestampMs": 187735,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "rumors",
+"startMs": 187843,
+"endMs": 187928,
+"timestampMs": 187885,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "start",
+"startMs": 187928,
+"endMs": 188182,
+"timestampMs": 188055,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "at",
+"startMs": 188182,
+"endMs": 188283,
+"timestampMs": 188233,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "school.",
+"startMs": 188283,
+"endMs": 188550,
+"timestampMs": 188416,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "A",
+"startMs": 188970,
+"endMs": 189050,
+"timestampMs": 189010,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "door",
+"startMs": 189030,
+"endMs": 189477,
+"timestampMs": 189253,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "opening",
+"startMs": 189477,
+"endMs": 189715,
+"timestampMs": 189596,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "by",
+"startMs": 189715,
+"endMs": 189834,
+"timestampMs": 189775,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "itself",
+"startMs": 189834,
+"endMs": 190202,
+"timestampMs": 190018,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "in",
+"startMs": 190202,
+"endMs": 190331,
+"timestampMs": 190267,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "the",
+"startMs": 190331,
+"endMs": 190530,
+"timestampMs": 190431,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "hallway.",
+"startMs": 190530,
+"endMs": 190890,
+"timestampMs": 190710,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "A",
+"startMs": 191190,
+"endMs": 191270,
+"timestampMs": 191230,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "chair",
+"startMs": 191250,
+"endMs": 191613,
+"timestampMs": 191431,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "pulling",
+"startMs": 191613,
+"endMs": 191992,
+"timestampMs": 191802,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "itself",
+"startMs": 191992,
+"endMs": 192363,
+"timestampMs": 192177,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "out.",
+"startMs": 192363,
+"endMs": 192580,
+"timestampMs": 192471,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "A",
+"startMs": 192930,
+"endMs": 193326,
+"timestampMs": 193128,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "sandwich",
+"startMs": 193326,
+"endMs": 193490,
+"timestampMs": 193408,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "vanishing",
+"startMs": 193490,
+"endMs": 194049,
+"timestampMs": 193770,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "from",
+"startMs": 194049,
+"endMs": 194300,
+"timestampMs": 194175,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "a",
+"startMs": 194300,
+"endMs": 194406,
+"timestampMs": 194353,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "cafeteria",
+"startMs": 194406,
+"endMs": 194928,
+"timestampMs": 194667,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "tray.",
+"startMs": 194928,
+"endMs": 195200,
+"timestampMs": 195064,
+"confidence": 1
+},
+{
+"line": "L118",
+"text": "Someone",
+"startMs": 195680,
+"endMs": 195879,
+"timestampMs": 195779,
+"confidence": 1
+},
+{
+"line": "L118",
+"text": "films",
+"startMs": 195879,
+"endMs": 196264,
+"timestampMs": 196071,
+"confidence": 1
+},
+{
+"line": "L118",
+"text": "it.",
+"startMs": 196264,
+"endMs": 196410,
+"timestampMs": 196337,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "Posts",
+"startMs": 196790,
+"endMs": 197182,
+"timestampMs": 196986,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "it",
+"startMs": 197182,
+"endMs": 197334,
+"timestampMs": 197258,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "online.",
+"startMs": 197334,
+"endMs": 197730,
+"timestampMs": 197532,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "\"The",
+"startMs": 198080,
+"endMs": 198561,
+"timestampMs": 198320,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "ghost",
+"startMs": 198561,
+"endMs": 198641,
+"timestampMs": 198601,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "of",
+"startMs": 198621,
+"endMs": 198701,
+"timestampMs": 198661,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "the",
+"startMs": 198681,
+"endMs": 198856,
+"timestampMs": 198768,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "middle",
+"startMs": 198856,
+"endMs": 199216,
+"timestampMs": 199036,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "school.\"",
+"startMs": 199216,
+"endMs": 199530,
+"timestampMs": 199373,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "Two",
+"startMs": 199590,
+"endMs": 199942,
+"timestampMs": 199766,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "million",
+"startMs": 199942,
+"endMs": 200257,
+"timestampMs": 200100,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "views.",
+"startMs": 200257,
+"endMs": 200590,
+"timestampMs": 200423,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "A",
+"startMs": 200730,
+"endMs": 200810,
+"timestampMs": 200770,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "team",
+"startMs": 200790,
+"endMs": 201106,
+"timestampMs": 200948,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "of",
+"startMs": 201106,
+"endMs": 201186,
+"timestampMs": 201146,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "ghost",
+"startMs": 201166,
+"endMs": 201408,
+"timestampMs": 201287,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "hunters",
+"startMs": 201408,
+"endMs": 201825,
+"timestampMs": 201617,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "shows",
+"startMs": 201825,
+"endMs": 202086,
+"timestampMs": 201956,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "up",
+"startMs": 202086,
+"endMs": 202201,
+"timestampMs": 202144,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "with",
+"startMs": 202201,
+"endMs": 202430,
+"timestampMs": 202316,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "an",
+"startMs": 202430,
+"endMs": 202576,
+"timestampMs": 202503,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "energy",
+"startMs": 202576,
+"endMs": 202889,
+"timestampMs": 202733,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "meter.",
+"startMs": 202889,
+"endMs": 203150,
+"timestampMs": 203020,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "You're",
+"startMs": 203440,
+"endMs": 203623,
+"timestampMs": 203531,
+"confidence": 0.5
+},
+{
+"line": "L123",
+"text": "standing",
+"startMs": 203623,
+"endMs": 203996,
+"timestampMs": 203809,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "right",
+"startMs": 203996,
+"endMs": 204268,
+"timestampMs": 204132,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "next",
+"startMs": 204268,
+"endMs": 204490,
+"timestampMs": 204379,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "to",
+"startMs": 204490,
+"endMs": 204611,
+"timestampMs": 204550,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "them.",
+"startMs": 204611,
+"endMs": 204830,
+"timestampMs": 204720,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "Holding",
+"startMs": 205190,
+"endMs": 205533,
+"timestampMs": 205362,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "your",
+"startMs": 205533,
+"endMs": 205686,
+"timestampMs": 205609,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "breath.",
+"startMs": 205686,
+"endMs": 205950,
+"timestampMs": 205818,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "The",
+"startMs": 206570,
+"endMs": 206987,
+"timestampMs": 206779,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "meter",
+"startMs": 206987,
+"endMs": 207067,
+"timestampMs": 207027,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "doesn't",
+"startMs": 207060,
+"endMs": 207345,
+"timestampMs": 207202,
+"confidence": 0.5
+},
+{
+"line": "L125",
+"text": "move.",
+"startMs": 207345,
+"endMs": 207590,
+"timestampMs": 207468,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "Their",
+"startMs": 208010,
+"endMs": 208297,
+"timestampMs": 208154,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "conclusion:",
+"startMs": 208297,
+"endMs": 208790,
+"timestampMs": 208544,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "it's",
+"startMs": 209250,
+"endMs": 209461,
+"timestampMs": 209355,
+"confidence": 0.5
+},
+{
+"line": "L127",
+"text": "a",
+"startMs": 209461,
+"endMs": 209706,
+"timestampMs": 209583,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "very",
+"startMs": 209706,
+"endMs": 209794,
+"timestampMs": 209750,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "powerful",
+"startMs": 209794,
+"endMs": 210461,
+"timestampMs": 210128,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "ghost.",
+"startMs": 210461,
+"endMs": 210830,
+"timestampMs": 210646,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "But",
+"startMs": 211330,
+"endMs": 211556,
+"timestampMs": 211443,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "there's",
+"startMs": 211556,
+"endMs": 211945,
+"timestampMs": 211751,
+"confidence": 0.5
+},
+{
+"line": "L128",
+"text": "a",
+"startMs": 211945,
+"endMs": 212025,
+"timestampMs": 211985,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "cost.",
+"startMs": 212009,
+"endMs": 212280,
+"timestampMs": 212144,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "When",
+"startMs": 212800,
+"endMs": 213033,
+"timestampMs": 212917,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "you're",
+"startMs": 213033,
+"endMs": 213334,
+"timestampMs": 213184,
+"confidence": 0.5
+},
+{
+"line": "L129",
+"text": "invisible,",
+"startMs": 213334,
+"endMs": 213886,
+"timestampMs": 213610,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "you",
+"startMs": 213886,
+"endMs": 214078,
+"timestampMs": 213982,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "hear",
+"startMs": 214078,
+"endMs": 214370,
+"timestampMs": 214224,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "what",
+"startMs": 214370,
+"endMs": 214595,
+"timestampMs": 214483,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "people",
+"startMs": 214595,
+"endMs": 214979,
+"timestampMs": 214787,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "say",
+"startMs": 214979,
+"endMs": 215188,
+"timestampMs": 215084,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "when",
+"startMs": 215188,
+"endMs": 215313,
+"timestampMs": 215251,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "they",
+"startMs": 215313,
+"endMs": 215489,
+"timestampMs": 215401,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "think",
+"startMs": 215489,
+"endMs": 215569,
+"timestampMs": 215529,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "you're",
+"startMs": 215559,
+"endMs": 215781,
+"timestampMs": 215670,
+"confidence": 0.5
+},
+{
+"line": "L129",
+"text": "not",
+"startMs": 215781,
+"endMs": 215948,
+"timestampMs": 215864,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "there.",
+"startMs": 215948,
+"endMs": 216220,
+"timestampMs": 216084,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "Recess.",
+"startMs": 216750,
+"endMs": 217440,
+"timestampMs": 217095,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "Your",
+"startMs": 218070,
+"endMs": 218616,
+"timestampMs": 218343,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "friends",
+"startMs": 218616,
+"endMs": 218696,
+"timestampMs": 218656,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "are",
+"startMs": 218676,
+"endMs": 218831,
+"timestampMs": 218753,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "planning",
+"startMs": 218831,
+"endMs": 219153,
+"timestampMs": 218992,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "a",
+"startMs": 219153,
+"endMs": 219233,
+"timestampMs": 219193,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "weekend",
+"startMs": 219213,
+"endMs": 219561,
+"timestampMs": 219387,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "hangout.",
+"startMs": 219561,
+"endMs": 219880,
+"timestampMs": 219720,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "You're",
+"startMs": 220190,
+"endMs": 220388,
+"timestampMs": 220289,
+"confidence": 0.5
+},
+{
+"line": "L132",
+"text": "standing",
+"startMs": 220388,
+"endMs": 220807,
+"timestampMs": 220598,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "right",
+"startMs": 220807,
+"endMs": 221062,
+"timestampMs": 220935,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "there.",
+"startMs": 221062,
+"endMs": 221340,
+"timestampMs": 221201,
+"confidence": 1
+},
+{
+"line": "L133",
+"text": "Invisible.",
+"startMs": 221790,
+"endMs": 222440,
+"timestampMs": 222115,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "Should",
+"startMs": 222860,
+"endMs": 223149,
+"timestampMs": 223005,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "we",
+"startMs": 223149,
+"endMs": 223260,
+"timestampMs": 223204,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "invite",
+"startMs": 223260,
+"endMs": 223604,
+"timestampMs": 223432,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "him?",
+"startMs": 223604,
+"endMs": 223790,
+"timestampMs": 223697,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "Doesn't",
+"startMs": 224280,
+"endMs": 224518,
+"timestampMs": 224399,
+"confidence": 0.5
+},
+{
+"line": "L135",
+"text": "really",
+"startMs": 224518,
+"endMs": 224709,
+"timestampMs": 224613,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "matter",
+"startMs": 224709,
+"endMs": 225059,
+"timestampMs": 224884,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "if",
+"startMs": 225059,
+"endMs": 225179,
+"timestampMs": 225119,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "he",
+"startMs": 225179,
+"endMs": 225299,
+"timestampMs": 225239,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "comes",
+"startMs": 225299,
+"endMs": 225590,
+"timestampMs": 225444,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "or",
+"startMs": 225590,
+"endMs": 225710,
+"timestampMs": 225650,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "not.",
+"startMs": 225710,
+"endMs": 225880,
+"timestampMs": 225795,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "You",
+"startMs": 226140,
+"endMs": 226339,
+"timestampMs": 226239,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "breathe",
+"startMs": 226339,
+"endMs": 226545,
+"timestampMs": 226442,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "out.",
+"startMs": 226545,
+"endMs": 226690,
+"timestampMs": 226618,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "But",
+"startMs": 227040,
+"endMs": 227333,
+"timestampMs": 227187,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "for",
+"startMs": 227333,
+"endMs": 227413,
+"timestampMs": 227373,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "the",
+"startMs": 227393,
+"endMs": 227568,
+"timestampMs": 227480,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "first",
+"startMs": 227568,
+"endMs": 227861,
+"timestampMs": 227714,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "time,",
+"startMs": 227861,
+"endMs": 228232,
+"timestampMs": 228046,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "you",
+"startMs": 228232,
+"endMs": 228594,
+"timestampMs": 228413,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "wish",
+"startMs": 228594,
+"endMs": 228674,
+"timestampMs": 228634,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "you",
+"startMs": 228654,
+"endMs": 228734,
+"timestampMs": 228694,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "didn't",
+"startMs": 228721,
+"endMs": 229053,
+"timestampMs": 228887,
+"confidence": 0.5
+},
+{
+"line": "L137",
+"text": "have",
+"startMs": 229053,
+"endMs": 229258,
+"timestampMs": 229155,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "to",
+"startMs": 229258,
+"endMs": 229356,
+"timestampMs": 229307,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "come",
+"startMs": 229356,
+"endMs": 229561,
+"timestampMs": 229458,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "back.",
+"startMs": 229561,
+"endMs": 229790,
+"timestampMs": 229675,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "So",
+"startMs": 230250,
+"endMs": 230540,
+"timestampMs": 230395,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "now",
+"startMs": 230540,
+"endMs": 230620,
+"timestampMs": 230580,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "there's",
+"startMs": 230600,
+"endMs": 230930,
+"timestampMs": 230765,
+"confidence": 0.5
+},
+{
+"line": "L138",
+"text": "a",
+"startMs": 230930,
+"endMs": 231010,
+"timestampMs": 230970,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "rule.",
+"startMs": 230990,
+"endMs": 231210,
+"timestampMs": 231100,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "Nobody",
+"startMs": 231780,
+"endMs": 232256,
+"timestampMs": 232018,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "needs",
+"startMs": 232256,
+"endMs": 232434,
+"timestampMs": 232345,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "to",
+"startMs": 232434,
+"endMs": 232553,
+"timestampMs": 232494,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "see",
+"startMs": 232553,
+"endMs": 232731,
+"timestampMs": 232642,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "me.",
+"startMs": 232731,
+"endMs": 232890,
+"timestampMs": 232811,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "You",
+"startMs": 233470,
+"endMs": 233646,
+"timestampMs": 233558,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "eat",
+"startMs": 233646,
+"endMs": 233952,
+"timestampMs": 233799,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "lunch",
+"startMs": 233952,
+"endMs": 234136,
+"timestampMs": 234044,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "alone.",
+"startMs": 234136,
+"endMs": 234410,
+"timestampMs": 234273,
+"confidence": 1
+},
+{
+"line": "L141",
+"text": "Invisible.",
+"startMs": 234980,
+"endMs": 235650,
+"timestampMs": 235315,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "You",
+"startMs": 236370,
+"endMs": 236450,
+"timestampMs": 236410,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "walk",
+"startMs": 236444,
+"endMs": 236726,
+"timestampMs": 236585,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "home",
+"startMs": 236726,
+"endMs": 237008,
+"timestampMs": 236867,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "alone.",
+"startMs": 237008,
+"endMs": 237270,
+"timestampMs": 237139,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "Invisible.",
+"startMs": 237920,
+"endMs": 238620,
+"timestampMs": 238270,
+"confidence": 1
+},
+{
+"line": "L144",
+"text": "Three",
+"startMs": 239130,
+"endMs": 239712,
+"timestampMs": 239421,
+"confidence": 1
+},
+{
+"line": "L144",
+"text": "minutes",
+"startMs": 239712,
+"endMs": 239792,
+"timestampMs": 239752,
+"confidence": 1
+},
+{
+"line": "L144",
+"text": "a",
+"startMs": 239782,
+"endMs": 239904,
+"timestampMs": 239843,
+"confidence": 0.5
+},
+{
+"line": "L144",
+"text": "breath.",
+"startMs": 239904,
+"endMs": 240230,
+"timestampMs": 240067,
+"confidence": 1
+},
+{
+"line": "L145",
+"text": "Then",
+"startMs": 240730,
+"endMs": 241030,
+"timestampMs": 240880,
+"confidence": 1
+},
+{
+"line": "L145",
+"text": "breathe.",
+"startMs": 241030,
+"endMs": 241480,
+"timestampMs": 241255,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "Then",
+"startMs": 241650,
+"endMs": 241936,
+"timestampMs": 241793,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "hold",
+"startMs": 241936,
+"endMs": 242199,
+"timestampMs": 242067,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "it",
+"startMs": 242199,
+"endMs": 242279,
+"timestampMs": 242239,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "again.",
+"startMs": 242276,
+"endMs": 242550,
+"timestampMs": 242413,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "And",
+"startMs": 242940,
+"endMs": 243382,
+"timestampMs": 243161,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "something",
+"startMs": 243382,
+"endMs": 243593,
+"timestampMs": 243487,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "strange",
+"startMs": 243593,
+"endMs": 243970,
+"timestampMs": 243782,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "starts",
+"startMs": 243970,
+"endMs": 244301,
+"timestampMs": 244136,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "to",
+"startMs": 244301,
+"endMs": 244412,
+"timestampMs": 244357,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "happen.",
+"startMs": 244412,
+"endMs": 244730,
+"timestampMs": 244571,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "Even",
+"startMs": 245060,
+"endMs": 245407,
+"timestampMs": 245234,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "when",
+"startMs": 245407,
+"endMs": 245578,
+"timestampMs": 245493,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "you're",
+"startMs": 245578,
+"endMs": 245664,
+"timestampMs": 245621,
+"confidence": 0.5
+},
+{
+"line": "L148",
+"text": "breathing",
+"startMs": 245664,
+"endMs": 246194,
+"timestampMs": 245929,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "people",
+"startMs": 246194,
+"endMs": 246613,
+"timestampMs": 246403,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "don't",
+"startMs": 246613,
+"endMs": 246861,
+"timestampMs": 246737,
+"confidence": 0.5
+},
+{
+"line": "L148",
+"text": "see",
+"startMs": 246861,
+"endMs": 247044,
+"timestampMs": 246953,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "you.",
+"startMs": 247044,
+"endMs": 247260,
+"timestampMs": 247152,
+"confidence": 1
+},
+{
+"line": "L149",
+"text": "The",
+"startMs": 247570,
+"endMs": 247950,
+"timestampMs": 247760,
+"confidence": 1
+},
+{
+"line": "L149",
+"text": "teacher",
+"startMs": 247950,
+"endMs": 248108,
+"timestampMs": 248029,
+"confidence": 1
+},
+{
+"line": "L149",
+"text": "takes",
+"startMs": 248108,
+"endMs": 248372,
+"timestampMs": 248240,
+"confidence": 1
+},
+{
+"line": "L149",
+"text": "attendance.",
+"startMs": 248372,
+"endMs": 248830,
+"timestampMs": 248601,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "Calls",
+"startMs": 249050,
+"endMs": 249397,
+"timestampMs": 249223,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "your",
+"startMs": 249397,
+"endMs": 249584,
+"timestampMs": 249490,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "name.",
+"startMs": 249584,
+"endMs": 249830,
+"timestampMs": 249707,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "You",
+"startMs": 250150,
+"endMs": 250518,
+"timestampMs": 250334,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "raise",
+"startMs": 250518,
+"endMs": 250638,
+"timestampMs": 250578,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "your",
+"startMs": 250638,
+"endMs": 250878,
+"timestampMs": 250758,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "hand.",
+"startMs": 250878,
+"endMs": 251120,
+"timestampMs": 250999,
+"confidence": 1
+},
+{
+"line": "L152",
+"text": "You",
+"startMs": 251430,
+"endMs": 251769,
+"timestampMs": 251600,
+"confidence": 1
+},
+{
+"line": "L152",
+"text": "say",
+"startMs": 251769,
+"endMs": 252074,
+"timestampMs": 251922,
+"confidence": 1
+},
+{
+"line": "L152",
+"text": "\"Here.\"",
+"startMs": 252074,
+"endMs": 252460,
+"timestampMs": 252267,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "Has",
+"startMs": 252640,
+"endMs": 253038,
+"timestampMs": 252839,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "anyone",
+"startMs": 253038,
+"endMs": 253174,
+"timestampMs": 253106,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "seen",
+"startMs": 253174,
+"endMs": 253417,
+"timestampMs": 253296,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "him",
+"startMs": 253417,
+"endMs": 253592,
+"timestampMs": 253505,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "today?",
+"startMs": 253592,
+"endMs": 253870,
+"timestampMs": 253731,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "On",
+"startMs": 254190,
+"endMs": 254537,
+"timestampMs": 254363,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "your",
+"startMs": 254537,
+"endMs": 254617,
+"timestampMs": 254577,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "birthday,",
+"startMs": 254597,
+"endMs": 255192,
+"timestampMs": 254894,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "the",
+"startMs": 255192,
+"endMs": 255635,
+"timestampMs": 255413,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "group",
+"startMs": 255635,
+"endMs": 255750,
+"timestampMs": 255692,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "chat",
+"startMs": 255750,
+"endMs": 255991,
+"timestampMs": 255871,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "stays",
+"startMs": 255991,
+"endMs": 256318,
+"timestampMs": 256155,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "silent",
+"startMs": 256318,
+"endMs": 256713,
+"timestampMs": 256516,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "all",
+"startMs": 256713,
+"endMs": 256906,
+"timestampMs": 256810,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "day.",
+"startMs": 256906,
+"endMs": 257140,
+"timestampMs": 257023,
+"confidence": 1
+},
+{
+"line": "L155",
+"text": "Only",
+"startMs": 257420,
+"endMs": 257873,
+"timestampMs": 257646,
+"confidence": 1
+},
+{
+"line": "L155",
+"text": "Bin.",
+"startMs": 257873,
+"endMs": 258250,
+"timestampMs": 258061,
+"confidence": 0.5
+},
+{
+"line": "L156",
+"text": "That",
+"startMs": 258480,
+"endMs": 258652,
+"timestampMs": 258566,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "night,",
+"startMs": 258652,
+"endMs": 259169,
+"timestampMs": 258911,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "Bin",
+"startMs": 259169,
+"endMs": 259384,
+"timestampMs": 259277,
+"confidence": 0.5
+},
+{
+"line": "L156",
+"text": "climbs",
+"startMs": 259384,
+"endMs": 259718,
+"timestampMs": 259551,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "into",
+"startMs": 259718,
+"endMs": 260019,
+"timestampMs": 259869,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "your",
+"startMs": 260019,
+"endMs": 260321,
+"timestampMs": 260170,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "bed,",
+"startMs": 260321,
+"endMs": 260816,
+"timestampMs": 260569,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "lies",
+"startMs": 260816,
+"endMs": 261139,
+"timestampMs": 260978,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "down",
+"startMs": 261139,
+"endMs": 261451,
+"timestampMs": 261295,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "next",
+"startMs": 261451,
+"endMs": 261774,
+"timestampMs": 261613,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "to",
+"startMs": 261774,
+"endMs": 261925,
+"timestampMs": 261850,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "you.",
+"startMs": 261925,
+"endMs": 262190,
+"timestampMs": 262058,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "Big",
+"startMs": 262480,
+"endMs": 262712,
+"timestampMs": 262596,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "brother.",
+"startMs": 262712,
+"endMs": 263130,
+"timestampMs": 262921,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "Were",
+"startMs": 263380,
+"endMs": 263675,
+"timestampMs": 263527,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "you",
+"startMs": 263675,
+"endMs": 263755,
+"timestampMs": 263715,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "holding",
+"startMs": 263737,
+"endMs": 263979,
+"timestampMs": 263858,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "your",
+"startMs": 263979,
+"endMs": 264139,
+"timestampMs": 264059,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "breath",
+"startMs": 264139,
+"endMs": 264398,
+"timestampMs": 264269,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "all",
+"startMs": 264398,
+"endMs": 264523,
+"timestampMs": 264461,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "day?",
+"startMs": 264523,
+"endMs": 264670,
+"timestampMs": 264597,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "It",
+"startMs": 264970,
+"endMs": 265389,
+"timestampMs": 265179,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "sounds",
+"startMs": 265389,
+"endMs": 265593,
+"timestampMs": 265491,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "so",
+"startMs": 265593,
+"endMs": 265743,
+"timestampMs": 265668,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "tiring.",
+"startMs": 265743,
+"endMs": 266130,
+"timestampMs": 265937,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "The",
+"startMs": 266380,
+"endMs": 266690,
+"timestampMs": 266535,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "Mid-Autumn",
+"startMs": 266690,
+"endMs": 267000,
+"timestampMs": 266845,
+"confidence": 0.5
+},
+{
+"line": "L160",
+"text": "Festival.",
+"startMs": 267000,
+"endMs": 267620,
+"timestampMs": 267310,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "Lantern",
+"startMs": 267900,
+"endMs": 268499,
+"timestampMs": 268199,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "Street,",
+"startMs": 268499,
+"endMs": 269040,
+"timestampMs": 268769,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "in",
+"startMs": 269040,
+"endMs": 269207,
+"timestampMs": 269124,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "Saigon's",
+"startMs": 269207,
+"endMs": 269705,
+"timestampMs": 269456,
+"confidence": 0.5
+},
+{
+"line": "L161",
+"text": "Chinatown.",
+"startMs": 269705,
+"endMs": 270390,
+"timestampMs": 270048,
+"confidence": 1
+},
+{
+"line": "L162",
+"text": "Packed.",
+"startMs": 270650,
+"endMs": 271110,
+"timestampMs": 270880,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "Star",
+"startMs": 271380,
+"endMs": 271708,
+"timestampMs": 271544,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "lanterns,",
+"startMs": 271708,
+"endMs": 272635,
+"timestampMs": 272172,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "carp",
+"startMs": 272635,
+"endMs": 272907,
+"timestampMs": 272771,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "lanterns,",
+"startMs": 272907,
+"endMs": 273685,
+"timestampMs": 273296,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "spinning",
+"startMs": 273685,
+"endMs": 274191,
+"timestampMs": 273938,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "lanterns.",
+"startMs": 274191,
+"endMs": 274860,
+"timestampMs": 274525,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "Lion",
+"startMs": 275080,
+"endMs": 275465,
+"timestampMs": 275273,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "dance",
+"startMs": 275465,
+"endMs": 275970,
+"timestampMs": 275718,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "drums.",
+"startMs": 275970,
+"endMs": 276450,
+"timestampMs": 276210,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "You're",
+"startMs": 276700,
+"endMs": 276966,
+"timestampMs": 276833,
+"confidence": 0.5
+},
+{
+"line": "L165",
+"text": "holding",
+"startMs": 276966,
+"endMs": 277445,
+"timestampMs": 277205,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "Bin's",
+"startMs": 277445,
+"endMs": 277711,
+"timestampMs": 277578,
+"confidence": 0.5
+},
+{
+"line": "L165",
+"text": "hand.",
+"startMs": 277711,
+"endMs": 278030,
+"timestampMs": 277870,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "A",
+"startMs": 278170,
+"endMs": 278456,
+"timestampMs": 278313,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "lantern",
+"startMs": 278456,
+"endMs": 278781,
+"timestampMs": 278619,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "in",
+"startMs": 278781,
+"endMs": 278929,
+"timestampMs": 278855,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "one",
+"startMs": 278929,
+"endMs": 279146,
+"timestampMs": 279038,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "hand,",
+"startMs": 279146,
+"endMs": 279728,
+"timestampMs": 279437,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "your",
+"startMs": 279728,
+"endMs": 279984,
+"timestampMs": 279856,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "brother",
+"startMs": 279984,
+"endMs": 280221,
+"timestampMs": 280102,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "in",
+"startMs": 280221,
+"endMs": 280309,
+"timestampMs": 280265,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "the",
+"startMs": 280309,
+"endMs": 280447,
+"timestampMs": 280378,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "other.",
+"startMs": 280447,
+"endMs": 280760,
+"timestampMs": 280604,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "Then",
+"startMs": 281190,
+"endMs": 281620,
+"timestampMs": 281405,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "the",
+"startMs": 281620,
+"endMs": 281700,
+"timestampMs": 281660,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "crowd",
+"startMs": 281684,
+"endMs": 281931,
+"timestampMs": 281807,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "shoves.",
+"startMs": 281931,
+"endMs": 282260,
+"timestampMs": 282095,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "Your",
+"startMs": 282450,
+"endMs": 282833,
+"timestampMs": 282641,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "hand",
+"startMs": 282833,
+"endMs": 283066,
+"timestampMs": 282950,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "is",
+"startMs": 283066,
+"endMs": 283215,
+"timestampMs": 283141,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "empty.",
+"startMs": 283215,
+"endMs": 283550,
+"timestampMs": 283383,
+"confidence": 1
+},
+{
+"line": "L169",
+"text": "You",
+"startMs": 283850,
+"endMs": 284052,
+"timestampMs": 283951,
+"confidence": 1
+},
+{
+"line": "L169",
+"text": "turn",
+"startMs": 284052,
+"endMs": 284331,
+"timestampMs": 284191,
+"confidence": 1
+},
+{
+"line": "L169",
+"text": "around.",
+"startMs": 284331,
+"endMs": 284680,
+"timestampMs": 284505,
+"confidence": 1
+},
+{
+"line": "L170",
+"text": "There.",
+"startMs": 284900,
+"endMs": 285340,
+"timestampMs": 285120,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "A",
+"startMs": 285520,
+"endMs": 285608,
+"timestampMs": 285564,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "man",
+"startMs": 285608,
+"endMs": 285911,
+"timestampMs": 285760,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "in",
+"startMs": 285911,
+"endMs": 286068,
+"timestampMs": 285989,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "a",
+"startMs": 286068,
+"endMs": 286156,
+"timestampMs": 286112,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "baseball",
+"startMs": 286156,
+"endMs": 286909,
+"timestampMs": 286532,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "cap,",
+"startMs": 286909,
+"endMs": 287202,
+"timestampMs": 287055,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "carrying",
+"startMs": 287202,
+"endMs": 287282,
+"timestampMs": 287242,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "Bin",
+"startMs": 287275,
+"endMs": 287779,
+"timestampMs": 287527,
+"confidence": 0.5
+},
+{
+"line": "L171",
+"text": "toward",
+"startMs": 287779,
+"endMs": 288102,
+"timestampMs": 287941,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "the",
+"startMs": 288102,
+"endMs": 288258,
+"timestampMs": 288180,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "end",
+"startMs": 288258,
+"endMs": 288483,
+"timestampMs": 288371,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "of",
+"startMs": 288483,
+"endMs": 288563,
+"timestampMs": 288523,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "the",
+"startMs": 288543,
+"endMs": 288679,
+"timestampMs": 288611,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "street.",
+"startMs": 288679,
+"endMs": 289030,
+"timestampMs": 288854,
+"confidence": 1
+},
+{
+"line": "L172",
+"text": "Very",
+"startMs": 289230,
+"endMs": 289695,
+"timestampMs": 289463,
+"confidence": 1
+},
+{
+"line": "L172",
+"text": "fast.",
+"startMs": 289695,
+"endMs": 290160,
+"timestampMs": 289928,
+"confidence": 1
+},
+{
+"line": "L173",
+"text": "Very",
+"startMs": 290360,
+"endMs": 290770,
+"timestampMs": 290565,
+"confidence": 1
+},
+{
+"line": "L173",
+"text": "calm.",
+"startMs": 290770,
+"endMs": 291180,
+"timestampMs": 290975,
+"confidence": 1
+},
+{
+"line": "L174",
+"text": "Bin",
+"startMs": 291430,
+"endMs": 291641,
+"timestampMs": 291536,
+"confidence": 0.5
+},
+{
+"line": "L174",
+"text": "is",
+"startMs": 291641,
+"endMs": 291810,
+"timestampMs": 291726,
+"confidence": 1
+},
+{
+"line": "L174",
+"text": "kicking.",
+"startMs": 291810,
+"endMs": 292190,
+"timestampMs": 292000,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "His",
+"startMs": 292410,
+"endMs": 292820,
+"timestampMs": 292615,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "voice",
+"startMs": 292820,
+"endMs": 293004,
+"timestampMs": 292912,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "is",
+"startMs": 293004,
+"endMs": 293127,
+"timestampMs": 293066,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "lost",
+"startMs": 293127,
+"endMs": 293414,
+"timestampMs": 293270,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "in",
+"startMs": 293414,
+"endMs": 293557,
+"timestampMs": 293486,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "the",
+"startMs": 293557,
+"endMs": 293772,
+"timestampMs": 293665,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "drums.",
+"startMs": 293772,
+"endMs": 294080,
+"timestampMs": 293926,
+"confidence": 1
+},
+{
+"line": "L176",
+"text": "Nobody",
+"startMs": 294330,
+"endMs": 294772,
+"timestampMs": 294551,
+"confidence": 1
+},
+{
+"line": "L176",
+"text": "notices.",
+"startMs": 294772,
+"endMs": 295270,
+"timestampMs": 295021,
+"confidence": 1
+},
+{
+"line": "L177",
+"text": "Nobody",
+"startMs": 295430,
+"endMs": 295924,
+"timestampMs": 295677,
+"confidence": 1
+},
+{
+"line": "L177",
+"text": "ever",
+"startMs": 295924,
+"endMs": 296246,
+"timestampMs": 296085,
+"confidence": 1
+},
+{
+"line": "L177",
+"text": "notices.",
+"startMs": 296246,
+"endMs": 296770,
+"timestampMs": 296508,
+"confidence": 1
+},
+{
+"line": "L178",
+"text": "You",
+"startMs": 296960,
+"endMs": 297155,
+"timestampMs": 297058,
+"confidence": 1
+},
+{
+"line": "L178",
+"text": "take",
+"startMs": 297155,
+"endMs": 297421,
+"timestampMs": 297288,
+"confidence": 1
+},
+{
+"line": "L178",
+"text": "a",
+"startMs": 297421,
+"endMs": 297501,
+"timestampMs": 297461,
+"confidence": 1
+},
+{
+"line": "L178",
+"text": "breath.",
+"startMs": 297501,
+"endMs": 297810,
+"timestampMs": 297655,
+"confidence": 1
+},
+{
+"line": "L179",
+"text": "Hold",
+"startMs": 298000,
+"endMs": 298246,
+"timestampMs": 298123,
+"confidence": 1
+},
+{
+"line": "L179",
+"text": "it.",
+"startMs": 298246,
+"endMs": 298410,
+"timestampMs": 298328,
+"confidence": 1
+},
+{
+"line": "L180",
+"text": "Gone.",
+"startMs": 298720,
+"endMs": 299160,
+"timestampMs": 298940,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "You",
+"startMs": 299400,
+"endMs": 299753,
+"timestampMs": 299576,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "slip",
+"startMs": 299753,
+"endMs": 299833,
+"timestampMs": 299793,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "through",
+"startMs": 299813,
+"endMs": 300143,
+"timestampMs": 299978,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "the",
+"startMs": 300143,
+"endMs": 300267,
+"timestampMs": 300205,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "crowd.",
+"startMs": 300267,
+"endMs": 300510,
+"timestampMs": 300389,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "Nobody",
+"startMs": 300580,
+"endMs": 300967,
+"timestampMs": 300773,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "can",
+"startMs": 300967,
+"endMs": 301155,
+"timestampMs": 301061,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "stop",
+"startMs": 301155,
+"endMs": 301396,
+"timestampMs": 301275,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "what",
+"startMs": 301396,
+"endMs": 301657,
+"timestampMs": 301526,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "they",
+"startMs": 301657,
+"endMs": 301994,
+"timestampMs": 301826,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "can't",
+"startMs": 301994,
+"endMs": 302222,
+"timestampMs": 302108,
+"confidence": 0.5
+},
+{
+"line": "L182",
+"text": "see.",
+"startMs": 302222,
+"endMs": 302450,
+"timestampMs": 302336,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "One",
+"startMs": 302740,
+"endMs": 302944,
+"timestampMs": 302842,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "minute.",
+"startMs": 302944,
+"endMs": 303270,
+"timestampMs": 303107,
+"confidence": 1
+},
+{
+"line": "L184",
+"text": "You're",
+"startMs": 303570,
+"endMs": 303841,
+"timestampMs": 303705,
+"confidence": 0.5
+},
+{
+"line": "L184",
+"text": "close.",
+"startMs": 303841,
+"endMs": 304220,
+"timestampMs": 304030,
+"confidence": 1
+},
+{
+"line": "L185",
+"text": "Two",
+"startMs": 304570,
+"endMs": 304835,
+"timestampMs": 304703,
+"confidence": 1
+},
+{
+"line": "L185",
+"text": "meters.",
+"startMs": 304835,
+"endMs": 305260,
+"timestampMs": 305048,
+"confidence": 1
+},
+{
+"line": "L186",
+"text": "One",
+"startMs": 305510,
+"endMs": 305777,
+"timestampMs": 305643,
+"confidence": 1
+},
+{
+"line": "L186",
+"text": "meter.",
+"startMs": 305777,
+"endMs": 306150,
+"timestampMs": 305963,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "You",
+"startMs": 306470,
+"endMs": 306855,
+"timestampMs": 306662,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "grab",
+"startMs": 306855,
+"endMs": 307005,
+"timestampMs": 306930,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "Bin's",
+"startMs": 307005,
+"endMs": 307248,
+"timestampMs": 307127,
+"confidence": 0.5
+},
+{
+"line": "L187",
+"text": "hand.",
+"startMs": 307248,
+"endMs": 307540,
+"timestampMs": 307394,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "The",
+"startMs": 307840,
+"endMs": 308219,
+"timestampMs": 308030,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "man",
+"startMs": 308219,
+"endMs": 308332,
+"timestampMs": 308275,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "yanks",
+"startMs": 308332,
+"endMs": 308742,
+"timestampMs": 308537,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "hard.",
+"startMs": 308742,
+"endMs": 309060,
+"timestampMs": 308901,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "You",
+"startMs": 309310,
+"endMs": 309651,
+"timestampMs": 309481,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "lose",
+"startMs": 309651,
+"endMs": 309736,
+"timestampMs": 309694,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "your",
+"startMs": 309736,
+"endMs": 309983,
+"timestampMs": 309859,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "grip.",
+"startMs": 309983,
+"endMs": 310220,
+"timestampMs": 310101,
+"confidence": 1
+},
+{
+"line": "L190",
+"text": "He",
+"startMs": 310420,
+"endMs": 310780,
+"timestampMs": 310600,
+"confidence": 1
+},
+{
+"line": "L190",
+"text": "walks",
+"startMs": 310780,
+"endMs": 311005,
+"timestampMs": 310892,
+"confidence": 1
+},
+{
+"line": "L190",
+"text": "faster.",
+"startMs": 311005,
+"endMs": 311430,
+"timestampMs": 311217,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "Reaches",
+"startMs": 311690,
+"endMs": 312041,
+"timestampMs": 311866,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "the",
+"startMs": 312041,
+"endMs": 312198,
+"timestampMs": 312120,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "end",
+"startMs": 312198,
+"endMs": 312364,
+"timestampMs": 312281,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "of",
+"startMs": 312364,
+"endMs": 312452,
+"timestampMs": 312408,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "the",
+"startMs": 312452,
+"endMs": 312608,
+"timestampMs": 312530,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "street.",
+"startMs": 312608,
+"endMs": 312870,
+"timestampMs": 312739,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "A",
+"startMs": 313050,
+"endMs": 313130,
+"timestampMs": 313090,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "motorbike",
+"startMs": 313110,
+"endMs": 313589,
+"timestampMs": 313350,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "is",
+"startMs": 313589,
+"endMs": 313724,
+"timestampMs": 313657,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "waiting,",
+"startMs": 313724,
+"endMs": 314288,
+"timestampMs": 314006,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "engine",
+"startMs": 314288,
+"endMs": 314705,
+"timestampMs": 314496,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "running.",
+"startMs": 314705,
+"endMs": 315130,
+"timestampMs": 314917,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "Two",
+"startMs": 315360,
+"endMs": 315621,
+"timestampMs": 315490,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "minutes.",
+"startMs": 315621,
+"endMs": 316090,
+"timestampMs": 315855,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "It",
+"startMs": 316210,
+"endMs": 316310,
+"timestampMs": 316260,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "feels",
+"startMs": 316310,
+"endMs": 316572,
+"timestampMs": 316441,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "like",
+"startMs": 316572,
+"endMs": 316783,
+"timestampMs": 316677,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "someone",
+"startMs": 316783,
+"endMs": 317155,
+"timestampMs": 316969,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "is",
+"startMs": 317155,
+"endMs": 317255,
+"timestampMs": 317205,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "sitting",
+"startMs": 317255,
+"endMs": 317627,
+"timestampMs": 317441,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "on",
+"startMs": 317627,
+"endMs": 317728,
+"timestampMs": 317677,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "your",
+"startMs": 317728,
+"endMs": 317969,
+"timestampMs": 317848,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "chest.",
+"startMs": 317969,
+"endMs": 318220,
+"timestampMs": 318094,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "Two",
+"startMs": 318490,
+"endMs": 318878,
+"timestampMs": 318684,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "and",
+"startMs": 318878,
+"endMs": 319078,
+"timestampMs": 318978,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "a",
+"startMs": 319078,
+"endMs": 319158,
+"timestampMs": 319118,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "half.",
+"startMs": 319138,
+"endMs": 319430,
+"timestampMs": 319284,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "The",
+"startMs": 319500,
+"endMs": 319919,
+"timestampMs": 319710,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "edges",
+"startMs": 319919,
+"endMs": 320140,
+"timestampMs": 320030,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "of",
+"startMs": 320140,
+"endMs": 320220,
+"timestampMs": 320180,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "your",
+"startMs": 320200,
+"endMs": 320449,
+"timestampMs": 320325,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "vision",
+"startMs": 320449,
+"endMs": 320857,
+"timestampMs": 320653,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "start",
+"startMs": 320857,
+"endMs": 321199,
+"timestampMs": 321028,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "going",
+"startMs": 321199,
+"endMs": 321542,
+"timestampMs": 321371,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "dark.",
+"startMs": 321542,
+"endMs": 321820,
+"timestampMs": 321681,
+"confidence": 1
+},
+{
+"line": "L197",
+"text": "You",
+"startMs": 322020,
+"endMs": 322410,
+"timestampMs": 322215,
+"confidence": 1
+},
+{
+"line": "L197",
+"text": "could",
+"startMs": 322410,
+"endMs": 322490,
+"timestampMs": 322450,
+"confidence": 1
+},
+{
+"line": "L197",
+"text": "keep",
+"startMs": 322475,
+"endMs": 322703,
+"timestampMs": 322589,
+"confidence": 1
+},
+{
+"line": "L197",
+"text": "following.",
+"startMs": 322703,
+"endMs": 323120,
+"timestampMs": 322911,
+"confidence": 1
+},
+{
+"line": "L198",
+"text": "Invisible.",
+"startMs": 323380,
+"endMs": 324110,
+"timestampMs": 323745,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "Safe.",
+"startMs": 324380,
+"endMs": 325090,
+"timestampMs": 324735,
+"confidence": 1
+},
+{
+"line": "L200",
+"text": "Nobody",
+"startMs": 325190,
+"endMs": 325613,
+"timestampMs": 325401,
+"confidence": 1
+},
+{
+"line": "L200",
+"text": "sees",
+"startMs": 325613,
+"endMs": 325897,
+"timestampMs": 325755,
+"confidence": 1
+},
+{
+"line": "L200",
+"text": "you.",
+"startMs": 325897,
+"endMs": 326150,
+"timestampMs": 326024,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "But",
+"startMs": 326320,
+"endMs": 326545,
+"timestampMs": 326433,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "alone,",
+"startMs": 326545,
+"endMs": 327027,
+"timestampMs": 326786,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "you",
+"startMs": 327027,
+"endMs": 327107,
+"timestampMs": 327067,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "can't",
+"startMs": 327099,
+"endMs": 327542,
+"timestampMs": 327320,
+"confidence": 0.5
+},
+{
+"line": "L201",
+"text": "stop",
+"startMs": 327542,
+"endMs": 327810,
+"timestampMs": 327676,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "a",
+"startMs": 327810,
+"endMs": 327890,
+"timestampMs": 327850,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "grown",
+"startMs": 327874,
+"endMs": 328206,
+"timestampMs": 328040,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "man",
+"startMs": 328206,
+"endMs": 328399,
+"timestampMs": 328302,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "and",
+"startMs": 328399,
+"endMs": 328592,
+"timestampMs": 328495,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "a",
+"startMs": 328592,
+"endMs": 328672,
+"timestampMs": 328632,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "motorbike.",
+"startMs": 328656,
+"endMs": 329160,
+"timestampMs": 328908,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "You",
+"startMs": 329600,
+"endMs": 329962,
+"timestampMs": 329781,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "need",
+"startMs": 329962,
+"endMs": 330042,
+"timestampMs": 330002,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "this",
+"startMs": 330022,
+"endMs": 330171,
+"timestampMs": 330096,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "whole",
+"startMs": 330171,
+"endMs": 330492,
+"timestampMs": 330332,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "street.",
+"startMs": 330492,
+"endMs": 330790,
+"timestampMs": 330641,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "And",
+"startMs": 331060,
+"endMs": 331382,
+"timestampMs": 331221,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "for",
+"startMs": 331382,
+"endMs": 331462,
+"timestampMs": 331422,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "this",
+"startMs": 331442,
+"endMs": 331663,
+"timestampMs": 331552,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "street",
+"startMs": 331663,
+"endMs": 332025,
+"timestampMs": 331844,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "to",
+"startMs": 332025,
+"endMs": 332146,
+"timestampMs": 332085,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "see",
+"startMs": 332146,
+"endMs": 332327,
+"timestampMs": 332236,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "you",
+"startMs": 332327,
+"endMs": 332709,
+"timestampMs": 332518,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "you",
+"startMs": 332709,
+"endMs": 333111,
+"timestampMs": 332910,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "have",
+"startMs": 333111,
+"endMs": 333222,
+"timestampMs": 333166,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "to",
+"startMs": 333222,
+"endMs": 333302,
+"timestampMs": 333262,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "do",
+"startMs": 333282,
+"endMs": 333362,
+"timestampMs": 333322,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "the",
+"startMs": 333342,
+"endMs": 333503,
+"timestampMs": 333422,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "one",
+"startMs": 333503,
+"endMs": 333674,
+"timestampMs": 333588,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "thing",
+"startMs": 333674,
+"endMs": 334095,
+"timestampMs": 333885,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "you've",
+"startMs": 334095,
+"endMs": 334327,
+"timestampMs": 334211,
+"confidence": 0.5
+},
+{
+"line": "L203",
+"text": "been",
+"startMs": 334327,
+"endMs": 334528,
+"timestampMs": 334428,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "avoiding",
+"startMs": 334528,
+"endMs": 334991,
+"timestampMs": 334760,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "for",
+"startMs": 334991,
+"endMs": 335162,
+"timestampMs": 335076,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "months.",
+"startMs": 335162,
+"endMs": 335490,
+"timestampMs": 335326,
+"confidence": 1
+},
+{
+"line": "L204",
+"text": "You",
+"startMs": 335850,
+"endMs": 336290,
+"timestampMs": 336070,
+"confidence": 1
+},
+{
+"line": "L204",
+"text": "have",
+"startMs": 336290,
+"endMs": 336370,
+"timestampMs": 336330,
+"confidence": 1
+},
+{
+"line": "L204",
+"text": "to",
+"startMs": 336355,
+"endMs": 336496,
+"timestampMs": 336425,
+"confidence": 1
+},
+{
+"line": "L204",
+"text": "appear.",
+"startMs": 336496,
+"endMs": 336840,
+"timestampMs": 336668,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "And",
+"startMs": 337330,
+"endMs": 337755,
+"timestampMs": 337542,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "speak",
+"startMs": 337755,
+"endMs": 337968,
+"timestampMs": 337861,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "up.",
+"startMs": 337968,
+"endMs": 338180,
+"timestampMs": 338074,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "KIDNAPPER!",
+"startMs": 338270,
+"endMs": 339280,
+"timestampMs": 338775,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "HE'S",
+"startMs": 339290,
+"endMs": 339501,
+"timestampMs": 339396,
+"confidence": 0.5
+},
+{
+"line": "L207",
+"text": "TAKING",
+"startMs": 339501,
+"endMs": 339924,
+"timestampMs": 339712,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "MY",
+"startMs": 339924,
+"endMs": 340135,
+"timestampMs": 340029,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "BROTHER!",
+"startMs": 340135,
+"endMs": 340610,
+"timestampMs": 340372,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "You",
+"startMs": 340720,
+"endMs": 341037,
+"timestampMs": 340878,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "reappear.",
+"startMs": 341037,
+"endMs": 341670,
+"timestampMs": 341353,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "In",
+"startMs": 342050,
+"endMs": 342283,
+"timestampMs": 342167,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "the",
+"startMs": 342283,
+"endMs": 342441,
+"timestampMs": 342362,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "middle",
+"startMs": 342441,
+"endMs": 342566,
+"timestampMs": 342504,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "of",
+"startMs": 342566,
+"endMs": 342658,
+"timestampMs": 342612,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "the",
+"startMs": 342658,
+"endMs": 342799,
+"timestampMs": 342729,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "street.",
+"startMs": 342799,
+"endMs": 343030,
+"timestampMs": 342915,
+"confidence": 1
+},
+{
+"line": "L210",
+"text": "Red-faced.",
+"startMs": 343470,
+"endMs": 344300,
+"timestampMs": 343885,
+"confidence": 0.5
+},
+{
+"line": "L211",
+"text": "Gasping.",
+"startMs": 344740,
+"endMs": 345310,
+"timestampMs": 345025,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "And",
+"startMs": 345790,
+"endMs": 346168,
+"timestampMs": 345979,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "for",
+"startMs": 346168,
+"endMs": 346267,
+"timestampMs": 346217,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "the",
+"startMs": 346267,
+"endMs": 346393,
+"timestampMs": 346330,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "first",
+"startMs": 346393,
+"endMs": 346671,
+"timestampMs": 346532,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "time",
+"startMs": 346671,
+"endMs": 346923,
+"timestampMs": 346797,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "in",
+"startMs": 346923,
+"endMs": 347049,
+"timestampMs": 346986,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "months",
+"startMs": 347049,
+"endMs": 347643,
+"timestampMs": 347346,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "everyone",
+"startMs": 347643,
+"endMs": 348128,
+"timestampMs": 347885,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "is",
+"startMs": 348128,
+"endMs": 348209,
+"timestampMs": 348169,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "looking",
+"startMs": 348209,
+"endMs": 348596,
+"timestampMs": 348403,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "at",
+"startMs": 348596,
+"endMs": 348740,
+"timestampMs": 348668,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "you.",
+"startMs": 348740,
+"endMs": 348960,
+"timestampMs": 348850,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "The",
+"startMs": 349350,
+"endMs": 349749,
+"timestampMs": 349549,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "lion",
+"startMs": 349749,
+"endMs": 349830,
+"timestampMs": 349790,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "dance",
+"startMs": 349830,
+"endMs": 350166,
+"timestampMs": 349998,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "drums",
+"startMs": 350166,
+"endMs": 350519,
+"timestampMs": 350343,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "stop.",
+"startMs": 350519,
+"endMs": 350800,
+"timestampMs": 350660,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "The",
+"startMs": 350990,
+"endMs": 351237,
+"timestampMs": 351114,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "lantern",
+"startMs": 351237,
+"endMs": 351525,
+"timestampMs": 351381,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "seller",
+"startMs": 351525,
+"endMs": 351834,
+"timestampMs": 351680,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "steps",
+"startMs": 351834,
+"endMs": 352092,
+"timestampMs": 351963,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "in",
+"startMs": 352092,
+"endMs": 352195,
+"timestampMs": 352143,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "front",
+"startMs": 352195,
+"endMs": 352452,
+"timestampMs": 352323,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "of",
+"startMs": 352452,
+"endMs": 352555,
+"timestampMs": 352504,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "the",
+"startMs": 352555,
+"endMs": 352709,
+"timestampMs": 352632,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "bike.",
+"startMs": 352709,
+"endMs": 352920,
+"timestampMs": 352815,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "Two",
+"startMs": 353290,
+"endMs": 353724,
+"timestampMs": 353507,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "motorbike",
+"startMs": 353724,
+"endMs": 354042,
+"timestampMs": 353883,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "taxi",
+"startMs": 354042,
+"endMs": 354350,
+"timestampMs": 354196,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "drivers",
+"startMs": 354350,
+"endMs": 354736,
+"timestampMs": 354543,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "grab",
+"startMs": 354736,
+"endMs": 354996,
+"timestampMs": 354866,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "the",
+"startMs": 354996,
+"endMs": 355271,
+"timestampMs": 355134,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "man's",
+"startMs": 355271,
+"endMs": 355507,
+"timestampMs": 355389,
+"confidence": 0.5
+},
+{
+"line": "L215",
+"text": "arms.",
+"startMs": 355507,
+"endMs": 355790,
+"timestampMs": 355648,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "A",
+"startMs": 356090,
+"endMs": 356170,
+"timestampMs": 356130,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "woman",
+"startMs": 356154,
+"endMs": 356483,
+"timestampMs": 356318,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "selling",
+"startMs": 356483,
+"endMs": 356912,
+"timestampMs": 356697,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "grilled",
+"startMs": 356912,
+"endMs": 357341,
+"timestampMs": 357127,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "corn",
+"startMs": 357341,
+"endMs": 357597,
+"timestampMs": 357469,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "scoops",
+"startMs": 357597,
+"endMs": 357951,
+"timestampMs": 357774,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "Bin",
+"startMs": 357951,
+"endMs": 358173,
+"timestampMs": 358062,
+"confidence": 0.5
+},
+{
+"line": "L216",
+"text": "up.",
+"startMs": 358173,
+"endMs": 358350,
+"timestampMs": 358261,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "He",
+"startMs": 358580,
+"endMs": 358870,
+"timestampMs": 358725,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "tries",
+"startMs": 358870,
+"endMs": 359070,
+"timestampMs": 358970,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "to",
+"startMs": 359070,
+"endMs": 359240,
+"timestampMs": 359155,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "run.",
+"startMs": 359240,
+"endMs": 359460,
+"timestampMs": 359350,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "Too",
+"startMs": 359670,
+"endMs": 359920,
+"timestampMs": 359795,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "late.",
+"startMs": 359920,
+"endMs": 360220,
+"timestampMs": 360070,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "Five",
+"startMs": 360430,
+"endMs": 360839,
+"timestampMs": 360635,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "minutes",
+"startMs": 360839,
+"endMs": 361102,
+"timestampMs": 360971,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "later,",
+"startMs": 361102,
+"endMs": 361618,
+"timestampMs": 361360,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "the",
+"startMs": 361618,
+"endMs": 361881,
+"timestampMs": 361750,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "police",
+"startMs": 361881,
+"endMs": 362115,
+"timestampMs": 361998,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "arrive.",
+"startMs": 362115,
+"endMs": 362500,
+"timestampMs": 362307,
+"confidence": 1
+},
+{
+"line": "L220",
+"text": "Bin",
+"startMs": 362780,
+"endMs": 363002,
+"timestampMs": 362891,
+"confidence": 0.5
+},
+{
+"line": "L220",
+"text": "runs",
+"startMs": 363002,
+"endMs": 363238,
+"timestampMs": 363120,
+"confidence": 1
+},
+{
+"line": "L220",
+"text": "to",
+"startMs": 363238,
+"endMs": 363448,
+"timestampMs": 363343,
+"confidence": 1
+},
+{
+"line": "L220",
+"text": "you.",
+"startMs": 363448,
+"endMs": 363670,
+"timestampMs": 363559,
+"confidence": 1
+},
+{
+"line": "L221",
+"text": "Hugs",
+"startMs": 363870,
+"endMs": 364139,
+"timestampMs": 364005,
+"confidence": 1
+},
+{
+"line": "L221",
+"text": "your",
+"startMs": 364139,
+"endMs": 364357,
+"timestampMs": 364248,
+"confidence": 1
+},
+{
+"line": "L221",
+"text": "legs.",
+"startMs": 364357,
+"endMs": 364600,
+"timestampMs": 364478,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "Crying.",
+"startMs": 364850,
+"endMs": 365360,
+"timestampMs": 365105,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "I",
+"startMs": 365650,
+"endMs": 365730,
+"timestampMs": 365690,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "knew",
+"startMs": 365712,
+"endMs": 365959,
+"timestampMs": 365835,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "you",
+"startMs": 365959,
+"endMs": 366144,
+"timestampMs": 366052,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "were",
+"startMs": 366144,
+"endMs": 366376,
+"timestampMs": 366260,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "there.",
+"startMs": 366376,
+"endMs": 366630,
+"timestampMs": 366503,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "I",
+"startMs": 366880,
+"endMs": 366960,
+"timestampMs": 366920,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "heard",
+"startMs": 366940,
+"endMs": 367345,
+"timestampMs": 367142,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "you",
+"startMs": 367345,
+"endMs": 367425,
+"timestampMs": 367385,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "holding",
+"startMs": 367405,
+"endMs": 367849,
+"timestampMs": 367627,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "your",
+"startMs": 367849,
+"endMs": 368017,
+"timestampMs": 367933,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "breath.",
+"startMs": 368017,
+"endMs": 368320,
+"timestampMs": 368168,
+"confidence": 1
+},
+{
+"line": "L225",
+"text": "This",
+"startMs": 368510,
+"endMs": 368923,
+"timestampMs": 368716,
+"confidence": 1
+},
+{
+"line": "L225",
+"text": "time",
+"startMs": 368923,
+"endMs": 369045,
+"timestampMs": 368984,
+"confidence": 1
+},
+{
+"line": "L225",
+"text": "I'm",
+"startMs": 369045,
+"endMs": 369179,
+"timestampMs": 369112,
+"confidence": 0.5
+},
+{
+"line": "L225",
+"text": "breathing.",
+"startMs": 369179,
+"endMs": 369670,
+"timestampMs": 369425,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "You",
+"startMs": 370050,
+"endMs": 370425,
+"timestampMs": 370237,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "sit",
+"startMs": 370425,
+"endMs": 370505,
+"timestampMs": 370465,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "down",
+"startMs": 370505,
+"endMs": 370674,
+"timestampMs": 370590,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "on",
+"startMs": 370674,
+"endMs": 370826,
+"timestampMs": 370750,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "the",
+"startMs": 370826,
+"endMs": 370977,
+"timestampMs": 370902,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "curb.",
+"startMs": 370977,
+"endMs": 371200,
+"timestampMs": 371089,
+"confidence": 1
+},
+{
+"line": "L227",
+"text": "You",
+"startMs": 371530,
+"endMs": 371798,
+"timestampMs": 371664,
+"confidence": 1
+},
+{
+"line": "L227",
+"text": "breathe.",
+"startMs": 371798,
+"endMs": 372280,
+"timestampMs": 372039,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "Loud.",
+"startMs": 372580,
+"endMs": 373140,
+"timestampMs": 372860,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "Like",
+"startMs": 373280,
+"endMs": 373562,
+"timestampMs": 373421,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "you've",
+"startMs": 373562,
+"endMs": 373862,
+"timestampMs": 373712,
+"confidence": 0.5
+},
+{
+"line": "L229",
+"text": "never",
+"startMs": 373862,
+"endMs": 374143,
+"timestampMs": 374002,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "breathed",
+"startMs": 374143,
+"endMs": 374594,
+"timestampMs": 374369,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "before.",
+"startMs": 374594,
+"endMs": 374970,
+"timestampMs": 374782,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "And",
+"startMs": 375190,
+"endMs": 375528,
+"timestampMs": 375359,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "nobody",
+"startMs": 375528,
+"endMs": 375750,
+"timestampMs": 375639,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "looks",
+"startMs": 375750,
+"endMs": 376059,
+"timestampMs": 375905,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "away.",
+"startMs": 376059,
+"endMs": 376320,
+"timestampMs": 376190,
+"confidence": 1
+},
+{
+"line": "L231",
+"text": "Monday.",
+"startMs": 376900,
+"endMs": 377440,
+"timestampMs": 377170,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "First",
+"startMs": 377730,
+"endMs": 378099,
+"timestampMs": 377914,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "period.",
+"startMs": 378099,
+"endMs": 378520,
+"timestampMs": 378309,
+"confidence": 1
+},
+{
+"line": "L233",
+"text": "Attendance.",
+"startMs": 378850,
+"endMs": 379530,
+"timestampMs": 379190,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "The",
+"startMs": 379890,
+"endMs": 380257,
+"timestampMs": 380074,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "teacher",
+"startMs": 380257,
+"endMs": 380362,
+"timestampMs": 380310,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "calls",
+"startMs": 380362,
+"endMs": 380607,
+"timestampMs": 380485,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "your",
+"startMs": 380607,
+"endMs": 380782,
+"timestampMs": 380694,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "name.",
+"startMs": 380782,
+"endMs": 380980,
+"timestampMs": 380881,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "You",
+"startMs": 381280,
+"endMs": 381427,
+"timestampMs": 381353,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "don't",
+"startMs": 381427,
+"endMs": 381616,
+"timestampMs": 381521,
+"confidence": 0.5
+},
+{
+"line": "L235",
+"text": "hold",
+"startMs": 381616,
+"endMs": 381766,
+"timestampMs": 381691,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "your",
+"startMs": 381766,
+"endMs": 381925,
+"timestampMs": 381846,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "breath.",
+"startMs": 381925,
+"endMs": 382160,
+"timestampMs": 382043,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "You",
+"startMs": 382400,
+"endMs": 382683,
+"timestampMs": 382541,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "stand",
+"startMs": 382683,
+"endMs": 382948,
+"timestampMs": 382815,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "up.",
+"startMs": 382948,
+"endMs": 383130,
+"timestampMs": 383039,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "Here.",
+"startMs": 383460,
+"endMs": 383880,
+"timestampMs": 383670,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "The",
+"startMs": 384090,
+"endMs": 384576,
+"timestampMs": 384333,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "whole",
+"startMs": 384576,
+"endMs": 384656,
+"timestampMs": 384616,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "class",
+"startMs": 384636,
+"endMs": 384931,
+"timestampMs": 384783,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "turns",
+"startMs": 384931,
+"endMs": 385245,
+"timestampMs": 385088,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "around.",
+"startMs": 385245,
+"endMs": 385600,
+"timestampMs": 385422,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "Huy",
+"startMs": 385680,
+"endMs": 385969,
+"timestampMs": 385825,
+"confidence": 0.5
+},
+{
+"line": "L239",
+"text": "gives",
+"startMs": 385969,
+"endMs": 386345,
+"timestampMs": 386157,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "you",
+"startMs": 386345,
+"endMs": 386664,
+"timestampMs": 386504,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "a",
+"startMs": 386664,
+"endMs": 386837,
+"timestampMs": 386750,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "thumbs-up.",
+"startMs": 386837,
+"endMs": 387300,
+"timestampMs": 387069,
+"confidence": 0.5
+},
+{
+"line": "L240",
+"text": "Your",
+"startMs": 387500,
+"endMs": 387743,
+"timestampMs": 387622,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "friends",
+"startMs": 387743,
+"endMs": 388048,
+"timestampMs": 387895,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "ask",
+"startMs": 388048,
+"endMs": 388200,
+"timestampMs": 388124,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "if",
+"startMs": 388200,
+"endMs": 388378,
+"timestampMs": 388289,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "you're",
+"startMs": 388378,
+"endMs": 388595,
+"timestampMs": 388487,
+"confidence": 0.5
+},
+{
+"line": "L240",
+"text": "free",
+"startMs": 388595,
+"endMs": 388798,
+"timestampMs": 388696,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "this",
+"startMs": 388798,
+"endMs": 389001,
+"timestampMs": 388899,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "weekend.",
+"startMs": 389001,
+"endMs": 389330,
+"timestampMs": 389165,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "Turning",
+"startMs": 389590,
+"endMs": 390007,
+"timestampMs": 389799,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "invisible",
+"startMs": 390007,
+"endMs": 390539,
+"timestampMs": 390273,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "is",
+"startMs": 390539,
+"endMs": 390662,
+"timestampMs": 390600,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "easy.",
+"startMs": 390662,
+"endMs": 390930,
+"timestampMs": 390796,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "One",
+"startMs": 391290,
+"endMs": 391726,
+"timestampMs": 391508,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "breath",
+"startMs": 391726,
+"endMs": 391944,
+"timestampMs": 391835,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "is",
+"startMs": 391944,
+"endMs": 392083,
+"timestampMs": 392014,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "all",
+"startMs": 392083,
+"endMs": 392301,
+"timestampMs": 392192,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "it",
+"startMs": 392301,
+"endMs": 392440,
+"timestampMs": 392371,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "takes.",
+"startMs": 392440,
+"endMs": 392750,
+"timestampMs": 392595,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "Letting",
+"startMs": 392880,
+"endMs": 393307,
+"timestampMs": 393093,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "people",
+"startMs": 393307,
+"endMs": 393672,
+"timestampMs": 393489,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "see",
+"startMs": 393672,
+"endMs": 393855,
+"timestampMs": 393764,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "you",
+"startMs": 393855,
+"endMs": 394038,
+"timestampMs": 393946,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "is",
+"startMs": 394038,
+"endMs": 394160,
+"timestampMs": 394099,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "the",
+"startMs": 394160,
+"endMs": 394343,
+"timestampMs": 394251,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "hard",
+"startMs": 394343,
+"endMs": 394586,
+"timestampMs": 394464,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "part.",
+"startMs": 394586,
+"endMs": 394830,
+"timestampMs": 394708,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "You",
+"startMs": 395190,
+"endMs": 395486,
+"timestampMs": 395338,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "have",
+"startMs": 395486,
+"endMs": 395566,
+"timestampMs": 395526,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "to",
+"startMs": 395553,
+"endMs": 395654,
+"timestampMs": 395604,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "breathe",
+"startMs": 395654,
+"endMs": 396018,
+"timestampMs": 395836,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "out",
+"startMs": 396018,
+"endMs": 396190,
+"timestampMs": 396104,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "and",
+"startMs": 396480,
+"endMs": 396728,
+"timestampMs": 396604,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "speak",
+"startMs": 396728,
+"endMs": 397042,
+"timestampMs": 396885,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "up.",
+"startMs": 397042,
+"endMs": 397230,
+"timestampMs": 397136,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "That",
+"startMs": 397610,
+"endMs": 398028,
+"timestampMs": 397819,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "night,",
+"startMs": 398028,
+"endMs": 398520,
+"timestampMs": 398274,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "full",
+"startMs": 398520,
+"endMs": 398938,
+"timestampMs": 398729,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "moon",
+"startMs": 398938,
+"endMs": 399040,
+"timestampMs": 398989,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "again.",
+"startMs": 399040,
+"endMs": 399440,
+"timestampMs": 399240,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "The",
+"startMs": 399560,
+"endMs": 399837,
+"timestampMs": 399698,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "plate",
+"startMs": 399837,
+"endMs": 400114,
+"timestampMs": 399975,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "of",
+"startMs": 400114,
+"endMs": 400199,
+"timestampMs": 400156,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "rice",
+"startMs": 400199,
+"endMs": 400444,
+"timestampMs": 400321,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "cakes",
+"startMs": 400444,
+"endMs": 400805,
+"timestampMs": 400625,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "on",
+"startMs": 400805,
+"endMs": 400901,
+"timestampMs": 400853,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "the",
+"startMs": 400901,
+"endMs": 401093,
+"timestampMs": 400997,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "altar",
+"startMs": 401093,
+"endMs": 401412,
+"timestampMs": 401253,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "is",
+"startMs": 401412,
+"endMs": 401540,
+"timestampMs": 401476,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "half",
+"startMs": 401540,
+"endMs": 401795,
+"timestampMs": 401668,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "empty.",
+"startMs": 401795,
+"endMs": 402080,
+"timestampMs": 401938,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "Mom",
+"startMs": 402440,
+"endMs": 402916,
+"timestampMs": 402678,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "looks",
+"startMs": 402916,
+"endMs": 403015,
+"timestampMs": 402966,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "at",
+"startMs": 403015,
+"endMs": 403154,
+"timestampMs": 403085,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "the",
+"startMs": 403154,
+"endMs": 403362,
+"timestampMs": 403258,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "plate.",
+"startMs": 403362,
+"endMs": 403670,
+"timestampMs": 403516,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "Looks",
+"startMs": 403800,
+"endMs": 404176,
+"timestampMs": 403988,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "at",
+"startMs": 404176,
+"endMs": 404322,
+"timestampMs": 404249,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "you.",
+"startMs": 404322,
+"endMs": 404560,
+"timestampMs": 404441,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "Looks",
+"startMs": 404640,
+"endMs": 405046,
+"timestampMs": 404843,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "at",
+"startMs": 405046,
+"endMs": 405126,
+"timestampMs": 405086,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "the",
+"startMs": 405106,
+"endMs": 405215,
+"timestampMs": 405160,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "crumbs",
+"startMs": 405215,
+"endMs": 405565,
+"timestampMs": 405390,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "on",
+"startMs": 405565,
+"endMs": 405677,
+"timestampMs": 405621,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "your",
+"startMs": 405677,
+"endMs": 405903,
+"timestampMs": 405790,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "hoodie.",
+"startMs": 405903,
+"endMs": 406200,
+"timestampMs": 406051,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "Grandma",
+"startMs": 406650,
+"endMs": 407145,
+"timestampMs": 406898,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "and",
+"startMs": 407145,
+"endMs": 407225,
+"timestampMs": 407185,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "Grandpa",
+"startMs": 407205,
+"endMs": 407514,
+"timestampMs": 407360,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "came",
+"startMs": 407514,
+"endMs": 407707,
+"timestampMs": 407611,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "to",
+"startMs": 407707,
+"endMs": 407808,
+"timestampMs": 407758,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "eat",
+"startMs": 407808,
+"endMs": 407959,
+"timestampMs": 407883,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "again?",
+"startMs": 407959,
+"endMs": 408200,
+"timestampMs": 408079,
+"confidence": 1
+},
+{
+"line": "L252",
+"text": "Yeah",
+"startMs": 408410,
+"endMs": 408850,
+"timestampMs": 408630,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "probably,",
+"startMs": 409090,
+"endMs": 410030,
+"timestampMs": 409560,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "Mom.",
+"startMs": 410030,
+"endMs": 410500,
+"timestampMs": 410265,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "That",
+"startMs": 410610,
+"endMs": 410830,
+"timestampMs": 410720,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "night,",
+"startMs": 410830,
+"endMs": 411184,
+"timestampMs": 411007,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "Bin",
+"startMs": 411184,
+"endMs": 411559,
+"timestampMs": 411372,
+"confidence": 0.5
+},
+{
+"line": "L254",
+"text": "climbs",
+"startMs": 411559,
+"endMs": 411819,
+"timestampMs": 411689,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "into",
+"startMs": 411819,
+"endMs": 412049,
+"timestampMs": 411934,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "your",
+"startMs": 412049,
+"endMs": 412289,
+"timestampMs": 412169,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "bed.",
+"startMs": 412289,
+"endMs": 412510,
+"timestampMs": 412400,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "Lies",
+"startMs": 412740,
+"endMs": 413090,
+"timestampMs": 412915,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "down.",
+"startMs": 413090,
+"endMs": 413440,
+"timestampMs": 413265,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "Puts",
+"startMs": 413690,
+"endMs": 414013,
+"timestampMs": 413852,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "his",
+"startMs": 414013,
+"endMs": 414149,
+"timestampMs": 414081,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "ear",
+"startMs": 414149,
+"endMs": 414347,
+"timestampMs": 414248,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "on",
+"startMs": 414347,
+"endMs": 414483,
+"timestampMs": 414415,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "your",
+"startMs": 414483,
+"endMs": 414754,
+"timestampMs": 414618,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "chest.",
+"startMs": 414754,
+"endMs": 415040,
+"timestampMs": 414897,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "You're",
+"startMs": 415620,
+"endMs": 415844,
+"timestampMs": 415732,
+"confidence": 0.5
+},
+{
+"line": "L257",
+"text": "breathing",
+"startMs": 415844,
+"endMs": 416244,
+"timestampMs": 416044,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "normal",
+"startMs": 416244,
+"endMs": 416696,
+"timestampMs": 416470,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "now.",
+"startMs": 416696,
+"endMs": 416920,
+"timestampMs": 416808,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "Yeah.",
+"startMs": 417220,
+"endMs": 417610,
+"timestampMs": 417415,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "I'm",
+"startMs": 417980,
+"endMs": 418116,
+"timestampMs": 418048,
+"confidence": 0.5
+},
+{
+"line": "L259",
+"text": "not",
+"startMs": 418116,
+"endMs": 418256,
+"timestampMs": 418186,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "hiding",
+"startMs": 418256,
+"endMs": 418703,
+"timestampMs": 418479,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "anymore.",
+"startMs": 418703,
+"endMs": 419110,
+"timestampMs": 418907,
+"confidence": 1
+},
+{
+"line": "L260",
+"text": "Bin",
+"startMs": 419240,
+"endMs": 419565,
+"timestampMs": 419403,
+"confidence": 0.5
+},
+{
+"line": "L260",
+"text": "falls",
+"startMs": 419565,
+"endMs": 420020,
+"timestampMs": 419792,
+"confidence": 1
+},
+{
+"line": "L260",
+"text": "asleep.",
+"startMs": 420020,
+"endMs": 420540,
+"timestampMs": 420280,
+"confidence": 1
+},
+{
+"line": "L261",
+"text": "You",
+"startMs": 420900,
+"endMs": 421312,
+"timestampMs": 421106,
+"confidence": 1
+},
+{
+"line": "L261",
+"text": "lie",
+"startMs": 421312,
+"endMs": 421392,
+"timestampMs": 421352,
+"confidence": 1
+},
+{
+"line": "L261",
+"text": "there.",
+"startMs": 421372,
+"endMs": 421630,
+"timestampMs": 421501,
+"confidence": 1
+},
+{
+"line": "L262",
+"text": "Breathing.",
+"startMs": 422020,
+"endMs": 422550,
+"timestampMs": 422285,
+"confidence": 1
+},
+{
+"line": "L263",
+"text": "Slow.",
+"startMs": 422700,
+"endMs": 423260,
+"timestampMs": 422980,
+"confidence": 1
+},
+{
+"line": "L264",
+"text": "Steady.",
+"startMs": 423520,
+"endMs": 424050,
+"timestampMs": 423785,
+"confidence": 1
+},
+{
+"line": "L265",
+"text": "No",
+"startMs": 424320,
+"endMs": 424636,
+"timestampMs": 424478,
+"confidence": 1
+},
+{
+"line": "L265",
+"text": "need",
+"startMs": 424636,
+"endMs": 424716,
+"timestampMs": 424676,
+"confidence": 1
+},
+{
+"line": "L265",
+"text": "to",
+"startMs": 424696,
+"endMs": 424776,
+"timestampMs": 424736,
+"confidence": 1
+},
+{
+"line": "L265",
+"text": "disappear",
+"startMs": 424756,
+"endMs": 425227,
+"timestampMs": 424992,
+"confidence": 1
+},
+{
+"line": "L265",
+"text": "anywhere.",
+"startMs": 425227,
+"endMs": 425590,
+"timestampMs": 425409,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "So",
+"startMs": 426000,
+"endMs": 426708,
+"timestampMs": 426354,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "if",
+"startMs": 426708,
+"endMs": 426923,
+"timestampMs": 426815,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "you",
+"startMs": 426923,
+"endMs": 427156,
+"timestampMs": 427039,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "could",
+"startMs": 427156,
+"endMs": 427239,
+"timestampMs": 427197,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "turn",
+"startMs": 427239,
+"endMs": 427416,
+"timestampMs": 427328,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "invisible",
+"startMs": 427416,
+"endMs": 427873,
+"timestampMs": 427645,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "for",
+"startMs": 427873,
+"endMs": 428022,
+"timestampMs": 427948,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "three",
+"startMs": 428022,
+"endMs": 428274,
+"timestampMs": 428148,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "minutes,",
+"startMs": 428274,
+"endMs": 428758,
+"timestampMs": 428516,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "what",
+"startMs": 428758,
+"endMs": 429112,
+"timestampMs": 428935,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "would",
+"startMs": 429112,
+"endMs": 429224,
+"timestampMs": 429168,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "you",
+"startMs": 429224,
+"endMs": 429373,
+"timestampMs": 429299,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "do",
+"startMs": 429373,
+"endMs": 429476,
+"timestampMs": 429425,
+"confidence": 1
+},
+{
+"line": "L266",
+"text": "first?",
+"startMs": 429476,
+"endMs": 429780,
+"timestampMs": 429628,
+"confidence": 1
+},
+{
+"line": "L267",
+"text": "Tell",
+"startMs": 430130,
+"endMs": 430505,
+"timestampMs": 430318,
+"confidence": 1
+},
+{
+"line": "L267",
+"text": "me",
+"startMs": 430505,
+"endMs": 430599,
+"timestampMs": 430552,
+"confidence": 1
+},
+{
+"line": "L267",
+"text": "in",
+"startMs": 430599,
+"endMs": 430693,
+"timestampMs": 430646,
+"confidence": 1
+},
+{
+"line": "L267",
+"text": "the",
+"startMs": 430693,
+"endMs": 430818,
+"timestampMs": 430755,
+"confidence": 1
+},
+{
+"line": "L267",
+"text": "comments.",
+"startMs": 430818,
+"endMs": 431180,
+"timestampMs": 430999,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "Hit",
+"startMs": 431360,
+"endMs": 431850,
+"timestampMs": 431605,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "like",
+"startMs": 431850,
+"endMs": 431930,
+"timestampMs": 431890,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "and",
+"startMs": 431910,
+"endMs": 432114,
+"timestampMs": 432012,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "subscribe",
+"startMs": 432114,
+"endMs": 432799,
+"timestampMs": 432457,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "for",
+"startMs": 432799,
+"endMs": 433025,
+"timestampMs": 432912,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "more",
+"startMs": 433025,
+"endMs": 433328,
+"timestampMs": 433176,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "\"what",
+"startMs": 433328,
+"endMs": 433632,
+"timestampMs": 433480,
+"confidence": 1
+},
+{
+"line": "L268",
+"text": "ifs.\"",
+"startMs": 433632,
+"endMs": 433890,
+"timestampMs": 433761,
+"confidence": 1
+},
+{
+"line": "L269",
+"text": "One",
+"startMs": 434080,
+"endMs": 434579,
+"timestampMs": 434329,
+"confidence": 1
+},
+{
+"line": "L269",
+"text": "little",
+"startMs": 434579,
+"endMs": 434967,
+"timestampMs": 434773,
+"confidence": 1
+},
+{
+"line": "L269",
+"text": "\"if\"",
+"startMs": 434967,
+"endMs": 435240,
+"timestampMs": 435104,
+"confidence": 1
+},
+{
+"line": "L270",
+"text": "a",
+"startMs": 435490,
+"endMs": 435570,
+"timestampMs": 435530,
+"confidence": 1
+},
+{
+"line": "L270",
+"text": "whole",
+"startMs": 435550,
+"endMs": 435851,
+"timestampMs": 435700,
+"confidence": 1
+},
+{
+"line": "L270",
+"text": "different",
+"startMs": 435851,
+"endMs": 436283,
+"timestampMs": 436067,
+"confidence": 1
+},
+{
+"line": "L270",
+"text": "life.",
+"startMs": 436283,
+"endMs": 436510,
+"timestampMs": 436397,
+"confidence": 1
+}
+]
+}

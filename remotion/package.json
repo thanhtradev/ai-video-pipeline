@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.tiktok2.json",
     "test": "vitest run",
     "studio": "remotion studio src/index.ts"
   },
   "dependencies": {
     "@fontsource/be-vietnam-pro": "5.3.0",
+    "@remotion/google-fonts": "4.0.534",
     "@remotion/media": "4.0.534",
     "react": "19.3.0",
     "react-dom": "19.3.0",

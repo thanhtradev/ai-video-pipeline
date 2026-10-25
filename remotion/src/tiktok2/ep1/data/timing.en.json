@@ -1,0 +1,13666 @@
+{
+ "_doc": "SINH TỰ ĐỘNG bởi scripts/tiktok2/ep1/build_timing.py – không sửa tay; chỉnh ở timing-overrides.json.",
+ "fps": 30,
+ "voice": "Kênh tiktok 2 (tiếng anh)/Voice/ep1/ep1 tiktok2 EN.mp3",
+ "totalFrames": 14271,
+ "totalSec": 475.7,
+ "endCardFrom": 14226,
+ "lines": [
+  {
+   "id": "L001",
+   "text": "What if you could turn invisible —",
+   "src": [
+    3,
+    44
+   ],
+   "from": 3,
+   "to": 44,
+   "start": 0.1,
+   "end": 1.467,
+   "gap": 0.133,
+   "hold": 0.35,
+   "holdFrom": 48,
+   "holdTo": 58,
+   "joinNext": false,
+   "words": [
+    [
+     "What",
+     "what",
+     5,
+     7
+    ],
+    [
+     "if",
+     "if",
+     7,
+     9
+    ],
+    [
+     "you",
+     "you",
+     8,
+     15
+    ],
+    [
+     "could",
+     "could",
+     15,
+     25
+    ],
+    [
+     "turn",
+     "turn",
+     25,
+     31
+    ],
+    [
+     "invisible",
+     "invisible",
+     31,
+     41
+    ]
+   ]
+  },
+  {
+   "id": "L002",
+   "text": "but only while holding your breath?",
+   "src": [
+    48,
+    95
+   ],
+   "from": 58,
+   "to": 105,
+   "start": 1.933,
+   "end": 3.5,
+   "gap": 0.2,
+   "hold": 0.5,
+   "holdFrom": 111,
+   "holdTo": 126,
+   "joinNext": false,
+   "words": [
+    [
+     "but",
+     "but",
+     60,
+     71
+    ],
+    [
+     "only",
+     "only",
+     71,
+     73
+    ],
+    [
+     "while",
+     "while",
+     73,
+     78
+    ],
+    [
+     "holding",
+     "holding",
+     78,
+     89
+    ],
+    [
+     "your",
+     "your",
+     89,
+     94
+    ],
+    [
+     "breath?",
+     "breath",
+     94,
+     102
+    ]
+   ]
+  },
+  {
+   "id": "L003",
+   "text": "Mom is holding your math test.",
+   "src": [
+    106,
+    161
+   ],
+   "from": 126,
+   "to": 181,
+   "start": 4.2,
+   "end": 6.033,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 185,
+   "holdTo": 185,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     129,
+     139
+    ],
+    [
+     "is",
+     "is",
+     139,
+     145
+    ],
+    [
+     "holding",
+     "holding",
+     145,
+     153
+    ],
+    [
+     "your",
+     "your",
+     153,
+     161
+    ],
+    [
+     "math",
+     "math",
+     161,
+     169
+    ],
+    [
+     "test.",
+     "test",
+     169,
+     178
+    ]
+   ]
+  },
+  {
+   "id": "L004",
+   "text": "Three out of ten.",
+   "src": [
+    165,
+    195
+   ],
+   "from": 185,
+   "to": 215,
+   "start": 6.167,
+   "end": 7.167,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 220,
+   "holdTo": 220,
+   "joinNext": false,
+   "words": [
+    [
+     "Three",
+     "three",
+     187,
+     198
+    ],
+    [
+     "out",
+     "out",
+     198,
+     202
+    ],
+    [
+     "of",
+     "of",
+     202,
+     206
+    ],
+    [
+     "ten.",
+     "ten",
+     206,
+     211
+    ]
+   ]
+  },
+  {
+   "id": "L005",
+   "text": "Red ink.",
+   "src": [
+    200,
+    223
+   ],
+   "from": 220,
+   "to": 243,
+   "start": 7.333,
+   "end": 8.1,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 248,
+   "holdTo": 248,
+   "joinNext": false,
+   "words": [
+    [
+     "Red",
+     "red",
+     222,
+     231
+    ],
+    [
+     "ink.",
+     "ink",
+     231,
+     240
+    ]
+   ]
+  },
+  {
+   "id": "L006",
+   "text": "Again.",
+   "src": [
+    228,
+    246
+   ],
+   "from": 248,
+   "to": 266,
+   "start": 8.267,
+   "end": 8.867,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 272,
+   "holdTo": 272,
+   "joinNext": false,
+   "words": [
+    [
+     "Again.",
+     "again",
+     250,
+     263
+    ]
+   ]
+  },
+  {
+   "id": "L007",
+   "text": "Look.",
+   "src": [
+    255,
+    273
+   ],
+   "from": 272,
+   "to": 290,
+   "start": 9.067,
+   "end": 9.667,
+   "gap": 0.133,
+   "hold": 0.2,
+   "holdFrom": 294,
+   "holdTo": 300,
+   "joinNext": false,
+   "words": [
+    [
+     "Look.",
+     "look",
+     274,
+     287
+    ]
+   ]
+  },
+  {
+   "id": "L008",
+   "text": "You panic.",
+   "src": [
+    277,
+    304
+   ],
+   "from": 300,
+   "to": 327,
+   "start": 10.0,
+   "end": 10.9,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 327,
+   "holdTo": 327,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     303,
+     312
+    ],
+    [
+     "panic.",
+     "panic",
+     312,
+     325
+    ]
+   ]
+  },
+  {
+   "id": "L009",
+   "text": "You take a deep breath.",
+   "src": [
+    304,
+    351
+   ],
+   "from": 327,
+   "to": 374,
+   "start": 10.9,
+   "end": 12.467,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 376,
+   "holdTo": 376,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     329,
+     342
+    ],
+    [
+     "take",
+     "take",
+     342,
+     347
+    ],
+    [
+     "a",
+     "a",
+     347,
+     349
+    ],
+    [
+     "deep",
+     "deep",
+     349,
+     359
+    ],
+    [
+     "breath.",
+     "breath",
+     359,
+     371
+    ]
+   ]
+  },
+  {
+   "id": "L010",
+   "text": "And hold it.",
+   "src": [
+    353,
+    375
+   ],
+   "from": 376,
+   "to": 398,
+   "start": 12.533,
+   "end": 13.267,
+   "gap": 0.2,
+   "hold": 0.3,
+   "holdFrom": 404,
+   "holdTo": 413,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     379,
+     386
+    ],
+    [
+     "hold",
+     "hold",
+     386,
+     391
+    ],
+    [
+     "it.",
+     "it",
+     391,
+     395
+    ]
+   ]
+  },
+  {
+   "id": "L011",
+   "text": "Mom looks up.",
+   "src": [
+    384,
+    412
+   ],
+   "from": 413,
+   "to": 441,
+   "start": 13.767,
+   "end": 14.7,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 441,
+   "holdTo": 441,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     416,
+     426
+    ],
+    [
+     "looks",
+     "looks",
+     426,
+     434
+    ],
+    [
+     "up.",
+     "up",
+     434,
+     440
+    ]
+   ]
+  },
+  {
+   "id": "L012",
+   "text": "The spot where you were standing …",
+   "src": [
+    412,
+    461
+   ],
+   "from": 441,
+   "to": 490,
+   "start": 14.7,
+   "end": 16.333,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 493,
+   "holdTo": 493,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     444,
+     455
+    ],
+    [
+     "spot",
+     "spot",
+     455,
+     457
+    ],
+    [
+     "where",
+     "where",
+     457,
+     465
+    ],
+    [
+     "you",
+     "you",
+     465,
+     469
+    ],
+    [
+     "were",
+     "were",
+     469,
+     476
+    ],
+    [
+     "standing",
+     "standing",
+     476,
+     487
+    ]
+   ]
+  },
+  {
+   "id": "L013",
+   "text": "is empty.",
+   "src": [
+    464,
+    489
+   ],
+   "from": 493,
+   "to": 518,
+   "start": 16.433,
+   "end": 17.267,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 519,
+   "holdTo": 519,
+   "joinNext": false,
+   "words": [
+    [
+     "is",
+     "is",
+     495,
+     502
+    ],
+    [
+     "empty.",
+     "empty",
+     502,
+     514
+    ]
+   ]
+  },
+  {
+   "id": "L014",
+   "text": "Huh?",
+   "src": [
+    490,
+    504
+   ],
+   "from": 519,
+   "to": 533,
+   "start": 17.3,
+   "end": 17.767,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 536,
+   "holdTo": 536,
+   "joinNext": false,
+   "words": [
+    [
+     "Huh?",
+     "huh",
+     521,
+     530
+    ]
+   ]
+  },
+  {
+   "id": "L015",
+   "text": "Where'd he go?",
+   "src": [
+    507,
+    528
+   ],
+   "from": 536,
+   "to": 557,
+   "start": 17.867,
+   "end": 18.567,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 561,
+   "holdTo": 561,
+   "joinNext": false,
+   "words": [
+    [
+     "Where'd",
+     "where d",
+     538,
+     545
+    ],
+    [
+     "he",
+     "he",
+     545,
+     550
+    ],
+    [
+     "go?",
+     "go",
+     550,
+     554
+    ]
+   ]
+  },
+  {
+   "id": "L016",
+   "text": "Ten seconds.",
+   "src": [
+    532,
+    561
+   ],
+   "from": 561,
+   "to": 590,
+   "start": 18.7,
+   "end": 19.667,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 591,
+   "holdTo": 591,
+   "joinNext": false,
+   "words": [
+    [
+     "Ten",
+     "ten",
+     563,
+     572
+    ],
+    [
+     "seconds.",
+     "seconds",
+     572,
+     589
+    ]
+   ]
+  },
+  {
+   "id": "L017",
+   "text": "Mom checks under the table.",
+   "src": [
+    561,
+    612
+   ],
+   "from": 591,
+   "to": 642,
+   "start": 19.7,
+   "end": 21.4,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 645,
+   "holdTo": 645,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     593,
+     607
+    ],
+    [
+     "checks",
+     "checks",
+     607,
+     612
+    ],
+    [
+     "under",
+     "under",
+     612,
+     623
+    ],
+    [
+     "the",
+     "the",
+     623,
+     629
+    ],
+    [
+     "table.",
+     "table",
+     629,
+     639
+    ]
+   ]
+  },
+  {
+   "id": "L018",
+   "text": "Twenty seconds.",
+   "src": [
+    615,
+    647
+   ],
+   "from": 645,
+   "to": 677,
+   "start": 21.5,
+   "end": 22.567,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 679,
+   "holdTo": 679,
+   "joinNext": false,
+   "words": [
+    [
+     "Twenty",
+     "twenty",
+     648,
+     660
+    ],
+    [
+     "seconds.",
+     "seconds",
+     660,
+     674
+    ]
+   ]
+  },
+  {
+   "id": "L019",
+   "text": "Mom opens the fridge.",
+   "src": [
+    649,
+    693
+   ],
+   "from": 679,
+   "to": 723,
+   "start": 22.633,
+   "end": 24.1,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 725,
+   "holdTo": 725,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     681,
+     698
+    ],
+    [
+     "opens",
+     "opens",
+     698,
+     700
+    ],
+    [
+     "the",
+     "the",
+     700,
+     708
+    ],
+    [
+     "fridge.",
+     "fridge",
+     708,
+     720
+    ]
+   ]
+  },
+  {
+   "id": "L020",
+   "text": "Nobody knows why she opens the fridge.",
+   "src": [
+    695,
+    754
+   ],
+   "from": 725,
+   "to": 784,
+   "start": 24.167,
+   "end": 26.133,
+   "gap": 0.2,
+   "hold": 1.1,
+   "holdFrom": 790,
+   "holdTo": 823,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     727,
+     738
+    ],
+    [
+     "knows",
+     "knows",
+     738,
+     747
+    ],
+    [
+     "why",
+     "why",
+     747,
+     752
+    ],
+    [
+     "she",
+     "she",
+     752,
+     757
+    ],
+    [
+     "opens",
+     "opens",
+     757,
+     766
+    ],
+    [
+     "the",
+     "the",
+     766,
+     771
+    ],
+    [
+     "fridge.",
+     "fridge",
+     771,
+     781
+    ]
+   ]
+  },
+  {
+   "id": "L021",
+   "text": "Thirty seconds.",
+   "src": [
+    760,
+    790
+   ],
+   "from": 823,
+   "to": 853,
+   "start": 27.433,
+   "end": 28.433,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 857,
+   "holdTo": 857,
+   "joinNext": false,
+   "words": [
+    [
+     "Thirty",
+     "thirty",
+     826,
+     837
+    ],
+    [
+     "seconds.",
+     "seconds",
+     837,
+     850
+    ]
+   ]
+  },
+  {
+   "id": "L022",
+   "text": "Your face is burning.",
+   "src": [
+    794,
+    831
+   ],
+   "from": 857,
+   "to": 894,
+   "start": 28.567,
+   "end": 29.8,
+   "gap": 0.233,
+   "hold": 0.3,
+   "holdFrom": 901,
+   "holdTo": 910,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     859,
+     872
+    ],
+    [
+     "face",
+     "face",
+     872,
+     875
+    ],
+    [
+     "is",
+     "is",
+     875,
+     880
+    ],
+    [
+     "burning.",
+     "burning",
+     880,
+     891
+    ]
+   ]
+  },
+  {
+   "id": "L023",
+   "text": "Forty seconds.",
+   "src": [
+    838,
+    873
+   ],
+   "from": 910,
+   "to": 945,
+   "start": 30.333,
+   "end": 31.5,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 947,
+   "holdTo": 947,
+   "joinNext": false,
+   "words": [
+    [
+     "Forty",
+     "forty",
+     912,
+     925
+    ],
+    [
+     "seconds.",
+     "seconds",
+     925,
+     941
+    ]
+   ]
+  },
+  {
+   "id": "L024",
+   "text": "Mom turns around.",
+   "src": [
+    875,
+    910
+   ],
+   "from": 947,
+   "to": 982,
+   "start": 31.567,
+   "end": 32.733,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 983,
+   "holdTo": 983,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     949,
+     962
+    ],
+    [
+     "turns",
+     "turns",
+     962,
+     968
+    ],
+    [
+     "around.",
+     "around",
+     968,
+     981
+    ]
+   ]
+  },
+  {
+   "id": "L025",
+   "text": "Staring right at where you're standing.",
+   "src": [
+    910,
+    970
+   ],
+   "from": 983,
+   "to": 1043,
+   "start": 32.767,
+   "end": 34.767,
+   "gap": 0.167,
+   "hold": 0.4,
+   "holdFrom": 1048,
+   "holdTo": 1060,
+   "joinNext": false,
+   "words": [
+    [
+     "Staring",
+     "staring",
+     985,
+     1004
+    ],
+    [
+     "right",
+     "right",
+     1004,
+     1006
+    ],
+    [
+     "at",
+     "at",
+     1006,
+     1008
+    ],
+    [
+     "where",
+     "where",
+     1008,
+     1020
+    ],
+    [
+     "you're",
+     "you re",
+     1020,
+     1027
+    ],
+    [
+     "standing.",
+     "standing",
+     1027,
+     1040
+    ]
+   ]
+  },
+  {
+   "id": "L026",
+   "text": "You breathe out.",
+   "src": [
+    975,
+    1003
+   ],
+   "from": 1060,
+   "to": 1088,
+   "start": 35.333,
+   "end": 36.267,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 1092,
+   "holdTo": 1092,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     1063,
+     1072
+    ],
+    [
+     "breathe",
+     "breathe",
+     1072,
+     1079
+    ],
+    [
+     "out.",
+     "out",
+     1079,
+     1085
+    ]
+   ]
+  },
+  {
+   "id": "L027",
+   "text": "Phew.",
+   "src": [
+    1007,
+    1030
+   ],
+   "from": 1092,
+   "to": 1115,
+   "start": 36.4,
+   "end": 37.167,
+   "gap": 0.167,
+   "hold": 0.3,
+   "holdFrom": 1120,
+   "holdTo": 1129,
+   "joinNext": false,
+   "words": [
+    [
+     "Phew.",
+     "phew",
+     1094,
+     1111
+    ]
+   ]
+  },
+  {
+   "id": "L028",
+   "text": "Right in her face.",
+   "src": [
+    1035,
+    1071
+   ],
+   "from": 1129,
+   "to": 1165,
+   "start": 37.633,
+   "end": 38.833,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 1168,
+   "holdTo": 1168,
+   "joinNext": false,
+   "words": [
+    [
+     "Right",
+     "right",
+     1131,
+     1145
+    ],
+    [
+     "in",
+     "in",
+     1145,
+     1147
+    ],
+    [
+     "her",
+     "her",
+     1147,
+     1153
+    ],
+    [
+     "face.",
+     "face",
+     1153,
+     1162
+    ]
+   ]
+  },
+  {
+   "id": "L029",
+   "text": "AH!",
+   "src": [
+    1074,
+    1121
+   ],
+   "from": 1168,
+   "to": 1215,
+   "start": 38.933,
+   "end": 40.5,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 1215,
+   "holdTo": 1215,
+   "joinNext": true,
+   "words": [
+    [
+     "AH!",
+     "ah",
+     1171,
+     1215
+    ]
+   ]
+  },
+  {
+   "id": "L030",
+   "text": "Mom doesn't punish you for the three.",
+   "src": [
+    1121,
+    1174
+   ],
+   "from": 1215,
+   "to": 1268,
+   "start": 40.5,
+   "end": 42.267,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 1270,
+   "holdTo": 1270,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     1215,
+     1221
+    ],
+    [
+     "doesn't",
+     "doesn t",
+     1221,
+     1235
+    ],
+    [
+     "punish",
+     "punish",
+     1235,
+     1242
+    ],
+    [
+     "you",
+     "you",
+     1242,
+     1247
+    ],
+    [
+     "for",
+     "for",
+     1247,
+     1252
+    ],
+    [
+     "the",
+     "the",
+     1252,
+     1257
+    ],
+    [
+     "three.",
+     "three",
+     1257,
+     1265
+    ]
+   ]
+  },
+  {
+   "id": "L031",
+   "text": "She punishes you for scaring her half to death.",
+   "src": [
+    1176,
+    1251
+   ],
+   "from": 1270,
+   "to": 1345,
+   "start": 42.333,
+   "end": 44.833,
+   "gap": 0.167,
+   "hold": 1.7,
+   "holdFrom": 1350,
+   "holdTo": 1401,
+   "joinNext": false,
+   "words": [
+    [
+     "She",
+     "she",
+     1272,
+     1282
+    ],
+    [
+     "punishes",
+     "punishes",
+     1282,
+     1293
+    ],
+    [
+     "you",
+     "you",
+     1293,
+     1298
+    ],
+    [
+     "for",
+     "for",
+     1298,
+     1304
+    ],
+    [
+     "scaring",
+     "scaring",
+     1304,
+     1317
+    ],
+    [
+     "her",
+     "her",
+     1317,
+     1322
+    ],
+    [
+     "half",
+     "half",
+     1322,
+     1329
+    ],
+    [
+     "to",
+     "to",
+     1329,
+     1333
+    ],
+    [
+     "death.",
+     "death",
+     1333,
+     1342
+    ]
+   ]
+  },
+  {
+   "id": "L032",
+   "text": "Here's how it works.",
+   "src": [
+    1256,
+    1291
+   ],
+   "from": 1401,
+   "to": 1436,
+   "start": 46.7,
+   "end": 47.867,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 1439,
+   "holdTo": 1439,
+   "joinNext": false,
+   "words": [
+    [
+     "Here's",
+     "here s",
+     1403,
+     1411
+    ],
+    [
+     "how",
+     "how",
+     1411,
+     1418
+    ],
+    [
+     "it",
+     "it",
+     1418,
+     1423
+    ],
+    [
+     "works.",
+     "works",
+     1423,
+     1433
+    ]
+   ]
+  },
+  {
+   "id": "L033",
+   "text": "Hold your breath, and you disappear.",
+   "src": [
+    1294,
+    1358
+   ],
+   "from": 1439,
+   "to": 1503,
+   "start": 47.967,
+   "end": 50.1,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 1507,
+   "holdTo": 1507,
+   "joinNext": false,
+   "words": [
+    [
+     "Hold",
+     "hold",
+     1441,
+     1454
+    ],
+    [
+     "your",
+     "your",
+     1454,
+     1457
+    ],
+    [
+     "breath,",
+     "breath",
+     1457,
+     1472
+    ],
+    [
+     "and",
+     "and",
+     1472,
+     1483
+    ],
+    [
+     "you",
+     "you",
+     1483,
+     1485
+    ],
+    [
+     "disappear.",
+     "disappear",
+     1485,
+     1500
+    ]
+   ]
+  },
+  {
+   "id": "L034",
+   "text": "Completely.",
+   "src": [
+    1362,
+    1388
+   ],
+   "from": 1507,
+   "to": 1533,
+   "start": 50.233,
+   "end": 51.1,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 1536,
+   "holdTo": 1536,
+   "joinNext": false,
+   "words": [
+    [
+     "Completely.",
+     "completely",
+     1509,
+     1530
+    ]
+   ]
+  },
+  {
+   "id": "L035",
+   "text": "Your clothes, your sandals, the bag in your hand — gone too.",
+   "src": [
+    1391,
+    1512
+   ],
+   "from": 1536,
+   "to": 1657,
+   "start": 51.2,
+   "end": 55.233,
+   "gap": 0.067,
+   "hold": 0.3,
+   "holdFrom": 1659,
+   "holdTo": 1668,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     1538,
+     1553
+    ],
+    [
+     "clothes,",
+     "clothes",
+     1553,
+     1566
+    ],
+    [
+     "your",
+     "your",
+     1566,
+     1580
+    ],
+    [
+     "sandals,",
+     "sandals",
+     1580,
+     1594
+    ],
+    [
+     "the",
+     "the",
+     1594,
+     1600
+    ],
+    [
+     "bag",
+     "bag",
+     1600,
+     1607
+    ],
+    [
+     "in",
+     "in",
+     1607,
+     1612
+    ],
+    [
+     "your",
+     "your",
+     1612,
+     1619
+    ],
+    [
+     "hand",
+     "hand",
+     1619,
+     1636
+    ],
+    [
+     "gone",
+     "gone",
+     1636,
+     1645
+    ],
+    [
+     "too.",
+     "too",
+     1645,
+     1654
+    ]
+   ]
+  },
+  {
+   "id": "L036",
+   "text": "Breathe out — even a little — and you're back.",
+   "src": [
+    1514,
+    1599
+   ],
+   "from": 1668,
+   "to": 1753,
+   "start": 55.6,
+   "end": 58.433,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 1759,
+   "holdTo": 1759,
+   "joinNext": false,
+   "words": [
+    [
+     "Breathe",
+     "breathe",
+     1670,
+     1683
+    ],
+    [
+     "out",
+     "out",
+     1683,
+     1694
+    ],
+    [
+     "even",
+     "even",
+     1694,
+     1703
+    ],
+    [
+     "a",
+     "a",
+     1703,
+     1706
+    ],
+    [
+     "little",
+     "little",
+     1705,
+     1721
+    ],
+    [
+     "and",
+     "and",
+     1721,
+     1731
+    ],
+    [
+     "you're",
+     "you re",
+     1731,
+     1740
+    ],
+    [
+     "back.",
+     "back",
+     1740,
+     1750
+    ]
+   ]
+  },
+  {
+   "id": "L037",
+   "text": "And talking? Talking is breathing out.",
+   "src": [
+    1607,
+    1675
+   ],
+   "from": 1759,
+   "to": 1827,
+   "start": 58.633,
+   "end": 60.9,
+   "gap": 0.0,
+   "hold": 0.3,
+   "holdFrom": 1827,
+   "holdTo": 1836,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     1762,
+     1774
+    ],
+    [
+     "talking?",
+     "talking",
+     1774,
+     1786
+    ],
+    [
+     "Talking",
+     "talking",
+     1786,
+     1798
+    ],
+    [
+     "is",
+     "is",
+     1798,
+     1801
+    ],
+    [
+     "breathing",
+     "breathing",
+     1801,
+     1816
+    ],
+    [
+     "out.",
+     "out",
+     1816,
+     1823
+    ]
+   ]
+  },
+  {
+   "id": "L038",
+   "text": "While you're invisible, you can't say a word.",
+   "src": [
+    1675,
+    1754
+   ],
+   "from": 1836,
+   "to": 1915,
+   "start": 61.2,
+   "end": 63.833,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 1918,
+   "holdTo": 1918,
+   "joinNext": false,
+   "words": [
+    [
+     "While",
+     "while",
+     1839,
+     1850
+    ],
+    [
+     "you're",
+     "you re",
+     1850,
+     1855
+    ],
+    [
+     "invisible,",
+     "invisible",
+     1855,
+     1872
+    ],
+    [
+     "you",
+     "you",
+     1872,
+     1882
+    ],
+    [
+     "can't",
+     "can t",
+     1882,
+     1893
+    ],
+    [
+     "say",
+     "say",
+     1893,
+     1901
+    ],
+    [
+     "a",
+     "a",
+     1901,
+     1903
+    ],
+    [
+     "word.",
+     "word",
+     1903,
+     1912
+    ]
+   ]
+  },
+  {
+   "id": "L039",
+   "text": "Not one.",
+   "src": [
+    1757,
+    1783
+   ],
+   "from": 1918,
+   "to": 1944,
+   "start": 63.933,
+   "end": 64.8,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 1944,
+   "holdTo": 1944,
+   "joinNext": false,
+   "words": [
+    [
+     "Not",
+     "not",
+     1921,
+     1931
+    ],
+    [
+     "one.",
+     "one",
+     1931,
+     1942
+    ]
+   ]
+  },
+  {
+   "id": "L040",
+   "text": "Remember that.",
+   "src": [
+    1783,
+    1806
+   ],
+   "from": 1944,
+   "to": 1967,
+   "start": 64.8,
+   "end": 65.567,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 1969,
+   "holdTo": 1969,
+   "joinNext": false,
+   "words": [
+    [
+     "Remember",
+     "remember",
+     1947,
+     1958
+    ],
+    [
+     "that.",
+     "that",
+     1958,
+     1964
+    ]
+   ]
+  },
+  {
+   "id": "L041",
+   "text": "It matters later.",
+   "src": [
+    1808,
+    1842
+   ],
+   "from": 1969,
+   "to": 2003,
+   "start": 65.633,
+   "end": 66.767,
+   "gap": 0.0,
+   "hold": 0.6,
+   "holdFrom": 2003,
+   "holdTo": 2021,
+   "joinNext": false,
+   "words": [
+    [
+     "It",
+     "it",
+     1971,
+     1979
+    ],
+    [
+     "matters",
+     "matters",
+     1979,
+     1990
+    ],
+    [
+     "later.",
+     "later",
+     1990,
+     2000
+    ]
+   ]
+  },
+  {
+   "id": "L042",
+   "text": "And this part is real:",
+   "src": [
+    1842,
+    1877
+   ],
+   "from": 2021,
+   "to": 2056,
+   "start": 67.367,
+   "end": 68.533,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 2060,
+   "holdTo": 2060,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     2023,
+     2032
+    ],
+    [
+     "this",
+     "this",
+     2032,
+     2036
+    ],
+    [
+     "part",
+     "part",
+     2036,
+     2043
+    ],
+    [
+     "is",
+     "is",
+     2043,
+     2046
+    ],
+    [
+     "real:",
+     "real",
+     2046,
+     2053
+    ]
+   ]
+  },
+  {
+   "id": "L043",
+   "text": "most people can hold their breath for about thirty seconds to a minute.",
+   "src": [
+    1881,
+    1974
+   ],
+   "from": 2060,
+   "to": 2153,
+   "start": 68.667,
+   "end": 71.767,
+   "gap": 0.133,
+   "hold": 0.3,
+   "holdFrom": 2157,
+   "holdTo": 2166,
+   "joinNext": false,
+   "words": [
+    [
+     "most",
+     "most",
+     2063,
+     2075
+    ],
+    [
+     "people",
+     "people",
+     2075,
+     2078
+    ],
+    [
+     "can",
+     "can",
+     2078,
+     2083
+    ],
+    [
+     "hold",
+     "hold",
+     2083,
+     2089
+    ],
+    [
+     "their",
+     "their",
+     2089,
+     2097
+    ],
+    [
+     "breath",
+     "breath",
+     2097,
+     2105
+    ],
+    [
+     "for",
+     "for",
+     2105,
+     2110
+    ],
+    [
+     "about",
+     "about",
+     2110,
+     2117
+    ],
+    [
+     "thirty",
+     "thirty",
+     2117,
+     2127
+    ],
+    [
+     "seconds",
+     "seconds",
+     2127,
+     2137
+    ],
+    [
+     "to",
+     "to",
+     2137,
+     2140
+    ],
+    [
+     "a",
+     "a",
+     2140,
+     2142
+    ],
+    [
+     "minute.",
+     "minute",
+     2142,
+     2150
+    ]
+   ]
+  },
+  {
+   "id": "L044",
+   "text": "And that urge to breathe? It's not from running out of oxygen.",
+   "src": [
+    1978,
+    2085
+   ],
+   "from": 2166,
+   "to": 2273,
+   "start": 72.2,
+   "end": 75.767,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 2278,
+   "holdTo": 2278,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     2168,
+     2182
+    ],
+    [
+     "that",
+     "that",
+     2182,
+     2184
+    ],
+    [
+     "urge",
+     "urge",
+     2184,
+     2193
+    ],
+    [
+     "to",
+     "to",
+     2193,
+     2196
+    ],
+    [
+     "breathe?",
+     "breathe",
+     2195,
+     2211
+    ],
+    [
+     "It's",
+     "it s",
+     2211,
+     2224
+    ],
+    [
+     "not",
+     "not",
+     2224,
+     2236
+    ],
+    [
+     "from",
+     "from",
+     2236,
+     2238
+    ],
+    [
+     "running",
+     "running",
+     2238,
+     2249
+    ],
+    [
+     "out",
+     "out",
+     2249,
+     2254
+    ],
+    [
+     "of",
+     "of",
+     2254,
+     2258
+    ],
+    [
+     "oxygen.",
+     "oxygen",
+     2258,
+     2269
+    ]
+   ]
+  },
+  {
+   "id": "L045",
+   "text": "It's carbon dioxide building up in your blood.",
+   "src": [
+    2090,
+    2158
+   ],
+   "from": 2278,
+   "to": 2346,
+   "start": 75.933,
+   "end": 78.2,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 2347,
+   "holdTo": 2347,
+   "joinNext": false,
+   "words": [
+    [
+     "It's",
+     "it s",
+     2280,
+     2285
+    ],
+    [
+     "carbon",
+     "carbon",
+     2285,
+     2288
+    ],
+    [
+     "dioxide",
+     "dioxide",
+     2288,
+     2302
+    ],
+    [
+     "building",
+     "building",
+     2302,
+     2318
+    ],
+    [
+     "up",
+     "up",
+     2318,
+     2322
+    ],
+    [
+     "in",
+     "in",
+     2322,
+     2326
+    ],
+    [
+     "your",
+     "your",
+     2326,
+     2334
+    ],
+    [
+     "blood.",
+     "blood",
+     2334,
+     2343
+    ]
+   ]
+  },
+  {
+   "id": "L046",
+   "text": "Your body screams long before you're actually in danger.",
+   "src": [
+    2159,
+    2247
+   ],
+   "from": 2347,
+   "to": 2435,
+   "start": 78.233,
+   "end": 81.167,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 2437,
+   "holdTo": 2437,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     2349,
+     2363
+    ],
+    [
+     "body",
+     "body",
+     2363,
+     2366
+    ],
+    [
+     "screams",
+     "screams",
+     2365,
+     2376
+    ],
+    [
+     "long",
+     "long",
+     2376,
+     2383
+    ],
+    [
+     "before",
+     "before",
+     2383,
+     2396
+    ],
+    [
+     "you're",
+     "you re",
+     2396,
+     2404
+    ],
+    [
+     "actually",
+     "actually",
+     2404,
+     2418
+    ],
+    [
+     "in",
+     "in",
+     2418,
+     2421
+    ],
+    [
+     "danger.",
+     "danger",
+     2421,
+     2432
+    ]
+   ]
+  },
+  {
+   "id": "L047",
+   "text": "Which means your superpower …",
+   "src": [
+    2249,
+    2295
+   ],
+   "from": 2437,
+   "to": 2483,
+   "start": 81.233,
+   "end": 82.767,
+   "gap": 0.067,
+   "hold": 0.3,
+   "holdFrom": 2485,
+   "holdTo": 2494,
+   "joinNext": false,
+   "words": [
+    [
+     "Which",
+     "which",
+     2439,
+     2452
+    ],
+    [
+     "means",
+     "means",
+     2452,
+     2458
+    ],
+    [
+     "your",
+     "your",
+     2458,
+     2465
+    ],
+    [
+     "superpower",
+     "superpower",
+     2465,
+     2480
+    ]
+   ]
+  },
+  {
+   "id": "L048",
+   "text": "has an expiration date.",
+   "src": [
+    2297,
+    2333
+   ],
+   "from": 2494,
+   "to": 2530,
+   "start": 83.133,
+   "end": 84.333,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 2534,
+   "holdTo": 2534,
+   "joinNext": false,
+   "words": [
+    [
+     "has",
+     "has",
+     2496,
+     2504
+    ],
+    [
+     "an",
+     "an",
+     2504,
+     2507
+    ],
+    [
+     "expiration",
+     "expiration",
+     2507,
+     2520
+    ],
+    [
+     "date.",
+     "date",
+     2520,
+     2527
+    ]
+   ]
+  },
+  {
+   "id": "L049",
+   "text": "About forty seconds at a time.",
+   "src": [
+    2337,
+    2388
+   ],
+   "from": 2534,
+   "to": 2585,
+   "start": 84.467,
+   "end": 86.167,
+   "gap": 0.167,
+   "hold": 0.6,
+   "holdFrom": 2590,
+   "holdTo": 2608,
+   "joinNext": false,
+   "words": [
+    [
+     "About",
+     "about",
+     2536,
+     2546
+    ],
+    [
+     "forty",
+     "forty",
+     2546,
+     2556
+    ],
+    [
+     "seconds",
+     "seconds",
+     2556,
+     2569
+    ],
+    [
+     "at",
+     "at",
+     2569,
+     2572
+    ],
+    [
+     "a",
+     "a",
+     2572,
+     2575
+    ],
+    [
+     "time.",
+     "time",
+     2574,
+     2581
+    ]
+   ]
+  },
+  {
+   "id": "L050",
+   "text": "First, you have to relearn everything.",
+   "src": [
+    2395,
+    2459
+   ],
+   "from": 2608,
+   "to": 2672,
+   "start": 86.933,
+   "end": 89.067,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 2674,
+   "holdTo": 2674,
+   "joinNext": false,
+   "words": [
+    [
+     "First,",
+     "first",
+     2611,
+     2628
+    ],
+    [
+     "you",
+     "you",
+     2628,
+     2631
+    ],
+    [
+     "have",
+     "have",
+     2630,
+     2636
+    ],
+    [
+     "to",
+     "to",
+     2636,
+     2647
+    ],
+    [
+     "relearn",
+     "relearn",
+     2647,
+     2653
+    ],
+    [
+     "everything.",
+     "everything",
+     2653,
+     2669
+    ]
+   ]
+  },
+  {
+   "id": "L051",
+   "text": "Laughing is breathing out.",
+   "src": [
+    2461,
+    2500
+   ],
+   "from": 2674,
+   "to": 2713,
+   "start": 89.133,
+   "end": 90.433,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 2718,
+   "holdTo": 2718,
+   "joinNext": false,
+   "words": [
+    [
+     "Laughing",
+     "laughing",
+     2676,
+     2688
+    ],
+    [
+     "is",
+     "is",
+     2688,
+     2692
+    ],
+    [
+     "breathing",
+     "breathing",
+     2692,
+     2704
+    ],
+    [
+     "out.",
+     "out",
+     2704,
+     2710
+    ]
+   ]
+  },
+  {
+   "id": "L052",
+   "text": "You're invisible behind your classmate Huy when he drops his snack — and you laugh.",
+   "src": [
+    2507,
+    2635
+   ],
+   "from": 2718,
+   "to": 2846,
+   "start": 90.6,
+   "end": 94.867,
+   "gap": 0.033,
+   "hold": 0.6,
+   "holdFrom": 2847,
+   "holdTo": 2865,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     2721,
+     2727
+    ],
+    [
+     "invisible",
+     "invisible",
+     2727,
+     2740
+    ],
+    [
+     "behind",
+     "behind",
+     2740,
+     2750
+    ],
+    [
+     "your",
+     "your",
+     2750,
+     2757
+    ],
+    [
+     "classmate",
+     "classmate",
+     2757,
+     2776
+    ],
+    [
+     "Huy",
+     "huy",
+     2776,
+     2779
+    ],
+    [
+     "when",
+     "when",
+     2779,
+     2786
+    ],
+    [
+     "he",
+     "he",
+     2786,
+     2789
+    ],
+    [
+     "drops",
+     "drops",
+     2789,
+     2798
+    ],
+    [
+     "his",
+     "his",
+     2798,
+     2803
+    ],
+    [
+     "snack",
+     "snack",
+     2803,
+     2819
+    ],
+    [
+     "and",
+     "and",
+     2819,
+     2831
+    ],
+    [
+     "you",
+     "you",
+     2831,
+     2835
+    ],
+    [
+     "laugh.",
+     "laugh",
+     2835,
+     2845
+    ]
+   ]
+  },
+  {
+   "id": "L053",
+   "text": "You pop back into view.",
+   "src": [
+    2635,
+    2686
+   ],
+   "from": 2865,
+   "to": 2916,
+   "start": 95.5,
+   "end": 97.2,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 2921,
+   "holdTo": 2921,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     2868,
+     2881
+    ],
+    [
+     "pop",
+     "pop",
+     2881,
+     2883
+    ],
+    [
+     "back",
+     "back",
+     2883,
+     2892
+    ],
+    [
+     "into",
+     "into",
+     2892,
+     2903
+    ],
+    [
+     "view.",
+     "view",
+     2903,
+     2913
+    ]
+   ]
+  },
+  {
+   "id": "L054",
+   "text": "Right behind him.",
+   "src": [
+    2691,
+    2723
+   ],
+   "from": 2921,
+   "to": 2953,
+   "start": 97.367,
+   "end": 98.433,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 2957,
+   "holdTo": 2957,
+   "joinNext": false,
+   "words": [
+    [
+     "Right",
+     "right",
+     2923,
+     2933
+    ],
+    [
+     "behind",
+     "behind",
+     2933,
+     2943
+    ],
+    [
+     "him.",
+     "him",
+     2943,
+     2950
+    ]
+   ]
+  },
+  {
+   "id": "L055",
+   "text": "Huy screams louder than Mom.",
+   "src": [
+    2727,
+    2790
+   ],
+   "from": 2957,
+   "to": 3020,
+   "start": 98.567,
+   "end": 100.667,
+   "gap": 0.1,
+   "hold": 0.8,
+   "holdFrom": 3023,
+   "holdTo": 3047,
+   "joinNext": false,
+   "words": [
+    [
+     "Huy",
+     "huy",
+     2959,
+     2968
+    ],
+    [
+     "screams",
+     "screams",
+     2968,
+     2987
+    ],
+    [
+     "louder",
+     "louder",
+     2987,
+     2998
+    ],
+    [
+     "than",
+     "than",
+     2998,
+     3008
+    ],
+    [
+     "Mom.",
+     "mom",
+     3008,
+     3017
+    ]
+   ]
+  },
+  {
+   "id": "L056",
+   "text": "Sneeze.",
+   "src": [
+    2793,
+    2823
+   ],
+   "from": 3047,
+   "to": 3077,
+   "start": 101.567,
+   "end": 102.567,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3077,
+   "holdTo": 3077,
+   "joinNext": false,
+   "words": [
+    [
+     "Sneeze.",
+     "sneeze",
+     3049,
+     3074
+    ]
+   ]
+  },
+  {
+   "id": "L057",
+   "text": "Visible.",
+   "src": [
+    2827,
+    2853
+   ],
+   "from": 3077,
+   "to": 3103,
+   "start": 102.567,
+   "end": 103.433,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3103,
+   "holdTo": 3103,
+   "joinNext": false,
+   "words": [
+    [
+     "Visible.",
+     "visible",
+     3080,
+     3100
+    ]
+   ]
+  },
+  {
+   "id": "L058",
+   "text": "Yawn.",
+   "src": [
+    2857,
+    2879
+   ],
+   "from": 3103,
+   "to": 3125,
+   "start": 103.433,
+   "end": 104.167,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 3126,
+   "holdTo": 3126,
+   "joinNext": false,
+   "words": [
+    [
+     "Yawn.",
+     "yawn",
+     3105,
+     3123
+    ]
+   ]
+  },
+  {
+   "id": "L059",
+   "text": "Visible.",
+   "src": [
+    2879,
+    2901
+   ],
+   "from": 3126,
+   "to": 3148,
+   "start": 104.2,
+   "end": 104.933,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3148,
+   "holdTo": 3148,
+   "joinNext": false,
+   "words": [
+    [
+     "Visible.",
+     "visible",
+     3128,
+     3145
+    ]
+   ]
+  },
+  {
+   "id": "L060",
+   "text": "And the worst one:",
+   "src": [
+    2904,
+    2936
+   ],
+   "from": 3148,
+   "to": 3180,
+   "start": 104.933,
+   "end": 106.0,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3180,
+   "holdTo": 3180,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     3150,
+     3161
+    ],
+    [
+     "the",
+     "the",
+     3161,
+     3164
+    ],
+    [
+     "worst",
+     "worst",
+     3163,
+     3171
+    ],
+    [
+     "one:",
+     "one",
+     3171,
+     3176
+    ]
+   ]
+  },
+  {
+   "id": "L061",
+   "text": "hiccups.",
+   "src": [
+    2937,
+    2961
+   ],
+   "from": 3180,
+   "to": 3204,
+   "start": 106.0,
+   "end": 106.8,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 3207,
+   "holdTo": 3207,
+   "joinNext": false,
+   "words": [
+    [
+     "hiccups.",
+     "hiccups",
+     3183,
+     3201
+    ]
+   ]
+  },
+  {
+   "id": "L062",
+   "text": "Visible.",
+   "src": [
+    2964,
+    2988
+   ],
+   "from": 3207,
+   "to": 3231,
+   "start": 106.9,
+   "end": 107.7,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 3234,
+   "holdTo": 3234,
+   "joinNext": false,
+   "words": [
+    [
+     "Visible.",
+     "visible",
+     3209,
+     3227
+    ]
+   ]
+  },
+  {
+   "id": "L063",
+   "text": "Gone.",
+   "src": [
+    2991,
+    3012
+   ],
+   "from": 3234,
+   "to": 3255,
+   "start": 107.8,
+   "end": 108.5,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3255,
+   "holdTo": 3255,
+   "joinNext": false,
+   "words": [
+    [
+     "Gone.",
+     "gone",
+     3236,
+     3252
+    ]
+   ]
+  },
+  {
+   "id": "L064",
+   "text": "Visible.",
+   "src": [
+    3012,
+    3034
+   ],
+   "from": 3255,
+   "to": 3277,
+   "start": 108.5,
+   "end": 109.233,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 3280,
+   "holdTo": 3280,
+   "joinNext": false,
+   "words": [
+    [
+     "Visible.",
+     "visible",
+     3258,
+     3274
+    ]
+   ]
+  },
+  {
+   "id": "L065",
+   "text": "Gone.",
+   "src": [
+    3037,
+    3063
+   ],
+   "from": 3280,
+   "to": 3306,
+   "start": 109.333,
+   "end": 110.2,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3306,
+   "holdTo": 3306,
+   "joinNext": true,
+   "words": [
+    [
+     "Gone.",
+     "gone",
+     3282,
+     3306
+    ]
+   ]
+  },
+  {
+   "id": "L066",
+   "text": "Visible.",
+   "src": [
+    3063,
+    3073
+   ],
+   "from": 3306,
+   "to": 3316,
+   "start": 110.2,
+   "end": 110.533,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 3317,
+   "holdTo": 3317,
+   "joinNext": false,
+   "words": [
+    [
+     "Visible.",
+     "visible",
+     3307,
+     3313
+    ]
+   ]
+  },
+  {
+   "id": "L067",
+   "text": "Like Lunar New Year string lights.",
+   "src": [
+    3074,
+    3129
+   ],
+   "from": 3317,
+   "to": 3372,
+   "start": 110.567,
+   "end": 112.4,
+   "gap": 0.0,
+   "hold": 1.2,
+   "holdFrom": 3372,
+   "holdTo": 3408,
+   "joinNext": false,
+   "words": [
+    [
+     "Like",
+     "like",
+     3319,
+     3332
+    ],
+    [
+     "Lunar",
+     "lunar",
+     3332,
+     3337
+    ],
+    [
+     "New",
+     "new",
+     3337,
+     3341
+    ],
+    [
+     "Year",
+     "year",
+     3341,
+     3348
+    ],
+    [
+     "string",
+     "string",
+     3348,
+     3359
+    ],
+    [
+     "lights.",
+     "lights",
+     3359,
+     3369
+    ]
+   ]
+  },
+  {
+   "id": "L068",
+   "text": "Only one person is never fooled.",
+   "src": [
+    3129,
+    3191
+   ],
+   "from": 3408,
+   "to": 3470,
+   "start": 113.6,
+   "end": 115.667,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 3472,
+   "holdTo": 3472,
+   "joinNext": false,
+   "words": [
+    [
+     "Only",
+     "only",
+     3410,
+     3422
+    ],
+    [
+     "one",
+     "one",
+     3422,
+     3426
+    ],
+    [
+     "person",
+     "person",
+     3426,
+     3439
+    ],
+    [
+     "is",
+     "is",
+     3439,
+     3444
+    ],
+    [
+     "never",
+     "never",
+     3444,
+     3455
+    ],
+    [
+     "fooled.",
+     "fooled",
+     3455,
+     3467
+    ]
+   ]
+  },
+  {
+   "id": "L069",
+   "text": "Bin.",
+   "src": [
+    3193,
+    3215
+   ],
+   "from": 3472,
+   "to": 3494,
+   "start": 115.733,
+   "end": 116.467,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 3500,
+   "holdTo": 3500,
+   "joinNext": false,
+   "words": [
+    [
+     "Bin.",
+     "bin",
+     3474,
+     3491
+    ]
+   ]
+  },
+  {
+   "id": "L070",
+   "text": "Your little brother.",
+   "src": [
+    3221,
+    3249
+   ],
+   "from": 3500,
+   "to": 3528,
+   "start": 116.667,
+   "end": 117.6,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 3529,
+   "holdTo": 3529,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     3503,
+     3515
+    ],
+    [
+     "little",
+     "little",
+     3515,
+     3518
+    ],
+    [
+     "brother.",
+     "brother",
+     3517,
+     3524
+    ]
+   ]
+  },
+  {
+   "id": "L071",
+   "text": "Five years old.",
+   "src": [
+    3250,
+    3278
+   ],
+   "from": 3529,
+   "to": 3557,
+   "start": 117.633,
+   "end": 118.567,
+   "gap": 0.0,
+   "hold": 0.4,
+   "holdFrom": 3557,
+   "holdTo": 3569,
+   "joinNext": false,
+   "words": [
+    [
+     "Five",
+     "five",
+     3532,
+     3543
+    ],
+    [
+     "years",
+     "years",
+     3543,
+     3548
+    ],
+    [
+     "old.",
+     "old",
+     3548,
+     3554
+    ]
+   ]
+  },
+  {
+   "id": "L072",
+   "text": "Hide and seek: you stand invisible in the middle of the living room.",
+   "src": [
+    3278,
+    3383
+   ],
+   "from": 3569,
+   "to": 3674,
+   "start": 118.967,
+   "end": 122.467,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 3680,
+   "holdTo": 3680,
+   "joinNext": false,
+   "words": [
+    [
+     "Hide",
+     "hide",
+     3571,
+     3574
+    ],
+    [
+     "and",
+     "and",
+     3573,
+     3578
+    ],
+    [
+     "seek:",
+     "seek",
+     3578,
+     3593
+    ],
+    [
+     "you",
+     "you",
+     3593,
+     3607
+    ],
+    [
+     "stand",
+     "stand",
+     3607,
+     3610
+    ],
+    [
+     "invisible",
+     "invisible",
+     3610,
+     3624
+    ],
+    [
+     "in",
+     "in",
+     3624,
+     3627
+    ],
+    [
+     "the",
+     "the",
+     3627,
+     3633
+    ],
+    [
+     "middle",
+     "middle",
+     3633,
+     3643
+    ],
+    [
+     "of",
+     "of",
+     3643,
+     3647
+    ],
+    [
+     "the",
+     "the",
+     3647,
+     3652
+    ],
+    [
+     "living",
+     "living",
+     3652,
+     3663
+    ],
+    [
+     "room.",
+     "room",
+     3663,
+     3671
+    ]
+   ]
+  },
+  {
+   "id": "L073",
+   "text": "Bin covers his eyes, counts to ten.",
+   "src": [
+    3389,
+    3462
+   ],
+   "from": 3680,
+   "to": 3753,
+   "start": 122.667,
+   "end": 125.1,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 3754,
+   "holdTo": 3754,
+   "joinNext": false,
+   "words": [
+    [
+     "Bin",
+     "bin",
+     3682,
+     3690
+    ],
+    [
+     "covers",
+     "covers",
+     3690,
+     3700
+    ],
+    [
+     "his",
+     "his",
+     3700,
+     3707
+    ],
+    [
+     "eyes,",
+     "eyes",
+     3707,
+     3723
+    ],
+    [
+     "counts",
+     "counts",
+     3723,
+     3736
+    ],
+    [
+     "to",
+     "to",
+     3736,
+     3741
+    ],
+    [
+     "ten.",
+     "ten",
+     3741,
+     3749
+    ]
+   ]
+  },
+  {
+   "id": "L074",
+   "text": "Then walks straight to you.",
+   "src": [
+    3463,
+    3504
+   ],
+   "from": 3754,
+   "to": 3795,
+   "start": 125.133,
+   "end": 126.5,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 3797,
+   "holdTo": 3797,
+   "joinNext": false,
+   "words": [
+    [
+     "Then",
+     "then",
+     3757,
+     3766
+    ],
+    [
+     "walks",
+     "walks",
+     3766,
+     3770
+    ],
+    [
+     "straight",
+     "straight",
+     3770,
+     3782
+    ],
+    [
+     "to",
+     "to",
+     3782,
+     3786
+    ],
+    [
+     "you.",
+     "you",
+     3786,
+     3791
+    ]
+   ]
+  },
+  {
+   "id": "L075",
+   "text": "Got you!",
+   "src": [
+    3506,
+    3527
+   ],
+   "from": 3797,
+   "to": 3818,
+   "start": 126.567,
+   "end": 127.267,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 3818,
+   "holdTo": 3818,
+   "joinNext": true,
+   "words": [
+    [
+     "Got",
+     "got",
+     3799,
+     3809
+    ],
+    [
+     "you!",
+     "you",
+     3809,
+     3818
+    ]
+   ]
+  },
+  {
+   "id": "L076",
+   "text": "How did you see me?",
+   "src": [
+    3527,
+    3560
+   ],
+   "from": 3818,
+   "to": 3851,
+   "start": 127.267,
+   "end": 128.367,
+   "gap": 0.0,
+   "hold": 0.4,
+   "holdFrom": 3851,
+   "holdTo": 3863,
+   "joinNext": false,
+   "words": [
+    [
+     "How",
+     "how",
+     3818,
+     3826
+    ],
+    [
+     "did",
+     "did",
+     3826,
+     3830
+    ],
+    [
+     "you",
+     "you",
+     3830,
+     3836
+    ],
+    [
+     "see",
+     "see",
+     3836,
+     3843
+    ],
+    [
+     "me?",
+     "me",
+     3843,
+     3847
+    ]
+   ]
+  },
+  {
+   "id": "L077",
+   "text": "I didn't see you.",
+   "src": [
+    3560,
+    3594
+   ],
+   "from": 3863,
+   "to": 3897,
+   "start": 128.767,
+   "end": 129.9,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 3902,
+   "holdTo": 3902,
+   "joinNext": false,
+   "words": [
+    [
+     "I",
+     "i",
+     3865,
+     3870
+    ],
+    [
+     "didn't",
+     "didn t",
+     3870,
+     3880
+    ],
+    [
+     "see",
+     "see",
+     3880,
+     3886
+    ],
+    [
+     "you.",
+     "you",
+     3886,
+     3893
+    ]
+   ]
+  },
+  {
+   "id": "L078",
+   "text": "You hold your breath really loud.",
+   "src": [
+    3599,
+    3650
+   ],
+   "from": 3902,
+   "to": 3953,
+   "start": 130.067,
+   "end": 131.767,
+   "gap": 0.067,
+   "hold": 1.0,
+   "holdFrom": 3955,
+   "holdTo": 3985,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     3904,
+     3915
+    ],
+    [
+     "hold",
+     "hold",
+     3915,
+     3918
+    ],
+    [
+     "your",
+     "your",
+     3917,
+     3922
+    ],
+    [
+     "breath",
+     "breath",
+     3922,
+     3935
+    ],
+    [
+     "really",
+     "really",
+     3935,
+     3942
+    ],
+    [
+     "loud.",
+     "loud",
+     3942,
+     3949
+    ]
+   ]
+  },
+  {
+   "id": "L079",
+   "text": "But then it gets fun.",
+   "src": [
+    3652,
+    3685
+   ],
+   "from": 3985,
+   "to": 4018,
+   "start": 132.833,
+   "end": 133.933,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 4022,
+   "holdTo": 4022,
+   "joinNext": false,
+   "words": [
+    [
+     "But",
+     "but",
+     3987,
+     3997
+    ],
+    [
+     "then",
+     "then",
+     3997,
+     4000
+    ],
+    [
+     "it",
+     "it",
+     3999,
+     4003
+    ],
+    [
+     "gets",
+     "gets",
+     4003,
+     4010
+    ],
+    [
+     "fun.",
+     "fun",
+     4010,
+     4015
+    ]
+   ]
+  },
+  {
+   "id": "L080",
+   "text": "Full moon day.",
+   "src": [
+    3689,
+    3721
+   ],
+   "from": 4022,
+   "to": 4054,
+   "start": 134.067,
+   "end": 135.133,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 4057,
+   "holdTo": 4057,
+   "joinNext": false,
+   "words": [
+    [
+     "Full",
+     "full",
+     4024,
+     4038
+    ],
+    [
+     "moon",
+     "moon",
+     4038,
+     4043
+    ],
+    [
+     "day.",
+     "day",
+     4043,
+     4051
+    ]
+   ]
+  },
+  {
+   "id": "L081",
+   "text": "The family altar is loaded with fruit, sweet rice cakes, dessert.",
+   "src": [
+    3724,
+    3843
+   ],
+   "from": 4057,
+   "to": 4176,
+   "start": 135.233,
+   "end": 139.2,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 4182,
+   "holdTo": 4182,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     4059,
+     4071
+    ],
+    [
+     "family",
+     "family",
+     4071,
+     4076
+    ],
+    [
+     "altar",
+     "altar",
+     4076,
+     4085
+    ],
+    [
+     "is",
+     "is",
+     4085,
+     4090
+    ],
+    [
+     "loaded",
+     "loaded",
+     4090,
+     4100
+    ],
+    [
+     "with",
+     "with",
+     4100,
+     4107
+    ],
+    [
+     "fruit,",
+     "fruit",
+     4107,
+     4122
+    ],
+    [
+     "sweet",
+     "sweet",
+     4122,
+     4133
+    ],
+    [
+     "rice",
+     "rice",
+     4133,
+     4141
+    ],
+    [
+     "cakes,",
+     "cakes",
+     4141,
+     4159
+    ],
+    [
+     "dessert.",
+     "dessert",
+     4159,
+     4173
+    ]
+   ]
+  },
+  {
+   "id": "L082",
+   "text": "You hold your breath.",
+   "src": [
+    3850,
+    3882
+   ],
+   "from": 4182,
+   "to": 4214,
+   "start": 139.4,
+   "end": 140.467,
+   "gap": 0.1,
+   "hold": 0.3,
+   "holdFrom": 4217,
+   "holdTo": 4226,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4184,
+     4196
+    ],
+    [
+     "hold",
+     "hold",
+     4196,
+     4198
+    ],
+    [
+     "your",
+     "your",
+     4197,
+     4202
+    ],
+    [
+     "breath.",
+     "breath",
+     4202,
+     4210
+    ]
+   ]
+  },
+  {
+   "id": "L083",
+   "text": "You eat a rice cake.",
+   "src": [
+    3885,
+    3918
+   ],
+   "from": 4226,
+   "to": 4259,
+   "start": 140.867,
+   "end": 141.967,
+   "gap": 0.2,
+   "hold": 0.5,
+   "holdFrom": 4265,
+   "holdTo": 4280,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4229,
+     4240
+    ],
+    [
+     "eat",
+     "eat",
+     4240,
+     4242
+    ],
+    [
+     "a",
+     "a",
+     4242,
+     4244
+    ],
+    [
+     "rice",
+     "rice",
+     4243,
+     4250
+    ],
+    [
+     "cake.",
+     "cake",
+     4250,
+     4256
+    ]
+   ]
+  },
+  {
+   "id": "L084",
+   "text": "Mom turns around.",
+   "src": [
+    3928,
+    3961
+   ],
+   "from": 4280,
+   "to": 4313,
+   "start": 142.667,
+   "end": 143.767,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 4319,
+   "holdTo": 4319,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     4282,
+     4297
+    ],
+    [
+     "turns",
+     "turns",
+     4297,
+     4299
+    ],
+    [
+     "around.",
+     "around",
+     4299,
+     4310
+    ]
+   ]
+  },
+  {
+   "id": "L085",
+   "text": "Half the plate is gone.",
+   "src": [
+    3967,
+    4005
+   ],
+   "from": 4319,
+   "to": 4357,
+   "start": 143.967,
+   "end": 145.233,
+   "gap": 0.2,
+   "hold": 0.4,
+   "holdFrom": 4363,
+   "holdTo": 4375,
+   "joinNext": false,
+   "words": [
+    [
+     "Half",
+     "half",
+     4322,
+     4334
+    ],
+    [
+     "the",
+     "the",
+     4334,
+     4336
+    ],
+    [
+     "plate",
+     "plate",
+     4335,
+     4343
+    ],
+    [
+     "is",
+     "is",
+     4343,
+     4347
+    ],
+    [
+     "gone.",
+     "gone",
+     4347,
+     4354
+    ]
+   ]
+  },
+  {
+   "id": "L086",
+   "text": "Mom lights three more incense sticks.",
+   "src": [
+    4011,
+    4075
+   ],
+   "from": 4375,
+   "to": 4439,
+   "start": 145.833,
+   "end": 147.967,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 4444,
+   "holdTo": 4444,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     4377,
+     4390
+    ],
+    [
+     "lights",
+     "lights",
+     4390,
+     4394
+    ],
+    [
+     "three",
+     "three",
+     4394,
+     4404
+    ],
+    [
+     "more",
+     "more",
+     4404,
+     4411
+    ],
+    [
+     "incense",
+     "incense",
+     4411,
+     4424
+    ],
+    [
+     "sticks.",
+     "sticks",
+     4424,
+     4435
+    ]
+   ]
+  },
+  {
+   "id": "L087",
+   "text": "Grandma and Grandpa came to eat.",
+   "src": [
+    4082,
+    4132
+   ],
+   "from": 4444,
+   "to": 4494,
+   "start": 148.133,
+   "end": 149.8,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 4498,
+   "holdTo": 4498,
+   "joinNext": false,
+   "words": [
+    [
+     "Grandma",
+     "grandma",
+     4446,
+     4461
+    ],
+    [
+     "and",
+     "and",
+     4461,
+     4463
+    ],
+    [
+     "Grandpa",
+     "grandpa",
+     4463,
+     4475
+    ],
+    [
+     "came",
+     "came",
+     4475,
+     4482
+    ],
+    [
+     "to",
+     "to",
+     4482,
+     4485
+    ],
+    [
+     "eat.",
+     "eat",
+     4485,
+     4491
+    ]
+   ]
+  },
+  {
+   "id": "L088",
+   "text": "Thank you, Grandma, Grandpa.",
+   "src": [
+    4136,
+    4198
+   ],
+   "from": 4498,
+   "to": 4560,
+   "start": 149.933,
+   "end": 152.0,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 4561,
+   "holdTo": 4561,
+   "joinNext": false,
+   "words": [
+    [
+     "Thank",
+     "thank",
+     4500,
+     4503
+    ],
+    [
+     "you,",
+     "you",
+     4502,
+     4517
+    ],
+    [
+     "Grandma,",
+     "grandma",
+     4517,
+     4540
+    ],
+    [
+     "Grandpa.",
+     "grandpa",
+     4540,
+     4557
+    ]
+   ]
+  },
+  {
+   "id": "L089",
+   "text": "You decide you will never, ever tell her.",
+   "src": [
+    4199,
+    4275
+   ],
+   "from": 4561,
+   "to": 4637,
+   "start": 152.033,
+   "end": 154.567,
+   "gap": 0.067,
+   "hold": 0.6,
+   "holdFrom": 4639,
+   "holdTo": 4657,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4564,
+     4579
+    ],
+    [
+     "decide",
+     "decide",
+     4579,
+     4582
+    ],
+    [
+     "you",
+     "you",
+     4582,
+     4588
+    ],
+    [
+     "will",
+     "will",
+     4588,
+     4596
+    ],
+    [
+     "never,",
+     "never",
+     4596,
+     4611
+    ],
+    [
+     "ever",
+     "ever",
+     4611,
+     4621
+    ],
+    [
+     "tell",
+     "tell",
+     4621,
+     4626
+    ],
+    [
+     "her.",
+     "her",
+     4626,
+     4634
+    ]
+   ]
+  },
+  {
+   "id": "L090",
+   "text": "You sneak into the teachers' office.",
+   "src": [
+    4277,
+    4328
+   ],
+   "from": 4657,
+   "to": 4708,
+   "start": 155.233,
+   "end": 156.933,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 4709,
+   "holdTo": 4709,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4660,
+     4670
+    ],
+    [
+     "sneak",
+     "sneak",
+     4670,
+     4672
+    ],
+    [
+     "into",
+     "into",
+     4672,
+     4678
+    ],
+    [
+     "the",
+     "the",
+     4678,
+     4685
+    ],
+    [
+     "teachers'",
+     "teachers",
+     4685,
+     4696
+    ],
+    [
+     "office.",
+     "office",
+     4696,
+     4705
+    ]
+   ]
+  },
+  {
+   "id": "L091",
+   "text": "The literature exam is sitting right on the desk.",
+   "src": [
+    4329,
+    4402
+   ],
+   "from": 4709,
+   "to": 4782,
+   "start": 156.967,
+   "end": 159.4,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 4788,
+   "holdTo": 4788,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     4711,
+     4723
+    ],
+    [
+     "literature",
+     "literature",
+     4723,
+     4734
+    ],
+    [
+     "exam",
+     "exam",
+     4734,
+     4740
+    ],
+    [
+     "is",
+     "is",
+     4740,
+     4743
+    ],
+    [
+     "sitting",
+     "sitting",
+     4743,
+     4755
+    ],
+    [
+     "right",
+     "right",
+     4755,
+     4763
+    ],
+    [
+     "on",
+     "on",
+     4763,
+     4767
+    ],
+    [
+     "the",
+     "the",
+     4767,
+     4772
+    ],
+    [
+     "desk.",
+     "desk",
+     4772,
+     4779
+    ]
+   ]
+  },
+  {
+   "id": "L092",
+   "text": "You read question one.",
+   "src": [
+    4421,
+    4465
+   ],
+   "from": 4788,
+   "to": 4832,
+   "start": 159.6,
+   "end": 161.067,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 4837,
+   "holdTo": 4837,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4791,
+     4796
+    ],
+    [
+     "read",
+     "read",
+     4796,
+     4809
+    ],
+    [
+     "question",
+     "question",
+     4809,
+     4822
+    ],
+    [
+     "one.",
+     "one",
+     4822,
+     4829
+    ]
+   ]
+  },
+  {
+   "id": "L093",
+   "text": "Question two.",
+   "src": [
+    4470,
+    4506
+   ],
+   "from": 4837,
+   "to": 4873,
+   "start": 161.233,
+   "end": 162.433,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 4878,
+   "holdTo": 4878,
+   "joinNext": false,
+   "words": [
+    [
+     "Question",
+     "question",
+     4840,
+     4860
+    ],
+    [
+     "two.",
+     "two",
+     4860,
+     4870
+    ]
+   ]
+  },
+  {
+   "id": "L094",
+   "text": "Question three is way too long.",
+   "src": [
+    4512,
+    4577
+   ],
+   "from": 4878,
+   "to": 4943,
+   "start": 162.6,
+   "end": 164.767,
+   "gap": 0.167,
+   "hold": 1.2,
+   "holdFrom": 4948,
+   "holdTo": 4984,
+   "joinNext": false,
+   "words": [
+    [
+     "Question",
+     "question",
+     4881,
+     4900
+    ],
+    [
+     "three",
+     "three",
+     4900,
+     4912
+    ],
+    [
+     "is",
+     "is",
+     4912,
+     4916
+    ],
+    [
+     "way",
+     "way",
+     4916,
+     4923
+    ],
+    [
+     "too",
+     "too",
+     4923,
+     4930
+    ],
+    [
+     "long.",
+     "long",
+     4930,
+     4940
+    ]
+   ]
+  },
+  {
+   "id": "L095",
+   "text": "You breathe.",
+   "src": [
+    4582,
+    4605
+   ],
+   "from": 4984,
+   "to": 5007,
+   "start": 166.133,
+   "end": 166.9,
+   "gap": 0.2,
+   "hold": 0.3,
+   "holdFrom": 5013,
+   "holdTo": 5022,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     4986,
+     4992
+    ],
+    [
+     "breathe.",
+     "breathe",
+     4992,
+     5004
+    ]
+   ]
+  },
+  {
+   "id": "L096",
+   "text": "The principal is making tea.",
+   "src": [
+    4611,
+    4661
+   ],
+   "from": 5022,
+   "to": 5072,
+   "start": 167.4,
+   "end": 169.067,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 5075,
+   "holdTo": 5075,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     5024,
+     5033
+    ],
+    [
+     "principal",
+     "principal",
+     5033,
+     5047
+    ],
+    [
+     "is",
+     "is",
+     5047,
+     5051
+    ],
+    [
+     "making",
+     "making",
+     5051,
+     5062
+    ],
+    [
+     "tea.",
+     "tea",
+     5062,
+     5069
+    ]
+   ]
+  },
+  {
+   "id": "L097",
+   "text": "Right next to you.",
+   "src": [
+    4664,
+    4693
+   ],
+   "from": 5075,
+   "to": 5104,
+   "start": 169.167,
+   "end": 170.133,
+   "gap": 0.133,
+   "hold": 0.6,
+   "holdFrom": 5108,
+   "holdTo": 5126,
+   "joinNext": false,
+   "words": [
+    [
+     "Right",
+     "right",
+     5077,
+     5086
+    ],
+    [
+     "next",
+     "next",
+     5086,
+     5093
+    ],
+    [
+     "to",
+     "to",
+     5093,
+     5096
+    ],
+    [
+     "you.",
+     "you",
+     5096,
+     5101
+    ]
+   ]
+  },
+  {
+   "id": "L098",
+   "text": "Three days of cleaning the school toilets.",
+   "src": [
+    4697,
+    4754
+   ],
+   "from": 5126,
+   "to": 5183,
+   "start": 170.867,
+   "end": 172.767,
+   "gap": 0.067,
+   "hold": 1.4,
+   "holdFrom": 5185,
+   "holdTo": 5227,
+   "joinNext": false,
+   "words": [
+    [
+     "Three",
+     "three",
+     5128,
+     5139
+    ],
+    [
+     "days",
+     "days",
+     5139,
+     5142
+    ],
+    [
+     "of",
+     "of",
+     5142,
+     5145
+    ],
+    [
+     "cleaning",
+     "cleaning",
+     5145,
+     5159
+    ],
+    [
+     "the",
+     "the",
+     5159,
+     5162
+    ],
+    [
+     "school",
+     "school",
+     5162,
+     5171
+    ],
+    [
+     "toilets.",
+     "toilets",
+     5171,
+     5180
+    ]
+   ]
+  },
+  {
+   "id": "L099",
+   "text": "So you train.",
+   "src": [
+    4756,
+    4783
+   ],
+   "from": 5227,
+   "to": 5254,
+   "start": 174.233,
+   "end": 175.133,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 5254,
+   "holdTo": 5254,
+   "joinNext": false,
+   "words": [
+    [
+     "So",
+     "so",
+     5230,
+     5234
+    ],
+    [
+     "you",
+     "you",
+     5234,
+     5242
+    ],
+    [
+     "train.",
+     "train",
+     5242,
+     5251
+    ]
+   ]
+  },
+  {
+   "id": "L100",
+   "text": "Forty seconds.",
+   "src": [
+    4788,
+    4818
+   ],
+   "from": 5254,
+   "to": 5284,
+   "start": 175.133,
+   "end": 176.133,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 5284,
+   "holdTo": 5284,
+   "joinNext": false,
+   "words": [
+    [
+     "Forty",
+     "forty",
+     5257,
+     5267
+    ],
+    [
+     "seconds.",
+     "seconds",
+     5267,
+     5281
+    ]
+   ]
+  },
+  {
+   "id": "L101",
+   "text": "One minute.",
+   "src": [
+    4819,
+    4840
+   ],
+   "from": 5284,
+   "to": 5305,
+   "start": 176.133,
+   "end": 176.833,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 5305,
+   "holdTo": 5305,
+   "joinNext": false,
+   "words": [
+    [
+     "One",
+     "one",
+     5286,
+     5292
+    ],
+    [
+     "minute.",
+     "minute",
+     5292,
+     5302
+    ]
+   ]
+  },
+  {
+   "id": "L102",
+   "text": "A minute and a half.",
+   "src": [
+    4845,
+    4876
+   ],
+   "from": 5305,
+   "to": 5336,
+   "start": 176.833,
+   "end": 177.867,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 5336,
+   "holdTo": 5336,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     5307,
+     5317
+    ],
+    [
+     "minute",
+     "minute",
+     5317,
+     5320
+    ],
+    [
+     "and",
+     "and",
+     5320,
+     5325
+    ],
+    [
+     "a",
+     "a",
+     5325,
+     5328
+    ],
+    [
+     "half.",
+     "half",
+     5327,
+     5333
+    ]
+   ]
+  },
+  {
+   "id": "L103",
+   "text": "Two minutes.",
+   "src": [
+    4878,
+    4903
+   ],
+   "from": 5336,
+   "to": 5361,
+   "start": 177.867,
+   "end": 178.7,
+   "gap": 0.033,
+   "hold": 0.2,
+   "holdFrom": 5362,
+   "holdTo": 5368,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     5338,
+     5346
+    ],
+    [
+     "minutes.",
+     "minutes",
+     5346,
+     5360
+    ]
+   ]
+  },
+  {
+   "id": "L104",
+   "text": "And this part is real:",
+   "src": [
+    4903,
+    4944
+   ],
+   "from": 5368,
+   "to": 5409,
+   "start": 178.933,
+   "end": 180.3,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 5414,
+   "holdTo": 5414,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     5370,
+     5383
+    ],
+    [
+     "this",
+     "this",
+     5383,
+     5385
+    ],
+    [
+     "part",
+     "part",
+     5385,
+     5396
+    ],
+    [
+     "is",
+     "is",
+     5396,
+     5398
+    ],
+    [
+     "real:",
+     "real",
+     5398,
+     5406
+    ]
+   ]
+  },
+  {
+   "id": "L105",
+   "text": "when your face touches cold water, your body flips on something called the diving reflex.",
+   "src": [
+    4949,
+    5093
+   ],
+   "from": 5414,
+   "to": 5558,
+   "start": 180.467,
+   "end": 185.267,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 5564,
+   "holdTo": 5564,
+   "joinNext": false,
+   "words": [
+    [
+     "when",
+     "when",
+     5416,
+     5429
+    ],
+    [
+     "your",
+     "your",
+     5429,
+     5431
+    ],
+    [
+     "face",
+     "face",
+     5431,
+     5439
+    ],
+    [
+     "touches",
+     "touches",
+     5439,
+     5452
+    ],
+    [
+     "cold",
+     "cold",
+     5452,
+     5459
+    ],
+    [
+     "water,",
+     "water",
+     5459,
+     5474
+    ],
+    [
+     "your",
+     "your",
+     5474,
+     5486
+    ],
+    [
+     "body",
+     "body",
+     5486,
+     5492
+    ],
+    [
+     "flips",
+     "flips",
+     5492,
+     5503
+    ],
+    [
+     "on",
+     "on",
+     5503,
+     5506
+    ],
+    [
+     "something",
+     "something",
+     5505,
+     5522
+    ],
+    [
+     "called",
+     "called",
+     5522,
+     5530
+    ],
+    [
+     "the",
+     "the",
+     5530,
+     5537
+    ],
+    [
+     "diving",
+     "diving",
+     5537,
+     5544
+    ],
+    [
+     "reflex.",
+     "reflex",
+     5544,
+     5555
+    ]
+   ]
+  },
+  {
+   "id": "L106",
+   "text": "Your heart slows down.",
+   "src": [
+    5099,
+    5139
+   ],
+   "from": 5564,
+   "to": 5604,
+   "start": 185.467,
+   "end": 186.8,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 5607,
+   "holdTo": 5607,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     5566,
+     5582
+    ],
+    [
+     "heart",
+     "heart",
+     5582,
+     5584
+    ],
+    [
+     "slows",
+     "slows",
+     5584,
+     5593
+    ],
+    [
+     "down.",
+     "down",
+     5593,
+     5601
+    ]
+   ]
+  },
+  {
+   "id": "L107",
+   "text": "You can hold your breath longer.",
+   "src": [
+    5142,
+    5192
+   ],
+   "from": 5607,
+   "to": 5657,
+   "start": 186.9,
+   "end": 188.567,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 5657,
+   "holdTo": 5657,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     5609,
+     5618
+    ],
+    [
+     "can",
+     "can",
+     5618,
+     5623
+    ],
+    [
+     "hold",
+     "hold",
+     5623,
+     5627
+    ],
+    [
+     "your",
+     "your",
+     5627,
+     5634
+    ],
+    [
+     "breath",
+     "breath",
+     5634,
+     5645
+    ],
+    [
+     "longer.",
+     "longer",
+     5645,
+     5654
+    ]
+   ]
+  },
+  {
+   "id": "L108",
+   "text": "So every morning, you dunk your face in a bowl of ice water.",
+   "src": [
+    5192,
+    5296
+   ],
+   "from": 5657,
+   "to": 5761,
+   "start": 188.567,
+   "end": 192.033,
+   "gap": 0.233,
+   "hold": 0.5,
+   "holdFrom": 5768,
+   "holdTo": 5783,
+   "joinNext": false,
+   "words": [
+    [
+     "So",
+     "so",
+     5659,
+     5671
+    ],
+    [
+     "every",
+     "every",
+     5671,
+     5678
+    ],
+    [
+     "morning,",
+     "morning",
+     5678,
+     5696
+    ],
+    [
+     "you",
+     "you",
+     5696,
+     5706
+    ],
+    [
+     "dunk",
+     "dunk",
+     5706,
+     5714
+    ],
+    [
+     "your",
+     "your",
+     5714,
+     5718
+    ],
+    [
+     "face",
+     "face",
+     5718,
+     5728
+    ],
+    [
+     "in",
+     "in",
+     5728,
+     5730
+    ],
+    [
+     "a",
+     "a",
+     5730,
+     5732
+    ],
+    [
+     "bowl",
+     "bowl",
+     5732,
+     5739
+    ],
+    [
+     "of",
+     "of",
+     5739,
+     5743
+    ],
+    [
+     "ice",
+     "ice",
+     5743,
+     5749
+    ],
+    [
+     "water.",
+     "water",
+     5749,
+     5758
+    ]
+   ]
+  },
+  {
+   "id": "L109",
+   "text": "Mom thinks it's a skincare routine.",
+   "src": [
+    5309,
+    5367
+   ],
+   "from": 5783,
+   "to": 5841,
+   "start": 192.767,
+   "end": 194.7,
+   "gap": 0.033,
+   "hold": 0.9,
+   "holdFrom": 5842,
+   "holdTo": 5869,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     5785,
+     5801
+    ],
+    [
+     "thinks",
+     "thinks",
+     5801,
+     5804
+    ],
+    [
+     "it's",
+     "it s",
+     5803,
+     5811
+    ],
+    [
+     "a",
+     "a",
+     5811,
+     5813
+    ],
+    [
+     "skincare",
+     "skincare",
+     5812,
+     5825
+    ],
+    [
+     "routine.",
+     "routine",
+     5825,
+     5837
+    ]
+   ]
+  },
+  {
+   "id": "L110",
+   "text": "The world record for holding your breath is over eleven minutes.",
+   "src": [
+    5368,
+    5463
+   ],
+   "from": 5869,
+   "to": 5964,
+   "start": 195.633,
+   "end": 198.8,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 5966,
+   "holdTo": 5966,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     5871,
+     5885
+    ],
+    [
+     "world",
+     "world",
+     5885,
+     5887
+    ],
+    [
+     "record",
+     "record",
+     5887,
+     5895
+    ],
+    [
+     "for",
+     "for",
+     5895,
+     5900
+    ],
+    [
+     "holding",
+     "holding",
+     5900,
+     5914
+    ],
+    [
+     "your",
+     "your",
+     5914,
+     5920
+    ],
+    [
+     "breath",
+     "breath",
+     5920,
+     5933
+    ],
+    [
+     "is",
+     "is",
+     5933,
+     5935
+    ],
+    [
+     "over",
+     "over",
+     5934,
+     5940
+    ],
+    [
+     "eleven",
+     "eleven",
+     5940,
+     5950
+    ],
+    [
+     "minutes.",
+     "minutes",
+     5950,
+     5961
+    ]
+   ]
+  },
+  {
+   "id": "L111",
+   "text": "You get three.",
+   "src": [
+    5465,
+    5490
+   ],
+   "from": 5966,
+   "to": 5991,
+   "start": 198.867,
+   "end": 199.7,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 5997,
+   "holdTo": 5997,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     5968,
+     5979
+    ],
+    [
+     "get",
+     "get",
+     5979,
+     5981
+    ],
+    [
+     "three.",
+     "three",
+     5980,
+     5987
+    ]
+   ]
+  },
+  {
+   "id": "L112",
+   "text": "And for you, three minutes is enough to do …",
+   "src": [
+    5496,
+    5569
+   ],
+   "from": 5997,
+   "to": 6070,
+   "start": 199.9,
+   "end": 202.333,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 6076,
+   "holdTo": 6076,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     5999,
+     6011
+    ],
+    [
+     "for",
+     "for",
+     6011,
+     6014
+    ],
+    [
+     "you,",
+     "you",
+     6014,
+     6026
+    ],
+    [
+     "three",
+     "three",
+     6026,
+     6039
+    ],
+    [
+     "minutes",
+     "minutes",
+     6039,
+     6046
+    ],
+    [
+     "is",
+     "is",
+     6046,
+     6050
+    ],
+    [
+     "enough",
+     "enough",
+     6050,
+     6058
+    ],
+    [
+     "to",
+     "to",
+     6058,
+     6062
+    ],
+    [
+     "do",
+     "do",
+     6062,
+     6067
+    ]
+   ]
+  },
+  {
+   "id": "L113",
+   "text": "almost anything.",
+   "src": [
+    5576,
+    5604
+   ],
+   "from": 6076,
+   "to": 6104,
+   "start": 202.533,
+   "end": 203.467,
+   "gap": 0.2,
+   "hold": 0.6,
+   "holdFrom": 6110,
+   "holdTo": 6128,
+   "joinNext": false,
+   "words": [
+    [
+     "almost",
+     "almost",
+     6078,
+     6088
+    ],
+    [
+     "anything.",
+     "anything",
+     6088,
+     6101
+    ]
+   ]
+  },
+  {
+   "id": "L114",
+   "text": "Then the rumors start at school.",
+   "src": [
+    5616,
+    5660
+   ],
+   "from": 6128,
+   "to": 6172,
+   "start": 204.267,
+   "end": 205.733,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6172,
+   "holdTo": 6172,
+   "joinNext": false,
+   "words": [
+    [
+     "Then",
+     "then",
+     6130,
+     6141
+    ],
+    [
+     "the",
+     "the",
+     6141,
+     6147
+    ],
+    [
+     "rumors",
+     "rumors",
+     6147,
+     6150
+    ],
+    [
+     "start",
+     "start",
+     6150,
+     6157
+    ],
+    [
+     "at",
+     "at",
+     6157,
+     6160
+    ],
+    [
+     "school.",
+     "school",
+     6160,
+     6168
+    ]
+   ]
+  },
+  {
+   "id": "L115",
+   "text": "A door opening by itself in the hallway.",
+   "src": [
+    5667,
+    5730
+   ],
+   "from": 6172,
+   "to": 6235,
+   "start": 205.733,
+   "end": 207.833,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6235,
+   "holdTo": 6235,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     6174,
+     6177
+    ],
+    [
+     "door",
+     "door",
+     6176,
+     6189
+    ],
+    [
+     "opening",
+     "opening",
+     6189,
+     6196
+    ],
+    [
+     "by",
+     "by",
+     6196,
+     6200
+    ],
+    [
+     "itself",
+     "itself",
+     6200,
+     6211
+    ],
+    [
+     "in",
+     "in",
+     6211,
+     6215
+    ],
+    [
+     "the",
+     "the",
+     6215,
+     6221
+    ],
+    [
+     "hallway.",
+     "hallway",
+     6221,
+     6232
+    ]
+   ]
+  },
+  {
+   "id": "L116",
+   "text": "A chair pulling itself out.",
+   "src": [
+    5733,
+    5781
+   ],
+   "from": 6235,
+   "to": 6283,
+   "start": 207.833,
+   "end": 209.433,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6283,
+   "holdTo": 6283,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     6238,
+     6240
+    ],
+    [
+     "chair",
+     "chair",
+     6240,
+     6250
+    ],
+    [
+     "pulling",
+     "pulling",
+     6250,
+     6262
+    ],
+    [
+     "itself",
+     "itself",
+     6262,
+     6273
+    ],
+    [
+     "out.",
+     "out",
+     6273,
+     6279
+    ]
+   ]
+  },
+  {
+   "id": "L117",
+   "text": "A sandwich vanishing from a cafeteria tray.",
+   "src": [
+    5786,
+    5859
+   ],
+   "from": 6283,
+   "to": 6356,
+   "start": 209.433,
+   "end": 211.867,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6356,
+   "holdTo": 6356,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     6285,
+     6297
+    ],
+    [
+     "sandwich",
+     "sandwich",
+     6297,
+     6302
+    ],
+    [
+     "vanishing",
+     "vanishing",
+     6302,
+     6318
+    ],
+    [
+     "from",
+     "from",
+     6318,
+     6326
+    ],
+    [
+     "a",
+     "a",
+     6326,
+     6329
+    ],
+    [
+     "cafeteria",
+     "cafeteria",
+     6329,
+     6345
+    ],
+    [
+     "tray.",
+     "tray",
+     6345,
+     6353
+    ]
+   ]
+  },
+  {
+   "id": "L118",
+   "text": "Someone films it.",
+   "src": [
+    5868,
+    5895
+   ],
+   "from": 6356,
+   "to": 6383,
+   "start": 211.867,
+   "end": 212.767,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6383,
+   "holdTo": 6383,
+   "joinNext": false,
+   "words": [
+    [
+     "Someone",
+     "someone",
+     6358,
+     6364
+    ],
+    [
+     "films",
+     "films",
+     6364,
+     6376
+    ],
+    [
+     "it.",
+     "it",
+     6376,
+     6380
+    ]
+   ]
+  },
+  {
+   "id": "L119",
+   "text": "Posts it online.",
+   "src": [
+    5901,
+    5935
+   ],
+   "from": 6383,
+   "to": 6417,
+   "start": 212.767,
+   "end": 213.9,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 6417,
+   "holdTo": 6417,
+   "joinNext": false,
+   "words": [
+    [
+     "Posts",
+     "posts",
+     6386,
+     6397
+    ],
+    [
+     "it",
+     "it",
+     6397,
+     6402
+    ],
+    [
+     "online.",
+     "online",
+     6402,
+     6414
+    ]
+   ]
+  },
+  {
+   "id": "L120",
+   "text": "\"The ghost of the middle school.\"",
+   "src": [
+    5940,
+    5987
+   ],
+   "from": 6417,
+   "to": 6464,
+   "start": 213.9,
+   "end": 215.467,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 6467,
+   "holdTo": 6467,
+   "joinNext": false,
+   "words": [
+    [
+     "\"The",
+     "the",
+     6419,
+     6434
+    ],
+    [
+     "ghost",
+     "ghost",
+     6434,
+     6436
+    ],
+    [
+     "of",
+     "of",
+     6436,
+     6438
+    ],
+    [
+     "the",
+     "the",
+     6437,
+     6443
+    ],
+    [
+     "middle",
+     "middle",
+     6443,
+     6453
+    ],
+    [
+     "school.\"",
+     "school",
+     6453,
+     6463
+    ]
+   ]
+  },
+  {
+   "id": "L121",
+   "text": "Two million views.",
+   "src": [
+    5987,
+    6019
+   ],
+   "from": 6467,
+   "to": 6499,
+   "start": 215.567,
+   "end": 216.633,
+   "gap": 0.0,
+   "hold": 0.7,
+   "holdFrom": 6499,
+   "holdTo": 6520,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     6468,
+     6478
+    ],
+    [
+     "million",
+     "million",
+     6478,
+     6488
+    ],
+    [
+     "views.",
+     "views",
+     6488,
+     6498
+    ]
+   ]
+  },
+  {
+   "id": "L122",
+   "text": "A team of ghost hunters shows up with an energy meter.",
+   "src": [
+    6019,
+    6098
+   ],
+   "from": 6520,
+   "to": 6599,
+   "start": 217.333,
+   "end": 219.967,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 6602,
+   "holdTo": 6602,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     6523,
+     6525
+    ],
+    [
+     "team",
+     "team",
+     6525,
+     6534
+    ],
+    [
+     "of",
+     "of",
+     6534,
+     6537
+    ],
+    [
+     "ghost",
+     "ghost",
+     6536,
+     6543
+    ],
+    [
+     "hunters",
+     "hunters",
+     6543,
+     6556
+    ],
+    [
+     "shows",
+     "shows",
+     6556,
+     6564
+    ],
+    [
+     "up",
+     "up",
+     6564,
+     6567
+    ],
+    [
+     "with",
+     "with",
+     6567,
+     6574
+    ],
+    [
+     "an",
+     "an",
+     6574,
+     6578
+    ],
+    [
+     "energy",
+     "energy",
+     6578,
+     6588
+    ],
+    [
+     "meter.",
+     "meter",
+     6588,
+     6595
+    ]
+   ]
+  },
+  {
+   "id": "L123",
+   "text": "You're standing right next to them.",
+   "src": [
+    6101,
+    6148
+   ],
+   "from": 6602,
+   "to": 6649,
+   "start": 220.067,
+   "end": 221.633,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 6654,
+   "holdTo": 6654,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     6604,
+     6610
+    ],
+    [
+     "standing",
+     "standing",
+     6610,
+     6621
+    ],
+    [
+     "right",
+     "right",
+     6621,
+     6629
+    ],
+    [
+     "next",
+     "next",
+     6629,
+     6636
+    ],
+    [
+     "to",
+     "to",
+     6636,
+     6639
+    ],
+    [
+     "them.",
+     "them",
+     6639,
+     6646
+    ]
+   ]
+  },
+  {
+   "id": "L124",
+   "text": "Holding your breath.",
+   "src": [
+    6153,
+    6182
+   ],
+   "from": 6654,
+   "to": 6683,
+   "start": 221.8,
+   "end": 222.767,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 6689,
+   "holdTo": 6689,
+   "joinNext": false,
+   "words": [
+    [
+     "Holding",
+     "holding",
+     6657,
+     6667
+    ],
+    [
+     "your",
+     "your",
+     6667,
+     6672
+    ],
+    [
+     "breath.",
+     "breath",
+     6672,
+     6679
+    ]
+   ]
+  },
+  {
+   "id": "L125",
+   "text": "The meter doesn't move.",
+   "src": [
+    6195,
+    6231
+   ],
+   "from": 6689,
+   "to": 6725,
+   "start": 222.967,
+   "end": 224.167,
+   "gap": 0.2,
+   "hold": 1.2,
+   "holdFrom": 6731,
+   "holdTo": 6767,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     6691,
+     6704
+    ],
+    [
+     "meter",
+     "meter",
+     6704,
+     6706
+    ],
+    [
+     "doesn't",
+     "doesn t",
+     6706,
+     6714
+    ],
+    [
+     "move.",
+     "move",
+     6714,
+     6722
+    ]
+   ]
+  },
+  {
+   "id": "L126",
+   "text": "Their conclusion:",
+   "src": [
+    6238,
+    6267
+   ],
+   "from": 6767,
+   "to": 6796,
+   "start": 225.567,
+   "end": 226.533,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 6802,
+   "holdTo": 6802,
+   "joinNext": false,
+   "words": [
+    [
+     "Their",
+     "their",
+     6769,
+     6778
+    ],
+    [
+     "conclusion:",
+     "conclusion",
+     6778,
+     6793
+    ]
+   ]
+  },
+  {
+   "id": "L127",
+   "text": "it's a very powerful ghost.",
+   "src": [
+    6275,
+    6328
+   ],
+   "from": 6802,
+   "to": 6855,
+   "start": 226.733,
+   "end": 228.5,
+   "gap": 0.2,
+   "hold": 1.0,
+   "holdFrom": 6861,
+   "holdTo": 6891,
+   "joinNext": false,
+   "words": [
+    [
+     "it's",
+     "it s",
+     6805,
+     6811
+    ],
+    [
+     "a",
+     "a",
+     6811,
+     6818
+    ],
+    [
+     "very",
+     "very",
+     6818,
+     6821
+    ],
+    [
+     "powerful",
+     "powerful",
+     6821,
+     6841
+    ],
+    [
+     "ghost.",
+     "ghost",
+     6841,
+     6852
+    ]
+   ]
+  },
+  {
+   "id": "L128",
+   "text": "But there's a cost.",
+   "src": [
+    6338,
+    6372
+   ],
+   "from": 6891,
+   "to": 6925,
+   "start": 229.7,
+   "end": 230.833,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 6931,
+   "holdTo": 6931,
+   "joinNext": false,
+   "words": [
+    [
+     "But",
+     "but",
+     6893,
+     6900
+    ],
+    [
+     "there's",
+     "there s",
+     6900,
+     6911
+    ],
+    [
+     "a",
+     "a",
+     6911,
+     6914
+    ],
+    [
+     "cost.",
+     "cost",
+     6913,
+     6921
+    ]
+   ]
+  },
+  {
+   "id": "L129",
+   "text": "When you're invisible, you hear what people say when they think you're not there.",
+   "src": [
+    6382,
+    6490
+   ],
+   "from": 6931,
+   "to": 7039,
+   "start": 231.033,
+   "end": 234.633,
+   "gap": 0.167,
+   "hold": 0.4,
+   "holdFrom": 7044,
+   "holdTo": 7056,
+   "joinNext": false,
+   "words": [
+    [
+     "When",
+     "when",
+     6933,
+     6940
+    ],
+    [
+     "you're",
+     "you re",
+     6940,
+     6949
+    ],
+    [
+     "invisible,",
+     "invisible",
+     6949,
+     6966
+    ],
+    [
+     "you",
+     "you",
+     6966,
+     6971
+    ],
+    [
+     "hear",
+     "hear",
+     6971,
+     6980
+    ],
+    [
+     "what",
+     "what",
+     6980,
+     6987
+    ],
+    [
+     "people",
+     "people",
+     6987,
+     6998
+    ],
+    [
+     "say",
+     "say",
+     6998,
+     7005
+    ],
+    [
+     "when",
+     "when",
+     7005,
+     7008
+    ],
+    [
+     "they",
+     "they",
+     7008,
+     7014
+    ],
+    [
+     "think",
+     "think",
+     7014,
+     7016
+    ],
+    [
+     "you're",
+     "you re",
+     7016,
+     7022
+    ],
+    [
+     "not",
+     "not",
+     7022,
+     7027
+    ],
+    [
+     "there.",
+     "there",
+     7027,
+     7036
+    ]
+   ]
+  },
+  {
+   "id": "L130",
+   "text": "Recess.",
+   "src": [
+    6500,
+    6526
+   ],
+   "from": 7056,
+   "to": 7082,
+   "start": 235.2,
+   "end": 236.067,
+   "gap": 0.233,
+   "hold": 0,
+   "holdFrom": 7089,
+   "holdTo": 7089,
+   "joinNext": false,
+   "words": [
+    [
+     "Recess.",
+     "recess",
+     7058,
+     7079
+    ]
+   ]
+  },
+  {
+   "id": "L131",
+   "text": "Your friends are planning a weekend hangout.",
+   "src": [
+    6540,
+    6600
+   ],
+   "from": 7089,
+   "to": 7149,
+   "start": 236.3,
+   "end": 238.3,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 7152,
+   "holdTo": 7152,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     7091,
+     7107
+    ],
+    [
+     "friends",
+     "friends",
+     7107,
+     7110
+    ],
+    [
+     "are",
+     "are",
+     7109,
+     7114
+    ],
+    [
+     "planning",
+     "planning",
+     7114,
+     7124
+    ],
+    [
+     "a",
+     "a",
+     7124,
+     7126
+    ],
+    [
+     "weekend",
+     "weekend",
+     7125,
+     7136
+    ],
+    [
+     "hangout.",
+     "hangout",
+     7136,
+     7145
+    ]
+   ]
+  },
+  {
+   "id": "L132",
+   "text": "You're standing right there.",
+   "src": [
+    6603,
+    6643
+   ],
+   "from": 7152,
+   "to": 7192,
+   "start": 238.4,
+   "end": 239.733,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7198,
+   "holdTo": 7198,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     7155,
+     7161
+    ],
+    [
+     "standing",
+     "standing",
+     7161,
+     7173
+    ],
+    [
+     "right",
+     "right",
+     7173,
+     7181
+    ],
+    [
+     "there.",
+     "there",
+     7181,
+     7189
+    ]
+   ]
+  },
+  {
+   "id": "L133",
+   "text": "Invisible.",
+   "src": [
+    6651,
+    6676
+   ],
+   "from": 7198,
+   "to": 7223,
+   "start": 239.933,
+   "end": 240.767,
+   "gap": 0.233,
+   "hold": 0,
+   "holdFrom": 7230,
+   "holdTo": 7230,
+   "joinNext": false,
+   "words": [
+    [
+     "Invisible.",
+     "invisible",
+     7201,
+     7220
+    ]
+   ]
+  },
+  {
+   "id": "L134",
+   "text": "Should we invite him?",
+   "src": [
+    6684,
+    6717
+   ],
+   "from": 7230,
+   "to": 7263,
+   "start": 241.0,
+   "end": 242.1,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7269,
+   "holdTo": 7269,
+   "joinNext": false,
+   "words": [
+    [
+     "Should",
+     "should",
+     7232,
+     7240
+    ],
+    [
+     "we",
+     "we",
+     7240,
+     7244
+    ],
+    [
+     "invite",
+     "invite",
+     7244,
+     7254
+    ],
+    [
+     "him?",
+     "him",
+     7254,
+     7260
+    ]
+   ]
+  },
+  {
+   "id": "L135",
+   "text": "Doesn't really matter if he comes or not.",
+   "src": [
+    6726,
+    6780
+   ],
+   "from": 7269,
+   "to": 7323,
+   "start": 242.3,
+   "end": 244.1,
+   "gap": 0.067,
+   "hold": 0.4,
+   "holdFrom": 7325,
+   "holdTo": 7337,
+   "joinNext": false,
+   "words": [
+    [
+     "Doesn't",
+     "doesn t",
+     7271,
+     7279
+    ],
+    [
+     "really",
+     "really",
+     7279,
+     7284
+    ],
+    [
+     "matter",
+     "matter",
+     7284,
+     7295
+    ],
+    [
+     "if",
+     "if",
+     7295,
+     7298
+    ],
+    [
+     "he",
+     "he",
+     7298,
+     7302
+    ],
+    [
+     "comes",
+     "comes",
+     7302,
+     7311
+    ],
+    [
+     "or",
+     "or",
+     7311,
+     7314
+    ],
+    [
+     "not.",
+     "not",
+     7314,
+     7319
+    ]
+   ]
+  },
+  {
+   "id": "L136",
+   "text": "You breathe out.",
+   "src": [
+    6782,
+    6804
+   ],
+   "from": 7337,
+   "to": 7359,
+   "start": 244.567,
+   "end": 245.3,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 7364,
+   "holdTo": 7364,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     7339,
+     7345
+    ],
+    [
+     "breathe",
+     "breathe",
+     7345,
+     7351
+    ],
+    [
+     "out.",
+     "out",
+     7351,
+     7356
+    ]
+   ]
+  },
+  {
+   "id": "L137",
+   "text": "But for the first time, you wish you didn't have to come back.",
+   "src": [
+    6809,
+    6897
+   ],
+   "from": 7364,
+   "to": 7452,
+   "start": 245.467,
+   "end": 248.4,
+   "gap": 0.2,
+   "hold": 1.2,
+   "holdFrom": 7458,
+   "holdTo": 7494,
+   "joinNext": false,
+   "words": [
+    [
+     "But",
+     "but",
+     7366,
+     7375
+    ],
+    [
+     "for",
+     "for",
+     7375,
+     7377
+    ],
+    [
+     "the",
+     "the",
+     7377,
+     7382
+    ],
+    [
+     "first",
+     "first",
+     7382,
+     7391
+    ],
+    [
+     "time,",
+     "time",
+     7391,
+     7402
+    ],
+    [
+     "you",
+     "you",
+     7402,
+     7413
+    ],
+    [
+     "wish",
+     "wish",
+     7413,
+     7415
+    ],
+    [
+     "you",
+     "you",
+     7415,
+     7417
+    ],
+    [
+     "didn't",
+     "didn t",
+     7417,
+     7427
+    ],
+    [
+     "have",
+     "have",
+     7427,
+     7433
+    ],
+    [
+     "to",
+     "to",
+     7433,
+     7436
+    ],
+    [
+     "come",
+     "come",
+     7436,
+     7442
+    ],
+    [
+     "back.",
+     "back",
+     7442,
+     7449
+    ]
+   ]
+  },
+  {
+   "id": "L138",
+   "text": "So now there's a rule.",
+   "src": [
+    6905,
+    6939
+   ],
+   "from": 7494,
+   "to": 7528,
+   "start": 249.8,
+   "end": 250.933,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7534,
+   "holdTo": 7534,
+   "joinNext": false,
+   "words": [
+    [
+     "So",
+     "so",
+     7497,
+     7505
+    ],
+    [
+     "now",
+     "now",
+     7505,
+     7508
+    ],
+    [
+     "there's",
+     "there s",
+     7507,
+     7517
+    ],
+    [
+     "a",
+     "a",
+     7517,
+     7519
+    ],
+    [
+     "rule.",
+     "rule",
+     7519,
+     7525
+    ]
+   ]
+  },
+  {
+   "id": "L139",
+   "text": "Nobody needs to see me.",
+   "src": [
+    6951,
+    6990
+   ],
+   "from": 7534,
+   "to": 7573,
+   "start": 251.133,
+   "end": 252.433,
+   "gap": 0.2,
+   "hold": 1.0,
+   "holdFrom": 7579,
+   "holdTo": 7609,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     7536,
+     7551
+    ],
+    [
+     "needs",
+     "needs",
+     7551,
+     7556
+    ],
+    [
+     "to",
+     "to",
+     7556,
+     7560
+    ],
+    [
+     "see",
+     "see",
+     7560,
+     7565
+    ],
+    [
+     "me.",
+     "me",
+     7565,
+     7570
+    ]
+   ]
+  },
+  {
+   "id": "L140",
+   "text": "You eat lunch alone.",
+   "src": [
+    7002,
+    7035
+   ],
+   "from": 7609,
+   "to": 7642,
+   "start": 253.633,
+   "end": 254.733,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7648,
+   "holdTo": 7648,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     7611,
+     7616
+    ],
+    [
+     "eat",
+     "eat",
+     7616,
+     7626
+    ],
+    [
+     "lunch",
+     "lunch",
+     7626,
+     7631
+    ],
+    [
+     "alone.",
+     "alone",
+     7631,
+     7639
+    ]
+   ]
+  },
+  {
+   "id": "L141",
+   "text": "Invisible.",
+   "src": [
+    7047,
+    7073
+   ],
+   "from": 7648,
+   "to": 7674,
+   "start": 254.933,
+   "end": 255.8,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7680,
+   "holdTo": 7680,
+   "joinNext": false,
+   "words": [
+    [
+     "Invisible.",
+     "invisible",
+     7650,
+     7671
+    ]
+   ]
+  },
+  {
+   "id": "L142",
+   "text": "You walk home alone.",
+   "src": [
+    7089,
+    7121
+   ],
+   "from": 7680,
+   "to": 7712,
+   "start": 256.0,
+   "end": 257.067,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7718,
+   "holdTo": 7718,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     7682,
+     7685
+    ],
+    [
+     "walk",
+     "walk",
+     7684,
+     7693
+    ],
+    [
+     "home",
+     "home",
+     7693,
+     7701
+    ],
+    [
+     "alone.",
+     "alone",
+     7701,
+     7709
+    ]
+   ]
+  },
+  {
+   "id": "L143",
+   "text": "Invisible.",
+   "src": [
+    7135,
+    7162
+   ],
+   "from": 7718,
+   "to": 7745,
+   "start": 257.267,
+   "end": 258.167,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7751,
+   "holdTo": 7751,
+   "joinNext": false,
+   "words": [
+    [
+     "Invisible.",
+     "invisible",
+     7721,
+     7742
+    ]
+   ]
+  },
+  {
+   "id": "L144",
+   "text": "Three minutes a breath.",
+   "src": [
+    7172,
+    7210
+   ],
+   "from": 7751,
+   "to": 7789,
+   "start": 258.367,
+   "end": 259.633,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7795,
+   "holdTo": 7795,
+   "joinNext": false,
+   "words": [
+    [
+     "Three",
+     "three",
+     7753,
+     7770
+    ],
+    [
+     "minutes",
+     "minutes",
+     7770,
+     7773
+    ],
+    [
+     "a",
+     "a",
+     7772,
+     7776
+    ],
+    [
+     "breath.",
+     "breath",
+     7776,
+     7786
+    ]
+   ]
+  },
+  {
+   "id": "L145",
+   "text": "Then breathe.",
+   "src": [
+    7220,
+    7248
+   ],
+   "from": 7795,
+   "to": 7823,
+   "start": 259.833,
+   "end": 260.767,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 7823,
+   "holdTo": 7823,
+   "joinNext": false,
+   "words": [
+    [
+     "Then",
+     "then",
+     7797,
+     7806
+    ],
+    [
+     "breathe.",
+     "breathe",
+     7806,
+     7819
+    ]
+   ]
+  },
+  {
+   "id": "L146",
+   "text": "Then hold it again.",
+   "src": [
+    7248,
+    7280
+   ],
+   "from": 7823,
+   "to": 7855,
+   "start": 260.767,
+   "end": 261.833,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 7861,
+   "holdTo": 7861,
+   "joinNext": false,
+   "words": [
+    [
+     "Then",
+     "then",
+     7825,
+     7833
+    ],
+    [
+     "hold",
+     "hold",
+     7833,
+     7841
+    ],
+    [
+     "it",
+     "it",
+     7841,
+     7843
+    ],
+    [
+     "again.",
+     "again",
+     7843,
+     7851
+    ]
+   ]
+  },
+  {
+   "id": "L147",
+   "text": "And something strange starts to happen.",
+   "src": [
+    7286,
+    7345
+   ],
+   "from": 7861,
+   "to": 7920,
+   "start": 262.033,
+   "end": 264.0,
+   "gap": 0.167,
+   "hold": 0.4,
+   "holdFrom": 7925,
+   "holdTo": 7937,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     7863,
+     7876
+    ],
+    [
+     "something",
+     "something",
+     7876,
+     7883
+    ],
+    [
+     "strange",
+     "strange",
+     7883,
+     7894
+    ],
+    [
+     "starts",
+     "starts",
+     7894,
+     7904
+    ],
+    [
+     "to",
+     "to",
+     7904,
+     7907
+    ],
+    [
+     "happen.",
+     "happen",
+     7907,
+     7917
+    ]
+   ]
+  },
+  {
+   "id": "L148",
+   "text": "Even when you're breathing — people don't see you.",
+   "src": [
+    7350,
+    7421
+   ],
+   "from": 7937,
+   "to": 8008,
+   "start": 264.567,
+   "end": 266.933,
+   "gap": 0.133,
+   "hold": 0.6,
+   "holdFrom": 8012,
+   "holdTo": 8030,
+   "joinNext": false,
+   "words": [
+    [
+     "Even",
+     "even",
+     7939,
+     7949
+    ],
+    [
+     "when",
+     "when",
+     7949,
+     7954
+    ],
+    [
+     "you're",
+     "you re",
+     7954,
+     7957
+    ],
+    [
+     "breathing",
+     "breathing",
+     7957,
+     7973
+    ],
+    [
+     "people",
+     "people",
+     7973,
+     7985
+    ],
+    [
+     "don't",
+     "don t",
+     7985,
+     7993
+    ],
+    [
+     "see",
+     "see",
+     7993,
+     7998
+    ],
+    [
+     "you.",
+     "you",
+     7998,
+     8005
+    ]
+   ]
+  },
+  {
+   "id": "L149",
+   "text": "The teacher takes attendance.",
+   "src": [
+    7425,
+    7468
+   ],
+   "from": 8030,
+   "to": 8073,
+   "start": 267.667,
+   "end": 269.1,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 8074,
+   "holdTo": 8074,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     8032,
+     8043
+    ],
+    [
+     "teacher",
+     "teacher",
+     8043,
+     8048
+    ],
+    [
+     "takes",
+     "takes",
+     8048,
+     8056
+    ],
+    [
+     "attendance.",
+     "attendance",
+     8056,
+     8070
+    ]
+   ]
+  },
+  {
+   "id": "L150",
+   "text": "Calls your name.",
+   "src": [
+    7469,
+    7498
+   ],
+   "from": 8074,
+   "to": 8103,
+   "start": 269.133,
+   "end": 270.1,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 8107,
+   "holdTo": 8107,
+   "joinNext": false,
+   "words": [
+    [
+     "Calls",
+     "calls",
+     8077,
+     8087
+    ],
+    [
+     "your",
+     "your",
+     8087,
+     8093
+    ],
+    [
+     "name.",
+     "name",
+     8093,
+     8100
+    ]
+   ]
+  },
+  {
+   "id": "L151",
+   "text": "You raise your hand.",
+   "src": [
+    7502,
+    7537
+   ],
+   "from": 8107,
+   "to": 8142,
+   "start": 270.233,
+   "end": 271.4,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 8146,
+   "holdTo": 8146,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     8109,
+     8121
+    ],
+    [
+     "raise",
+     "raise",
+     8121,
+     8124
+    ],
+    [
+     "your",
+     "your",
+     8124,
+     8131
+    ],
+    [
+     "hand.",
+     "hand",
+     8131,
+     8139
+    ]
+   ]
+  },
+  {
+   "id": "L152",
+   "text": "You say \"Here.\"",
+   "src": [
+    7541,
+    7577
+   ],
+   "from": 8146,
+   "to": 8182,
+   "start": 271.533,
+   "end": 272.733,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 8182,
+   "holdTo": 8182,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     8148,
+     8158
+    ],
+    [
+     "say",
+     "say",
+     8158,
+     8167
+    ],
+    [
+     "\"Here.\"",
+     "here",
+     8167,
+     8179
+    ]
+   ]
+  },
+  {
+   "id": "L153",
+   "text": "Has anyone seen him today?",
+   "src": [
+    7577,
+    7619
+   ],
+   "from": 8182,
+   "to": 8224,
+   "start": 272.733,
+   "end": 274.133,
+   "gap": 0.133,
+   "hold": 0.6,
+   "holdFrom": 8228,
+   "holdTo": 8246,
+   "joinNext": false,
+   "words": [
+    [
+     "Has",
+     "has",
+     8184,
+     8196
+    ],
+    [
+     "anyone",
+     "anyone",
+     8196,
+     8200
+    ],
+    [
+     "seen",
+     "seen",
+     8200,
+     8208
+    ],
+    [
+     "him",
+     "him",
+     8208,
+     8213
+    ],
+    [
+     "today?",
+     "today",
+     8213,
+     8221
+    ]
+   ]
+  },
+  {
+   "id": "L154",
+   "text": "On your birthday, the group chat stays silent all day.",
+   "src": [
+    7623,
+    7717
+   ],
+   "from": 8246,
+   "to": 8340,
+   "start": 274.867,
+   "end": 278.0,
+   "gap": 0.1,
+   "hold": 1.2,
+   "holdFrom": 8343,
+   "holdTo": 8379,
+   "joinNext": false,
+   "words": [
+    [
+     "On",
+     "on",
+     8249,
+     8259
+    ],
+    [
+     "your",
+     "your",
+     8259,
+     8262
+    ],
+    [
+     "birthday,",
+     "birthday",
+     8261,
+     8279
+    ],
+    [
+     "the",
+     "the",
+     8279,
+     8292
+    ],
+    [
+     "group",
+     "group",
+     8292,
+     8295
+    ],
+    [
+     "chat",
+     "chat",
+     8295,
+     8303
+    ],
+    [
+     "stays",
+     "stays",
+     8303,
+     8313
+    ],
+    [
+     "silent",
+     "silent",
+     8313,
+     8324
+    ],
+    [
+     "all",
+     "all",
+     8324,
+     8330
+    ],
+    [
+     "day.",
+     "day",
+     8330,
+     8337
+    ]
+   ]
+  },
+  {
+   "id": "L155",
+   "text": "Only Bin.",
+   "src": [
+    7720,
+    7751
+   ],
+   "from": 8379,
+   "to": 8410,
+   "start": 279.3,
+   "end": 280.333,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 8411,
+   "holdTo": 8411,
+   "joinNext": false,
+   "words": [
+    [
+     "Only",
+     "only",
+     8382,
+     8395
+    ],
+    [
+     "Bin.",
+     "bin",
+     8395,
+     8407
+    ]
+   ]
+  },
+  {
+   "id": "L156",
+   "text": "That night, Bin climbs into your bed, lies down next to you.",
+   "src": [
+    7752,
+    7869
+   ],
+   "from": 8411,
+   "to": 8528,
+   "start": 280.367,
+   "end": 284.267,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 8531,
+   "holdTo": 8531,
+   "joinNext": false,
+   "words": [
+    [
+     "That",
+     "that",
+     8413,
+     8419
+    ],
+    [
+     "night,",
+     "night",
+     8419,
+     8434
+    ],
+    [
+     "Bin",
+     "bin",
+     8434,
+     8441
+    ],
+    [
+     "climbs",
+     "climbs",
+     8441,
+     8451
+    ],
+    [
+     "into",
+     "into",
+     8451,
+     8460
+    ],
+    [
+     "your",
+     "your",
+     8460,
+     8469
+    ],
+    [
+     "bed,",
+     "bed",
+     8469,
+     8483
+    ],
+    [
+     "lies",
+     "lies",
+     8483,
+     8493
+    ],
+    [
+     "down",
+     "down",
+     8493,
+     8503
+    ],
+    [
+     "next",
+     "next",
+     8503,
+     8512
+    ],
+    [
+     "to",
+     "to",
+     8512,
+     8517
+    ],
+    [
+     "you.",
+     "you",
+     8517,
+     8525
+    ]
+   ]
+  },
+  {
+   "id": "L157",
+   "text": "Big brother.",
+   "src": [
+    7872,
+    7897
+   ],
+   "from": 8531,
+   "to": 8556,
+   "start": 284.367,
+   "end": 285.2,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 8558,
+   "holdTo": 8558,
+   "joinNext": false,
+   "words": [
+    [
+     "Big",
+     "big",
+     8533,
+     8540
+    ],
+    [
+     "brother.",
+     "brother",
+     8540,
+     8553
+    ]
+   ]
+  },
+  {
+   "id": "L158",
+   "text": "Were you holding your breath all day?",
+   "src": [
+    7899,
+    7943
+   ],
+   "from": 8558,
+   "to": 8602,
+   "start": 285.267,
+   "end": 286.733,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 8606,
+   "holdTo": 8606,
+   "joinNext": false,
+   "words": [
+    [
+     "Were",
+     "were",
+     8560,
+     8569
+    ],
+    [
+     "you",
+     "you",
+     8569,
+     8572
+    ],
+    [
+     "holding",
+     "holding",
+     8571,
+     8578
+    ],
+    [
+     "your",
+     "your",
+     8578,
+     8583
+    ],
+    [
+     "breath",
+     "breath",
+     8583,
+     8591
+    ],
+    [
+     "all",
+     "all",
+     8591,
+     8595
+    ],
+    [
+     "day?",
+     "day",
+     8595,
+     8599
+    ]
+   ]
+  },
+  {
+   "id": "L159",
+   "text": "It sounds so tiring.",
+   "src": [
+    7947,
+    7987
+   ],
+   "from": 8606,
+   "to": 8646,
+   "start": 286.867,
+   "end": 288.2,
+   "gap": 0.067,
+   "hold": 1.4,
+   "holdFrom": 8648,
+   "holdTo": 8690,
+   "joinNext": false,
+   "words": [
+    [
+     "It",
+     "it",
+     8608,
+     8621
+    ],
+    [
+     "sounds",
+     "sounds",
+     8621,
+     8627
+    ],
+    [
+     "so",
+     "so",
+     8627,
+     8631
+    ],
+    [
+     "tiring.",
+     "tiring",
+     8631,
+     8643
+    ]
+   ]
+  },
+  {
+   "id": "L160",
+   "text": "The Mid-Autumn Festival.",
+   "src": [
+    7989,
+    8032
+   ],
+   "from": 8690,
+   "to": 8733,
+   "start": 289.667,
+   "end": 291.1,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 8736,
+   "holdTo": 8736,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     8692,
+     8702
+    ],
+    [
+     "Mid-Autumn",
+     "mid autumn",
+     8702,
+     8711
+    ],
+    [
+     "Festival.",
+     "festival",
+     8711,
+     8730
+    ]
+   ]
+  },
+  {
+   "id": "L161",
+   "text": "Lantern Street, in Saigon's Chinatown.",
+   "src": [
+    8035,
+    8115
+   ],
+   "from": 8736,
+   "to": 8816,
+   "start": 291.2,
+   "end": 293.867,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 8818,
+   "holdTo": 8818,
+   "joinNext": false,
+   "words": [
+    [
+     "Lantern",
+     "lantern",
+     8738,
+     8756
+    ],
+    [
+     "Street,",
+     "street",
+     8756,
+     8772
+    ],
+    [
+     "in",
+     "in",
+     8772,
+     8777
+    ],
+    [
+     "Saigon's",
+     "saigon s",
+     8777,
+     8792
+    ],
+    [
+     "Chinatown.",
+     "chinatown",
+     8792,
+     8813
+    ]
+   ]
+  },
+  {
+   "id": "L162",
+   "text": "Packed.",
+   "src": [
+    8117,
+    8136
+   ],
+   "from": 8818,
+   "to": 8837,
+   "start": 293.933,
+   "end": 294.567,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 8840,
+   "holdTo": 8840,
+   "joinNext": false,
+   "words": [
+    [
+     "Packed.",
+     "packed",
+     8820,
+     8834
+    ]
+   ]
+  },
+  {
+   "id": "L163",
+   "text": "Star lanterns, carp lanterns, spinning lanterns.",
+   "src": [
+    8139,
+    8249
+   ],
+   "from": 8840,
+   "to": 8950,
+   "start": 294.667,
+   "end": 298.333,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 8951,
+   "holdTo": 8951,
+   "joinNext": false,
+   "words": [
+    [
+     "Star",
+     "star",
+     8842,
+     8852
+    ],
+    [
+     "lanterns,",
+     "lanterns",
+     8852,
+     8880
+    ],
+    [
+     "carp",
+     "carp",
+     8880,
+     8888
+    ],
+    [
+     "lanterns,",
+     "lanterns",
+     8888,
+     8912
+    ],
+    [
+     "spinning",
+     "spinning",
+     8912,
+     8927
+    ],
+    [
+     "lanterns.",
+     "lanterns",
+     8927,
+     8947
+    ]
+   ]
+  },
+  {
+   "id": "L164",
+   "text": "Lion dance drums.",
+   "src": [
+    8250,
+    8297
+   ],
+   "from": 8951,
+   "to": 8998,
+   "start": 298.367,
+   "end": 299.933,
+   "gap": 0.067,
+   "hold": 0.8,
+   "holdFrom": 9000,
+   "holdTo": 9024,
+   "joinNext": false,
+   "words": [
+    [
+     "Lion",
+     "lion",
+     8953,
+     8965
+    ],
+    [
+     "dance",
+     "dance",
+     8965,
+     8980
+    ],
+    [
+     "drums.",
+     "drums",
+     8980,
+     8995
+    ]
+   ]
+  },
+  {
+   "id": "L165",
+   "text": "You're holding Bin's hand.",
+   "src": [
+    8299,
+    8342
+   ],
+   "from": 9024,
+   "to": 9067,
+   "start": 300.8,
+   "end": 302.233,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9067,
+   "holdTo": 9067,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     9026,
+     9034
+    ],
+    [
+     "holding",
+     "holding",
+     9034,
+     9048
+    ],
+    [
+     "Bin's",
+     "bin s",
+     9048,
+     9056
+    ],
+    [
+     "hand.",
+     "hand",
+     9056,
+     9066
+    ]
+   ]
+  },
+  {
+   "id": "L166",
+   "text": "A lantern in one hand, your brother in the other.",
+   "src": [
+    8342,
+    8426
+   ],
+   "from": 9067,
+   "to": 9151,
+   "start": 302.233,
+   "end": 305.033,
+   "gap": 0.2,
+   "hold": 0.2,
+   "holdFrom": 9157,
+   "holdTo": 9163,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     9070,
+     9079
+    ],
+    [
+     "lantern",
+     "lantern",
+     9079,
+     9088
+    ],
+    [
+     "in",
+     "in",
+     9088,
+     9093
+    ],
+    [
+     "one",
+     "one",
+     9093,
+     9099
+    ],
+    [
+     "hand,",
+     "hand",
+     9099,
+     9117
+    ],
+    [
+     "your",
+     "your",
+     9117,
+     9125
+    ],
+    [
+     "brother",
+     "brother",
+     9125,
+     9132
+    ],
+    [
+     "in",
+     "in",
+     9132,
+     9134
+    ],
+    [
+     "the",
+     "the",
+     9134,
+     9138
+    ],
+    [
+     "other.",
+     "other",
+     9138,
+     9148
+    ]
+   ]
+  },
+  {
+   "id": "L167",
+   "text": "Then the crowd shoves.",
+   "src": [
+    8433,
+    8471
+   ],
+   "from": 9163,
+   "to": 9201,
+   "start": 305.433,
+   "end": 306.7,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9201,
+   "holdTo": 9201,
+   "joinNext": false,
+   "words": [
+    [
+     "Then",
+     "then",
+     9166,
+     9179
+    ],
+    [
+     "the",
+     "the",
+     9179,
+     9181
+    ],
+    [
+     "crowd",
+     "crowd",
+     9181,
+     9188
+    ],
+    [
+     "shoves.",
+     "shoves",
+     9188,
+     9198
+    ]
+   ]
+  },
+  {
+   "id": "L168",
+   "text": "Your hand is empty.",
+   "src": [
+    8471,
+    8510
+   ],
+   "from": 9201,
+   "to": 9240,
+   "start": 306.7,
+   "end": 308.0,
+   "gap": 0.1,
+   "hold": 0.8,
+   "holdFrom": 9243,
+   "holdTo": 9267,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     9204,
+     9215
+    ],
+    [
+     "hand",
+     "hand",
+     9215,
+     9222
+    ],
+    [
+     "is",
+     "is",
+     9222,
+     9226
+    ],
+    [
+     "empty.",
+     "empty",
+     9226,
+     9236
+    ]
+   ]
+  },
+  {
+   "id": "L169",
+   "text": "You turn around.",
+   "src": [
+    8513,
+    8544
+   ],
+   "from": 9267,
+   "to": 9298,
+   "start": 308.9,
+   "end": 309.933,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 9299,
+   "holdTo": 9299,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     9270,
+     9276
+    ],
+    [
+     "turn",
+     "turn",
+     9276,
+     9284
+    ],
+    [
+     "around.",
+     "around",
+     9284,
+     9294
+    ]
+   ]
+  },
+  {
+   "id": "L170",
+   "text": "There.",
+   "src": [
+    8545,
+    8563
+   ],
+   "from": 9299,
+   "to": 9317,
+   "start": 309.967,
+   "end": 310.567,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9317,
+   "holdTo": 9317,
+   "joinNext": false,
+   "words": [
+    [
+     "There.",
+     "there",
+     9301,
+     9314
+    ]
+   ]
+  },
+  {
+   "id": "L171",
+   "text": "A man in a baseball cap, carrying Bin toward the end of the street.",
+   "src": [
+    8563,
+    8674
+   ],
+   "from": 9317,
+   "to": 9428,
+   "start": 310.567,
+   "end": 314.267,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 9429,
+   "holdTo": 9429,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     9320,
+     9322
+    ],
+    [
+     "man",
+     "man",
+     9322,
+     9331
+    ],
+    [
+     "in",
+     "in",
+     9331,
+     9336
+    ],
+    [
+     "a",
+     "a",
+     9336,
+     9339
+    ],
+    [
+     "baseball",
+     "baseball",
+     9339,
+     9361
+    ],
+    [
+     "cap,",
+     "cap",
+     9361,
+     9370
+    ],
+    [
+     "carrying",
+     "carrying",
+     9370,
+     9372
+    ],
+    [
+     "Bin",
+     "bin",
+     9372,
+     9387
+    ],
+    [
+     "toward",
+     "toward",
+     9387,
+     9397
+    ],
+    [
+     "the",
+     "the",
+     9397,
+     9402
+    ],
+    [
+     "end",
+     "end",
+     9402,
+     9408
+    ],
+    [
+     "of",
+     "of",
+     9408,
+     9411
+    ],
+    [
+     "the",
+     "the",
+     9410,
+     9414
+    ],
+    [
+     "street.",
+     "street",
+     9414,
+     9425
+    ]
+   ]
+  },
+  {
+   "id": "L172",
+   "text": "Very fast.",
+   "src": [
+    8675,
+    8708
+   ],
+   "from": 9429,
+   "to": 9462,
+   "start": 314.3,
+   "end": 315.4,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 9463,
+   "holdTo": 9463,
+   "joinNext": false,
+   "words": [
+    [
+     "Very",
+     "very",
+     9431,
+     9445
+    ],
+    [
+     "fast.",
+     "fast",
+     9445,
+     9459
+    ]
+   ]
+  },
+  {
+   "id": "L173",
+   "text": "Very calm.",
+   "src": [
+    8709,
+    8739
+   ],
+   "from": 9463,
+   "to": 9493,
+   "start": 315.433,
+   "end": 316.433,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 9495,
+   "holdTo": 9495,
+   "joinNext": false,
+   "words": [
+    [
+     "Very",
+     "very",
+     9465,
+     9477
+    ],
+    [
+     "calm.",
+     "calm",
+     9477,
+     9489
+    ]
+   ]
+  },
+  {
+   "id": "L174",
+   "text": "Bin is kicking.",
+   "src": [
+    8741,
+    8769
+   ],
+   "from": 9495,
+   "to": 9523,
+   "start": 316.5,
+   "end": 317.433,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 9524,
+   "holdTo": 9524,
+   "joinNext": false,
+   "words": [
+    [
+     "Bin",
+     "bin",
+     9497,
+     9503
+    ],
+    [
+     "is",
+     "is",
+     9503,
+     9508
+    ],
+    [
+     "kicking.",
+     "kicking",
+     9508,
+     9520
+    ]
+   ]
+  },
+  {
+   "id": "L175",
+   "text": "His voice is lost in the drums.",
+   "src": [
+    8770,
+    8826
+   ],
+   "from": 9524,
+   "to": 9580,
+   "start": 317.467,
+   "end": 319.333,
+   "gap": 0.067,
+   "hold": 0.3,
+   "holdFrom": 9582,
+   "holdTo": 9591,
+   "joinNext": false,
+   "words": [
+    [
+     "His",
+     "his",
+     9526,
+     9539
+    ],
+    [
+     "voice",
+     "voice",
+     9539,
+     9544
+    ],
+    [
+     "is",
+     "is",
+     9544,
+     9548
+    ],
+    [
+     "lost",
+     "lost",
+     9548,
+     9556
+    ],
+    [
+     "in",
+     "in",
+     9556,
+     9561
+    ],
+    [
+     "the",
+     "the",
+     9561,
+     9567
+    ],
+    [
+     "drums.",
+     "drums",
+     9567,
+     9576
+    ]
+   ]
+  },
+  {
+   "id": "L176",
+   "text": "Nobody notices.",
+   "src": [
+    8828,
+    8861
+   ],
+   "from": 9591,
+   "to": 9624,
+   "start": 319.7,
+   "end": 320.8,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9624,
+   "holdTo": 9624,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     9593,
+     9606
+    ],
+    [
+     "notices.",
+     "notices",
+     9606,
+     9621
+    ]
+   ]
+  },
+  {
+   "id": "L177",
+   "text": "Nobody ever notices.",
+   "src": [
+    8861,
+    8906
+   ],
+   "from": 9624,
+   "to": 9669,
+   "start": 320.8,
+   "end": 322.3,
+   "gap": 0.033,
+   "hold": 0.8,
+   "holdFrom": 9670,
+   "holdTo": 9694,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     9626,
+     9641
+    ],
+    [
+     "ever",
+     "ever",
+     9641,
+     9650
+    ],
+    [
+     "notices.",
+     "notices",
+     9650,
+     9666
+    ]
+   ]
+  },
+  {
+   "id": "L178",
+   "text": "You take a breath.",
+   "src": [
+    8907,
+    8937
+   ],
+   "from": 9694,
+   "to": 9724,
+   "start": 323.133,
+   "end": 324.133,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9724,
+   "holdTo": 9724,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     9696,
+     9702
+    ],
+    [
+     "take",
+     "take",
+     9702,
+     9710
+    ],
+    [
+     "a",
+     "a",
+     9710,
+     9712
+    ],
+    [
+     "breath.",
+     "breath",
+     9712,
+     9721
+    ]
+   ]
+  },
+  {
+   "id": "L179",
+   "text": "Hold it.",
+   "src": [
+    8938,
+    8955
+   ],
+   "from": 9724,
+   "to": 9741,
+   "start": 324.133,
+   "end": 324.7,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9741,
+   "holdTo": 9741,
+   "joinNext": false,
+   "words": [
+    [
+     "Hold",
+     "hold",
+     9726,
+     9733
+    ],
+    [
+     "it.",
+     "it",
+     9733,
+     9738
+    ]
+   ]
+  },
+  {
+   "id": "L180",
+   "text": "Gone.",
+   "src": [
+    8959,
+    8978
+   ],
+   "from": 9741,
+   "to": 9760,
+   "start": 324.7,
+   "end": 325.333,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9760,
+   "holdTo": 9760,
+   "joinNext": false,
+   "words": [
+    [
+     "Gone.",
+     "gone",
+     9744,
+     9757
+    ]
+   ]
+  },
+  {
+   "id": "L181",
+   "text": "You slip through the crowd.",
+   "src": [
+    8980,
+    9016
+   ],
+   "from": 9760,
+   "to": 9796,
+   "start": 325.333,
+   "end": 326.533,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 9798,
+   "holdTo": 9798,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     9762,
+     9773
+    ],
+    [
+     "slip",
+     "slip",
+     9773,
+     9775
+    ],
+    [
+     "through",
+     "through",
+     9774,
+     9784
+    ],
+    [
+     "the",
+     "the",
+     9784,
+     9788
+    ],
+    [
+     "crowd.",
+     "crowd",
+     9788,
+     9795
+    ]
+   ]
+  },
+  {
+   "id": "L182",
+   "text": "Nobody can stop what they can't see.",
+   "src": [
+    9016,
+    9077
+   ],
+   "from": 9798,
+   "to": 9859,
+   "start": 326.6,
+   "end": 328.633,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9859,
+   "holdTo": 9859,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     9799,
+     9811
+    ],
+    [
+     "can",
+     "can",
+     9811,
+     9817
+    ],
+    [
+     "stop",
+     "stop",
+     9817,
+     9824
+    ],
+    [
+     "what",
+     "what",
+     9824,
+     9832
+    ],
+    [
+     "they",
+     "they",
+     9832,
+     9842
+    ],
+    [
+     "can't",
+     "can t",
+     9842,
+     9849
+    ],
+    [
+     "see.",
+     "see",
+     9849,
+     9856
+    ]
+   ]
+  },
+  {
+   "id": "L183",
+   "text": "One minute.",
+   "src": [
+    9080,
+    9101
+   ],
+   "from": 9859,
+   "to": 9880,
+   "start": 328.633,
+   "end": 329.333,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9880,
+   "holdTo": 9880,
+   "joinNext": false,
+   "words": [
+    [
+     "One",
+     "one",
+     9861,
+     9867
+    ],
+    [
+     "minute.",
+     "minute",
+     9867,
+     9877
+    ]
+   ]
+  },
+  {
+   "id": "L184",
+   "text": "You're close.",
+   "src": [
+    9105,
+    9130
+   ],
+   "from": 9880,
+   "to": 9905,
+   "start": 329.333,
+   "end": 330.167,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9905,
+   "holdTo": 9905,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     9882,
+     9890
+    ],
+    [
+     "close.",
+     "close",
+     9890,
+     9902
+    ]
+   ]
+  },
+  {
+   "id": "L185",
+   "text": "Two meters.",
+   "src": [
+    9135,
+    9161
+   ],
+   "from": 9905,
+   "to": 9931,
+   "start": 330.167,
+   "end": 331.033,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9931,
+   "holdTo": 9931,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     9907,
+     9915
+    ],
+    [
+     "meters.",
+     "meters",
+     9915,
+     9928
+    ]
+   ]
+  },
+  {
+   "id": "L186",
+   "text": "One meter.",
+   "src": [
+    9163,
+    9188
+   ],
+   "from": 9931,
+   "to": 9956,
+   "start": 331.033,
+   "end": 331.867,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9956,
+   "holdTo": 9956,
+   "joinNext": false,
+   "words": [
+    [
+     "One",
+     "one",
+     9933,
+     9941
+    ],
+    [
+     "meter.",
+     "meter",
+     9941,
+     9952
+    ]
+   ]
+  },
+  {
+   "id": "L187",
+   "text": "You grab Bin's hand.",
+   "src": [
+    9192,
+    9229
+   ],
+   "from": 9956,
+   "to": 9993,
+   "start": 331.867,
+   "end": 333.1,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 9993,
+   "holdTo": 9993,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     9958,
+     9970
+    ],
+    [
+     "grab",
+     "grab",
+     9970,
+     9974
+    ],
+    [
+     "Bin's",
+     "bin s",
+     9974,
+     9981
+    ],
+    [
+     "hand.",
+     "hand",
+     9981,
+     9990
+    ]
+   ]
+  },
+  {
+   "id": "L188",
+   "text": "The man yanks hard.",
+   "src": [
+    9233,
+    9275
+   ],
+   "from": 9993,
+   "to": 10035,
+   "start": 333.1,
+   "end": 334.5,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10035,
+   "holdTo": 10035,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     9995,
+     10007
+    ],
+    [
+     "man",
+     "man",
+     10007,
+     10010
+    ],
+    [
+     "yanks",
+     "yanks",
+     10010,
+     10022
+    ],
+    [
+     "hard.",
+     "hard",
+     10022,
+     10032
+    ]
+   ]
+  },
+  {
+   "id": "L189",
+   "text": "You lose your grip.",
+   "src": [
+    9277,
+    9310
+   ],
+   "from": 10035,
+   "to": 10068,
+   "start": 334.5,
+   "end": 335.6,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10068,
+   "holdTo": 10068,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     10037,
+     10048
+    ],
+    [
+     "lose",
+     "lose",
+     10048,
+     10050
+    ],
+    [
+     "your",
+     "your",
+     10050,
+     10057
+    ],
+    [
+     "grip.",
+     "grip",
+     10057,
+     10065
+    ]
+   ]
+  },
+  {
+   "id": "L190",
+   "text": "He walks faster.",
+   "src": [
+    9310,
+    9346
+   ],
+   "from": 10068,
+   "to": 10104,
+   "start": 335.6,
+   "end": 336.8,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10104,
+   "holdTo": 10104,
+   "joinNext": false,
+   "words": [
+    [
+     "He",
+     "he",
+     10071,
+     10081
+    ],
+    [
+     "walks",
+     "walks",
+     10081,
+     10088
+    ],
+    [
+     "faster.",
+     "faster",
+     10088,
+     10101
+    ]
+   ]
+  },
+  {
+   "id": "L191",
+   "text": "Reaches the end of the street.",
+   "src": [
+    9348,
+    9389
+   ],
+   "from": 10104,
+   "to": 10145,
+   "start": 336.8,
+   "end": 338.167,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10145,
+   "holdTo": 10145,
+   "joinNext": false,
+   "words": [
+    [
+     "Reaches",
+     "reaches",
+     10107,
+     10117
+    ],
+    [
+     "the",
+     "the",
+     10117,
+     10122
+    ],
+    [
+     "end",
+     "end",
+     10122,
+     10127
+    ],
+    [
+     "of",
+     "of",
+     10127,
+     10130
+    ],
+    [
+     "the",
+     "the",
+     10130,
+     10134
+    ],
+    [
+     "street.",
+     "street",
+     10134,
+     10142
+    ]
+   ]
+  },
+  {
+   "id": "L192",
+   "text": "A motorbike is waiting, engine running.",
+   "src": [
+    9389,
+    9457
+   ],
+   "from": 10145,
+   "to": 10213,
+   "start": 338.167,
+   "end": 340.433,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10213,
+   "holdTo": 10213,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     10148,
+     10150
+    ],
+    [
+     "motorbike",
+     "motorbike",
+     10149,
+     10164
+    ],
+    [
+     "is",
+     "is",
+     10164,
+     10168
+    ],
+    [
+     "waiting,",
+     "waiting",
+     10168,
+     10185
+    ],
+    [
+     "engine",
+     "engine",
+     10185,
+     10197
+    ],
+    [
+     "running.",
+     "running",
+     10197,
+     10210
+    ]
+   ]
+  },
+  {
+   "id": "L193",
+   "text": "Two minutes.",
+   "src": [
+    9459,
+    9484
+   ],
+   "from": 10213,
+   "to": 10238,
+   "start": 340.433,
+   "end": 341.267,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 10239,
+   "holdTo": 10239,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     10215,
+     10223
+    ],
+    [
+     "minutes.",
+     "minutes",
+     10223,
+     10237
+    ]
+   ]
+  },
+  {
+   "id": "L194",
+   "text": "It feels like someone is sitting on your chest.",
+   "src": [
+    9484,
+    9550
+   ],
+   "from": 10239,
+   "to": 10305,
+   "start": 341.3,
+   "end": 343.5,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10305,
+   "holdTo": 10305,
+   "joinNext": false,
+   "words": [
+    [
+     "It",
+     "it",
+     10241,
+     10244
+    ],
+    [
+     "feels",
+     "feels",
+     10244,
+     10252
+    ],
+    [
+     "like",
+     "like",
+     10252,
+     10258
+    ],
+    [
+     "someone",
+     "someone",
+     10258,
+     10270
+    ],
+    [
+     "is",
+     "is",
+     10270,
+     10273
+    ],
+    [
+     "sitting",
+     "sitting",
+     10273,
+     10284
+    ],
+    [
+     "on",
+     "on",
+     10284,
+     10287
+    ],
+    [
+     "your",
+     "your",
+     10287,
+     10294
+    ],
+    [
+     "chest.",
+     "chest",
+     10294,
+     10302
+    ]
+   ]
+  },
+  {
+   "id": "L195",
+   "text": "Two and a half.",
+   "src": [
+    9552,
+    9584
+   ],
+   "from": 10305,
+   "to": 10337,
+   "start": 343.5,
+   "end": 344.567,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 10339,
+   "holdTo": 10339,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     10308,
+     10319
+    ],
+    [
+     "and",
+     "and",
+     10319,
+     10325
+    ],
+    [
+     "a",
+     "a",
+     10325,
+     10328
+    ],
+    [
+     "half.",
+     "half",
+     10327,
+     10336
+    ]
+   ]
+  },
+  {
+   "id": "L196",
+   "text": "The edges of your vision start going dark.",
+   "src": [
+    9584,
+    9658
+   ],
+   "from": 10339,
+   "to": 10413,
+   "start": 344.633,
+   "end": 347.1,
+   "gap": 0.0,
+   "hold": 0.3,
+   "holdFrom": 10413,
+   "holdTo": 10422,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     10340,
+     10353
+    ],
+    [
+     "edges",
+     "edges",
+     10353,
+     10359
+    ],
+    [
+     "of",
+     "of",
+     10359,
+     10362
+    ],
+    [
+     "your",
+     "your",
+     10361,
+     10368
+    ],
+    [
+     "vision",
+     "vision",
+     10368,
+     10381
+    ],
+    [
+     "start",
+     "start",
+     10381,
+     10391
+    ],
+    [
+     "going",
+     "going",
+     10391,
+     10401
+    ],
+    [
+     "dark.",
+     "dark",
+     10401,
+     10410
+    ]
+   ]
+  },
+  {
+   "id": "L197",
+   "text": "You could keep following.",
+   "src": [
+    9658,
+    9697
+   ],
+   "from": 10422,
+   "to": 10461,
+   "start": 347.4,
+   "end": 348.7,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 10463,
+   "holdTo": 10463,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     10425,
+     10436
+    ],
+    [
+     "could",
+     "could",
+     10436,
+     10439
+    ],
+    [
+     "keep",
+     "keep",
+     10438,
+     10445
+    ],
+    [
+     "following.",
+     "following",
+     10445,
+     10458
+    ]
+   ]
+  },
+  {
+   "id": "L198",
+   "text": "Invisible.",
+   "src": [
+    9699,
+    9726
+   ],
+   "from": 10463,
+   "to": 10490,
+   "start": 348.767,
+   "end": 349.667,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 10493,
+   "holdTo": 10493,
+   "joinNext": false,
+   "words": [
+    [
+     "Invisible.",
+     "invisible",
+     10465,
+     10487
+    ]
+   ]
+  },
+  {
+   "id": "L199",
+   "text": "Safe.",
+   "src": [
+    9729,
+    9754
+   ],
+   "from": 10493,
+   "to": 10518,
+   "start": 349.767,
+   "end": 350.6,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 10519,
+   "holdTo": 10519,
+   "joinNext": false,
+   "words": [
+    [
+     "Safe.",
+     "safe",
+     10495,
+     10517
+    ]
+   ]
+  },
+  {
+   "id": "L200",
+   "text": "Nobody sees you.",
+   "src": [
+    9754,
+    9786
+   ],
+   "from": 10519,
+   "to": 10551,
+   "start": 350.633,
+   "end": 351.7,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10551,
+   "holdTo": 10551,
+   "joinNext": false,
+   "words": [
+    [
+     "Nobody",
+     "nobody",
+     10521,
+     10533
+    ],
+    [
+     "sees",
+     "sees",
+     10533,
+     10542
+    ],
+    [
+     "you.",
+     "you",
+     10542,
+     10549
+    ]
+   ]
+  },
+  {
+   "id": "L201",
+   "text": "But alone, you can't stop a grown man and a motorbike.",
+   "src": [
+    9786,
+    9878
+   ],
+   "from": 10551,
+   "to": 10643,
+   "start": 351.7,
+   "end": 354.767,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 10649,
+   "holdTo": 10649,
+   "joinNext": false,
+   "words": [
+    [
+     "But",
+     "but",
+     10555,
+     10561
+    ],
+    [
+     "alone,",
+     "alone",
+     10561,
+     10576
+    ],
+    [
+     "you",
+     "you",
+     10576,
+     10578
+    ],
+    [
+     "can't",
+     "can t",
+     10578,
+     10591
+    ],
+    [
+     "stop",
+     "stop",
+     10591,
+     10599
+    ],
+    [
+     "a",
+     "a",
+     10599,
+     10602
+    ],
+    [
+     "grown",
+     "grown",
+     10601,
+     10611
+    ],
+    [
+     "man",
+     "man",
+     10611,
+     10617
+    ],
+    [
+     "and",
+     "and",
+     10617,
+     10623
+    ],
+    [
+     "a",
+     "a",
+     10623,
+     10625
+    ],
+    [
+     "motorbike.",
+     "motorbike",
+     10625,
+     10640
+    ]
+   ]
+  },
+  {
+   "id": "L202",
+   "text": "You need this whole street.",
+   "src": [
+    9886,
+    9927
+   ],
+   "from": 10649,
+   "to": 10690,
+   "start": 354.967,
+   "end": 356.333,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 10693,
+   "holdTo": 10693,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     10651,
+     10662
+    ],
+    [
+     "need",
+     "need",
+     10662,
+     10664
+    ],
+    [
+     "this",
+     "this",
+     10664,
+     10668
+    ],
+    [
+     "whole",
+     "whole",
+     10668,
+     10678
+    ],
+    [
+     "street.",
+     "street",
+     10678,
+     10687
+    ]
+   ]
+  },
+  {
+   "id": "L203",
+   "text": "And for this street to see you — you have to do the one thing you've been avoiding for months.",
+   "src": [
+    9930,
+    10068
+   ],
+   "from": 10693,
+   "to": 10831,
+   "start": 356.433,
+   "end": 361.033,
+   "gap": 0.167,
+   "hold": 0.3,
+   "holdFrom": 10836,
+   "holdTo": 10845,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     10695,
+     10704
+    ],
+    [
+     "for",
+     "for",
+     10704,
+     10707
+    ],
+    [
+     "this",
+     "this",
+     10706,
+     10713
+    ],
+    [
+     "street",
+     "street",
+     10713,
+     10724
+    ],
+    [
+     "to",
+     "to",
+     10724,
+     10727
+    ],
+    [
+     "see",
+     "see",
+     10727,
+     10733
+    ],
+    [
+     "you",
+     "you",
+     10733,
+     10744
+    ],
+    [
+     "you",
+     "you",
+     10744,
+     10756
+    ],
+    [
+     "have",
+     "have",
+     10756,
+     10760
+    ],
+    [
+     "to",
+     "to",
+     10760,
+     10762
+    ],
+    [
+     "do",
+     "do",
+     10761,
+     10764
+    ],
+    [
+     "the",
+     "the",
+     10763,
+     10768
+    ],
+    [
+     "one",
+     "one",
+     10768,
+     10773
+    ],
+    [
+     "thing",
+     "thing",
+     10773,
+     10786
+    ],
+    [
+     "you've",
+     "you ve",
+     10786,
+     10793
+    ],
+    [
+     "been",
+     "been",
+     10793,
+     10799
+    ],
+    [
+     "avoiding",
+     "avoiding",
+     10799,
+     10813
+    ],
+    [
+     "for",
+     "for",
+     10813,
+     10818
+    ],
+    [
+     "months.",
+     "months",
+     10818,
+     10828
+    ]
+   ]
+  },
+  {
+   "id": "L204",
+   "text": "You have to appear.",
+   "src": [
+    10073,
+    10108
+   ],
+   "from": 10845,
+   "to": 10880,
+   "start": 361.5,
+   "end": 362.667,
+   "gap": 0.233,
+   "hold": 0,
+   "holdFrom": 10887,
+   "holdTo": 10887,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     10848,
+     10861
+    ],
+    [
+     "have",
+     "have",
+     10861,
+     10863
+    ],
+    [
+     "to",
+     "to",
+     10863,
+     10867
+    ],
+    [
+     "appear.",
+     "appear",
+     10867,
+     10877
+    ]
+   ]
+  },
+  {
+   "id": "L205",
+   "text": "And speak up.",
+   "src": [
+    10118,
+    10146
+   ],
+   "from": 10887,
+   "to": 10915,
+   "start": 362.9,
+   "end": 363.833,
+   "gap": 0.067,
+   "hold": 1.0,
+   "holdFrom": 10917,
+   "holdTo": 10947,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     10889,
+     10902
+    ],
+    [
+     "speak",
+     "speak",
+     10902,
+     10908
+    ],
+    [
+     "up.",
+     "up",
+     10908,
+     10914
+    ]
+   ]
+  },
+  {
+   "id": "L206",
+   "text": "KIDNAPPER!",
+   "src": [
+    10146,
+    10178
+   ],
+   "from": 10947,
+   "to": 10979,
+   "start": 364.9,
+   "end": 365.967,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 10979,
+   "holdTo": 10979,
+   "joinNext": true,
+   "words": [
+    [
+     "KIDNAPPER!",
+     "kidnapper",
+     10949,
+     10979
+    ]
+   ]
+  },
+  {
+   "id": "L207",
+   "text": "HE'S TAKING MY BROTHER!",
+   "src": [
+    10178,
+    10220
+   ],
+   "from": 10979,
+   "to": 11021,
+   "start": 365.967,
+   "end": 367.367,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 11022,
+   "holdTo": 11022,
+   "joinNext": false,
+   "words": [
+    [
+     "HE'S",
+     "he s",
+     10980,
+     10986
+    ],
+    [
+     "TAKING",
+     "taking",
+     10986,
+     10999
+    ],
+    [
+     "MY",
+     "my",
+     10999,
+     11005
+    ],
+    [
+     "BROTHER!",
+     "brother",
+     11005,
+     11019
+    ]
+   ]
+  },
+  {
+   "id": "L208",
+   "text": "You reappear.",
+   "src": [
+    10220,
+    10253
+   ],
+   "from": 11022,
+   "to": 11055,
+   "start": 367.4,
+   "end": 368.5,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 11061,
+   "holdTo": 11061,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     11024,
+     11033
+    ],
+    [
+     "reappear.",
+     "reappear",
+     11033,
+     11052
+    ]
+   ]
+  },
+  {
+   "id": "L209",
+   "text": "In the middle of the street.",
+   "src": [
+    10259,
+    10294
+   ],
+   "from": 11061,
+   "to": 11096,
+   "start": 368.7,
+   "end": 369.867,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 11102,
+   "holdTo": 11102,
+   "joinNext": false,
+   "words": [
+    [
+     "In",
+     "in",
+     11064,
+     11070
+    ],
+    [
+     "the",
+     "the",
+     11070,
+     11075
+    ],
+    [
+     "middle",
+     "middle",
+     11075,
+     11079
+    ],
+    [
+     "of",
+     "of",
+     11079,
+     11082
+    ],
+    [
+     "the",
+     "the",
+     11082,
+     11086
+    ],
+    [
+     "street.",
+     "street",
+     11086,
+     11093
+    ]
+   ]
+  },
+  {
+   "id": "L210",
+   "text": "Red-faced.",
+   "src": [
+    10302,
+    10332
+   ],
+   "from": 11102,
+   "to": 11132,
+   "start": 370.067,
+   "end": 371.067,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 11138,
+   "holdTo": 11138,
+   "joinNext": false,
+   "words": [
+    [
+     "Red-faced.",
+     "red faced",
+     11104,
+     11129
+    ]
+   ]
+  },
+  {
+   "id": "L211",
+   "text": "Gasping.",
+   "src": [
+    10340,
+    10362
+   ],
+   "from": 11138,
+   "to": 11160,
+   "start": 371.267,
+   "end": 372.0,
+   "gap": 0.2,
+   "hold": 0.4,
+   "holdFrom": 11166,
+   "holdTo": 11178,
+   "joinNext": false,
+   "words": [
+    [
+     "Gasping.",
+     "gasping",
+     11140,
+     11157
+    ]
+   ]
+  },
+  {
+   "id": "L212",
+   "text": "And for the first time in months — everyone is looking at you.",
+   "src": [
+    10371,
+    10472
+   ],
+   "from": 11178,
+   "to": 11279,
+   "start": 372.6,
+   "end": 375.967,
+   "gap": 0.2,
+   "hold": 1.5,
+   "holdFrom": 11285,
+   "holdTo": 11330,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     11181,
+     11192
+    ],
+    [
+     "for",
+     "for",
+     11192,
+     11195
+    ],
+    [
+     "the",
+     "the",
+     11195,
+     11199
+    ],
+    [
+     "first",
+     "first",
+     11199,
+     11207
+    ],
+    [
+     "time",
+     "time",
+     11207,
+     11215
+    ],
+    [
+     "in",
+     "in",
+     11215,
+     11218
+    ],
+    [
+     "months",
+     "months",
+     11218,
+     11236
+    ],
+    [
+     "everyone",
+     "everyone",
+     11236,
+     11251
+    ],
+    [
+     "is",
+     "is",
+     11251,
+     11253
+    ],
+    [
+     "looking",
+     "looking",
+     11253,
+     11265
+    ],
+    [
+     "at",
+     "at",
+     11265,
+     11269
+    ],
+    [
+     "you.",
+     "you",
+     11269,
+     11276
+    ]
+   ]
+  },
+  {
+   "id": "L213",
+   "text": "The lion dance drums stop.",
+   "src": [
+    10478,
+    10527
+   ],
+   "from": 11330,
+   "to": 11379,
+   "start": 377.667,
+   "end": 379.3,
+   "gap": 0.0,
+   "hold": 0.7,
+   "holdFrom": 11379,
+   "holdTo": 11400,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     11332,
+     11344
+    ],
+    [
+     "lion",
+     "lion",
+     11344,
+     11347
+    ],
+    [
+     "dance",
+     "dance",
+     11347,
+     11357
+    ],
+    [
+     "drums",
+     "drums",
+     11357,
+     11368
+    ],
+    [
+     "stop.",
+     "stop",
+     11368,
+     11376
+    ]
+   ]
+  },
+  {
+   "id": "L214",
+   "text": "The lantern seller steps in front of the bike.",
+   "src": [
+    10527,
+    10591
+   ],
+   "from": 11400,
+   "to": 11464,
+   "start": 380.0,
+   "end": 382.133,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 11469,
+   "holdTo": 11469,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     11403,
+     11410
+    ],
+    [
+     "lantern",
+     "lantern",
+     11410,
+     11419
+    ],
+    [
+     "seller",
+     "seller",
+     11419,
+     11428
+    ],
+    [
+     "steps",
+     "steps",
+     11428,
+     11436
+    ],
+    [
+     "in",
+     "in",
+     11436,
+     11439
+    ],
+    [
+     "front",
+     "front",
+     11439,
+     11447
+    ],
+    [
+     "of",
+     "of",
+     11447,
+     11450
+    ],
+    [
+     "the",
+     "the",
+     11450,
+     11454
+    ],
+    [
+     "bike.",
+     "bike",
+     11454,
+     11461
+    ]
+   ]
+  },
+  {
+   "id": "L215",
+   "text": "Two motorbike taxi drivers grab the man's arms.",
+   "src": [
+    10596,
+    10677
+   ],
+   "from": 11469,
+   "to": 11550,
+   "start": 382.3,
+   "end": 385.0,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 11553,
+   "holdTo": 11553,
+   "joinNext": false,
+   "words": [
+    [
+     "Two",
+     "two",
+     11472,
+     11485
+    ],
+    [
+     "motorbike",
+     "motorbike",
+     11485,
+     11494
+    ],
+    [
+     "taxi",
+     "taxi",
+     11494,
+     11503
+    ],
+    [
+     "drivers",
+     "drivers",
+     11503,
+     11515
+    ],
+    [
+     "grab",
+     "grab",
+     11515,
+     11523
+    ],
+    [
+     "the",
+     "the",
+     11523,
+     11531
+    ],
+    [
+     "man's",
+     "man s",
+     11531,
+     11538
+    ],
+    [
+     "arms.",
+     "arms",
+     11538,
+     11547
+    ]
+   ]
+  },
+  {
+   "id": "L216",
+   "text": "A woman selling grilled corn scoops Bin up.",
+   "src": [
+    10680,
+    10754
+   ],
+   "from": 11553,
+   "to": 11627,
+   "start": 385.1,
+   "end": 387.567,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 11628,
+   "holdTo": 11628,
+   "joinNext": false,
+   "words": [
+    [
+     "A",
+     "a",
+     11556,
+     11558
+    ],
+    [
+     "woman",
+     "woman",
+     11558,
+     11567
+    ],
+    [
+     "selling",
+     "selling",
+     11567,
+     11580
+    ],
+    [
+     "grilled",
+     "grilled",
+     11580,
+     11593
+    ],
+    [
+     "corn",
+     "corn",
+     11593,
+     11601
+    ],
+    [
+     "scoops",
+     "scoops",
+     11601,
+     11612
+    ],
+    [
+     "Bin",
+     "bin",
+     11612,
+     11618
+    ],
+    [
+     "up.",
+     "up",
+     11618,
+     11623
+    ]
+   ]
+  },
+  {
+   "id": "L217",
+   "text": "He tries to run.",
+   "src": [
+    10755,
+    10787
+   ],
+   "from": 11628,
+   "to": 11660,
+   "start": 387.6,
+   "end": 388.667,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 11661,
+   "holdTo": 11661,
+   "joinNext": false,
+   "words": [
+    [
+     "He",
+     "he",
+     11630,
+     11639
+    ],
+    [
+     "tries",
+     "tries",
+     11639,
+     11645
+    ],
+    [
+     "to",
+     "to",
+     11645,
+     11650
+    ],
+    [
+     "run.",
+     "run",
+     11650,
+     11657
+    ]
+   ]
+  },
+  {
+   "id": "L218",
+   "text": "Too late.",
+   "src": [
+    10788,
+    10810
+   ],
+   "from": 11661,
+   "to": 11683,
+   "start": 388.7,
+   "end": 389.433,
+   "gap": 0.033,
+   "hold": 0.3,
+   "holdFrom": 11684,
+   "holdTo": 11693,
+   "joinNext": false,
+   "words": [
+    [
+     "Too",
+     "too",
+     11663,
+     11671
+    ],
+    [
+     "late.",
+     "late",
+     11671,
+     11680
+    ]
+   ]
+  },
+  {
+   "id": "L219",
+   "text": "Five minutes later, the police arrive.",
+   "src": [
+    10811,
+    10878
+   ],
+   "from": 11693,
+   "to": 11760,
+   "start": 389.767,
+   "end": 392.0,
+   "gap": 0.1,
+   "hold": 0.4,
+   "holdFrom": 11763,
+   "holdTo": 11775,
+   "joinNext": false,
+   "words": [
+    [
+     "Five",
+     "five",
+     11695,
+     11707
+    ],
+    [
+     "minutes",
+     "minutes",
+     11707,
+     11715
+    ],
+    [
+     "later,",
+     "later",
+     11715,
+     11731
+    ],
+    [
+     "the",
+     "the",
+     11731,
+     11738
+    ],
+    [
+     "police",
+     "police",
+     11738,
+     11745
+    ],
+    [
+     "arrive.",
+     "arrive",
+     11745,
+     11757
+    ]
+   ]
+  },
+  {
+   "id": "L220",
+   "text": "Bin runs to you.",
+   "src": [
+    10881,
+    10913
+   ],
+   "from": 11775,
+   "to": 11807,
+   "start": 392.5,
+   "end": 393.567,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 11808,
+   "holdTo": 11808,
+   "joinNext": false,
+   "words": [
+    [
+     "Bin",
+     "bin",
+     11777,
+     11784
+    ],
+    [
+     "runs",
+     "runs",
+     11784,
+     11791
+    ],
+    [
+     "to",
+     "to",
+     11791,
+     11797
+    ],
+    [
+     "you.",
+     "you",
+     11797,
+     11804
+    ]
+   ]
+  },
+  {
+   "id": "L221",
+   "text": "Hugs your legs.",
+   "src": [
+    10914,
+    10941
+   ],
+   "from": 11808,
+   "to": 11835,
+   "start": 393.6,
+   "end": 394.5,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 11837,
+   "holdTo": 11837,
+   "joinNext": false,
+   "words": [
+    [
+     "Hugs",
+     "hugs",
+     11810,
+     11818
+    ],
+    [
+     "your",
+     "your",
+     11818,
+     11825
+    ],
+    [
+     "legs.",
+     "legs",
+     11825,
+     11832
+    ]
+   ]
+  },
+  {
+   "id": "L222",
+   "text": "Crying.",
+   "src": [
+    10943,
+    10964
+   ],
+   "from": 11837,
+   "to": 11858,
+   "start": 394.567,
+   "end": 395.267,
+   "gap": 0.1,
+   "hold": 0.4,
+   "holdFrom": 11861,
+   "holdTo": 11873,
+   "joinNext": false,
+   "words": [
+    [
+     "Crying.",
+     "crying",
+     11840,
+     11855
+    ]
+   ]
+  },
+  {
+   "id": "L223",
+   "text": "I knew you were there.",
+   "src": [
+    10967,
+    11002
+   ],
+   "from": 11873,
+   "to": 11908,
+   "start": 395.767,
+   "end": 396.933,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 11910,
+   "holdTo": 11910,
+   "joinNext": false,
+   "words": [
+    [
+     "I",
+     "i",
+     11876,
+     11878
+    ],
+    [
+     "knew",
+     "knew",
+     11877,
+     11885
+    ],
+    [
+     "you",
+     "you",
+     11885,
+     11890
+    ],
+    [
+     "were",
+     "were",
+     11890,
+     11897
+    ],
+    [
+     "there.",
+     "there",
+     11897,
+     11905
+    ]
+   ]
+  },
+  {
+   "id": "L224",
+   "text": "I heard you holding your breath.",
+   "src": [
+    11004,
+    11053
+   ],
+   "from": 11910,
+   "to": 11959,
+   "start": 397.0,
+   "end": 398.633,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 11959,
+   "holdTo": 11959,
+   "joinNext": false,
+   "words": [
+    [
+     "I",
+     "i",
+     11912,
+     11915
+    ],
+    [
+     "heard",
+     "heard",
+     11914,
+     11926
+    ],
+    [
+     "you",
+     "you",
+     11926,
+     11929
+    ],
+    [
+     "holding",
+     "holding",
+     11928,
+     11941
+    ],
+    [
+     "your",
+     "your",
+     11941,
+     11947
+    ],
+    [
+     "breath.",
+     "breath",
+     11947,
+     11956
+    ]
+   ]
+  },
+  {
+   "id": "L225",
+   "text": "This time I'm breathing.",
+   "src": [
+    11053,
+    11093
+   ],
+   "from": 11959,
+   "to": 11999,
+   "start": 398.633,
+   "end": 399.967,
+   "gap": 0.2,
+   "hold": 0.8,
+   "holdFrom": 12005,
+   "holdTo": 12029,
+   "joinNext": false,
+   "words": [
+    [
+     "This",
+     "this",
+     11961,
+     11974
+    ],
+    [
+     "time",
+     "time",
+     11974,
+     11977
+    ],
+    [
+     "I'm",
+     "i m",
+     11977,
+     11981
+    ],
+    [
+     "breathing.",
+     "breathing",
+     11981,
+     11996
+    ]
+   ]
+  },
+  {
+   "id": "L226",
+   "text": "You sit down on the curb.",
+   "src": [
+    11099,
+    11139
+   ],
+   "from": 12029,
+   "to": 12069,
+   "start": 400.967,
+   "end": 402.3,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 12074,
+   "holdTo": 12074,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     12032,
+     12043
+    ],
+    [
+     "sit",
+     "sit",
+     12043,
+     12045
+    ],
+    [
+     "down",
+     "down",
+     12045,
+     12050
+    ],
+    [
+     "on",
+     "on",
+     12050,
+     12055
+    ],
+    [
+     "the",
+     "the",
+     12055,
+     12059
+    ],
+    [
+     "curb.",
+     "curb",
+     12059,
+     12066
+    ]
+   ]
+  },
+  {
+   "id": "L227",
+   "text": "You breathe.",
+   "src": [
+    11144,
+    11172
+   ],
+   "from": 12074,
+   "to": 12102,
+   "start": 402.467,
+   "end": 403.4,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 12105,
+   "holdTo": 12105,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     12076,
+     12084
+    ],
+    [
+     "breathe.",
+     "breathe",
+     12084,
+     12098
+    ]
+   ]
+  },
+  {
+   "id": "L228",
+   "text": "Loud.",
+   "src": [
+    11175,
+    11196
+   ],
+   "from": 12105,
+   "to": 12126,
+   "start": 403.5,
+   "end": 404.2,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 12126,
+   "holdTo": 12126,
+   "joinNext": false,
+   "words": [
+    [
+     "Loud.",
+     "loud",
+     12107,
+     12124
+    ]
+   ]
+  },
+  {
+   "id": "L229",
+   "text": "Like you've never breathed before.",
+   "src": [
+    11196,
+    11252
+   ],
+   "from": 12126,
+   "to": 12182,
+   "start": 404.2,
+   "end": 406.067,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 12183,
+   "holdTo": 12183,
+   "joinNext": false,
+   "words": [
+    [
+     "Like",
+     "like",
+     12128,
+     12137
+    ],
+    [
+     "you've",
+     "you ve",
+     12137,
+     12146
+    ],
+    [
+     "never",
+     "never",
+     12146,
+     12154
+    ],
+    [
+     "breathed",
+     "breathed",
+     12154,
+     12168
+    ],
+    [
+     "before.",
+     "before",
+     12168,
+     12179
+    ]
+   ]
+  },
+  {
+   "id": "L230",
+   "text": "And nobody looks away.",
+   "src": [
+    11253,
+    11293
+   ],
+   "from": 12183,
+   "to": 12223,
+   "start": 406.1,
+   "end": 407.433,
+   "gap": 0.2,
+   "hold": 2.0,
+   "holdFrom": 12229,
+   "holdTo": 12289,
+   "joinNext": false,
+   "words": [
+    [
+     "And",
+     "and",
+     12186,
+     12196
+    ],
+    [
+     "nobody",
+     "nobody",
+     12196,
+     12202
+    ],
+    [
+     "looks",
+     "looks",
+     12202,
+     12212
+    ],
+    [
+     "away.",
+     "away",
+     12212,
+     12220
+    ]
+   ]
+  },
+  {
+   "id": "L231",
+   "text": "Monday.",
+   "src": [
+    11305,
+    11326
+   ],
+   "from": 12289,
+   "to": 12310,
+   "start": 409.633,
+   "end": 410.333,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 12314,
+   "holdTo": 12314,
+   "joinNext": false,
+   "words": [
+    [
+     "Monday.",
+     "monday",
+     12291,
+     12307
+    ]
+   ]
+  },
+  {
+   "id": "L232",
+   "text": "First period.",
+   "src": [
+    11330,
+    11359
+   ],
+   "from": 12314,
+   "to": 12343,
+   "start": 410.467,
+   "end": 411.433,
+   "gap": 0.133,
+   "hold": 0,
+   "holdFrom": 12347,
+   "holdTo": 12347,
+   "joinNext": false,
+   "words": [
+    [
+     "First",
+     "first",
+     12316,
+     12327
+    ],
+    [
+     "period.",
+     "period",
+     12327,
+     12340
+    ]
+   ]
+  },
+  {
+   "id": "L233",
+   "text": "Attendance.",
+   "src": [
+    11363,
+    11389
+   ],
+   "from": 12347,
+   "to": 12373,
+   "start": 411.567,
+   "end": 412.433,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 12378,
+   "holdTo": 12378,
+   "joinNext": false,
+   "words": [
+    [
+     "Attendance.",
+     "attendance",
+     12350,
+     12370
+    ]
+   ]
+  },
+  {
+   "id": "L234",
+   "text": "The teacher calls your name.",
+   "src": [
+    11394,
+    11433
+   ],
+   "from": 12378,
+   "to": 12417,
+   "start": 412.6,
+   "end": 413.9,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 12420,
+   "holdTo": 12420,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     12381,
+     12392
+    ],
+    [
+     "teacher",
+     "teacher",
+     12392,
+     12395
+    ],
+    [
+     "calls",
+     "calls",
+     12395,
+     12402
+    ],
+    [
+     "your",
+     "your",
+     12402,
+     12407
+    ],
+    [
+     "name.",
+     "name",
+     12407,
+     12413
+    ]
+   ]
+  },
+  {
+   "id": "L235",
+   "text": "You don't hold your breath.",
+   "src": [
+    11436,
+    11468
+   ],
+   "from": 12420,
+   "to": 12452,
+   "start": 414.0,
+   "end": 415.067,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 12454,
+   "holdTo": 12454,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     12422,
+     12427
+    ],
+    [
+     "don't",
+     "don t",
+     12427,
+     12432
+    ],
+    [
+     "hold",
+     "hold",
+     12432,
+     12437
+    ],
+    [
+     "your",
+     "your",
+     12437,
+     12442
+    ],
+    [
+     "breath.",
+     "breath",
+     12442,
+     12449
+    ]
+   ]
+  },
+  {
+   "id": "L236",
+   "text": "You stand up.",
+   "src": [
+    11470,
+    11497
+   ],
+   "from": 12454,
+   "to": 12481,
+   "start": 415.133,
+   "end": 416.033,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 12486,
+   "holdTo": 12486,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     12456,
+     12464
+    ],
+    [
+     "stand",
+     "stand",
+     12464,
+     12472
+    ],
+    [
+     "up.",
+     "up",
+     12472,
+     12478
+    ]
+   ]
+  },
+  {
+   "id": "L237",
+   "text": "Here.",
+   "src": [
+    11502,
+    11520
+   ],
+   "from": 12486,
+   "to": 12504,
+   "start": 416.2,
+   "end": 416.8,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 12504,
+   "holdTo": 12504,
+   "joinNext": false,
+   "words": [
+    [
+     "Here.",
+     "here",
+     12488,
+     12500
+    ]
+   ]
+  },
+  {
+   "id": "L238",
+   "text": "The whole class turns around.",
+   "src": [
+    11520,
+    11569
+   ],
+   "from": 12504,
+   "to": 12553,
+   "start": 416.8,
+   "end": 418.433,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 12555,
+   "holdTo": 12555,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     12507,
+     12521
+    ],
+    [
+     "whole",
+     "whole",
+     12521,
+     12524
+    ],
+    [
+     "class",
+     "class",
+     12523,
+     12532
+    ],
+    [
+     "turns",
+     "turns",
+     12532,
+     12541
+    ],
+    [
+     "around.",
+     "around",
+     12541,
+     12552
+    ]
+   ]
+  },
+  {
+   "id": "L239",
+   "text": "Huy gives you a thumbs-up.",
+   "src": [
+    11569,
+    11622
+   ],
+   "from": 12555,
+   "to": 12608,
+   "start": 418.5,
+   "end": 420.267,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 12609,
+   "holdTo": 12609,
+   "joinNext": false,
+   "words": [
+    [
+     "Huy",
+     "huy",
+     12556,
+     12565
+    ],
+    [
+     "gives",
+     "gives",
+     12565,
+     12576
+    ],
+    [
+     "you",
+     "you",
+     12576,
+     12586
+    ],
+    [
+     "a",
+     "a",
+     12586,
+     12591
+    ],
+    [
+     "thumbs-up.",
+     "thumbs up",
+     12591,
+     12605
+    ]
+   ]
+  },
+  {
+   "id": "L240",
+   "text": "Your friends ask if you're free this weekend.",
+   "src": [
+    11623,
+    11683
+   ],
+   "from": 12609,
+   "to": 12669,
+   "start": 420.3,
+   "end": 422.3,
+   "gap": 0.067,
+   "hold": 0.6,
+   "holdFrom": 12671,
+   "holdTo": 12689,
+   "joinNext": false,
+   "words": [
+    [
+     "Your",
+     "your",
+     12611,
+     12618
+    ],
+    [
+     "friends",
+     "friends",
+     12618,
+     12627
+    ],
+    [
+     "ask",
+     "ask",
+     12627,
+     12632
+    ],
+    [
+     "if",
+     "if",
+     12632,
+     12637
+    ],
+    [
+     "you're",
+     "you re",
+     12637,
+     12644
+    ],
+    [
+     "free",
+     "free",
+     12644,
+     12650
+    ],
+    [
+     "this",
+     "this",
+     12650,
+     12656
+    ],
+    [
+     "weekend.",
+     "weekend",
+     12656,
+     12666
+    ]
+   ]
+  },
+  {
+   "id": "L241",
+   "text": "Turning invisible is easy.",
+   "src": [
+    11685,
+    11731
+   ],
+   "from": 12689,
+   "to": 12735,
+   "start": 422.967,
+   "end": 424.5,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 12740,
+   "holdTo": 12740,
+   "joinNext": false,
+   "words": [
+    [
+     "Turning",
+     "turning",
+     12692,
+     12704
+    ],
+    [
+     "invisible",
+     "invisible",
+     12704,
+     12720
+    ],
+    [
+     "is",
+     "is",
+     12720,
+     12724
+    ],
+    [
+     "easy.",
+     "easy",
+     12724,
+     12732
+    ]
+   ]
+  },
+  {
+   "id": "L242",
+   "text": "One breath is all it takes.",
+   "src": [
+    11736,
+    11784
+   ],
+   "from": 12740,
+   "to": 12788,
+   "start": 424.667,
+   "end": 426.267,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 12789,
+   "holdTo": 12789,
+   "joinNext": false,
+   "words": [
+    [
+     "One",
+     "one",
+     12743,
+     12756
+    ],
+    [
+     "breath",
+     "breath",
+     12756,
+     12762
+    ],
+    [
+     "is",
+     "is",
+     12762,
+     12766
+    ],
+    [
+     "all",
+     "all",
+     12766,
+     12773
+    ],
+    [
+     "it",
+     "it",
+     12773,
+     12777
+    ],
+    [
+     "takes.",
+     "takes",
+     12777,
+     12786
+    ]
+   ]
+  },
+  {
+   "id": "L243",
+   "text": "Letting people see you is the hard part.",
+   "src": [
+    11784,
+    11848
+   ],
+   "from": 12789,
+   "to": 12853,
+   "start": 426.3,
+   "end": 428.433,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 12858,
+   "holdTo": 12858,
+   "joinNext": false,
+   "words": [
+    [
+     "Letting",
+     "letting",
+     12791,
+     12804
+    ],
+    [
+     "people",
+     "people",
+     12804,
+     12815
+    ],
+    [
+     "see",
+     "see",
+     12815,
+     12821
+    ],
+    [
+     "you",
+     "you",
+     12821,
+     12826
+    ],
+    [
+     "is",
+     "is",
+     12826,
+     12830
+    ],
+    [
+     "the",
+     "the",
+     12830,
+     12835
+    ],
+    [
+     "hard",
+     "hard",
+     12835,
+     12843
+    ],
+    [
+     "part.",
+     "part",
+     12843,
+     12850
+    ]
+   ]
+  },
+  {
+   "id": "L244",
+   "text": "You have to breathe out …",
+   "src": [
+    11853,
+    11889
+   ],
+   "from": 12858,
+   "to": 12894,
+   "start": 428.6,
+   "end": 429.8,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 12897,
+   "holdTo": 12897,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     12861,
+     12870
+    ],
+    [
+     "have",
+     "have",
+     12870,
+     12872
+    ],
+    [
+     "to",
+     "to",
+     12872,
+     12875
+    ],
+    [
+     "breathe",
+     "breathe",
+     12875,
+     12886
+    ],
+    [
+     "out",
+     "out",
+     12886,
+     12891
+    ]
+   ]
+  },
+  {
+   "id": "L245",
+   "text": "and speak up.",
+   "src": [
+    11892,
+    11920
+   ],
+   "from": 12897,
+   "to": 12925,
+   "start": 429.9,
+   "end": 430.833,
+   "gap": 0.2,
+   "hold": 0.6,
+   "holdFrom": 12931,
+   "holdTo": 12949,
+   "joinNext": false,
+   "words": [
+    [
+     "and",
+     "and",
+     12899,
+     12907
+    ],
+    [
+     "speak",
+     "speak",
+     12907,
+     12916
+    ],
+    [
+     "up.",
+     "up",
+     12916,
+     12922
+    ]
+   ]
+  },
+  {
+   "id": "L246",
+   "text": "That night, full moon again.",
+   "src": [
+    11926,
+    11985
+   ],
+   "from": 12949,
+   "to": 13008,
+   "start": 431.633,
+   "end": 433.6,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 13009,
+   "holdTo": 13009,
+   "joinNext": false,
+   "words": [
+    [
+     "That",
+     "that",
+     12951,
+     12964
+    ],
+    [
+     "night,",
+     "night",
+     12964,
+     12979
+    ],
+    [
+     "full",
+     "full",
+     12979,
+     12991
+    ],
+    [
+     "moon",
+     "moon",
+     12991,
+     12994
+    ],
+    [
+     "again.",
+     "again",
+     12994,
+     13006
+    ]
+   ]
+  },
+  {
+   "id": "L247",
+   "text": "The plate of rice cakes on the altar is half empty.",
+   "src": [
+    11985,
+    12066
+   ],
+   "from": 13009,
+   "to": 13090,
+   "start": 433.633,
+   "end": 436.333,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 13095,
+   "holdTo": 13095,
+   "joinNext": false,
+   "words": [
+    [
+     "The",
+     "the",
+     13011,
+     13019
+    ],
+    [
+     "plate",
+     "plate",
+     13019,
+     13027
+    ],
+    [
+     "of",
+     "of",
+     13027,
+     13030
+    ],
+    [
+     "rice",
+     "rice",
+     13030,
+     13037
+    ],
+    [
+     "cakes",
+     "cakes",
+     13037,
+     13048
+    ],
+    [
+     "on",
+     "on",
+     13048,
+     13051
+    ],
+    [
+     "the",
+     "the",
+     13051,
+     13057
+    ],
+    [
+     "altar",
+     "altar",
+     13057,
+     13066
+    ],
+    [
+     "is",
+     "is",
+     13066,
+     13070
+    ],
+    [
+     "half",
+     "half",
+     13070,
+     13078
+    ],
+    [
+     "empty.",
+     "empty",
+     13078,
+     13086
+    ]
+   ]
+  },
+  {
+   "id": "L248",
+   "text": "Mom looks at the plate.",
+   "src": [
+    12071,
+    12113
+   ],
+   "from": 13095,
+   "to": 13137,
+   "start": 436.5,
+   "end": 437.9,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 13138,
+   "holdTo": 13138,
+   "joinNext": false,
+   "words": [
+    [
+     "Mom",
+     "mom",
+     13097,
+     13111
+    ],
+    [
+     "looks",
+     "looks",
+     13111,
+     13114
+    ],
+    [
+     "at",
+     "at",
+     13114,
+     13119
+    ],
+    [
+     "the",
+     "the",
+     13119,
+     13125
+    ],
+    [
+     "plate.",
+     "plate",
+     13125,
+     13134
+    ]
+   ]
+  },
+  {
+   "id": "L249",
+   "text": "Looks at you.",
+   "src": [
+    12113,
+    12138
+   ],
+   "from": 13138,
+   "to": 13163,
+   "start": 437.933,
+   "end": 438.767,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 13165,
+   "holdTo": 13165,
+   "joinNext": false,
+   "words": [
+    [
+     "Looks",
+     "looks",
+     13139,
+     13150
+    ],
+    [
+     "at",
+     "at",
+     13150,
+     13155
+    ],
+    [
+     "you.",
+     "you",
+     13155,
+     13162
+    ]
+   ]
+  },
+  {
+   "id": "L250",
+   "text": "Looks at the crumbs on your hoodie.",
+   "src": [
+    12138,
+    12189
+   ],
+   "from": 13165,
+   "to": 13216,
+   "start": 438.833,
+   "end": 440.533,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 13222,
+   "holdTo": 13222,
+   "joinNext": false,
+   "words": [
+    [
+     "Looks",
+     "looks",
+     13166,
+     13178
+    ],
+    [
+     "at",
+     "at",
+     13178,
+     13181
+    ],
+    [
+     "the",
+     "the",
+     13180,
+     13183
+    ],
+    [
+     "crumbs",
+     "crumbs",
+     13183,
+     13194
+    ],
+    [
+     "on",
+     "on",
+     13194,
+     13197
+    ],
+    [
+     "your",
+     "your",
+     13197,
+     13204
+    ],
+    [
+     "hoodie.",
+     "hoodie",
+     13204,
+     13213
+    ]
+   ]
+  },
+  {
+   "id": "L251",
+   "text": "Grandma and Grandpa came to eat again?",
+   "src": [
+    12197,
+    12249
+   ],
+   "from": 13222,
+   "to": 13274,
+   "start": 440.733,
+   "end": 442.467,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 13275,
+   "holdTo": 13275,
+   "joinNext": false,
+   "words": [
+    [
+     "Grandma",
+     "grandma",
+     13225,
+     13239
+    ],
+    [
+     "and",
+     "and",
+     13239,
+     13242
+    ],
+    [
+     "Grandpa",
+     "grandpa",
+     13241,
+     13250
+    ],
+    [
+     "came",
+     "came",
+     13250,
+     13256
+    ],
+    [
+     "to",
+     "to",
+     13256,
+     13259
+    ],
+    [
+     "eat",
+     "eat",
+     13259,
+     13264
+    ],
+    [
+     "again?",
+     "again",
+     13264,
+     13271
+    ]
+   ]
+  },
+  {
+   "id": "L252",
+   "text": "Yeah …",
+   "src": [
+    12250,
+    12269
+   ],
+   "from": 13275,
+   "to": 13294,
+   "start": 442.5,
+   "end": 443.133,
+   "gap": 0.033,
+   "hold": 0,
+   "holdFrom": 13295,
+   "holdTo": 13295,
+   "joinNext": false,
+   "words": [
+    [
+     "Yeah",
+     "yeah",
+     13277,
+     13291
+    ]
+   ]
+  },
+  {
+   "id": "L253",
+   "text": "probably, Mom.",
+   "src": [
+    12270,
+    12316
+   ],
+   "from": 13295,
+   "to": 13341,
+   "start": 443.167,
+   "end": 444.7,
+   "gap": 0.033,
+   "hold": 0.8,
+   "holdFrom": 13342,
+   "holdTo": 13366,
+   "joinNext": false,
+   "words": [
+    [
+     "probably,",
+     "probably",
+     13298,
+     13326
+    ],
+    [
+     "Mom.",
+     "mom",
+     13326,
+     13340
+    ]
+   ]
+  },
+  {
+   "id": "L254",
+   "text": "That night, Bin climbs into your bed.",
+   "src": [
+    12316,
+    12378
+   ],
+   "from": 13366,
+   "to": 13428,
+   "start": 445.533,
+   "end": 447.6,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 13430,
+   "holdTo": 13430,
+   "joinNext": false,
+   "words": [
+    [
+     "That",
+     "that",
+     13368,
+     13375
+    ],
+    [
+     "night,",
+     "night",
+     13375,
+     13386
+    ],
+    [
+     "Bin",
+     "bin",
+     13386,
+     13397
+    ],
+    [
+     "climbs",
+     "climbs",
+     13397,
+     13405
+    ],
+    [
+     "into",
+     "into",
+     13405,
+     13411
+    ],
+    [
+     "your",
+     "your",
+     13411,
+     13419
+    ],
+    [
+     "bed.",
+     "bed",
+     13419,
+     13425
+    ]
+   ]
+  },
+  {
+   "id": "L255",
+   "text": "Lies down.",
+   "src": [
+    12380,
+    12406
+   ],
+   "from": 13430,
+   "to": 13456,
+   "start": 447.667,
+   "end": 448.533,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 13458,
+   "holdTo": 13458,
+   "joinNext": false,
+   "words": [
+    [
+     "Lies",
+     "lies",
+     13432,
+     13443
+    ],
+    [
+     "down.",
+     "down",
+     13443,
+     13453
+    ]
+   ]
+  },
+  {
+   "id": "L256",
+   "text": "Puts his ear on your chest.",
+   "src": [
+    12408,
+    12454
+   ],
+   "from": 13458,
+   "to": 13504,
+   "start": 448.6,
+   "end": 450.133,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 13510,
+   "holdTo": 13510,
+   "joinNext": false,
+   "words": [
+    [
+     "Puts",
+     "puts",
+     13461,
+     13470
+    ],
+    [
+     "his",
+     "his",
+     13470,
+     13474
+    ],
+    [
+     "ear",
+     "ear",
+     13474,
+     13480
+    ],
+    [
+     "on",
+     "on",
+     13480,
+     13484
+    ],
+    [
+     "your",
+     "your",
+     13484,
+     13493
+    ],
+    [
+     "chest.",
+     "chest",
+     13493,
+     13501
+    ]
+   ]
+  },
+  {
+   "id": "L257",
+   "text": "You're breathing normal now.",
+   "src": [
+    12466,
+    12511
+   ],
+   "from": 13510,
+   "to": 13555,
+   "start": 450.333,
+   "end": 451.833,
+   "gap": 0.1,
+   "hold": 0,
+   "holdFrom": 13558,
+   "holdTo": 13558,
+   "joinNext": false,
+   "words": [
+    [
+     "You're",
+     "you re",
+     13513,
+     13519
+    ],
+    [
+     "breathing",
+     "breathing",
+     13519,
+     13531
+    ],
+    [
+     "normal",
+     "normal",
+     13531,
+     13545
+    ],
+    [
+     "now.",
+     "now",
+     13545,
+     13552
+    ]
+   ]
+  },
+  {
+   "id": "L258",
+   "text": "Yeah.",
+   "src": [
+    12514,
+    12531
+   ],
+   "from": 13558,
+   "to": 13575,
+   "start": 451.933,
+   "end": 452.5,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 13581,
+   "holdTo": 13581,
+   "joinNext": false,
+   "words": [
+    [
+     "Yeah.",
+     "yeah",
+     13561,
+     13572
+    ]
+   ]
+  },
+  {
+   "id": "L259",
+   "text": "I'm not hiding anymore.",
+   "src": [
+    12537,
+    12574
+   ],
+   "from": 13581,
+   "to": 13618,
+   "start": 452.7,
+   "end": 453.933,
+   "gap": 0.033,
+   "hold": 0.8,
+   "holdFrom": 13619,
+   "holdTo": 13643,
+   "joinNext": false,
+   "words": [
+    [
+     "I'm",
+     "i m",
+     13583,
+     13587
+    ],
+    [
+     "not",
+     "not",
+     13587,
+     13592
+    ],
+    [
+     "hiding",
+     "hiding",
+     13592,
+     13605
+    ],
+    [
+     "anymore.",
+     "anymore",
+     13605,
+     13617
+    ]
+   ]
+  },
+  {
+   "id": "L260",
+   "text": "Bin falls asleep.",
+   "src": [
+    12574,
+    12619
+   ],
+   "from": 13643,
+   "to": 13688,
+   "start": 454.767,
+   "end": 456.267,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 13694,
+   "holdTo": 13694,
+   "joinNext": false,
+   "words": [
+    [
+     "Bin",
+     "bin",
+     13646,
+     13656
+    ],
+    [
+     "falls",
+     "falls",
+     13656,
+     13670
+    ],
+    [
+     "asleep.",
+     "asleep",
+     13670,
+     13685
+    ]
+   ]
+  },
+  {
+   "id": "L261",
+   "text": "You lie there.",
+   "src": [
+    12625,
+    12652
+   ],
+   "from": 13694,
+   "to": 13721,
+   "start": 456.467,
+   "end": 457.367,
+   "gap": 0.2,
+   "hold": 0,
+   "holdFrom": 13727,
+   "holdTo": 13727,
+   "joinNext": false,
+   "words": [
+    [
+     "You",
+     "you",
+     13696,
+     13708
+    ],
+    [
+     "lie",
+     "lie",
+     13708,
+     13711
+    ],
+    [
+     "there.",
+     "there",
+     13710,
+     13718
+    ]
+   ]
+  },
+  {
+   "id": "L262",
+   "text": "Breathing.",
+   "src": [
+    12658,
+    12680
+   ],
+   "from": 13727,
+   "to": 13749,
+   "start": 457.567,
+   "end": 458.3,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 13749,
+   "holdTo": 13749,
+   "joinNext": false,
+   "words": [
+    [
+     "Breathing.",
+     "breathing",
+     13730,
+     13745
+    ]
+   ]
+  },
+  {
+   "id": "L263",
+   "text": "Slow.",
+   "src": [
+    12680,
+    12701
+   ],
+   "from": 13749,
+   "to": 13770,
+   "start": 458.3,
+   "end": 459.0,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 13772,
+   "holdTo": 13772,
+   "joinNext": false,
+   "words": [
+    [
+     "Slow.",
+     "slow",
+     13750,
+     13767
+    ]
+   ]
+  },
+  {
+   "id": "L264",
+   "text": "Steady.",
+   "src": [
+    12703,
+    12725
+   ],
+   "from": 13772,
+   "to": 13794,
+   "start": 459.067,
+   "end": 459.8,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 13796,
+   "holdTo": 13796,
+   "joinNext": false,
+   "words": [
+    [
+     "Steady.",
+     "steady",
+     13775,
+     13791
+    ]
+   ]
+  },
+  {
+   "id": "L265",
+   "text": "No need to disappear anywhere.",
+   "src": [
+    12727,
+    12771
+   ],
+   "from": 13796,
+   "to": 13840,
+   "start": 459.867,
+   "end": 461.333,
+   "gap": 0.2,
+   "hold": 2.0,
+   "holdFrom": 13846,
+   "holdTo": 13906,
+   "joinNext": false,
+   "words": [
+    [
+     "No",
+     "no",
+     13799,
+     13808
+    ],
+    [
+     "need",
+     "need",
+     13808,
+     13810
+    ],
+    [
+     "to",
+     "to",
+     13810,
+     13812
+    ],
+    [
+     "disappear",
+     "disappear",
+     13812,
+     13826
+    ],
+    [
+     "anywhere.",
+     "anywhere",
+     13826,
+     13837
+    ]
+   ]
+  },
+  {
+   "id": "L266",
+   "text": "So — if you could turn invisible for three minutes, what would you do first?",
+   "src": [
+    12778,
+    12897
+   ],
+   "from": 13906,
+   "to": 14025,
+   "start": 463.533,
+   "end": 467.5,
+   "gap": 0.167,
+   "hold": 0,
+   "holdFrom": 14030,
+   "holdTo": 14030,
+   "joinNext": false,
+   "words": [
+    [
+     "So",
+     "so",
+     13908,
+     13929
+    ],
+    [
+     "if",
+     "if",
+     13929,
+     13936
+    ],
+    [
+     "you",
+     "you",
+     13936,
+     13943
+    ],
+    [
+     "could",
+     "could",
+     13943,
+     13945
+    ],
+    [
+     "turn",
+     "turn",
+     13945,
+     13950
+    ],
+    [
+     "invisible",
+     "invisible",
+     13950,
+     13964
+    ],
+    [
+     "for",
+     "for",
+     13964,
+     13969
+    ],
+    [
+     "three",
+     "three",
+     13969,
+     13976
+    ],
+    [
+     "minutes,",
+     "minutes",
+     13976,
+     13991
+    ],
+    [
+     "what",
+     "what",
+     13991,
+     14001
+    ],
+    [
+     "would",
+     "would",
+     14001,
+     14005
+    ],
+    [
+     "you",
+     "you",
+     14005,
+     14009
+    ],
+    [
+     "do",
+     "do",
+     14009,
+     14012
+    ],
+    [
+     "first?",
+     "first",
+     14012,
+     14021
+    ]
+   ]
+  },
+  {
+   "id": "L267",
+   "text": "Tell me in the comments.",
+   "src": [
+    12902,
+    12939
+   ],
+   "from": 14030,
+   "to": 14067,
+   "start": 467.667,
+   "end": 468.9,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 14067,
+   "holdTo": 14067,
+   "joinNext": false,
+   "words": [
+    [
+     "Tell",
+     "tell",
+     14032,
+     14043
+    ],
+    [
+     "me",
+     "me",
+     14043,
+     14046
+    ],
+    [
+     "in",
+     "in",
+     14046,
+     14049
+    ],
+    [
+     "the",
+     "the",
+     14049,
+     14053
+    ],
+    [
+     "comments.",
+     "comments",
+     14053,
+     14063
+    ]
+   ]
+  },
+  {
+   "id": "L268",
+   "text": "Hit like and subscribe for more \"what ifs.\"",
+   "src": [
+    12939,
+    13020
+   ],
+   "from": 14067,
+   "to": 14148,
+   "start": 468.9,
+   "end": 471.6,
+   "gap": 0.0,
+   "hold": 0,
+   "holdFrom": 14148,
+   "holdTo": 14148,
+   "joinNext": false,
+   "words": [
+    [
+     "Hit",
+     "hit",
+     14069,
+     14084
+    ],
+    [
+     "like",
+     "like",
+     14084,
+     14086
+    ],
+    [
+     "and",
+     "and",
+     14085,
+     14091
+    ],
+    [
+     "subscribe",
+     "subscribe",
+     14091,
+     14112
+    ],
+    [
+     "for",
+     "for",
+     14112,
+     14119
+    ],
+    [
+     "more",
+     "more",
+     14119,
+     14128
+    ],
+    [
+     "\"what",
+     "what",
+     14128,
+     14137
+    ],
+    [
+     "ifs.\"",
+     "ifs",
+     14137,
+     14145
+    ]
+   ]
+  },
+  {
+   "id": "L269",
+   "text": "One little \"if\" …",
+   "src": [
+    13020,
+    13060
+   ],
+   "from": 14148,
+   "to": 14188,
+   "start": 471.6,
+   "end": 472.933,
+   "gap": 0.067,
+   "hold": 0,
+   "holdFrom": 14190,
+   "holdTo": 14190,
+   "joinNext": false,
+   "words": [
+    [
+     "One",
+     "one",
+     14150,
+     14165
+    ],
+    [
+     "little",
+     "little",
+     14165,
+     14177
+    ],
+    [
+     "\"if\"",
+     "if",
+     14177,
+     14185
+    ]
+   ]
+  },
+  {
+   "id": "L270",
+   "text": "a whole different life.",
+   "src": [
+    13062,
+    13098
+   ],
+   "from": 14190,
+   "to": 14226,
+   "start": 473.0,
+   "end": 474.2,
+   "gap": 0,
+   "hold": 0,
+   "holdFrom": 14226,
+   "holdTo": 14226,
+   "joinNext": false,
+   "words": [
+    [
+     "a",
+     "a",
+     14193,
+     14195
+    ],
+    [
+     "whole",
+     "whole",
+     14194,
+     14204
+    ],
+    [
+     "different",
+     "different",
+     14204,
+     14216
+    ],
+    [
+     "life.",
+     "life",
+     14216,
+     14223
+    ]
+   ]
+  }
+ ],
+ "shots": [
+  {
+   "id": "1.1",
+   "act": 1,
+   "moc": "Nếu bạn tàng hình được",
+   "firstLine": "L001",
+   "lastLine": "L002",
+   "from": 0,
+   "to": 124,
+   "start": 0.0,
+   "end": 4.133
+  },
+  {
+   "id": "2.1",
+   "act": 2,
+   "moc": "Mẹ cầm bài kiểm tra",
+   "firstLine": "L003",
+   "lastLine": "L005",
+   "from": 124,
+   "to": 246,
+   "start": 4.133,
+   "end": 8.2
+  },
+  {
+   "id": "2.2",
+   "act": 2,
+   "moc": "Lại",
+   "firstLine": "L006",
+   "lastLine": "L007",
+   "from": 246,
+   "to": 298,
+   "start": 8.2,
+   "end": 9.933
+  },
+  {
+   "id": "2.3",
+   "act": 2,
+   "moc": "Bạn sợ",
+   "firstLine": "L008",
+   "lastLine": "L010",
+   "from": 298,
+   "to": 411,
+   "start": 9.933,
+   "end": 13.7
+  },
+  {
+   "id": "2.4",
+   "act": 2,
+   "moc": "Mẹ ngẩng lên",
+   "firstLine": "L011",
+   "lastLine": "L015",
+   "from": 411,
+   "to": 559,
+   "start": 13.7,
+   "end": 18.633
+  },
+  {
+   "id": "2.5",
+   "act": 2,
+   "moc": "Mười giây",
+   "firstLine": "L016",
+   "lastLine": "L017",
+   "from": 559,
+   "to": 643,
+   "start": 18.633,
+   "end": 21.433
+  },
+  {
+   "id": "2.6",
+   "act": 2,
+   "moc": "Hai mươi giây",
+   "firstLine": "L018",
+   "lastLine": "L020",
+   "from": 643,
+   "to": 821,
+   "start": 21.433,
+   "end": 27.367
+  },
+  {
+   "id": "2.7",
+   "act": 2,
+   "moc": "Ba mươi giây",
+   "firstLine": "L021",
+   "lastLine": "L022",
+   "from": 821,
+   "to": 908,
+   "start": 27.367,
+   "end": 30.267
+  },
+  {
+   "id": "2.8",
+   "act": 2,
+   "moc": "Bốn mươi giây",
+   "firstLine": "L023",
+   "lastLine": "L025",
+   "from": 908,
+   "to": 1058,
+   "start": 30.267,
+   "end": 35.267
+  },
+  {
+   "id": "2.9",
+   "act": 2,
+   "moc": "Bạn thở ra",
+   "firstLine": "L026",
+   "lastLine": "L028",
+   "from": 1058,
+   "to": 1166,
+   "start": 35.267,
+   "end": 38.867
+  },
+  {
+   "id": "2.10",
+   "act": 2,
+   "moc": "Á",
+   "firstLine": "L029",
+   "lastLine": "L029",
+   "from": 1166,
+   "to": 1213,
+   "start": 38.867,
+   "end": 40.433
+  },
+  {
+   "id": "2.11",
+   "act": 2,
+   "moc": "Mẹ không đánh bạn",
+   "firstLine": "L030",
+   "lastLine": "L031",
+   "from": 1213,
+   "to": 1399,
+   "start": 40.433,
+   "end": 46.633
+  },
+  {
+   "id": "3.1",
+   "act": 3,
+   "moc": "Luật thế này",
+   "firstLine": "L032",
+   "lastLine": "L032",
+   "from": 1399,
+   "to": 1437,
+   "start": 46.633,
+   "end": 47.9
+  },
+  {
+   "id": "3.2",
+   "act": 3,
+   "moc": "Nín thở là bạn biến mất",
+   "firstLine": "L033",
+   "lastLine": "L035",
+   "from": 1437,
+   "to": 1666,
+   "start": 47.9,
+   "end": 55.533
+  },
+  {
+   "id": "3.3",
+   "act": 3,
+   "moc": "Thở ra một cái",
+   "firstLine": "L036",
+   "lastLine": "L037",
+   "from": 1666,
+   "to": 1834,
+   "start": 55.533,
+   "end": 61.133
+  },
+  {
+   "id": "3.4",
+   "act": 3,
+   "moc": "Khi tàng hình bạn không thể nói",
+   "firstLine": "L038",
+   "lastLine": "L041",
+   "from": 1834,
+   "to": 2019,
+   "start": 61.133,
+   "end": 67.3
+  },
+  {
+   "id": "3.5",
+   "act": 3,
+   "moc": "người bình thường nín thở",
+   "firstLine": "L042",
+   "lastLine": "L043",
+   "from": 2019,
+   "to": 2164,
+   "start": 67.3,
+   "end": 72.133
+  },
+  {
+   "id": "3.6",
+   "act": 3,
+   "moc": "cảm giác muốn thở",
+   "firstLine": "L044",
+   "lastLine": "L047",
+   "from": 2164,
+   "to": 2492,
+   "start": 72.133,
+   "end": 83.067
+  },
+  {
+   "id": "3.7",
+   "act": 3,
+   "moc": "có hạn sử dụng",
+   "firstLine": "L048",
+   "lastLine": "L049",
+   "from": 2492,
+   "to": 2606,
+   "start": 83.067,
+   "end": 86.867
+  },
+  {
+   "id": "4.1",
+   "act": 4,
+   "moc": "Cười là thở ra",
+   "firstLine": "L050",
+   "lastLine": "L052",
+   "from": 2606,
+   "to": 2863,
+   "start": 86.867,
+   "end": 95.433
+  },
+  {
+   "id": "4.2",
+   "act": 4,
+   "moc": "Bạn hiện ra",
+   "firstLine": "L053",
+   "lastLine": "L055",
+   "from": 2863,
+   "to": 3045,
+   "start": 95.433,
+   "end": 101.5
+  },
+  {
+   "id": "4.3",
+   "act": 4,
+   "moc": "Hắt xì",
+   "firstLine": "L056",
+   "lastLine": "L060",
+   "from": 3045,
+   "to": 3178,
+   "start": 101.5,
+   "end": 105.933
+  },
+  {
+   "id": "4.4",
+   "act": 4,
+   "moc": "nấc cục",
+   "firstLine": "L061",
+   "lastLine": "L067",
+   "from": 3178,
+   "to": 3406,
+   "start": 105.933,
+   "end": 113.533
+  },
+  {
+   "id": "4.5",
+   "act": 4,
+   "moc": "Chỉ có một người",
+   "firstLine": "L068",
+   "lastLine": "L071",
+   "from": 3406,
+   "to": 3567,
+   "start": 113.533,
+   "end": 118.9
+  },
+  {
+   "id": "4.6",
+   "act": 4,
+   "moc": "Chơi trốn tìm",
+   "firstLine": "L072",
+   "lastLine": "L076",
+   "from": 3567,
+   "to": 3861,
+   "start": 118.9,
+   "end": 128.7
+  },
+  {
+   "id": "4.7",
+   "act": 4,
+   "moc": "Em đâu có thấy",
+   "firstLine": "L077",
+   "lastLine": "L078",
+   "from": 3861,
+   "to": 3983,
+   "start": 128.7,
+   "end": 132.767
+  },
+  {
+   "id": "5.1",
+   "act": 5,
+   "moc": "Ngày rằm",
+   "firstLine": "L079",
+   "lastLine": "L082",
+   "from": 3983,
+   "to": 4224,
+   "start": 132.767,
+   "end": 140.8
+  },
+  {
+   "id": "5.2",
+   "act": 5,
+   "moc": "Bạn ăn một cái bánh bò",
+   "firstLine": "L083",
+   "lastLine": "L085",
+   "from": 4224,
+   "to": 4373,
+   "start": 140.8,
+   "end": 145.767
+  },
+  {
+   "id": "5.3",
+   "act": 5,
+   "moc": "Mẹ thắp thêm",
+   "firstLine": "L086",
+   "lastLine": "L089",
+   "from": 4373,
+   "to": 4655,
+   "start": 145.767,
+   "end": 155.167
+  },
+  {
+   "id": "5.4",
+   "act": 5,
+   "moc": "Bạn lẻn vào phòng giáo viên",
+   "firstLine": "L090",
+   "lastLine": "L093",
+   "from": 4655,
+   "to": 4876,
+   "start": 155.167,
+   "end": 162.533
+  },
+  {
+   "id": "5.5",
+   "act": 5,
+   "moc": "Câu ba dài quá",
+   "firstLine": "L094",
+   "lastLine": "L095",
+   "from": 4876,
+   "to": 5020,
+   "start": 162.533,
+   "end": 167.333
+  },
+  {
+   "id": "5.6",
+   "act": 5,
+   "moc": "Thầy hiệu trưởng",
+   "firstLine": "L096",
+   "lastLine": "L098",
+   "from": 5020,
+   "to": 5225,
+   "start": 167.333,
+   "end": 174.167
+  },
+  {
+   "id": "5.7",
+   "act": 5,
+   "moc": "Nên bạn tập",
+   "firstLine": "L099",
+   "lastLine": "L103",
+   "from": 5225,
+   "to": 5366,
+   "start": 174.167,
+   "end": 178.867
+  },
+  {
+   "id": "5.8",
+   "act": 5,
+   "moc": "phản xạ lặn",
+   "firstLine": "L104",
+   "lastLine": "L108",
+   "from": 5366,
+   "to": 5781,
+   "start": 178.867,
+   "end": 192.7
+  },
+  {
+   "id": "5.9",
+   "act": 5,
+   "moc": "Mẹ tưởng",
+   "firstLine": "L109",
+   "lastLine": "L109",
+   "from": 5781,
+   "to": 5867,
+   "start": 192.7,
+   "end": 195.567
+  },
+  {
+   "id": "5.10",
+   "act": 5,
+   "moc": "Kỷ lục thế giới",
+   "firstLine": "L110",
+   "lastLine": "L113",
+   "from": 5867,
+   "to": 6126,
+   "start": 195.567,
+   "end": 204.2
+  },
+  {
+   "id": "6.1",
+   "act": 6,
+   "moc": "trường bạn bắt đầu có lời đồn",
+   "firstLine": "L114",
+   "lastLine": "L120",
+   "from": 6126,
+   "to": 6465,
+   "start": 204.2,
+   "end": 215.5
+  },
+  {
+   "id": "6.2",
+   "act": 6,
+   "moc": "Hai triệu lượt xem",
+   "firstLine": "L121",
+   "lastLine": "L121",
+   "from": 6465,
+   "to": 6518,
+   "start": 215.5,
+   "end": 217.267
+  },
+  {
+   "id": "6.3",
+   "act": 6,
+   "moc": "Một nhóm săn ma",
+   "firstLine": "L122",
+   "lastLine": "L125",
+   "from": 6518,
+   "to": 6765,
+   "start": 217.267,
+   "end": 225.5
+  },
+  {
+   "id": "6.4",
+   "act": 6,
+   "moc": "Họ kết luận",
+   "firstLine": "L126",
+   "lastLine": "L127",
+   "from": 6765,
+   "to": 6889,
+   "start": 225.5,
+   "end": 229.633
+  },
+  {
+   "id": "7.1",
+   "act": 7,
+   "moc": "Nhưng có một cái giá",
+   "firstLine": "L128",
+   "lastLine": "L129",
+   "from": 6889,
+   "to": 7054,
+   "start": 229.633,
+   "end": 235.133
+  },
+  {
+   "id": "7.2",
+   "act": 7,
+   "moc": "Giờ ra chơi",
+   "firstLine": "L130",
+   "lastLine": "L133",
+   "from": 7054,
+   "to": 7228,
+   "start": 235.133,
+   "end": 240.933
+  },
+  {
+   "id": "7.3",
+   "act": 7,
+   "moc": "Có rủ nó không",
+   "firstLine": "L134",
+   "lastLine": "L135",
+   "from": 7228,
+   "to": 7335,
+   "start": 240.933,
+   "end": 244.5
+  },
+  {
+   "id": "7.4",
+   "act": 7,
+   "moc": "Bạn thở ra",
+   "firstLine": "L136",
+   "lastLine": "L137",
+   "from": 7335,
+   "to": 7492,
+   "start": 244.5,
+   "end": 249.733
+  },
+  {
+   "id": "7.5",
+   "act": 7,
+   "moc": "Vậy là có một luật",
+   "firstLine": "L138",
+   "lastLine": "L139",
+   "from": 7492,
+   "to": 7607,
+   "start": 249.733,
+   "end": 253.567
+  },
+  {
+   "id": "7.6",
+   "act": 7,
+   "moc": "Bạn ăn trưa một mình",
+   "firstLine": "L140",
+   "lastLine": "L147",
+   "from": 7607,
+   "to": 7935,
+   "start": 253.567,
+   "end": 264.5
+  },
+  {
+   "id": "7.7",
+   "act": 7,
+   "moc": "Kể cả khi bạn đang thở",
+   "firstLine": "L148",
+   "lastLine": "L148",
+   "from": 7935,
+   "to": 8028,
+   "start": 264.5,
+   "end": 267.6
+  },
+  {
+   "id": "7.8",
+   "act": 7,
+   "moc": "Cô điểm danh",
+   "firstLine": "L149",
+   "lastLine": "L153",
+   "from": 8028,
+   "to": 8244,
+   "start": 267.6,
+   "end": 274.8
+  },
+  {
+   "id": "7.9",
+   "act": 7,
+   "moc": "Sinh nhật bạn",
+   "firstLine": "L154",
+   "lastLine": "L154",
+   "from": 8244,
+   "to": 8377,
+   "start": 274.8,
+   "end": 279.233
+  },
+  {
+   "id": "7.10",
+   "act": 7,
+   "moc": "Chỉ có Bin",
+   "firstLine": "L155",
+   "lastLine": "L159",
+   "from": 8377,
+   "to": 8688,
+   "start": 279.233,
+   "end": 289.6
+  },
+  {
+   "id": "8.1",
+   "act": 8,
+   "moc": "Rằm tháng Tám",
+   "firstLine": "L160",
+   "lastLine": "L164",
+   "from": 8688,
+   "to": 9022,
+   "start": 289.6,
+   "end": 300.733
+  },
+  {
+   "id": "8.2",
+   "act": 8,
+   "moc": "Bạn dắt Bin",
+   "firstLine": "L165",
+   "lastLine": "L166",
+   "from": 9022,
+   "to": 9161,
+   "start": 300.733,
+   "end": 305.367
+  },
+  {
+   "id": "8.3",
+   "act": 8,
+   "moc": "đám đông xô",
+   "firstLine": "L167",
+   "lastLine": "L167",
+   "from": 9161,
+   "to": 9199,
+   "start": 305.367,
+   "end": 306.633
+  },
+  {
+   "id": "8.4",
+   "act": 8,
+   "moc": "Tay bạn trống không",
+   "firstLine": "L168",
+   "lastLine": "L168",
+   "from": 9199,
+   "to": 9265,
+   "start": 306.633,
+   "end": 308.833
+  },
+  {
+   "id": "8.5",
+   "act": 8,
+   "moc": "Bạn quay lại",
+   "firstLine": "L169",
+   "lastLine": "L175",
+   "from": 9265,
+   "to": 9589,
+   "start": 308.833,
+   "end": 319.633
+  },
+  {
+   "id": "8.6",
+   "act": 8,
+   "moc": "Không ai để ý",
+   "firstLine": "L176",
+   "lastLine": "L177",
+   "from": 9589,
+   "to": 9692,
+   "start": 319.633,
+   "end": 323.067
+  },
+  {
+   "id": "8.7",
+   "act": 8,
+   "moc": "Bạn hít một hơi",
+   "firstLine": "L178",
+   "lastLine": "L186",
+   "from": 9692,
+   "to": 9954,
+   "start": 323.067,
+   "end": 331.8
+  },
+  {
+   "id": "8.8",
+   "act": 8,
+   "moc": "Bạn chụp được tay Bin",
+   "firstLine": "L187",
+   "lastLine": "L191",
+   "from": 9954,
+   "to": 10143,
+   "start": 331.8,
+   "end": 338.1
+  },
+  {
+   "id": "8.9",
+   "act": 8,
+   "moc": "Một chiếc xe máy",
+   "firstLine": "L192",
+   "lastLine": "L192",
+   "from": 10143,
+   "to": 10211,
+   "start": 338.1,
+   "end": 340.367
+  },
+  {
+   "id": "8.10",
+   "act": 8,
+   "moc": "Hai phút",
+   "firstLine": "L193",
+   "lastLine": "L196",
+   "from": 10211,
+   "to": 10420,
+   "start": 340.367,
+   "end": 347.333
+  },
+  {
+   "id": "8.11",
+   "act": 8,
+   "moc": "Bạn có thể tiếp tục bám theo",
+   "firstLine": "L197",
+   "lastLine": "L203",
+   "from": 10420,
+   "to": 10843,
+   "start": 347.333,
+   "end": 361.433
+  },
+  {
+   "id": "8.12",
+   "act": 8,
+   "moc": "Bạn phải hiện ra",
+   "firstLine": "L204",
+   "lastLine": "L205",
+   "from": 10843,
+   "to": 10945,
+   "start": 361.433,
+   "end": 364.833
+  },
+  {
+   "id": "8.13",
+   "act": 8,
+   "moc": "BẮT CÓC",
+   "firstLine": "L206",
+   "lastLine": "L211",
+   "from": 10945,
+   "to": 11176,
+   "start": 364.833,
+   "end": 372.533
+  },
+  {
+   "id": "8.14",
+   "act": 8,
+   "moc": "tất cả mọi người đều nhìn bạn",
+   "firstLine": "L212",
+   "lastLine": "L212",
+   "from": 11176,
+   "to": 11328,
+   "start": 372.533,
+   "end": 377.6
+  },
+  {
+   "id": "8.15",
+   "act": 8,
+   "moc": "Tiếng trống lân dừng",
+   "firstLine": "L213",
+   "lastLine": "L213",
+   "from": 11328,
+   "to": 11398,
+   "start": 377.6,
+   "end": 379.933
+  },
+  {
+   "id": "8.16",
+   "act": 8,
+   "moc": "Chú bán đèn kéo quân",
+   "firstLine": "L214",
+   "lastLine": "L218",
+   "from": 11398,
+   "to": 11691,
+   "start": 379.933,
+   "end": 389.7
+  },
+  {
+   "id": "8.17",
+   "act": 8,
+   "moc": "công an phường",
+   "firstLine": "L219",
+   "lastLine": "L219",
+   "from": 11691,
+   "to": 11773,
+   "start": 389.7,
+   "end": 392.433
+  },
+  {
+   "id": "8.18",
+   "act": 8,
+   "moc": "Bin chạy về phía bạn",
+   "firstLine": "L220",
+   "lastLine": "L225",
+   "from": 11773,
+   "to": 12027,
+   "start": 392.433,
+   "end": 400.9
+  },
+  {
+   "id": "8.19",
+   "act": 8,
+   "moc": "Bạn ngồi bệt",
+   "firstLine": "L226",
+   "lastLine": "L230",
+   "from": 12027,
+   "to": 12287,
+   "start": 400.9,
+   "end": 409.567
+  },
+  {
+   "id": "9.1",
+   "act": 9,
+   "moc": "Thứ Hai",
+   "firstLine": "L231",
+   "lastLine": "L236",
+   "from": 12287,
+   "to": 12484,
+   "start": 409.567,
+   "end": 416.133
+  },
+  {
+   "id": "9.2",
+   "act": 9,
+   "moc": "Dạ có",
+   "firstLine": "L237",
+   "lastLine": "L240",
+   "from": 12484,
+   "to": 12687,
+   "start": 416.133,
+   "end": 422.9
+  },
+  {
+   "id": "9.3",
+   "act": 9,
+   "moc": "Tàng hình thì dễ",
+   "firstLine": "L241",
+   "lastLine": "L245",
+   "from": 12687,
+   "to": 12947,
+   "start": 422.9,
+   "end": 431.567
+  },
+  {
+   "id": "9.4",
+   "act": 9,
+   "moc": "Đĩa bánh bò",
+   "firstLine": "L246",
+   "lastLine": "L253",
+   "from": 12947,
+   "to": 13364,
+   "start": 431.567,
+   "end": 445.467
+  },
+  {
+   "id": "9.5",
+   "act": 9,
+   "moc": "Tối đó Bin trèo lên giường",
+   "firstLine": "L254",
+   "lastLine": "L259",
+   "from": 13364,
+   "to": 13641,
+   "start": 445.467,
+   "end": 454.7
+  },
+  {
+   "id": "9.6",
+   "act": 9,
+   "moc": "Bin ngủ",
+   "firstLine": "L260",
+   "lastLine": "L265",
+   "from": 13641,
+   "to": 13904,
+   "start": 454.7,
+   "end": 463.467
+  },
+  {
+   "id": "9.7",
+   "act": 9,
+   "moc": "Còn bạn",
+   "firstLine": "L266",
+   "lastLine": "L270",
+   "from": 13904,
+   "to": 14271,
+   "start": 463.467,
+   "end": 475.7
+  }
+ ],
+ "acts": [
+  {
+   "act": 1,
+   "from": 0,
+   "to": 124
+  },
+  {
+   "act": 2,
+   "from": 124,
+   "to": 1399
+  },
+  {
+   "act": 3,
+   "from": 1399,
+   "to": 2606
+  },
+  {
+   "act": 4,
+   "from": 2606,
+   "to": 3983
+  },
+  {
+   "act": 5,
+   "from": 3983,
+   "to": 6126
+  },
+  {
+   "act": 6,
+   "from": 6126,
+   "to": 6889
+  },
+  {
+   "act": 7,
+   "from": 6889,
+   "to": 8688
+  },
+  {
+   "act": 8,
+   "from": 8688,
+   "to": 12287
+  },
+  {
+   "act": 9,
+   "from": 12287,
+   "to": 14271
+  }
+ ],
+ "lang": "en",
+ "anchors": {
+  "L001|nhưng|1": [
+   60,
+   71
+  ],
+  "L001|nín|1": [
+   78,
+   89
+  ],
+  "L004|ba|1": [
+   187,
+   198
+  ],
+  "L007|đây|1": [
+   274,
+   287
+  ],
+  "L010|nín|1": [
+   386,
+   391
+  ],
+  "L019|mở|1": [
+   698,
+   700
+  ],
+  "L024|quay|1": [
+   962,
+   968
+  ],
+  "L026|thở|1": [
+   1072,
+   1079
+  ],
+  "L033|biến|1": [
+   1485,
+   1500
+  ],
+  "L035|quần|1": [
+   1553,
+   1566
+  ],
+  "L035|dép|1": [
+   1580,
+   1594
+  ],
+  "L035|cặp|1": [
+   1600,
+   1607
+  ],
+  "L036|thở|1": [
+   1670,
+   1683
+  ],
+  "L038|không|1": [
+   1882,
+   1893
+  ],
+  "L043|ba mươi|1": [
+   2117,
+   2127
+  ],
+  "L043|một phút|1": [
+   2140,
+   2150
+  ],
+  "L046|la|1": [
+   2365,
+   2376
+  ],
+  "L052|đánh rơi|1": [
+   2789,
+   2798
+  ],
+  "L052|bật cười|1": [
+   2835,
+   2845
+  ],
+  "L081|bánh bò|1": [
+   4133,
+   4159
+  ],
+  "L082|nín|1": [
+   4196,
+   4198
+  ],
+  "L084|quay|1": [
+   4297,
+   4299
+  ],
+  "L095|thở|1": [
+   4992,
+   5004
+  ],
+  "L105|phản xạ|1": [
+   5537,
+   5555
+  ],
+  "L108|úp|1": [
+   5706,
+   5714
+  ],
+  "L110|mười một|1": [
+   5940,
+   5950
+  ],
+  "L136|thở|1": [
+   7345,
+   7351
+  ],
+  "L163|ông sao|1": [
+   8842,
+   8852
+  ],
+  "L163|cá chép|1": [
+   8880,
+   8888
+  ],
+  "L163|kéo quân|1": [
+   8912,
+   8927
+  ],
+  "L179|nín|1": [
+   9726,
+   9733
+  ],
+  "L212|tất cả|1": [
+   11236,
+   11251
+  ],
+  "L213|dừng|1": [
+   11368,
+   11376
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+  "_doc": "Chỉnh tay timeline EP1 bản TIẾNG ANH rồi chạy lại: python3 scripts/tiktok2/ep1/build_timing.py ep1 en. Như timing-overrides.json; shot tự gắn theo câu của bản Việt (anchors ở đây ghi đè). split: số khối SRT tiếng Anh → các câu tương ứng câu Việt (khối đọc gộp). merge: số khối SRT gộp với khối sau (một câu Việt = hai câu Anh).",
+  "split": {
+    "1": ["What if you could turn invisible —", "but only while holding your breath?"],
+    "122": ["\"The ghost of the middle school.\"", "Two million views."],
+    "153": ["You say \"Here.\"", "Has anyone seen him today?"],
+    "268": ["Hit like and subscribe for more \"what ifs.\"", "One little \"if\" …"]
+  },
+  "merge": [36, 44, 73],
+  "thrAbove": 20,
+  "cutAtMin": true,
+  "holds": {},
+  "gaps": {},
+  "anchors": {},
+  "trim": {},
+  "endCard": 1.5,
+  "maxGap": 0.38,
+  "minGap": 0.15
+}
