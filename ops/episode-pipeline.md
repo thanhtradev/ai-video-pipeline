@@ -17,8 +17,8 @@ What it adds:
 - Migrations `20261027000100` (2c preview flow, Shorts only), `20261028000100` (episode briefs),
   `20261028000200` (registers `eleven_v4`, disabled), `20261028000300` (episode A1 approval).
 
-Until C3 (storyboard approval) lands, an approved episode stops after its episode code (C2), in
-`GENERATING_ASSETS`. Roll out B1–C2 together.
+Roll out B1–C4 together (one merge, one migration run, one round of n8n imports): the sections
+below are in the order to follow.
 **Approving A1 spends ITERA credits**; Reject and Regenerate are free.
 
 ### 1. Code (Mac mini)
@@ -52,7 +52,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
 unset PGPASSWORD DATABASE_URL
 ```
 
-**Check**: `SELECT max(version)` is `20261028000300`; the last table shows `eleven_v4` with
+**Check**: `SELECT max(version)` is `20261029000100`; the last table shows `eleven_v4` with
 `model_on` = `t`, the voice id and a `per_char` price of `1` `CRD`, and `eleven_v3` with `f`.
 
 ### 3. Worker and n8n
@@ -180,14 +180,56 @@ J=$(ls -td "$WORK_ROOT"/videos/*/v1/jobs/*/ws | head -1); echo "$J"
 open "$J"/board/page-*.jpg
 ```
 
-The storyboard approval on Telegram (C3) is not there yet: after this job the version stays in
-`GENERATING_ASSETS`. A failed job leaves its workspace; open it with `claude` in that folder to
-continue by hand.
+A failed job leaves its workspace; open it with `claude` in that folder to continue by hand.
+
+## C3 + C4: storyboard approval and the episode render
+
+What it adds:
+- migration `20261029000100`: status `AWAITING_STORYBOARD_APPROVAL`, approval type `STORYBOARD`,
+  `storyboard_approvals_due()`, `telegram_decide()`, revisions and the `render_episode` job;
+- **WF-12** (new) sends each storyboard page as a photo, then a message with Approve / Reject. To ask
+  for changes, **reply to that message** with your notes; at most 3 rounds of notes;
+- **WF-06** (updated) also listens to messages (the replies) and decides through `telegram_decide()`;
+- the worker serves the pages on `GET /boards/…?t=<token>` (D-055) and renders the approved episode
+  at 720p (`render_episode`, free): `preview.mp4` (-14 LUFS) + `vi.srt`.
+
+### 1. Migrate (if not done with B1–C2)
+
+`npx dbmate … up` and `grants.sql` as in B1 + B2 §2. **Check**: `SELECT max(version)` is
+`20261029000100`.
+
+### 2. n8n (LXC 104)
+
+1. Open **WF-06**, deactivate, ⋯ → Import from File → `wf-06-telegram-callback.json`, save, activate
+   (this re-registers the bot webhook, now with `message` updates).
+2. Import **WF-12** into a new workflow from `wf-12-storyboard-approval.json`. Replace
+   `REPLACE_WITH_APPROVAL_CHAT_ID` (Send page, Send buttons) and, in the **Build pages** code,
+   `REPLACE_WITH_WORKER_URL` with the worker API base URL (`http://100.71.214.125:8787`, S-18).
+   Reconnect credentials if shown as missing, save, activate.
+
+**Check**: from the n8n host, `curl -s http://100.71.214.125:8787/health` answers `ok`.
+
+### 3. Check with an episode
+
+After the episode code (C2) succeeds, within 30 s the chat gets the storyboard pages and the
+message. Reply to it with a note (e.g. `Shot 1.2 tối quá`): the bot answers `Notes received:
+revising the storyboard (round 2 of 4)`, and the revised storyboard arrives when the agent is done.
+Approve: `Approved: rendering the preview`, then:
+
+```bash
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+open "$(ls -t "$WORK_ROOT"/videos/*/v*/jobs/*/preview.mp4 | head -1)"
+```
+
+The version stays in `RENDERING_PREVIEW`: sending the preview to Telegram, QA, A2 and the final
+1080p render are 2d.
 
 ## Rollback
 
 - Code: revert the merge on `main`, `npm ci`, restart the worker.
 - TTS model: rerun `itera-tts.sql` with `model_id='eleven_v3'` and the previous voice
   (`pHMSzlSRiVLr5kB4DGOR`).
-- Migrations: `npx dbmate … rollback` one at a time; `20261028000200` refuses once `eleven_v4`
-  has a price (restore from the backup instead).
+- Migrations: `npx dbmate … rollback` one at a time; `20261029000100` refuses while a version or
+  approval uses the storyboard values, and `20261028000200` once `eleven_v4` has a price (restore
+  from the backup instead).
+- n8n: deactivate WF-12; re-import the previous `wf-06-telegram-callback.json` from Git.

@@ -5,10 +5,12 @@ import Fastify, {
   type FastifyRequest,
 } from 'fastify';
 import pino, { type Logger } from 'pino';
+import { readBoardPage } from './episode/boards.js';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
 
 // Worker API (docs/architecture.md §5). Bind to the Tailscale interface only.
-// /health is unauthenticated for Uptime Kuma; everything else requires an HMAC signature.
+// /health is unauthenticated for Uptime Kuma; /boards/… is guarded by the job's board token
+// (D-055); everything else requires an HMAC signature.
 
 export interface ApiOptions {
   workerId: string;
@@ -18,6 +20,8 @@ export interface ApiOptions {
   activeJobs: () => number;
   /** Worker logger; rejected requests are logged with their reason. */
   logger?: Logger;
+  /** WORK_ROOT, for storyboard pages; without it /boards answers 404. */
+  workRoot?: string;
 }
 
 interface ApiResponse<T> {
@@ -70,6 +74,20 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
         },
       };
     return body;
+  });
+
+  app.get<{
+    Params: { videoId: string; version: string; jobId: string; page: string };
+    Querystring: { t?: string };
+  }>('/boards/:videoId/:version/:jobId/:page', async (request, reply) => {
+    const page = options.workRoot
+      ? await readBoardPage(options.workRoot, { ...request.params, token: request.query.t ?? '' })
+      : null;
+    if (!page) {
+      const body: ApiResponse<never> = { success: false, error: 'not found' };
+      return reply.code(404).send(body);
+    }
+    return reply.type('image/jpeg').send(page);
   });
 
   await app.ready();

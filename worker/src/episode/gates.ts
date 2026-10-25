@@ -1,18 +1,13 @@
-import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
 import { z } from 'zod';
+import { runSandboxedNode } from './sandbox.js';
 import { GATES_SCRIPT } from './workspace.js';
 
 // Worker gates on the agent's workspace (docs/episode-pipeline.md §6): the agent's own claims are
-// not trusted. remotion/scripts/episode-gates.mjs runs agent-written code (SFX script, the episode
-// in Chrome), so it runs under the worker's Seatbelt profile (D-054), never in the worker itself.
+// not trusted. remotion/scripts/episode-gates.mjs runs agent-written code, so it runs sandboxed.
 
-const execFileAsync = promisify(execFile);
 const GATES_TIMEOUT_MS = 45 * 60 * 1000;
-const MAX_BUFFER = 16 * 1024 * 1024;
 const REPORT_ROWS = 30;
 
 const stepSchema = z.object({ ok: z.boolean(), error: z.string().optional() }).loose();
@@ -51,34 +46,19 @@ export type GateRunner = (ws: string, signal: AbortSignal) => Promise<GateReport
 export interface GateRunnerOptions {
   /** ops/claude/episode-render.sb */
   profile: string;
-  sandboxExec?: string;
-  nodeBin?: string;
 }
 
 /** `ws` must be the real path (Seatbelt matches resolved paths, e.g. /private/tmp). */
 export function createGateRunner(options: GateRunnerOptions): GateRunner {
   return async (ws, signal) => {
-    const tmp = join(ws, 'tmp');
-    await execFileAsync(
-      options.sandboxExec ?? '/usr/bin/sandbox-exec',
-      [
-        ...['-f', options.profile, '-D', `WS=${ws}`, '-D', `TMP=${tmp}`, '-D', `HOME=${homedir()}`],
-        options.nodeBin ?? process.execPath,
-        GATES_SCRIPT,
-        ws,
-      ],
-      {
-        env: {
-          PATH: process.env.PATH ?? '/usr/bin:/bin',
-          HOME: homedir(),
-          TMPDIR: tmp,
-          LANG: 'en_US.UTF-8',
-        },
-        timeout: GATES_TIMEOUT_MS,
-        maxBuffer: MAX_BUFFER,
-        signal,
-      },
-    );
+    await runSandboxedNode({
+      profile: options.profile,
+      ws,
+      script: GATES_SCRIPT,
+      args: [ws],
+      timeoutMs: GATES_TIMEOUT_MS,
+      signal,
+    });
     return reportSchema.parse(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')));
   };
 }

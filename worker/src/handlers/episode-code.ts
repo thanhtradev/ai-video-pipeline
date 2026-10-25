@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { readFile, realpath, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -171,6 +172,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
         session_id: turns.at(-1)?.result.sessionId ?? null,
         agent_ms: turns.reduce((sum, t) => sum + (t.result.durationMs ?? 0), 0),
         board_pages: pages.map((p) => `${WORKSPACE}/${p}`),
+        // Capability for GET /boards/… (D-055): only Postgres readers (n8n) learn it.
+        board_token: randomBytes(16).toString('hex'),
         sfx_files: report.sfx?.files?.length ?? 0,
         text_bounds_blur: report.textBounds?.blur ?? 0,
         revision: Boolean(input.revision),

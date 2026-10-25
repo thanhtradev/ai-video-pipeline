@@ -19,12 +19,13 @@ Claude Code never imports/activates production workflows.
 | WF-03 | ~~Worker Event Handler~~ | — | Removed: workers report via PostgreSQL functions (P-015). Phase 2 reacts to finished jobs from the dispatcher/next-step logic |
 | WF-04 | ~~Cost Guard~~ | — | Replaced by the SQL function `cost_guard()` that the worker calls before every paid request (D-045, `docs/cost-and-providers.md` §3) |
 | WF-05 | Script Approval Request | Every 30 s | `script_approvals_due()`: versions whose script succeeded → A1 token + Telegram message with Approve / Regenerate / Reject; reminders every 6 h; shows the TTS budget that approving accepts (2b). **Implemented (2a):** `wf-05-script-approval.json`. A2 (preview) follows in 2d |
-| WF-06 | Telegram Callback | Telegram Trigger (`callback_query`) | `approval_telegram_decide()`: allow-list, token, version, expiry and payload hash checked in SQL; answers the button and removes it once settled; approving a script creates the `tts` job (2b) and the `render_preview` job that waits on it (2c, D-049). **Implemented (2a):** `wf-06-telegram-callback.json`. Needs n8n reachable over public HTTPS (U-21) |
+| WF-06 | Telegram Callback | Telegram Trigger (`callback_query`, `message`) | `telegram_decide()`: allow-list, token, version, expiry and payload hash checked in SQL; answers the button and removes it once settled; approving a script creates the `tts` job and either `render_preview` (Shorts, 2c) or `timing` + `episode_code` (episodes, D-052). Storyboard buttons approve (creates `render_episode`) or reject; a **reply** to a storyboard request with notes starts a revision (≤ 3 rounds). **Implemented (2a, episodes 2c):** `wf-06-telegram-callback.json`. Needs n8n reachable over public HTTPS (U-21) |
 | WF-07 | Archive & Verify | Event `final_ready` | Create `archive` job for a worker; receive verify result; only `ARCHIVE_VERIFIED` on full match |
 | WF-08 | Watchdog / Recovery | Every minute | `watchdog_run()`: expired leases, lost queue messages, expired approvals, offline workers, provider-blocked videos, videos needing a decision (failed step + error); Telegram alert only on change. **Implemented:** `wf-08-watchdog.json` |
 | WF-09 | Reports | Daily cron + on batch completion | Status report, cost per step/video/batch/finished minute |
 | WF-10 | Retention Reminder | Daily cron | List Mac working copies older than 30 days after verified archive → **request approval** to delete (never auto-delete) |
 | WF-11 | Provider Health | Cron | Check provider quota/status; mark `provider_blocked`, notify |
+| WF-12 | Storyboard Approval Request | Every 30 s | `storyboard_approvals_due()`: episodes whose newest `episode_code` job succeeded → STORYBOARD token; sends each storyboard page (fetched from the worker's `GET /boards/…` with the board token, D-055) and a message with Approve / Reject that also asks for notes as a reply; reminders every 6 h. **Implemented (2c, episodes):** `wf-12-storyboard-approval.json` |
 | WF-99 | Error Handler | n8n Error Trigger | Write audit log, notify Telegram with execution id (no payloads). **Implemented:** `wf-99-error-handler.json`. Must be **active** — n8n 2.x skips inactive error workflows |
 
 ## Dependencies
@@ -32,6 +33,7 @@ Claude Code never imports/activates production workflows.
 ```
 WF-01 → (DB) → WF-02 → Redis → worker (cost_guard before paid calls) → (DB functions) → WF-02 ...
                                               (DB) → WF-05 → Telegram → WF-06 → (DB)
+                       (DB) → WF-12 → worker GET /boards → Telegram → WF-06 → (DB)   (episodes)
 WF-08 watches everything; WF-99 catches errors from every workflow.
 ```
 

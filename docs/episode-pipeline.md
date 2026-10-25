@@ -144,16 +144,29 @@ through the whole step (macOS `say` voice → whisper timing → real agent → 
 
 ## 7. Storyboard approval
 
-The STORYBOARD approval is bound to `video_id` + version + token + SHA-256 of the storyboard
-pages, like A1. n8n sends the pages (fetched from the worker API with an HMAC signature) as a
-Telegram media group with **Approve** / **Feedback** buttons; Feedback asks for a text reply,
-which becomes the next episode_code job's input together with the previous code.
+Migration `20261029000100`: status `AWAITING_STORYBOARD_APPROVAL`, approval type `STORYBOARD`.
+When the newest `episode_code` job of an episode succeeds, `storyboard_approvals_due()` (WF-12)
+issues a token bound to `video_id` + version + the SHA-256 of every file the job produced (code,
+SFX script, pages). WF-12 sends each page as a photo, fetched from the worker with the job's board
+token (D-055), then a message with **Approve** / **Reject** that asks for notes as a reply.
+
+WF-06 handles both through `telegram_decide()`:
+
+| Telegram | Effect |
+|---|---|
+| Approve | → `RENDERING_PREVIEW`, `render_episode` job (§8) |
+| Reject | → `CANCELLED` |
+| reply with notes | → `GENERATING_ASSETS`, a new `episode_code` job revising the previous code with the notes (`feedback.md`); its storyboard comes back as the next round |
+| notes after round 4 (3 revisions) | → `NEEDS_DECISION` |
 
 ## 8. Render
 
-`render_preview` renders the episode composition from the approved workspace: audio WAV, muted
-video (ANGLE GPU, 8 tabs), ffmpeg mux, two-pass loudnorm (-14 LUFS, -1.5 dBTP), burned-in
-captions, sidecar SRT from the word timings.
+`render_episode` (q:render, free) copies the approved workspace and renders `Episode` at 1280×720
+under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
+captions are part of the composition), normalises loudness (-14 LUFS, -1.5 dBTP, D-032) and writes
+`vi.srt` from the sentence timeline. The version stays in `RENDERING_PREVIEW`; delivery, QA, A2 and
+the final 1080p render are 2d. A real mini episode (say voice → whisper → agent → render) came out
+at -14.0 LUFS with matching subtitles.
 
 ## 9. Rollout slices
 
@@ -166,5 +179,5 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | B3 | ✅ timing job (whisper.cpp + port of build_timing/check_cuts) | whisper model path, `q:heavy` |
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
 | C2 | ✅ episode_code job, workspace, gates | Chrome download, migration |
-| C3 | STORYBOARD approval + Telegram media group + feedback loop | migration, WF import |
-| C4 | render_preview on the episode composition | — |
+| C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
+| C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |

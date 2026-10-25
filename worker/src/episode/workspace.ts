@@ -17,6 +17,7 @@ const KIT_PARTS = ['ep1', 'ep2', 'ep3', 'ep5', 'qa', 'sfx', 'env.d.ts'];
 /** Paths the agent may write, relative to the workspace. */
 export const AGENT_WRITABLE = ['src/episode', 'sfx'] as const;
 export const GATES_SCRIPT = join(REMOTION_DIR, 'scripts', 'episode-gates.mjs');
+export const RENDER_SCRIPT = join(REMOTION_DIR, 'scripts', 'episode-render.mjs');
 
 export interface WorkspaceSources {
   /** script.md of the approved script job. */
@@ -95,4 +96,10 @@ export async function containsSecret(ws: string, secrets: readonly string[]): Pr
     }),
   );
   return hits.flat();
+}
+
+/** A copy of an approved workspace to render from; node_modules stays a symlink. */
+export async function copyWorkspace(from: string, to: string): Promise<void> {
+  await cp(from, to, { recursive: true, verbatimSymlinks: true });
+  await mkdir(join(to, 'tmp'), { recursive: true });
 }

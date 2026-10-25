@@ -10,6 +10,10 @@ import { createJobStore } from './db/job-store.js';
 import { createGateRunner } from './episode/gates.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
+import {
+  createRenderEpisodeHandler,
+  createSandboxedEpisodeRenderer,
+} from './handlers/render-episode.js';
 import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
@@ -109,6 +113,14 @@ function buildHandlers(
       }),
     ],
     [
+      'render_episode',
+      createRenderEpisodeHandler({
+        render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
+        probe,
+      }),
+    ],
+    [
       'render_preview',
       createRenderPreviewHandler({
         renderer: createRemotionRenderer(logger),
@@ -165,6 +177,7 @@ async function main(): Promise<void> {
     nonces: createRedisNonceStore(redis),
     activeJobs: loop.activeJobs,
     logger,
+    workRoot: config.workRoot,
   });
   await api.listen({ host: config.apiHost, port: config.apiPort });
   loop.start();

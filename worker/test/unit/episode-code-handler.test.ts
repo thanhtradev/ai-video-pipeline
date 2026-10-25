@@ -145,6 +145,8 @@ describe('episode_code handler', () => {
       ]),
     );
     expect(result.result).toMatchObject({ turns: 2, board_pages: ['ws/board/page-01.jpg'] });
+    // WF-12 fetches the pages from the worker API with this token (D-055).
+    expect(result.result.board_token).toMatch(/^[0-9a-f]{32}$/);
     const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
     expect(log).toHaveLength(2);
   });

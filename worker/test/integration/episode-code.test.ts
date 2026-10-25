@@ -11,6 +11,12 @@ import { createAgentCli } from '../../src/claude/agent-cli.js';
 import { claudeChildEnv } from '../../src/claude/claude-cli.js';
 import { createGateRunner } from '../../src/episode/gates.js';
 import { createEpisodeCodeHandler } from '../../src/handlers/episode-code.js';
+import {
+  createRenderEpisodeHandler,
+  createSandboxedEpisodeRenderer,
+} from '../../src/handlers/render-episode.js';
+import { createFfprobe } from '../../src/media/ffprobe.js';
+import { createLoudnessNormalizer } from '../../src/media/loudness.js';
 import { createTimingHandler } from '../../src/handlers/timing.js';
 import { createVoiceBuilder } from '../../src/media/voice.js';
 import { createWhisper } from '../../src/media/whisper.js';
@@ -29,6 +35,7 @@ const SCRIPT_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334401';
 const TTS_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334402';
 const TIMING_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334403';
 const CODE_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334404';
+const RENDER_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334405';
 const ACTS = [
   {
     title: 'HOOK',
@@ -64,7 +71,9 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
     async () => {
       const jobs = await realpath(await mkdtemp(join(tmpdir(), 'episode-')));
       const dir = (id: string) => join(jobs, id);
-      await Promise.all([SCRIPT_JOB, TTS_JOB, TIMING_JOB, CODE_JOB].map((id) => mkdir(dir(id))));
+      await Promise.all(
+        [SCRIPT_JOB, TTS_JOB, TIMING_JOB, CODE_JOB, RENDER_JOB].map((id) => mkdir(dir(id))),
+      );
 
       const script = {
         acts: ACTS.map((act, a) => ({
@@ -129,6 +138,24 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
       expect(await readFile(join(ws, 'src/episode/Episode.tsx'), 'utf8')).toMatch(/export/);
       expect(existsSync(join(ws, 'board/page-01.jpg'))).toBe(true);
       expect(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')).ok).toBe(true);
+
+      // The approved storyboard renders (C4).
+      await writeCheckpoint(dir(CODE_JOB), result.outputs, result.result);
+      const render = createRenderEpisodeHandler({
+        render: createSandboxedEpisodeRenderer(PROFILE),
+        loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
+        probe: createFfprobe(process.env.FFPROBE_BIN ?? 'ffprobe'),
+      });
+      const rendered = await render(
+        ctx(
+          RENDER_JOB,
+          { episode_code_job_id: CODE_JOB, timing_job_id: TIMING_JOB },
+          dir(RENDER_JOB),
+        ),
+      );
+      console.log(`preview: ${join(dir(RENDER_JOB), 'preview.mp4')}`, rendered.result);
+      expect(rendered.result).toMatchObject({ width: 1280, height: 720 });
+      expect(await readFile(join(dir(RENDER_JOB), 'vi.srt'), 'utf8')).toContain('-->');
     },
     40 * 60 * 1000,
   );
