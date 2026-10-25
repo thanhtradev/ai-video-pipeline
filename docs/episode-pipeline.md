@@ -1,0 +1,183 @@
+# Episode pipeline (TikTok 2 channel) [PROPOSED]
+
+How one 16:9 episode in the TikTok 2 style (D-050) goes from a topic to a rendered MP4 with no
+interactive session. Reference process (manual, EP1–EP5): `docs/video-process-export.md`.
+Decisions: D-050 (format/style), D-051 (kit port), D-052 (automated step 5, storyboard approval), D-053 (agent sandbox and limits), D-054 (renders run by the worker).
+
+## 1. Flow
+
+```
+form (topic | full brief)
+  → script        q:light   Claude text-only → episode script JSON            → A1 (Telegram, + TTS estimate)
+  → tts           q:light   ITERA eleven_v4, one request per act (audio tags kept)
+  → timing        q:heavy   concat → whisper.cpp word times → line/shot timeline → cut check
+  → episode_code  q:render  Claude Code headless in a sandboxed workspace → code + SFX
+                            → worker gates (typecheck, cut check, text bounds, storyboard)
+  → STORYBOARD approval     Telegram: storyboard pages + Approve / Feedback (≤ 3 feedback rounds)
+       └─ feedback → new episode_code job with the feedback and the previous code
+  → render_preview q:render 720p MP4 + SRT, loudness -14 LUFS (then 2d: QA, A2, final 1080p, archive)
+```
+
+Each step is a job with a checkpoint (`checkpoint.json`) and an idempotency key; re-running a
+step never repeats a paid call (only `tts` is paid).
+
+## 2. Video status
+
+New status `AWAITING_STORYBOARD_APPROVAL` and approval type `STORYBOARD`:
+
+| From | To | When |
+|---|---|---|
+| `GENERATING_ASSETS` | `AWAITING_STORYBOARD_APPROVAL` | episode_code succeeded and its gates passed |
+| `AWAITING_STORYBOARD_APPROVAL` | `GENERATING_ASSETS` | feedback: a revision job is created |
+| `AWAITING_STORYBOARD_APPROVAL` | `RENDERING_PREVIEW` | approved: render_preview becomes READY |
+
+A fourth feedback, an episode_code job that keeps failing its gates, or a 90-minute timeout →
+`NEEDS_DECISION` (the user can still open an interactive session on the job workspace).
+
+## 3. Script (A1)
+
+Intake (WF-01): `Topic` (required), `Duration (minutes)` (2–12, optional), `Full brief`
+(optional, ≤ 30000 characters, kept verbatim), `Notes`. The brief gets `format: "episode"`, which
+`brief_normalize` validates and `video_submit` turns into a 16:9 video; Shorts briefs still work.
+
+The script step returns one JSON document (schema in `worker/src/handlers/episode-script.ts`):
+
+- `title`, `logline` (shown in A1), `characters[]` (`name`, `look`), `effects` and `notes` (Markdown);
+- `acts[]` (1–12): `title`, `grade` (colour note), `lines[]` (narration with ElevenLabs audio tags
+  such as `[punchy]`), `shots[]` (`id` "act.n", `moc` = first words of the narration where it
+  starts, `description`, optional `hold_seconds` and `fast`, `sfx[]`).
+
+The worker checks what the schema cannot and retries the step otherwise: shot ids numbered
+`act.n` in order, every MỐC found in its act's narration after the previous one, each act under
+10000 characters (one TTS request), and, from a full brief, every line present verbatim in it
+(the EP5 brief passes all of these). It then assigns line ids `L001…` in order (never the model)
+and writes `script.json` (the hashed A1 content) and `script.md`. From a full brief in the user's
+format (VOICE / NHÂN VẬT / VISUAL STYLE / HIỆU ỨNG / DANH SÁCH SHOT), Claude only restructures it;
+from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with holds).
+
+## 4. TTS
+
+Model `eleven_v4` (1 credit/char, ≤ 10000 chars per request), Vietnamese voice
+`47rM9DW5VmjOw23BVHWi`: registered by migration `20261028000200`, then made the one enabled TTS
+model by `ops/postgres/itera-tts.sql`. One request
+per act: an act's lines joined with newlines, tags included. `eleven_v4` honours the audio tags
+(`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The A1 estimate counts the same text.
+
+## 5. Timing
+
+`timing` job (q:heavy, free), created with the TTS job when A1 is approved and run after it. A port of
+the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
+
+1. The act clips are joined in order with 0.6 s of silence between acts → `voice.wav` (48 kHz mono,
+   what the composition plays) and a 16 kHz copy.
+2. `whisper-cli` (whisper.cpp, model `large-v3-turbo`, `-l vi -ml 1 -sow -ojf`) gives word times;
+   digits it writes ("30", "100.000") are read the Vietnamese way for matching.
+3. The script lines are split into spoken **sentences** `S001…` (after `. ! ? … :`, tags removed;
+   each keeps its script line id `L…`), the reference episodes' timing unit. Their words are
+   aligned with whisper's (jsdiff).
+4. Sentence boundaries: every real silence (10 ms dB envelope, voiced = floor + 14 dB) near a rough
+   boundary is a candidate; one ordered set is chosen by dynamic programming, scoring distance to
+   the rough boundary, silence length, and each sentence's length against its expected length
+   (its words × the voice's speaking rate). Pauses shorter than 0.2 s are cut exactly at their
+   quietest frame; no pause at all → read in one breath (no gap or hold there).
+5. Cuts get 0.06 s lead-in and 0.09 s tail; gaps are the natural pause bounded to 0.15–0.38 s
+   (0.15 s in `fast` shots); a shot's `hold_seconds` follows its last sentence; shots start at
+   the sentence where their MỐC is spoken; 1.5 s end card.
+6. `timing.json` and `captions.json` in the reference shapes (the kit's `time.ts` reads them),
+   `timeline.md` for people. A cut louder than floor + 20 dB, or a MỐC never spoken, fails the
+   job permanently (re-running cannot change it).
+
+Measured on EP5 (reference episode, real ffmpeg + whisper.cpp 1.9.5, 2026-10-26): 261/261
+sentences as in the reference, 242 of them cut within 3 frames of the hand-checked reference,
+no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 43 s.
+
+## 6. Episode code (Claude Code headless)
+
+`episode_code` job (q:render), created with the TTS and timing jobs when A1 is approved and run
+after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/`:
+
+```
+CLAUDE.md               channel rules + contract (remotion/episode/AGENT.md in the repo)
+brief.md, feedback.md   the approved script.md; the owner's notes on a revision
+FILES.md                every file with its size (the CLI has no Glob/Grep tools)
+kit/                    remotion/src/tiktok2/{ep1,ep2,ep3,ep5,qa,sfx}: shared kit, reference episodes, SFX synthesis
+src/index.ts, Root.tsx  compositions Episode, EpisodeBoard (storyboard), EpisodeQA (text bounds)
+src/time.ts, data/      timeline queries over timing.json / captions.json from the timing job
+src/episode/            the agent writes here; Episode.tsx exports `Episode`
+sfx/generate-sfx.mjs    the agent writes; writes the WAVs into public/sfx
+public/voice.wav        from the timing job
+node_modules            symlink to the repo's packages
+```
+
+`claude -p` with `claude-opus-5-5` (`CLAUDE_AGENT_MODEL`), `--permission-mode dontAsk`,
+`--setting-sources project`, no MCP, the worker's environment stripped of secrets, and per-job
+settings written outside the workspace (`worker/src/episode/agent-settings.ts`, spiked 2026-10-26
+with CLI 2.1.310):
+
+- file tools: Read only inside the workspace, Edit/Write only in `src/episode/` and `sfx/`;
+- Bash: the macOS sandbox (no network, writes only in the workspace, reads of `~/.ssh`,
+  `~/.config`, `~/.claude`, `~/Library`, `/Volumes`, … denied, no unsandboxed fallback) with
+  auto-allow **off**: only `node node_modules/typescript/bin/tsc …` and `node sfx/generate-sfx.mjs …`
+  run (never chained), plus the CLI's built-in read-only commands (`cat`, `ls`, `grep`, `sed`);
+- the worker files in the workspace (`CLAUDE.md`, `kit/`, `src/time.ts`, …) are write-protected.
+
+Chrome cannot start inside that sandbox, so the agent never renders (D-054). The worker runs every
+render of agent-written code under its own profile `ops/claude/episode-render.sb` (loopback only,
+writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
+
+1. typecheck; 2. the SFX script; 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
+55 % of each shot; a missing audio file fails here); 4. text-out-of-frame scan of the whole episode
+(every 10th frame, 0 sharp hits allowed); then a scan of the agent's files for secret values.
+
+Turns (one session, resumed): turn 1 writes; turn 2 always reviews the storyboard pages (the Read
+tool shows images) with the gate report; turn 3 only if gates still fail. All turns share a 90-minute
+limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace stays for an interactive
+session. `agent-turns.json` keeps prompts, replies and usage.
+
+The board and QA compositions last as long as the episode: Remotion drops any `<Sequence>` that
+starts after its composition ends. The reference `check-text-bounds.mjs` used a composition one
+tenth as long, so it only measured the first tenth of each episode; scanned in full, EP5 has 25 sharp
+texts partly outside the frame (e.g. `NHỚ CHI TIẾT NÀY`, wall-calendar numbers).
+
+Measured: the gates take about 1.5 min on EP5 (7 pages, 1200 samples). A 3-shot mini episode went
+through the whole step (macOS `say` voice → whisper timing → real agent → gates) in under 6 min.
+
+## 7. Storyboard approval
+
+Migration `20261029000100`: status `AWAITING_STORYBOARD_APPROVAL`, approval type `STORYBOARD`.
+When the newest `episode_code` job of an episode succeeds, `storyboard_approvals_due()` (WF-12)
+issues a token bound to `video_id` + version + the SHA-256 of every file the job produced (code,
+SFX script, pages). WF-12 sends each page as a photo, fetched from the worker with the job's board
+token (D-055), then a message with **Approve** / **Reject** that asks for notes as a reply.
+
+WF-06 handles both through `telegram_decide()`:
+
+| Telegram | Effect |
+|---|---|
+| Approve | → `RENDERING_PREVIEW`, `render_episode` job (§8) |
+| Reject | → `CANCELLED` |
+| reply with notes | → `GENERATING_ASSETS`, a new `episode_code` job revising the previous code with the notes (`feedback.md`); its storyboard comes back as the next round |
+| notes after round 4 (3 revisions) | → `NEEDS_DECISION` |
+
+## 8. Render
+
+`render_episode` (q:render, free) copies the approved workspace and renders `Episode` at 1280×720
+under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
+captions are part of the composition), normalises loudness (-14 LUFS, -1.5 dBTP, D-032) and writes
+`vi.srt` from the sentence timeline. The version stays in `RENDERING_PREVIEW`; delivery, QA, A2 and
+the final 1080p render are 2d. A real mini episode (say voice → whisper → agent → render) came out
+at -14.0 LUFS with matching subtitles.
+
+## 9. Rollout slices
+
+Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
+
+| Slice | Content | User rollout |
+|---|---|---|
+| B1 | ✅ episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import |
+| B2 | ✅ `eleven_v4` + voice, per-act TTS, no typography preview for episodes | migration, `itera-tts.sql` |
+| B3 | ✅ timing job (whisper.cpp + port of build_timing/check_cuts) | whisper model path, `q:heavy` |
+| C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
+| C2 | ✅ episode_code job, workspace, gates | Chrome download, migration |
+| C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
+| C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |

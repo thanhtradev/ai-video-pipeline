@@ -102,16 +102,16 @@ describe.each(files)('%s', (file) => {
 });
 
 describe('WF-01 Intake', () => {
-  test('builds a trimmed brief keyed by the execution id', () => {
+  test('builds a trimmed episode brief keyed by the execution id', () => {
     const [out] = runCode('wf-01-intake.json', 'Build brief', {
       executionId: '42',
       input: [
         {
           json: {
-            Topic: '  Vì sao bầu trời có màu xanh? ',
-            'Duration (seconds)': 45,
-            Audience: '',
-            Tone: 'vui vẻ',
+            Topic: '  Nếu bạn dừng được thời gian 30 giây? ',
+            'Duration (minutes)': 6,
+            'Full brief': '',
+            Notes: 'giọng kể vui',
           },
         },
       ],
@@ -119,9 +119,23 @@ describe('WF-01 Intake', () => {
 
     expect(out!.json.submissionId).toBe('n8n-form-42');
     expect(JSON.parse(out!.json.brief as string)).toEqual({
-      topic: 'Vì sao bầu trời có màu xanh?',
-      duration_seconds: 45,
-      tone: 'vui vẻ',
+      format: 'episode',
+      topic: 'Nếu bạn dừng được thời gian 30 giây?',
+      duration_minutes: 6,
+      notes: 'giọng kể vui',
+    });
+  });
+
+  test('passes a full brief through and leaves an empty duration out', () => {
+    const fullBrief = 'VOICE\n[punchy] Nếu bạn dừng được thời gian…\n\n[1. HOOK]';
+    const [out] = runCode('wf-01-intake.json', 'Build brief', {
+      input: [{ json: { Topic: 'EP5', 'Duration (minutes)': '', 'Full brief': fullBrief } }],
+    });
+
+    expect(JSON.parse(out!.json.brief as string)).toEqual({
+      format: 'episode',
+      topic: 'EP5',
+      full_brief: fullBrief,
     });
   });
 });
@@ -170,6 +184,26 @@ describe('WF-05 Script Approval Request', () => {
       'TTS budget: up to 462 ITERA credits (420 characters)',
     );
     expect(without[0]!.json.text).toContain('approving allows no TTS spend');
+  });
+
+  test('summarizes an episode script in minutes, acts and shots', () => {
+    const episode = {
+      format: 'episode',
+      title: 'Nếu bạn dừng được thời gian 30 giây?',
+      total_seconds: 395,
+      act_count: 9,
+      shot_count: 83,
+      line_count: 126,
+      narration_chars: 6251,
+      preview: 'Mỗi lần dừng thời gian, bạn già thêm một ngày.',
+    };
+    const [out] = runCode('wf-05-script-approval.json', 'Build message', {
+      input: [{ json: { ...row, script: episode } }],
+    });
+
+    expect(out!.json.text).toContain('Episode ~6.6 min, 9 acts, 83 shots, 126 lines');
+    expect(out!.json.text).toContain('6251 narration characters');
+    expect(out!.json.text).not.toContain('scenes');
   });
 
   test('labels reminders and skips empty results', () => {
@@ -230,6 +264,157 @@ describe('WF-06 Telegram Callback', () => {
       answer: 'You are not an approver.',
       settled: false,
     });
+  });
+
+  test('parses storyboard buttons', () => {
+    const parse = (data: string) =>
+      runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback(data)] });
+    expect(parse(`sb:A:${token}`)[0]!.json).toMatchObject({
+      kind: 'button',
+      approval: 'storyboard',
+      action: 'APPROVE',
+      token,
+    });
+    expect(parse(`sb:R:${token}`)[0]!.json).toMatchObject({ action: 'REJECT' });
+    expect(parse(`sb:G:${token}`)).toEqual([]);
+  });
+
+  const message = (text: string, repliedTo: string | null, isBot = false): Item => ({
+    json: {
+      message: {
+        message_id: 9,
+        from: { id: 111, is_bot: isBot },
+        chat: { id: 111 },
+        text,
+        ...(repliedTo === null
+          ? {}
+          : { reply_to_message: { message_id: 8, from: { is_bot: true }, text: repliedTo } }),
+      },
+    },
+  });
+
+  test('turns a reply to a storyboard request into notes for a revision', () => {
+    const [out] = runCode('wf-06-telegram-callback.json', 'Parse callback', {
+      input: [message('  Shot 1.2 tối quá.  ', `Storyboard ready\nref:${token}`)],
+    });
+    expect(out!.json).toMatchObject({
+      kind: 'reply',
+      approval: 'storyboard',
+      action: 'FEEDBACK',
+      token,
+      note: 'Shot 1.2 tối quá.',
+      userId: '111',
+      chatId: '111',
+      messageId: '9',
+    });
+  });
+
+  test.each([
+    ['a message that is not a reply', message('hello', null)],
+    ['a reply to another message', message('hello', 'Script ready')],
+    ['a message from a bot', message('hello', `ref:${token}`, true)],
+  ])('ignores %s', (_name, item) => {
+    expect(runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] })).toEqual(
+      [],
+    );
+  });
+
+  function storyboardReply(
+    result: string,
+    kind: 'button' | 'reply',
+    action: string,
+    round: number | null,
+  ) {
+    const parsed = {
+      json: {
+        kind,
+        approval: 'storyboard',
+        action,
+        token,
+        chatId: '111',
+        messageId: '9',
+        queryId: 'q1',
+        originalText: 'Storyboard ready',
+      },
+    };
+    return runCode('wf-06-telegram-callback.json', 'Build reply', {
+      input: [{ json: { result, version: 1, round } }],
+      nodeOutputs: { 'Parse callback': [parsed] },
+    })[0]!.json;
+  }
+
+  test('answers storyboard decisions and notes', () => {
+    expect(storyboardReply('OK', 'button', 'APPROVE', 1)).toMatchObject({
+      answer: 'Approved: rendering the preview',
+      settled: true,
+      isButton: true,
+    });
+    expect(storyboardReply('OK', 'reply', 'FEEDBACK', 2)).toMatchObject({
+      answer: 'Notes received: revising the storyboard (round 2 of 4).',
+      isButton: false,
+    });
+    expect(storyboardReply('NEEDS_DECISION', 'reply', 'FEEDBACK', 4).answer).toMatch(
+      /last round.*needs a decision/,
+    );
+    expect(storyboardReply('EMPTY_NOTE', 'reply', 'FEEDBACK', null).answer).toMatch(
+      /Write your notes/,
+    );
+    expect(storyboardReply('NOT_PENDING', 'reply', 'FEEDBACK', null).answer).toBe(
+      'Already decided.',
+    );
+  });
+});
+
+describe('WF-12 Storyboard Approval Request', () => {
+  const token = 'b'.repeat(32);
+  const row = {
+    kind: 'REQUEST',
+    video_id: '12345678-aaaa-bbbb-cccc-000000000000',
+    version: 1,
+    token,
+    expires_at: '2026-10-29T10:00:00.000Z',
+    round: 2,
+    title: 'Mèo nghĩ gì?',
+    board: {
+      job_id: '87654321-aaaa-bbbb-cccc-000000000000',
+      token: 'c'.repeat(32),
+      pages: ['ws/board/page-01.jpg', 'ws/board/page-02.jpg'],
+    },
+  };
+
+  test('builds one worker URL per storyboard page, in order, with the board token', () => {
+    const pages = runCode('wf-12-storyboard-approval.json', 'Build pages', {
+      input: [{ json: row }],
+    });
+
+    expect(pages.map((p) => p.json.url)).toEqual([
+      `REPLACE_WITH_WORKER_URL/boards/${row.video_id}/1/${row.board.job_id}/page-01.jpg?t=${'c'.repeat(32)}`,
+      `REPLACE_WITH_WORKER_URL/boards/${row.video_id}/1/${row.board.job_id}/page-02.jpg?t=${'c'.repeat(32)}`,
+    ]);
+    expect(pages[1]!.json.caption).toBe('Video 12345678 v1 · storyboard 2/4 · page 2/2');
+  });
+
+  test('sends no pages for reminders', () => {
+    const pages = runCode('wf-12-storyboard-approval.json', 'Build pages', {
+      input: [{ json: { ...row, kind: 'REMINDER', board: null } }],
+    });
+    expect(pages).toEqual([]);
+  });
+
+  test('asks for approval or a reply with notes, with buttons under 64 bytes', () => {
+    const [out] = runCode('wf-12-storyboard-approval.json', 'Build message', {
+      input: [{ json: row }],
+    });
+
+    expect(out!.json.text).toContain('Storyboard ready for approval (round 2 of 4)');
+    expect(out!.json.text).toContain('Mèo nghĩ gì?');
+    expect(out!.json.text).toMatch(/reply to this message with your notes/);
+    expect(out!.json.text).toContain(`ref:${token}`);
+    expect(out!.json.approve).toBe(`sb:A:${token}`);
+    expect(out!.json.reject).toBe(`sb:R:${token}`);
+    for (const key of ['approve', 'reject']) {
+      expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
+    }
   });
 });
 

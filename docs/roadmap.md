@@ -32,17 +32,17 @@ One video end-to-end from n8n Form to MP4. Delivered in slices, each its own PR 
 
 | Slice | Scope | Status |
 |---|---|---|
-| 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ code + tests · ⏳ rollout `ops/phase-2a.md` |
-| 2b | TTS job (ITERA, D-040/D-043, one request per scene), provider registry, cost guard (`cost_guard`, D-045), cost recording, estimate in A1 | ✅ code + tests · ⏳ rollout `ops/phase-2b.md` |
-| 2c | Typography template (D-041), music + license, subtitles SRT/VTT, preview 720p + thumbnail | — |
+| 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ live 2026-10-25 (`ops/phase-2a.md`) |
+| 2b | TTS job (ITERA, D-040/D-043, one request per scene), provider registry, cost guard (`cost_guard`, D-045), cost recording, estimate in A1 | ✅ live 2026-10-25 (`ops/phase-2b.md`) |
+| 2c | ~~Typography template (D-041, D-049)~~ reworked for D-050: Phase A ports the TikTok 2 kit (D-051) and reproduces EP5; render job, loudness and media server from the first 2c cut are kept | ⏳ episode pipeline B1–C4 implemented, not rolled out (PR #9, `ops/episode-pipeline.md`) |
 | 2d | QA, A2, final 1080p, archive + manifest, cost report | — |
 
 | Criteria |
 |---|
 | Brief via Form → script/storyboard → A1 via Telegram (with estimate) |
-| 9:16 Short under 60s; code-only visuals (D-020) + TTS voice + royalty-free music (D-021) + subtitles (SRT, VTT) |
+| 16:9 episode of about 6–7 min in the TikTok 2 style (D-050); code-only visuals (D-020) + TTS voice + synthesized SFX + burned-in captions and SRT |
 | Preview 720p + thumbnail + metadata → QA (subtitles/audio/technical) → A2 |
-| Final MP4 H.264/AAC 1080×1920 30 FPS |
+| Final MP4 H.264/AAC 1920×1080 30 FPS |
 | Cost report per step/video and cost per finished minute; matches provider invoices within accepted tolerance |
 | Complete manifest; NAS archive verified; Mac copy intact |
 | Stale approvals / approvals for another version are rejected (tested) |

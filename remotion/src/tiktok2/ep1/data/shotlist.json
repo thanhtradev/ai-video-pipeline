@@ -1,0 +1,475 @@
+{
+ "_doc": "Danh sách shot EP1. moc = vài chữ đầu câu (so khớp gần đúng với SRT/transcript, theo thứ tự). hold = giây giữ hình sau câu cuối của shot. lineHolds = giữ hình sau một câu cụ thể trong shot. fast = cắt dồn dập (khoảng lặng giữa câu 0,15 s).",
+ "shots": [
+  {
+   "id": "1.1",
+   "act": 1,
+   "moc": "Nếu bạn tàng hình được",
+   "hold": 0.5,
+   "lineHolds": {
+    "L001": 0.35
+   }
+  },
+  {
+   "id": "2.1",
+   "act": 2,
+   "moc": "Mẹ cầm bài kiểm tra"
+  },
+  {
+   "id": "2.2",
+   "act": 2,
+   "moc": "Lại",
+   "hold": 0.2
+  },
+  {
+   "id": "2.3",
+   "act": 2,
+   "moc": "Bạn sợ",
+   "hold": 0.3
+  },
+  {
+   "id": "2.4",
+   "act": 2,
+   "moc": "Mẹ ngẩng lên"
+  },
+  {
+   "id": "2.5",
+   "act": 2,
+   "moc": "Mười giây"
+  },
+  {
+   "id": "2.6",
+   "act": 2,
+   "moc": "Hai mươi giây",
+   "hold": 1.1
+  },
+  {
+   "id": "2.7",
+   "act": 2,
+   "moc": "Ba mươi giây",
+   "hold": 0.3
+  },
+  {
+   "id": "2.8",
+   "act": 2,
+   "moc": "Bốn mươi giây",
+   "hold": 0.4
+  },
+  {
+   "id": "2.9",
+   "act": 2,
+   "moc": "Bạn thở ra",
+   "lineHolds": {
+    "L027": 0.3
+   }
+  },
+  {
+   "id": "2.10",
+   "act": 2,
+   "moc": "Á",
+   "hold": 0.45
+  },
+  {
+   "id": "2.11",
+   "act": 2,
+   "moc": "Mẹ không đánh bạn",
+   "hold": 1.7
+  },
+  {
+   "id": "3.1",
+   "act": 3,
+   "moc": "Luật thế này"
+  },
+  {
+   "id": "3.2",
+   "act": 3,
+   "moc": "Nín thở là bạn biến mất",
+   "hold": 0.3
+  },
+  {
+   "id": "3.3",
+   "act": 3,
+   "moc": "Thở ra một cái",
+   "hold": 0.3
+  },
+  {
+   "id": "3.4",
+   "act": 3,
+   "moc": "Khi tàng hình bạn không thể nói",
+   "hold": 0.6
+  },
+  {
+   "id": "3.5",
+   "act": 3,
+   "moc": "người bình thường nín thở",
+   "hold": 0.3
+  },
+  {
+   "id": "3.6",
+   "act": 3,
+   "moc": "cảm giác muốn thở",
+   "hold": 0.3
+  },
+  {
+   "id": "3.7",
+   "act": 3,
+   "moc": "có hạn sử dụng",
+   "hold": 0.6
+  },
+  {
+   "id": "4.1",
+   "act": 4,
+   "moc": "Cười là thở ra",
+   "hold": 0.2,
+   "lineHolds": {
+    "L052": 0.6
+   }
+  },
+  {
+   "id": "4.2",
+   "act": 4,
+   "moc": "Bạn hiện ra",
+   "hold": 0.8
+  },
+  {
+   "id": "4.3",
+   "act": 4,
+   "moc": "Hắt xì",
+   "fast": true
+  },
+  {
+   "id": "4.4",
+   "act": 4,
+   "moc": "nấc cục",
+   "hold": 1.2
+  },
+  {
+   "id": "4.5",
+   "act": 4,
+   "moc": "Chỉ có một người",
+   "hold": 0.4
+  },
+  {
+   "id": "4.6",
+   "act": 4,
+   "moc": "Chơi trốn tìm",
+   "hold": 0.4
+  },
+  {
+   "id": "4.7",
+   "act": 4,
+   "moc": "Em đâu có thấy",
+   "hold": 1.0
+  },
+  {
+   "id": "5.1",
+   "act": 5,
+   "moc": "Ngày rằm",
+   "hold": 0.3
+  },
+  {
+   "id": "5.2",
+   "act": 5,
+   "moc": "Bạn ăn một cái bánh bò",
+   "hold": 0.4,
+   "lineHolds": {
+    "L083": 0.5
+   }
+  },
+  {
+   "id": "5.3",
+   "act": 5,
+   "moc": "Mẹ thắp thêm",
+   "hold": 0.6
+  },
+  {
+   "id": "5.4",
+   "act": 5,
+   "moc": "Bạn lẻn vào phòng giáo viên"
+  },
+  {
+   "id": "5.5",
+   "act": 5,
+   "moc": "Câu ba dài quá",
+   "hold": 0.3,
+   "lineHolds": {
+    "L094": 1.2
+   }
+  },
+  {
+   "id": "5.6",
+   "act": 5,
+   "moc": "Thầy hiệu trưởng",
+   "hold": 1.4,
+   "lineHolds": {
+    "L097": 0.6
+   }
+  },
+  {
+   "id": "5.7",
+   "act": 5,
+   "moc": "Nên bạn tập",
+   "fast": true,
+   "hold": 0.2
+  },
+  {
+   "id": "5.8",
+   "act": 5,
+   "moc": "phản xạ lặn",
+   "hold": 0.5
+  },
+  {
+   "id": "5.9",
+   "act": 5,
+   "moc": "Mẹ tưởng",
+   "hold": 0.9
+  },
+  {
+   "id": "5.10",
+   "act": 5,
+   "moc": "Kỷ lục thế giới",
+   "hold": 0.6
+  },
+  {
+   "id": "6.1",
+   "act": 6,
+   "moc": "trường bạn bắt đầu có lời đồn",
+   "fast": true
+  },
+  {
+   "id": "6.2",
+   "act": 6,
+   "moc": "Hai triệu lượt xem",
+   "hold": 0.7
+  },
+  {
+   "id": "6.3",
+   "act": 6,
+   "moc": "Một nhóm săn ma",
+   "hold": 1.2
+  },
+  {
+   "id": "6.4",
+   "act": 6,
+   "moc": "Họ kết luận",
+   "hold": 1.0
+  },
+  {
+   "id": "7.1",
+   "act": 7,
+   "moc": "Nhưng có một cái giá",
+   "hold": 0.4
+  },
+  {
+   "id": "7.2",
+   "act": 7,
+   "moc": "Giờ ra chơi"
+  },
+  {
+   "id": "7.3",
+   "act": 7,
+   "moc": "Có rủ nó không",
+   "hold": 0.4
+  },
+  {
+   "id": "7.4",
+   "act": 7,
+   "moc": "Bạn thở ra",
+   "hold": 1.2
+  },
+  {
+   "id": "7.5",
+   "act": 7,
+   "moc": "Vậy là có một luật",
+   "hold": 1.0
+  },
+  {
+   "id": "7.6",
+   "act": 7,
+   "moc": "Bạn ăn trưa một mình",
+   "hold": 0.4
+  },
+  {
+   "id": "7.7",
+   "act": 7,
+   "moc": "Kể cả khi bạn đang thở",
+   "hold": 0.6
+  },
+  {
+   "id": "7.8",
+   "act": 7,
+   "moc": "Cô điểm danh",
+   "hold": 0.6
+  },
+  {
+   "id": "7.9",
+   "act": 7,
+   "moc": "Sinh nhật bạn",
+   "hold": 1.2
+  },
+  {
+   "id": "7.10",
+   "act": 7,
+   "moc": "Chỉ có Bin",
+   "hold": 1.4
+  },
+  {
+   "id": "8.1",
+   "act": 8,
+   "moc": "Rằm tháng Tám",
+   "hold": 0.8
+  },
+  {
+   "id": "8.2",
+   "act": 8,
+   "moc": "Bạn dắt Bin",
+   "hold": 0.2
+  },
+  {
+   "id": "8.3",
+   "act": 8,
+   "moc": "đám đông xô"
+  },
+  {
+   "id": "8.4",
+   "act": 8,
+   "moc": "Tay bạn trống không",
+   "hold": 0.8
+  },
+  {
+   "id": "8.5",
+   "act": 8,
+   "moc": "Bạn quay lại",
+   "hold": 0.3
+  },
+  {
+   "id": "8.6",
+   "act": 8,
+   "moc": "Không ai để ý",
+   "hold": 0.8
+  },
+  {
+   "id": "8.7",
+   "act": 8,
+   "moc": "Bạn hít một hơi",
+   "fast": true
+  },
+  {
+   "id": "8.8",
+   "act": 8,
+   "moc": "Bạn chụp được tay Bin",
+   "fast": true
+  },
+  {
+   "id": "8.9",
+   "act": 8,
+   "moc": "Một chiếc xe máy",
+   "fast": true
+  },
+  {
+   "id": "8.10",
+   "act": 8,
+   "moc": "Hai phút",
+   "fast": true,
+   "hold": 0.3
+  },
+  {
+   "id": "8.11",
+   "act": 8,
+   "moc": "Bạn có thể tiếp tục bám theo",
+   "hold": 0.3
+  },
+  {
+   "id": "8.12",
+   "act": 8,
+   "moc": "Bạn phải hiện ra",
+   "hold": 1.0
+  },
+  {
+   "id": "8.13",
+   "act": 8,
+   "moc": "BẮT CÓC",
+   "hold": 0.4
+  },
+  {
+   "id": "8.14",
+   "act": 8,
+   "moc": "tất cả mọi người đều nhìn bạn",
+   "hold": 1.5
+  },
+  {
+   "id": "8.15",
+   "act": 8,
+   "moc": "Tiếng trống lân dừng",
+   "hold": 0.7
+  },
+  {
+   "id": "8.16",
+   "act": 8,
+   "moc": "Chú bán đèn kéo quân",
+   "hold": 0.3
+  },
+  {
+   "id": "8.17",
+   "act": 8,
+   "moc": "công an phường",
+   "hold": 0.4
+  },
+  {
+   "id": "8.18",
+   "act": 8,
+   "moc": "Bin chạy về phía bạn",
+   "hold": 0.8,
+   "lineHolds": {
+    "L222": 0.4
+   }
+  },
+  {
+   "id": "8.19",
+   "act": 8,
+   "moc": "Bạn ngồi bệt",
+   "hold": 2.0
+  },
+  {
+   "id": "9.1",
+   "act": 9,
+   "moc": "Thứ Hai"
+  },
+  {
+   "id": "9.2",
+   "act": 9,
+   "moc": "Dạ có",
+   "hold": 0.6
+  },
+  {
+   "id": "9.3",
+   "act": 9,
+   "moc": "Tàng hình thì dễ",
+   "hold": 0.6
+  },
+  {
+   "id": "9.4",
+   "act": 9,
+   "moc": "Đĩa bánh bò",
+   "hold": 0.8
+  },
+  {
+   "id": "9.5",
+   "act": 9,
+   "moc": "Tối đó Bin trèo lên giường",
+   "hold": 0.8
+  },
+  {
+   "id": "9.6",
+   "act": 9,
+   "moc": "Bin ngủ",
+   "hold": 2.0
+  },
+  {
+   "id": "9.7",
+   "act": 9,
+   "moc": "Còn bạn",
+   "hold": 0.0
+  }
+ ]
+}

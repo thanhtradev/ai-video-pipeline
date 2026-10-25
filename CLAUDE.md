@@ -82,5 +82,6 @@ and has no network access to admin systems (Proxmox UI, production SSH).
 | Cost, providers, quota | `docs/cost-and-providers.md` |
 | Directories, NAS, manifest, retention | `docs/storage-and-manifest.md` |
 | QA, Telegram, approval | `docs/quality-and-approval.md` |
+| Episode pipeline (TikTok 2 channel) | `docs/episode-pipeline.md` |
 | Phases, acceptance criteria | `docs/roadmap.md` |
 | Decisions, open questions | `docs/decisions.md` |

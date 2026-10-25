@@ -7,24 +7,29 @@
       "parameters": {
         "authentication": "basicAuth",
         "formTitle": "AI Video brief",
-        "formDescription": "One 9:16 Short (under 60 s). Write the topic and notes in Vietnamese.",
+        "formDescription": "One 16:9 TikTok 2 episode. Either give a topic and Claude writes the episode, or paste your full brief (VOICE + shot list) and Claude only restructures it, keeping the narration verbatim. Write in Vietnamese.",
         "formFields": {
           "values": [
             {
               "fieldLabel": "Topic",
               "fieldType": "textarea",
               "requiredField": true,
-              "placeholder": "Vì sao bầu trời có màu xanh?"
+              "placeholder": "Nếu bạn dừng được thời gian 30 giây?"
             },
             {
-              "fieldLabel": "Duration (seconds)",
+              "fieldLabel": "Duration (minutes)",
               "fieldType": "number",
-              "requiredField": true,
-              "placeholder": "15-59"
+              "placeholder": "2-12; empty = about 6"
             },
-            { "fieldLabel": "Audience", "placeholder": "học sinh cấp 2" },
-            { "fieldLabel": "Tone", "placeholder": "vui vẻ, dễ hiểu" },
-            { "fieldLabel": "Notes", "fieldType": "textarea" }
+            {
+              "fieldLabel": "Full brief",
+              "fieldType": "textarea",
+              "placeholder": "Optional: VOICE, NHÂN VẬT, HIỆU ỨNG, DANH SÁCH SHOT"
+            },
+            {
+              "fieldLabel": "Notes",
+              "fieldType": "textarea"
+            }
           ]
         },
         "responseMode": "onReceived",
@@ -48,7 +53,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Map the form fields to the brief stored in Postgres. Validation lives in SQL (brief_normalize),\n// so an invalid brief fails the execution and WF-99 reports it.\nconst form = $input.first().json;\nconst text = (label) => {\n  const value = form[label];\n  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;\n};\nconst brief = {\n  topic: text('Topic'),\n  duration_seconds: Number(form['Duration (seconds)']),\n  audience: text('Audience'),\n  tone: text('Tone'),\n  notes: text('Notes'),\n};\nreturn [{ json: { submissionId: `n8n-form-${$execution.id}`, brief: JSON.stringify(brief) } }];"
+        "jsCode": "// Map the form fields to the episode brief stored in Postgres (D-050). Validation lives in SQL\n// (brief_normalize), so an invalid brief fails the execution and WF-99 reports it. The full brief\n// is passed as typed: its narration must stay verbatim.\nconst form = $input.first().json;\nconst text = (label) => {\n  const value = form[label];\n  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;\n};\nconst minutes = form['Duration (minutes)'];\nconst brief = {\n  format: 'episode',\n  topic: text('Topic'),\n  duration_minutes: minutes === '' || minutes == null ? undefined : Number(minutes),\n  full_brief: typeof form['Full brief'] === 'string' && form['Full brief'].trim() !== '' ? form['Full brief'] : undefined,\n  notes: text('Notes'),\n};\nreturn [{ json: { submissionId: `n8n-form-${$execution.id}`, brief: JSON.stringify(brief) } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000102",
       "name": "Build brief",

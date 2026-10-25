@@ -2,16 +2,32 @@ import { fileURLToPath } from 'node:url';
 import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
+import { createAgentCli } from './claude/agent-cli.js';
 import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
+import { createGateRunner } from './episode/gates.js';
+import { createEpisodeCodeHandler } from './handlers/episode-code.js';
+import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
+import {
+  createRenderEpisodeHandler,
+  createSandboxedEpisodeRenderer,
+} from './handlers/render-episode.js';
+import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
+import { createTimingHandler } from './handlers/timing.js';
 import { createTtsHandler } from './handlers/tts.js';
 import { createLogger, redactUrl } from './logger.js';
+import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
+import { createLoudnessNormalizer } from './media/loudness.js';
+import { createVoiceBuilder } from './media/voice.js';
+import { createWhisper } from './media/whisper.js';
 import { createRedisQueue } from './queue/redis-queue.js';
+import { createMusicLibrary } from './render/music.js';
+import { createRemotionRenderer } from './render/remotion-renderer.js';
 import type { JobHandler } from './runner.js';
 import { createRedisNonceStore } from './security/redis-nonce-store.js';
 import { createIteraClient } from './tts/itera-client.js';
@@ -19,13 +35,22 @@ import { createWorkerLoop } from './worker-loop.js';
 
 const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
 const ITERA_REQUEST_TIMEOUT_MS = 60_000;
+/** A timing job without a whisper model waits this long before it checks again. */
+const WHISPER_BLOCK_SECONDS = 3600;
 
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
 );
+const EPISODE_RENDER_PROFILE = fileURLToPath(
+  new URL('../../ops/claude/episode-render.sb', import.meta.url),
+);
 
-// Step name -> handler. Phase 2 adds visuals, render, qa, archive.
-function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHandler> {
+// Step name -> handler. Phase 2d adds qa, final render, archive.
+function buildHandlers(
+  config: Config,
+  pool: pg.Pool,
+  logger: Logger,
+): ReadonlyMap<string, JobHandler> {
   const claude = createClaudeCli({
     bin: config.claude.bin,
     settingsPath: CLAUDE_SETTINGS,
@@ -35,6 +60,7 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
   const { itera } = config;
+  const probe = createFfprobe(config.ffprobeBin);
   const tts = createTtsHandler({
     itera: itera.apiKey
       ? createIteraClient({
@@ -45,7 +71,7 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
         })
       : null,
     costs: createCostStore(pool),
-    probe: createFfprobe(config.ffprobeBin),
+    probe,
     workerId: config.workerId,
     pollMs: itera.pollMs,
     taskTimeoutMs: itera.taskTimeoutSeconds * 1000,
@@ -53,8 +79,56 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
   });
   return new Map([
     ['simulate', simulateHandler],
-    ['script', createScriptHandler({ claude })],
+    [
+      'script',
+      routeScriptJobs(createScriptHandler({ claude }), createEpisodeScriptHandler({ claude })),
+    ],
     ['tts', tts],
+    [
+      'episode_code',
+      createEpisodeCodeHandler({
+        agent: createAgentCli({
+          bin: config.claude.bin,
+          model: config.claude.agentModel,
+          blockSeconds: config.claude.blockSeconds,
+          env: claudeChildEnv(process.env),
+        }),
+        gates: createGateRunner({ profile: EPISODE_RENDER_PROFILE }),
+        // Values the agent's files must never contain.
+        secrets: [
+          process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
+          config.itera.apiKey ?? '',
+          ...Object.values(config.apiClientKeys),
+        ],
+      }),
+    ],
+    [
+      'timing',
+      createTimingHandler({
+        buildVoice: createVoiceBuilder(config.ffmpegBin),
+        transcribe: config.whisper.model
+          ? createWhisper({ bin: config.whisper.bin, model: config.whisper.model })
+          : null,
+        blockSeconds: WHISPER_BLOCK_SECONDS,
+      }),
+    ],
+    [
+      'render_episode',
+      createRenderEpisodeHandler({
+        render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
+        probe,
+      }),
+    ],
+    [
+      'render_preview',
+      createRenderPreviewHandler({
+        renderer: createRemotionRenderer(logger),
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
+        probe,
+        music: config.musicLibraryDir ? createMusicLibrary(config.musicLibraryDir) : null,
+      }),
+    ],
   ]);
 }
 
@@ -86,7 +160,7 @@ async function main(): Promise<void> {
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
-    handlers: buildHandlers(config, pool),
+    handlers: buildHandlers(config, pool, logger),
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
@@ -103,6 +177,7 @@ async function main(): Promise<void> {
     nonces: createRedisNonceStore(redis),
     activeJobs: loop.activeJobs,
     logger,
+    workRoot: config.workRoot,
   });
   await api.listen({ host: config.apiHost, port: config.apiPort });
   loop.start();

@@ -23,6 +23,7 @@ describe('loadConfig', () => {
     expect(loadConfig(VALID_ENV).claude).toEqual({
       bin: 'claude',
       model: undefined,
+      agentModel: 'claude-opus-5-5',
       timeoutSeconds: 600,
       blockSeconds: 3600,
     });
@@ -41,6 +42,7 @@ describe('loadConfig', () => {
       model: 'opus',
       timeoutSeconds: 900,
       blockSeconds: 1800,
+      agentModel: 'claude-opus-5-5',
     });
   });
 
@@ -58,6 +60,36 @@ describe('loadConfig', () => {
     expect(loadConfig({ ...VALID_ENV, ITERA_API_KEY: 'k'.repeat(40) }).itera.apiKey).toBe(
       'k'.repeat(40),
     );
+  });
+
+  test('preview rendering: ffmpeg defaults, the music library is optional and absolute', () => {
+    expect(loadConfig(VALID_ENV)).toMatchObject({
+      ffmpegBin: 'ffmpeg',
+      musicLibraryDir: undefined,
+    });
+    expect(
+      loadConfig({ ...VALID_ENV, MUSIC_LIBRARY_DIR: '/Users/aivideo/MediaLibrary/music' })
+        .musicLibraryDir,
+    ).toBe('/Users/aivideo/MediaLibrary/music');
+    expect(() => loadConfig({ ...VALID_ENV, MUSIC_LIBRARY_DIR: 'MediaLibrary/music' })).toThrow(
+      /MUSIC_LIBRARY_DIR/,
+    );
+  });
+
+  test('episode agent: Opus 5.5 unless configured', () => {
+    expect(loadConfig(VALID_ENV).claude.agentModel).toBe('claude-opus-5-5');
+    expect(
+      loadConfig({ ...VALID_ENV, CLAUDE_AGENT_MODEL: 'claude-sonnet-5-5' }).claude.agentModel,
+    ).toBe('claude-sonnet-5-5');
+  });
+
+  test('episode timing: whisper-cli by default, the model file is optional and absolute', () => {
+    expect(loadConfig(VALID_ENV).whisper).toEqual({ bin: 'whisper-cli', model: undefined });
+    expect(
+      loadConfig({ ...VALID_ENV, WHISPER_MODEL: '/Users/aivideo/Models/ggml-large-v3-turbo.bin' })
+        .whisper.model,
+    ).toBe('/Users/aivideo/Models/ggml-large-v3-turbo.bin');
+    expect(() => loadConfig({ ...VALID_ENV, WHISPER_MODEL: 'ggml.bin' })).toThrow(/WHISPER_MODEL/);
   });
 
   test('accepts only an https ITERA base url', () => {

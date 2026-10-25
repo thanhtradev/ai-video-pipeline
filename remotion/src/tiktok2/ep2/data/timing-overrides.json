@@ -1,0 +1,16 @@
+{
+  "_doc": "Chỉnh tay timeline EP2 rồi chạy lại: python3 scripts/tiktok2/ep1/build_timing.py ep2. Đơn vị giây. holds: giữ hình sau câu (ghi đè shotlist). gaps: khoảng lặng sau câu. anchors: gắn shot vào câu khác. trim: nới/thu đầu-cuối câu [đầu, cuối]. endCard: độ dài thẻ cuối.",
+  "holds": {},
+  "gaps": {},
+  "anchors": {
+    "3.6": "L042",
+    "4.1": "L050",
+    "4.5": "L061",
+    "5.12": "L105",
+    "7.11": "L174"
+  },
+  "trim": {},
+  "endCard": 1.5,
+  "maxGap": 0.38,
+  "minGap": 0.15
+}

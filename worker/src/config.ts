@@ -38,6 +38,8 @@ const envSchema = z
     // Claude Code CLI (D-042). launchd's PATH does not include ~/.local/bin: use an absolute path.
     CLAUDE_BIN: z.string().min(1).default('claude'),
     CLAUDE_MODEL: z.string().min(1).optional(),
+    // The episode-code agent (D-053): Opus by default, never switched automatically.
+    CLAUDE_AGENT_MODEL: z.string().min(1).default('claude-opus-5-5'),
     CLAUDE_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(600),
     CLAUDE_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
     // ITERA TTS (D-040, S-24). The key comes from the Keychain (run-worker.sh); without it tts
@@ -49,6 +51,13 @@ const envSchema = z
     ITERA_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
     // ffmpeg's ffprobe measures clip durations; launchd's PATH includes /opt/homebrew/bin.
     FFPROBE_BIN: z.string().min(1).default('ffprobe'),
+    // ffmpeg normalises the preview's loudness (render_preview, D-032).
+    FFMPEG_BIN: z.string().min(1).default('ffmpeg'),
+    // Shared royalty-free music library with catalog.json (D-021). Unset: previews have no music.
+    MUSIC_LIBRARY_DIR: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
+    // whisper.cpp word timing for episodes (timing step). Unset model: timing jobs wait BLOCKED.
+    WHISPER_BIN: z.string().min(1).default('whisper-cli'),
+    WHISPER_MODEL: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
   })
   .refine((env) => env.HEARTBEAT_SECONDS * 2 <= env.LEASE_SECONDS, {
     path: ['HEARTBEAT_SECONDS'],
@@ -71,6 +80,7 @@ export interface Config {
   claude: {
     bin: string;
     model: string | undefined;
+    agentModel: string;
     timeoutSeconds: number;
     /** How long a job waits after a usage limit before it is retried. */
     blockSeconds: number;
@@ -84,6 +94,9 @@ export interface Config {
     blockSeconds: number;
   };
   ffprobeBin: string;
+  ffmpegBin: string;
+  musicLibraryDir: string | undefined;
+  whisper: { bin: string; model: string | undefined };
 }
 
 /** Validates the environment at startup; errors name the variables but never their values. */
@@ -112,6 +125,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     claude: {
       bin: e.CLAUDE_BIN,
       model: e.CLAUDE_MODEL,
+      agentModel: e.CLAUDE_AGENT_MODEL,
       timeoutSeconds: e.CLAUDE_TIMEOUT_SECONDS,
       blockSeconds: e.CLAUDE_BLOCK_SECONDS,
     },
@@ -123,5 +137,8 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
       blockSeconds: e.ITERA_BLOCK_SECONDS,
     },
     ffprobeBin: e.FFPROBE_BIN,
+    ffmpegBin: e.FFMPEG_BIN,
+    musicLibraryDir: e.MUSIC_LIBRARY_DIR,
+    whisper: { bin: e.WHISPER_BIN, model: e.WHISPER_MODEL },
   };
 }

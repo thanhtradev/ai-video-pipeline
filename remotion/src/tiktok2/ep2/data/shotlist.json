@@ -1,0 +1,463 @@
+{
+ "_doc": "Danh sách shot EP2. moc = vài chữ đầu câu (so khớp gần đúng, theo thứ tự). hold = giây giữ hình sau câu cuối của shot. lineHolds = giữ sau một câu cụ thể. fast = cắt dồn dập (khoảng lặng 0,15 s).",
+ "shots": [
+  {
+   "id": "1.1",
+   "act": 1,
+   "moc": "Nếu bạn nhân bản được",
+   "hold": 0.6,
+   "lineHolds": {
+    "L001": 0.3
+   }
+  },
+  {
+   "id": "2.1",
+   "act": 2,
+   "moc": "Sáu giờ sáng",
+   "hold": 0.3
+  },
+  {
+   "id": "2.2",
+   "act": 2,
+   "moc": "Hôm nay bạn có",
+   "hold": 0.3
+  },
+  {
+   "id": "2.3",
+   "act": 2,
+   "moc": "Bạn nằm đó",
+   "hold": 0.4
+  },
+  {
+   "id": "2.4",
+   "act": 2,
+   "moc": "Ước gì có thêm",
+   "hold": 0.8
+  },
+  {
+   "id": "2.5",
+   "act": 2,
+   "moc": "Ở cuối giường",
+   "hold": 0.5
+  },
+  {
+   "id": "2.6",
+   "act": 2,
+   "moc": "Nó nhìn bạn",
+   "hold": 0.4
+  },
+  {
+   "id": "2.7",
+   "act": 2,
+   "moc": "Ủa",
+   "hold": 0.5
+  },
+  {
+   "id": "2.8",
+   "act": 2,
+   "moc": "Hai bạn oẳn tù tì",
+   "hold": 0.6,
+   "lineHolds": {
+    "L026": 0.6
+   }
+  },
+  {
+   "id": "3.1",
+   "act": 3,
+   "moc": "Luật thế này"
+  },
+  {
+   "id": "3.2",
+   "act": 3,
+   "moc": "Mỗi lần búng tay",
+   "hold": 0.3
+  },
+  {
+   "id": "3.3",
+   "act": 3,
+   "moc": "Từ cọng tóc",
+   "fast": true
+  },
+  {
+   "id": "3.4",
+   "act": 3,
+   "moc": "Đúng mười hai giờ đêm",
+   "hold": 0.4
+  },
+  {
+   "id": "3.5",
+   "act": 3,
+   "moc": "Và những gì bản sao trải qua",
+   "hold": 0.6
+  },
+  {
+   "id": "3.6",
+   "act": 3,
+   "moc": "ngay cả cặp song sinh",
+   "hold": 0.3
+  },
+  {
+   "id": "3.7",
+   "act": 3,
+   "moc": "Cả cái tật rung chân",
+   "hold": 0.5
+  },
+  {
+   "id": "3.8",
+   "act": 3,
+   "moc": "Mẹ bạn không phân biệt được",
+   "hold": 1.0
+  },
+  {
+   "id": "4.1",
+   "act": 4,
+   "moc": "Bản sao giống bạn",
+   "fast": true
+  },
+  {
+   "id": "4.2",
+   "act": 4,
+   "moc": "Bạn sai nó đi học thêm",
+   "fast": true
+  },
+  {
+   "id": "4.3",
+   "act": 4,
+   "moc": "Tới bản sao thứ năm",
+   "fast": true,
+   "hold": 0.5
+  },
+  {
+   "id": "4.4",
+   "act": 4,
+   "moc": "Cô dạy thêm nhắn tin",
+   "fast": true
+  },
+  {
+   "id": "4.5",
+   "act": 4,
+   "moc": "Sáu cái đầu quay ra",
+   "hold": 1.2
+  },
+  {
+   "id": "4.6",
+   "act": 4,
+   "moc": "Mẹ đóng cửa lại",
+   "hold": 0.3
+  },
+  {
+   "id": "4.7",
+   "act": 4,
+   "moc": "Chỉ còn một đứa",
+   "hold": 0.6
+  },
+  {
+   "id": "4.8",
+   "act": 4,
+   "moc": "Chắc mẹ thiếu ngủ",
+   "hold": 1.0
+  },
+  {
+   "id": "4.9",
+   "act": 4,
+   "moc": "Vậy là bạn lập một hệ thống",
+   "hold": 0.6
+  },
+  {
+   "id": "5.1",
+   "act": 5,
+   "moc": "Nhưng rồi nó bắt đầu vui"
+  },
+  {
+   "id": "5.2",
+   "act": 5,
+   "moc": "Trực nhật lớp",
+   "fast": true
+  },
+  {
+   "id": "5.3",
+   "act": 5,
+   "moc": "Cô chủ nhiệm",
+   "fast": true,
+   "hold": 0.6
+  },
+  {
+   "id": "5.4",
+   "act": 5,
+   "moc": "Đá bóng ở sân xóm",
+   "fast": true
+  },
+  {
+   "id": "5.5",
+   "act": 5,
+   "moc": "Thủ môn đội kia",
+   "hold": 0.7
+  },
+  {
+   "id": "5.6",
+   "act": 5,
+   "moc": "Mùng một Tết",
+   "hold": 0.3
+  },
+  {
+   "id": "5.7",
+   "act": 5,
+   "moc": "Tối đó sáu đứa về",
+   "hold": 0.5
+  },
+  {
+   "id": "5.8",
+   "act": 5,
+   "moc": "Không đứa nào nhận",
+   "hold": 0.8
+  },
+  {
+   "id": "5.9",
+   "act": 5,
+   "moc": "Rồi tới bài thuyết trình",
+   "hold": 0.4
+  },
+  {
+   "id": "5.10",
+   "act": 5,
+   "moc": "Bài thuyết trình hay nhất",
+   "hold": 0.3
+  },
+  {
+   "id": "5.11",
+   "act": 5,
+   "moc": "Rồi cô hỏi một câu",
+   "hold": 0.8
+  },
+  {
+   "id": "5.12",
+   "act": 5,
+   "moc": "nếu không ôn lại",
+   "hold": 0.6
+  },
+  {
+   "id": "6.1",
+   "act": 6,
+   "moc": "Nhưng có một cái giá"
+  },
+  {
+   "id": "6.2",
+   "act": 6,
+   "moc": "Học thêm"
+  },
+  {
+   "id": "6.3",
+   "act": 6,
+   "moc": "Ăn cơm tối"
+  },
+  {
+   "id": "6.4",
+   "act": 6,
+   "moc": "Chủ nhật ba dạy chạy xe",
+   "hold": 0.3
+  },
+  {
+   "id": "6.5",
+   "act": 6,
+   "moc": "Vậy là có một luật",
+   "hold": 0.8
+  },
+  {
+   "id": "6.6",
+   "act": 6,
+   "moc": "Bạn có thêm rất nhiều thời gian",
+   "hold": 0.6
+  },
+  {
+   "id": "6.7",
+   "act": 6,
+   "moc": "Rồi một tối ba đưa điện thoại"
+  },
+  {
+   "id": "6.8",
+   "act": 6,
+   "moc": "Trong ảnh",
+   "hold": 1.4
+  },
+  {
+   "id": "6.9",
+   "act": 6,
+   "moc": "Bạn không nhớ",
+   "hold": 0.6
+  },
+  {
+   "id": "6.10",
+   "act": 6,
+   "moc": "Mẹ gắp cho bạn"
+  },
+  {
+   "id": "6.11",
+   "act": 6,
+   "moc": "Câu gì",
+   "hold": 0.5
+  },
+  {
+   "id": "6.12",
+   "act": 6,
+   "moc": "Bạn có thêm bao nhiêu là thời gian",
+   "hold": 1.2
+  },
+  {
+   "id": "7.1",
+   "act": 7,
+   "moc": "Sinh nhật mẹ năm nay",
+   "hold": 0.3
+  },
+  {
+   "id": "7.2",
+   "act": 7,
+   "moc": "Mười một giờ năm mươi"
+  },
+  {
+   "id": "7.3",
+   "act": 7,
+   "moc": "Bản sao đã ngồi đó",
+   "hold": 0.6
+  },
+  {
+   "id": "7.4",
+   "act": 7,
+   "moc": "Còn mười phút",
+   "hold": 0.3
+  },
+  {
+   "id": "7.5",
+   "act": 7,
+   "moc": "Tối nay mẹ nấu canh chua"
+  },
+  {
+   "id": "7.6",
+   "act": 7,
+   "moc": "Ba kể hồi bằng tuổi mình",
+   "hold": 0.4
+  },
+  {
+   "id": "7.7",
+   "act": 7,
+   "moc": "Sao mày kể tao nghe"
+  },
+  {
+   "id": "7.8",
+   "act": 7,
+   "moc": "Vì mười phút nữa",
+   "hold": 0.5
+  },
+  {
+   "id": "7.9",
+   "act": 7,
+   "moc": "Mình đã sống mấy chục buổi tối",
+   "hold": 0.6
+  },
+  {
+   "id": "7.10",
+   "act": 7,
+   "moc": "Năm phút",
+   "hold": 1.2
+  },
+  {
+   "id": "7.11",
+   "act": 7,
+   "moc": "Tự đi mà hỏi mẹ",
+   "hold": 0.8
+  },
+  {
+   "id": "7.12",
+   "act": 7,
+   "moc": "Tay nó bắt đầu sáng lên",
+   "hold": 1.5,
+   "lineHolds": {
+    "L178": 0.6
+   }
+  },
+  {
+   "id": "7.13",
+   "act": 7,
+   "moc": "Mười hai giờ",
+   "hold": 1.2,
+   "lineHolds": {
+    "L183": 1.2
+   }
+  },
+  {
+   "id": "7.14",
+   "act": 7,
+   "moc": "Chỉ còn cái ghế nhựa",
+   "hold": 0.8
+  },
+  {
+   "id": "7.15",
+   "act": 7,
+   "moc": "Lần đầu tiên bạn hiểu",
+   "hold": 1.5
+  },
+  {
+   "id": "8.1",
+   "act": 8,
+   "moc": "Bạn đi xuống bếp"
+  },
+  {
+   "id": "8.2",
+   "act": 8,
+   "moc": "Mẹ để con rửa",
+   "hold": 0.4
+  },
+  {
+   "id": "8.3",
+   "act": 8,
+   "moc": "Bạn rửa chén",
+   "hold": 0.8
+  },
+  {
+   "id": "8.4",
+   "act": 8,
+   "moc": "Mẹ ơi",
+   "hold": 0.5
+  },
+  {
+   "id": "8.5",
+   "act": 8,
+   "moc": "Mẹ cười"
+  },
+  {
+   "id": "8.6",
+   "act": 8,
+   "moc": "Mẹ cứ già từ từ thôi",
+   "hold": 1.2,
+   "lineHolds": {
+    "L207": 1.5
+   }
+  },
+  {
+   "id": "8.7",
+   "act": 8,
+   "moc": "Sáng hôm sau",
+   "hold": 0.3
+  },
+  {
+   "id": "8.8",
+   "act": 8,
+   "moc": "Bạn búng tay Một lần",
+   "lineHolds": {
+    "L218": 1.0
+   },
+   "hold": 0.3
+  },
+  {
+   "id": "8.9",
+   "act": 8,
+   "moc": "Tao",
+   "hold": 0.8
+  },
+  {
+   "id": "8.10",
+   "act": 8,
+   "moc": "Còn bạn",
+   "hold": 0.0
+  }
+ ]
+}

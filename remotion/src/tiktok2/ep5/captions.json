@@ -1,0 +1,10270 @@
+{
+"_doc": "Mốc từng từ (ms theo file giọng gốc), whisper large-v3-turbo căn với lời SRT.",
+"voice": "kênh tiktok 2/Voice/ep5/ep5 tiktok2.mp3",
+"captions": [
+{
+"line": "L001",
+"text": "Nếu",
+"startMs": 120,
+"endMs": 274,
+"timestampMs": 197,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "bạn",
+"startMs": 274,
+"endMs": 468,
+"timestampMs": 371,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "dừng",
+"startMs": 468,
+"endMs": 694,
+"timestampMs": 581,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "được",
+"startMs": 694,
+"endMs": 1001,
+"timestampMs": 847,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "thời",
+"startMs": 1001,
+"endMs": 1226,
+"timestampMs": 1113,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "gian",
+"startMs": 1226,
+"endMs": 1609,
+"timestampMs": 1418,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "ba",
+"startMs": 1609,
+"endMs": 1784,
+"timestampMs": 1697,
+"confidence": 0.5
+},
+{
+"line": "L001",
+"text": "mươi",
+"startMs": 1784,
+"endMs": 1864,
+"timestampMs": 1824,
+"confidence": 0.5
+},
+{
+"line": "L001",
+"text": "giây",
+"startMs": 1844,
+"endMs": 2302,
+"timestampMs": 2073,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "nhưng",
+"startMs": 2302,
+"endMs": 2382,
+"timestampMs": 2342,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "mỗi",
+"startMs": 2362,
+"endMs": 2578,
+"timestampMs": 2470,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "lần",
+"startMs": 2578,
+"endMs": 2855,
+"timestampMs": 2716,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "dừng,",
+"startMs": 2855,
+"endMs": 3182,
+"timestampMs": 3018,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "bạn",
+"startMs": 3182,
+"endMs": 3612,
+"timestampMs": 3397,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "già",
+"startMs": 3612,
+"endMs": 3692,
+"timestampMs": 3652,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "thêm",
+"startMs": 3684,
+"endMs": 3961,
+"timestampMs": 3822,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "một",
+"startMs": 3961,
+"endMs": 4237,
+"timestampMs": 4099,
+"confidence": 1
+},
+{
+"line": "L001",
+"text": "ngày",
+"startMs": 4237,
+"endMs": 4500,
+"timestampMs": 4369,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "thì",
+"startMs": 5050,
+"endMs": 5341,
+"timestampMs": 5196,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "cuộc",
+"startMs": 5341,
+"endMs": 5421,
+"timestampMs": 5381,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "đời",
+"startMs": 5401,
+"endMs": 5623,
+"timestampMs": 5512,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "bạn",
+"startMs": 5623,
+"endMs": 5858,
+"timestampMs": 5741,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "sẽ",
+"startMs": 5858,
+"endMs": 6065,
+"timestampMs": 5961,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "ra",
+"startMs": 6065,
+"endMs": 6159,
+"timestampMs": 6112,
+"confidence": 1
+},
+{
+"line": "L002",
+"text": "sao?",
+"startMs": 6159,
+"endMs": 6350,
+"timestampMs": 6254,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "Tiết",
+"startMs": 6850,
+"endMs": 7110,
+"timestampMs": 6980,
+"confidence": 1
+},
+{
+"line": "L003",
+"text": "Toán.",
+"startMs": 7110,
+"endMs": 7370,
+"timestampMs": 7240,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "Cô",
+"startMs": 7920,
+"endMs": 8000,
+"timestampMs": 7960,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "gọi",
+"startMs": 7980,
+"endMs": 8216,
+"timestampMs": 8098,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "tên",
+"startMs": 8216,
+"endMs": 8363,
+"timestampMs": 8289,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "bạn",
+"startMs": 8363,
+"endMs": 8613,
+"timestampMs": 8488,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "lên",
+"startMs": 8613,
+"endMs": 8816,
+"timestampMs": 8714,
+"confidence": 1
+},
+{
+"line": "L004",
+"text": "bảng.",
+"startMs": 8816,
+"endMs": 9040,
+"timestampMs": 8928,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "Bạn",
+"startMs": 9540,
+"endMs": 9659,
+"timestampMs": 9600,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "đứng",
+"startMs": 9659,
+"endMs": 9897,
+"timestampMs": 9778,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "trước",
+"startMs": 9897,
+"endMs": 10125,
+"timestampMs": 10011,
+"confidence": 1
+},
+{
+"line": "L005",
+"text": "bảng.",
+"startMs": 10125,
+"endMs": 10320,
+"timestampMs": 10222,
+"confidence": 1
+},
+{
+"line": "L006",
+"text": "Phấn",
+"startMs": 10760,
+"endMs": 11106,
+"timestampMs": 10933,
+"confidence": 1
+},
+{
+"line": "L006",
+"text": "trên",
+"startMs": 11106,
+"endMs": 11296,
+"timestampMs": 11201,
+"confidence": 1
+},
+{
+"line": "L006",
+"text": "tay.",
+"startMs": 11296,
+"endMs": 11520,
+"timestampMs": 11408,
+"confidence": 1
+},
+{
+"line": "L007",
+"text": "Đầu",
+"startMs": 11860,
+"endMs": 12244,
+"timestampMs": 12052,
+"confidence": 1
+},
+{
+"line": "L007",
+"text": "trống",
+"startMs": 12244,
+"endMs": 12480,
+"timestampMs": 12362,
+"confidence": 1
+},
+{
+"line": "L007",
+"text": "trơn.",
+"startMs": 12480,
+"endMs": 12790,
+"timestampMs": 12635,
+"confidence": 1
+},
+{
+"line": "L008",
+"text": "Cả",
+"startMs": 13160,
+"endMs": 13525,
+"timestampMs": 13343,
+"confidence": 1
+},
+{
+"line": "L008",
+"text": "lớp",
+"startMs": 13525,
+"endMs": 13605,
+"timestampMs": 13565,
+"confidence": 1
+},
+{
+"line": "L008",
+"text": "nhìn.",
+"startMs": 13585,
+"endMs": 13840,
+"timestampMs": 13713,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "Cô",
+"startMs": 14390,
+"endMs": 14515,
+"timestampMs": 14453,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "khoanh",
+"startMs": 14515,
+"endMs": 14814,
+"timestampMs": 14665,
+"confidence": 1
+},
+{
+"line": "L009",
+"text": "tay.",
+"startMs": 14814,
+"endMs": 14990,
+"timestampMs": 14902,
+"confidence": 1
+},
+{
+"line": "L010",
+"text": "Bạn",
+"startMs": 15550,
+"endMs": 15758,
+"timestampMs": 15654,
+"confidence": 1
+},
+{
+"line": "L010",
+"text": "hoảng.",
+"startMs": 15758,
+"endMs": 16050,
+"timestampMs": 15904,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "Bạn",
+"startMs": 16600,
+"endMs": 16854,
+"timestampMs": 16727,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "vỗ",
+"startMs": 16854,
+"endMs": 17055,
+"timestampMs": 16954,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "tay",
+"startMs": 17055,
+"endMs": 17162,
+"timestampMs": 17108,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "một",
+"startMs": 17162,
+"endMs": 17376,
+"timestampMs": 17269,
+"confidence": 1
+},
+{
+"line": "L011",
+"text": "cái.",
+"startMs": 17376,
+"endMs": 17580,
+"timestampMs": 17478,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "Theo",
+"startMs": 18100,
+"endMs": 18254,
+"timestampMs": 18177,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "phản",
+"startMs": 18254,
+"endMs": 18535,
+"timestampMs": 18394,
+"confidence": 1
+},
+{
+"line": "L012",
+"text": "xạ.",
+"startMs": 18535,
+"endMs": 18680,
+"timestampMs": 18608,
+"confidence": 1
+},
+{
+"line": "L013",
+"text": "Và",
+"startMs": 19270,
+"endMs": 19620,
+"timestampMs": 19445,
+"confidence": 1
+},
+{
+"line": "L013",
+"text": "cả",
+"startMs": 19620,
+"endMs": 19700,
+"timestampMs": 19660,
+"confidence": 1
+},
+{
+"line": "L013",
+"text": "lớp",
+"startMs": 19680,
+"endMs": 19850,
+"timestampMs": 19765,
+"confidence": 1
+},
+{
+"line": "L014",
+"text": "đứng",
+"startMs": 20310,
+"endMs": 20575,
+"timestampMs": 20442,
+"confidence": 1
+},
+{
+"line": "L014",
+"text": "hình.",
+"startMs": 20575,
+"endMs": 20840,
+"timestampMs": 20708,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "Cô",
+"startMs": 21380,
+"endMs": 21528,
+"timestampMs": 21454,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "giáo",
+"startMs": 21528,
+"endMs": 21669,
+"timestampMs": 21599,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "khựng",
+"startMs": 21669,
+"endMs": 21895,
+"timestampMs": 21782,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "giữa",
+"startMs": 21895,
+"endMs": 22093,
+"timestampMs": 21994,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "cái",
+"startMs": 22093,
+"endMs": 22227,
+"timestampMs": 22160,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "chớp",
+"startMs": 22227,
+"endMs": 22417,
+"timestampMs": 22322,
+"confidence": 1
+},
+{
+"line": "L015",
+"text": "mắt.",
+"startMs": 22417,
+"endMs": 22570,
+"timestampMs": 22494,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "Thằng",
+"startMs": 23220,
+"endMs": 23435,
+"timestampMs": 23328,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "Đạt",
+"startMs": 23435,
+"endMs": 23684,
+"timestampMs": 23560,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "ngáp",
+"startMs": 23684,
+"endMs": 23891,
+"timestampMs": 23787,
+"confidence": 1
+},
+{
+"line": "L016",
+"text": "dở.",
+"startMs": 23891,
+"endMs": 24040,
+"timestampMs": 23965,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "Bụi",
+"startMs": 24500,
+"endMs": 24789,
+"timestampMs": 24645,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "phấn",
+"startMs": 24789,
+"endMs": 25078,
+"timestampMs": 24934,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "treo",
+"startMs": 25078,
+"endMs": 25158,
+"timestampMs": 25118,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "lơ",
+"startMs": 25138,
+"endMs": 25277,
+"timestampMs": 25208,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "lửng",
+"startMs": 25277,
+"endMs": 25492,
+"timestampMs": 25384,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "như",
+"startMs": 25492,
+"endMs": 25665,
+"timestampMs": 25578,
+"confidence": 1
+},
+{
+"line": "L017",
+"text": "tuyết.",
+"startMs": 25665,
+"endMs": 25920,
+"timestampMs": 25793,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "Ở",
+"startMs": 26130,
+"endMs": 26230,
+"timestampMs": 26180,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "góc",
+"startMs": 26230,
+"endMs": 26397,
+"timestampMs": 26314,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "mắt",
+"startMs": 26397,
+"endMs": 26665,
+"timestampMs": 26531,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "bạn,",
+"startMs": 26665,
+"endMs": 27057,
+"timestampMs": 26861,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "có",
+"startMs": 27057,
+"endMs": 27250,
+"timestampMs": 27153,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "một",
+"startMs": 27250,
+"endMs": 27492,
+"timestampMs": 27371,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "con",
+"startMs": 27492,
+"endMs": 27659,
+"timestampMs": 27575,
+"confidence": 1
+},
+{
+"line": "L018",
+"text": "số.",
+"startMs": 27659,
+"endMs": 27850,
+"timestampMs": 27754,
+"confidence": 1
+},
+{
+"line": "L019",
+"text": "Ba",
+"startMs": 28680,
+"endMs": 28900,
+"timestampMs": 28790,
+"confidence": 0.5
+},
+{
+"line": "L019",
+"text": "mươi.",
+"startMs": 28900,
+"endMs": 29230,
+"timestampMs": 29065,
+"confidence": 0.5
+},
+{
+"line": "L020",
+"text": "Hai",
+"startMs": 29900,
+"endMs": 30097,
+"timestampMs": 29999,
+"confidence": 0.5
+},
+{
+"line": "L020",
+"text": "mươi",
+"startMs": 30097,
+"endMs": 30334,
+"timestampMs": 30215,
+"confidence": 0.5
+},
+{
+"line": "L020",
+"text": "chín.",
+"startMs": 30334,
+"endMs": 30570,
+"timestampMs": 30452,
+"confidence": 0.5
+},
+{
+"line": "L021",
+"text": "Hai",
+"startMs": 31040,
+"endMs": 31240,
+"timestampMs": 31140,
+"confidence": 0.5
+},
+{
+"line": "L021",
+"text": "mươi",
+"startMs": 31240,
+"endMs": 31480,
+"timestampMs": 31360,
+"confidence": 0.5
+},
+{
+"line": "L021",
+"text": "tám.",
+"startMs": 31480,
+"endMs": 31680,
+"timestampMs": 31580,
+"confidence": 0.5
+},
+{
+"line": "L022",
+"text": "Bạn",
+"startMs": 31830,
+"endMs": 31962,
+"timestampMs": 31896,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "không",
+"startMs": 31962,
+"endMs": 32248,
+"timestampMs": 32105,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "hiểu",
+"startMs": 32248,
+"endMs": 32658,
+"timestampMs": 32453,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "chuyện",
+"startMs": 32658,
+"endMs": 32922,
+"timestampMs": 32790,
+"confidence": 1
+},
+{
+"line": "L022",
+"text": "gì.",
+"startMs": 32922,
+"endMs": 33090,
+"timestampMs": 33006,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "Nhưng",
+"startMs": 33400,
+"endMs": 33480,
+"timestampMs": 33440,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "bạn",
+"startMs": 33471,
+"endMs": 33732,
+"timestampMs": 33601,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "hiểu",
+"startMs": 33732,
+"endMs": 34039,
+"timestampMs": 33885,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "mình",
+"startMs": 34039,
+"endMs": 34552,
+"timestampMs": 34296,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "đang",
+"startMs": 34552,
+"endMs": 34632,
+"timestampMs": 34592,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "có",
+"startMs": 34612,
+"endMs": 34692,
+"timestampMs": 34652,
+"confidence": 1
+},
+{
+"line": "L023",
+"text": "hai",
+"startMs": 34672,
+"endMs": 34752,
+"timestampMs": 34712,
+"confidence": 0.5
+},
+{
+"line": "L023",
+"text": "mươi",
+"startMs": 34732,
+"endMs": 34871,
+"timestampMs": 34801,
+"confidence": 0.5
+},
+{
+"line": "L023",
+"text": "tám",
+"startMs": 34871,
+"endMs": 35034,
+"timestampMs": 34952,
+"confidence": 0.5
+},
+{
+"line": "L023",
+"text": "giây.",
+"startMs": 35034,
+"endMs": 35230,
+"timestampMs": 35132,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "Bạn",
+"startMs": 35490,
+"endMs": 35719,
+"timestampMs": 35604,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "chạy",
+"startMs": 35719,
+"endMs": 36080,
+"timestampMs": 35899,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "xuống",
+"startMs": 36080,
+"endMs": 36309,
+"timestampMs": 36194,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "bàn",
+"startMs": 36309,
+"endMs": 36515,
+"timestampMs": 36412,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "Vy",
+"startMs": 36515,
+"endMs": 36670,
+"timestampMs": 36592,
+"confidence": 0.5
+},
+{
+"line": "L024",
+"text": "đứa",
+"startMs": 36670,
+"endMs": 36961,
+"timestampMs": 36815,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "giỏi",
+"startMs": 36961,
+"endMs": 37211,
+"timestampMs": 37086,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "Toán",
+"startMs": 37211,
+"endMs": 37440,
+"timestampMs": 37325,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "nhất",
+"startMs": 37440,
+"endMs": 37717,
+"timestampMs": 37579,
+"confidence": 1
+},
+{
+"line": "L024",
+"text": "lớp.",
+"startMs": 37717,
+"endMs": 37940,
+"timestampMs": 37829,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "Lật",
+"startMs": 38380,
+"endMs": 38663,
+"timestampMs": 38522,
+"confidence": 1
+},
+{
+"line": "L025",
+"text": "vở.",
+"startMs": 38663,
+"endMs": 38890,
+"timestampMs": 38777,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "Đọc",
+"startMs": 39170,
+"endMs": 39375,
+"timestampMs": 39272,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "đáp",
+"startMs": 39375,
+"endMs": 39634,
+"timestampMs": 39504,
+"confidence": 1
+},
+{
+"line": "L026",
+"text": "án.",
+"startMs": 39634,
+"endMs": 39820,
+"timestampMs": 39727,
+"confidence": 1
+},
+{
+"line": "L027",
+"text": "Chạy",
+"startMs": 40220,
+"endMs": 40422,
+"timestampMs": 40321,
+"confidence": 1
+},
+{
+"line": "L027",
+"text": "về",
+"startMs": 40422,
+"endMs": 40582,
+"timestampMs": 40502,
+"confidence": 1
+},
+{
+"line": "L027",
+"text": "bảng.",
+"startMs": 40582,
+"endMs": 40800,
+"timestampMs": 40691,
+"confidence": 1
+},
+{
+"line": "L028",
+"text": "Ba.",
+"startMs": 41430,
+"endMs": 41750,
+"timestampMs": 41590,
+"confidence": 0.5
+},
+{
+"line": "L029",
+"text": "Hai.",
+"startMs": 42300,
+"endMs": 42670,
+"timestampMs": 42485,
+"confidence": 0.5
+},
+{
+"line": "L030",
+"text": "Một.",
+"startMs": 43120,
+"endMs": 43480,
+"timestampMs": 43300,
+"confidence": 0.5
+},
+{
+"line": "L031",
+"text": "Cả",
+"startMs": 43790,
+"endMs": 43870,
+"timestampMs": 43830,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "lớp",
+"startMs": 43850,
+"endMs": 44132,
+"timestampMs": 43991,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "chạy",
+"startMs": 44132,
+"endMs": 44300,
+"timestampMs": 44216,
+"confidence": 1
+},
+{
+"line": "L031",
+"text": "lại.",
+"startMs": 44300,
+"endMs": 44470,
+"timestampMs": 44385,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "Bạn",
+"startMs": 44920,
+"endMs": 45012,
+"timestampMs": 44966,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "viết",
+"startMs": 45012,
+"endMs": 45288,
+"timestampMs": 45150,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "đáp",
+"startMs": 45288,
+"endMs": 45380,
+"timestampMs": 45334,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "án",
+"startMs": 45380,
+"endMs": 45747,
+"timestampMs": 45564,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "lên",
+"startMs": 45747,
+"endMs": 45839,
+"timestampMs": 45793,
+"confidence": 1
+},
+{
+"line": "L032",
+"text": "bảng.",
+"startMs": 45839,
+"endMs": 46060,
+"timestampMs": 45950,
+"confidence": 1
+},
+{
+"line": "L033",
+"text": "Đẹp.",
+"startMs": 46480,
+"endMs": 46710,
+"timestampMs": 46595,
+"confidence": 1
+},
+{
+"line": "L034",
+"text": "Gọn.",
+"startMs": 47200,
+"endMs": 47450,
+"timestampMs": 47325,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "Cô",
+"startMs": 47950,
+"endMs": 48063,
+"timestampMs": 48006,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "nhìn",
+"startMs": 48063,
+"endMs": 48300,
+"timestampMs": 48181,
+"confidence": 1
+},
+{
+"line": "L035",
+"text": "bảng.",
+"startMs": 48300,
+"endMs": 48510,
+"timestampMs": 48405,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "Rồi",
+"startMs": 48800,
+"endMs": 48880,
+"timestampMs": 48840,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "nhìn",
+"startMs": 48860,
+"endMs": 49185,
+"timestampMs": 49022,
+"confidence": 1
+},
+{
+"line": "L036",
+"text": "bạn.",
+"startMs": 49185,
+"endMs": 49360,
+"timestampMs": 49272,
+"confidence": 1
+},
+{
+"line": "L037",
+"text": "Đúng.",
+"startMs": 49990,
+"endMs": 50330,
+"timestampMs": 50160,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "Nhưng",
+"startMs": 50800,
+"endMs": 50958,
+"timestampMs": 50879,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "cô",
+"startMs": 50958,
+"endMs": 51076,
+"timestampMs": 51017,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "gọi",
+"startMs": 51076,
+"endMs": 51340,
+"timestampMs": 51208,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "em",
+"startMs": 51340,
+"endMs": 51420,
+"timestampMs": 51380,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "giải",
+"startMs": 51400,
+"endMs": 51610,
+"timestampMs": 51505,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "bài",
+"startMs": 51610,
+"endMs": 51765,
+"timestampMs": 51688,
+"confidence": 1
+},
+{
+"line": "L038",
+"text": "ba.",
+"startMs": 51765,
+"endMs": 51890,
+"timestampMs": 51828,
+"confidence": 0.5
+},
+{
+"line": "L039",
+"text": "Em",
+"startMs": 52220,
+"endMs": 52399,
+"timestampMs": 52309,
+"confidence": 1
+},
+{
+"line": "L039",
+"text": "giải",
+"startMs": 52399,
+"endMs": 52585,
+"timestampMs": 52492,
+"confidence": 1
+},
+{
+"line": "L039",
+"text": "bài",
+"startMs": 52585,
+"endMs": 52768,
+"timestampMs": 52676,
+"confidence": 1
+},
+{
+"line": "L039",
+"text": "bốn.",
+"startMs": 52768,
+"endMs": 52950,
+"timestampMs": 52859,
+"confidence": 0.5
+},
+{
+"line": "L040",
+"text": "Bạn",
+"startMs": 53120,
+"endMs": 53283,
+"timestampMs": 53202,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "vừa",
+"startMs": 53283,
+"endMs": 53446,
+"timestampMs": 53365,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "đổi",
+"startMs": 53446,
+"endMs": 53645,
+"timestampMs": 53546,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "một",
+"startMs": 53645,
+"endMs": 53808,
+"timestampMs": 53726,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "ngày",
+"startMs": 53808,
+"endMs": 54047,
+"timestampMs": 53927,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "tuổi",
+"startMs": 54047,
+"endMs": 54175,
+"timestampMs": 54111,
+"confidence": 1
+},
+{
+"line": "L040",
+"text": "thọ",
+"startMs": 54175,
+"endMs": 54340,
+"timestampMs": 54258,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "để",
+"startMs": 54960,
+"endMs": 55185,
+"timestampMs": 55073,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "giải",
+"startMs": 55185,
+"endMs": 55449,
+"timestampMs": 55317,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "sai",
+"startMs": 55449,
+"endMs": 55620,
+"timestampMs": 55535,
+"confidence": 1
+},
+{
+"line": "L041",
+"text": "bài.",
+"startMs": 55620,
+"endMs": 55840,
+"timestampMs": 55730,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "Luật",
+"startMs": 56630,
+"endMs": 56898,
+"timestampMs": 56764,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "thế",
+"startMs": 56898,
+"endMs": 57029,
+"timestampMs": 56963,
+"confidence": 1
+},
+{
+"line": "L042",
+"text": "này.",
+"startMs": 57029,
+"endMs": 57210,
+"timestampMs": 57119,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "Vỗ",
+"startMs": 57900,
+"endMs": 58117,
+"timestampMs": 58009,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "tay",
+"startMs": 58117,
+"endMs": 58552,
+"timestampMs": 58335,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "một",
+"startMs": 58552,
+"endMs": 58632,
+"timestampMs": 58592,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "cái",
+"startMs": 58619,
+"endMs": 58874,
+"timestampMs": 58746,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "cả",
+"startMs": 58874,
+"endMs": 59101,
+"timestampMs": 58987,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "thế",
+"startMs": 59101,
+"endMs": 59366,
+"timestampMs": 59233,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "giới",
+"startMs": 59366,
+"endMs": 59668,
+"timestampMs": 59517,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "dừng",
+"startMs": 59668,
+"endMs": 60122,
+"timestampMs": 59895,
+"confidence": 1
+},
+{
+"line": "L043",
+"text": "lại.",
+"startMs": 60122,
+"endMs": 60400,
+"timestampMs": 60261,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "Đúng",
+"startMs": 61010,
+"endMs": 61261,
+"timestampMs": 61135,
+"confidence": 1
+},
+{
+"line": "L044",
+"text": "ba",
+"startMs": 61261,
+"endMs": 61428,
+"timestampMs": 61345,
+"confidence": 0.5
+},
+{
+"line": "L044",
+"text": "mươi",
+"startMs": 61428,
+"endMs": 61679,
+"timestampMs": 61554,
+"confidence": 0.5
+},
+{
+"line": "L044",
+"text": "giây.",
+"startMs": 61679,
+"endMs": 61930,
+"timestampMs": 61805,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "Không",
+"startMs": 62330,
+"endMs": 62534,
+"timestampMs": 62432,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "hơn",
+"startMs": 62534,
+"endMs": 62794,
+"timestampMs": 62664,
+"confidence": 1
+},
+{
+"line": "L045",
+"text": "một",
+"startMs": 62794,
+"endMs": 62988,
+"timestampMs": 62891,
+"confidence": 0.5
+},
+{
+"line": "L045",
+"text": "giây.",
+"startMs": 62988,
+"endMs": 63220,
+"timestampMs": 63104,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "Chỉ",
+"startMs": 63720,
+"endMs": 63815,
+"timestampMs": 63768,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "mình",
+"startMs": 63815,
+"endMs": 63971,
+"timestampMs": 63893,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "bạn",
+"startMs": 63971,
+"endMs": 64274,
+"timestampMs": 64122,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "cử",
+"startMs": 64274,
+"endMs": 64412,
+"timestampMs": 64343,
+"confidence": 1
+},
+{
+"line": "L046",
+"text": "động.",
+"startMs": 64412,
+"endMs": 64620,
+"timestampMs": 64516,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "Bạn",
+"startMs": 65200,
+"endMs": 65302,
+"timestampMs": 65251,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "mang",
+"startMs": 65302,
+"endMs": 65449,
+"timestampMs": 65375,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "được",
+"startMs": 65449,
+"endMs": 65748,
+"timestampMs": 65599,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "đồ",
+"startMs": 65748,
+"endMs": 65927,
+"timestampMs": 65838,
+"confidence": 1
+},
+{
+"line": "L047",
+"text": "vật.",
+"startMs": 65927,
+"endMs": 66100,
+"timestampMs": 66013,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "Bạn",
+"startMs": 66560,
+"endMs": 66726,
+"timestampMs": 66643,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "mang",
+"startMs": 66726,
+"endMs": 66858,
+"timestampMs": 66792,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "được",
+"startMs": 66858,
+"endMs": 67104,
+"timestampMs": 66981,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "cả",
+"startMs": 67104,
+"endMs": 67344,
+"timestampMs": 67224,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "người",
+"startMs": 67344,
+"endMs": 68322,
+"timestampMs": 67833,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "nếu",
+"startMs": 68322,
+"endMs": 68477,
+"timestampMs": 68400,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "bạn",
+"startMs": 68477,
+"endMs": 68626,
+"timestampMs": 68551,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "đủ",
+"startMs": 68626,
+"endMs": 68803,
+"timestampMs": 68714,
+"confidence": 1
+},
+{
+"line": "L048",
+"text": "sức.",
+"startMs": 68803,
+"endMs": 69070,
+"timestampMs": 68936,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "Nhưng",
+"startMs": 69270,
+"endMs": 69558,
+"timestampMs": 69414,
+"confidence": 0.5
+},
+{
+"line": "L049",
+"text": "mỗi",
+"startMs": 69558,
+"endMs": 69751,
+"timestampMs": 69655,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "lần",
+"startMs": 69751,
+"endMs": 69973,
+"timestampMs": 69862,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "dừng,",
+"startMs": 69973,
+"endMs": 70237,
+"timestampMs": 70105,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "cơ",
+"startMs": 70237,
+"endMs": 70345,
+"timestampMs": 70291,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "thể",
+"startMs": 70345,
+"endMs": 70545,
+"timestampMs": 70445,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "bạn",
+"startMs": 70545,
+"endMs": 70745,
+"timestampMs": 70645,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "già",
+"startMs": 70745,
+"endMs": 70881,
+"timestampMs": 70813,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "thêm",
+"startMs": 70881,
+"endMs": 71074,
+"timestampMs": 70977,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "một",
+"startMs": 71074,
+"endMs": 71453,
+"timestampMs": 71263,
+"confidence": 1
+},
+{
+"line": "L049",
+"text": "ngày.",
+"startMs": 71453,
+"endMs": 71700,
+"timestampMs": 71576,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "Không",
+"startMs": 72390,
+"endMs": 72725,
+"timestampMs": 72558,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "ai",
+"startMs": 72725,
+"endMs": 72830,
+"timestampMs": 72778,
+"confidence": 1
+},
+{
+"line": "L050",
+"text": "thấy.",
+"startMs": 72830,
+"endMs": 73070,
+"timestampMs": 72950,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "Chỉ",
+"startMs": 73570,
+"endMs": 73650,
+"timestampMs": 73610,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "bạn",
+"startMs": 73630,
+"endMs": 73926,
+"timestampMs": 73778,
+"confidence": 1
+},
+{
+"line": "L051",
+"text": "biết.",
+"startMs": 73926,
+"endMs": 74140,
+"timestampMs": 74033,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "Và",
+"startMs": 74930,
+"endMs": 75061,
+"timestampMs": 74996,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "ngày",
+"startMs": 75061,
+"endMs": 75418,
+"timestampMs": 75240,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "đã",
+"startMs": 75418,
+"endMs": 75498,
+"timestampMs": 75458,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "mất",
+"startMs": 75478,
+"endMs": 75607,
+"timestampMs": 75543,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "thì",
+"startMs": 75607,
+"endMs": 75760,
+"timestampMs": 75684,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "không",
+"startMs": 75760,
+"endMs": 75993,
+"timestampMs": 75877,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "bao",
+"startMs": 75993,
+"endMs": 76146,
+"timestampMs": 76070,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "giờ",
+"startMs": 76146,
+"endMs": 76307,
+"timestampMs": 76226,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "lấy",
+"startMs": 76307,
+"endMs": 76496,
+"timestampMs": 76401,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "lại",
+"startMs": 76496,
+"endMs": 76693,
+"timestampMs": 76594,
+"confidence": 1
+},
+{
+"line": "L052",
+"text": "được.",
+"startMs": 76693,
+"endMs": 76900,
+"timestampMs": 76796,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "Nhớ",
+"startMs": 77650,
+"endMs": 78042,
+"timestampMs": 77846,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "chi",
+"startMs": 78042,
+"endMs": 78122,
+"timestampMs": 78082,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "tiết",
+"startMs": 78102,
+"endMs": 78346,
+"timestampMs": 78224,
+"confidence": 1
+},
+{
+"line": "L053",
+"text": "đó.",
+"startMs": 78346,
+"endMs": 78520,
+"timestampMs": 78433,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "Lát",
+"startMs": 79040,
+"endMs": 79172,
+"timestampMs": 79106,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "nữa",
+"startMs": 79172,
+"endMs": 79496,
+"timestampMs": 79334,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "quan",
+"startMs": 79496,
+"endMs": 79576,
+"timestampMs": 79536,
+"confidence": 1
+},
+{
+"line": "L054",
+"text": "trọng.",
+"startMs": 79562,
+"endMs": 79790,
+"timestampMs": 79676,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "Chuyện",
+"startMs": 80550,
+"endMs": 80889,
+"timestampMs": 80720,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "này",
+"startMs": 80889,
+"endMs": 80969,
+"timestampMs": 80929,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "là",
+"startMs": 80949,
+"endMs": 81029,
+"timestampMs": 80989,
+"confidence": 1
+},
+{
+"line": "L055",
+"text": "thật:",
+"startMs": 81009,
+"endMs": 81120,
+"timestampMs": 81065,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "trong",
+"startMs": 81840,
+"endMs": 81920,
+"timestampMs": 81880,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "một",
+"startMs": 81900,
+"endMs": 82436,
+"timestampMs": 82168,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "ngày,",
+"startMs": 82436,
+"endMs": 82516,
+"timestampMs": 82476,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "tim",
+"startMs": 82512,
+"endMs": 82627,
+"timestampMs": 82569,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "bạn",
+"startMs": 82627,
+"endMs": 82818,
+"timestampMs": 82722,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "đập",
+"startMs": 82818,
+"endMs": 83177,
+"timestampMs": 82997,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "khoảng",
+"startMs": 83177,
+"endMs": 83480,
+"timestampMs": 83328,
+"confidence": 1
+},
+{
+"line": "L056",
+"text": "một",
+"startMs": 83480,
+"endMs": 83680,
+"timestampMs": 83580,
+"confidence": 0.5
+},
+{
+"line": "L056",
+"text": "trăm",
+"startMs": 83680,
+"endMs": 83920,
+"timestampMs": 83800,
+"confidence": 0.5
+},
+{
+"line": "L056",
+"text": "nghìn",
+"startMs": 83920,
+"endMs": 84200,
+"timestampMs": 84060,
+"confidence": 0.5
+},
+{
+"line": "L056",
+"text": "lần.",
+"startMs": 84200,
+"endMs": 84400,
+"timestampMs": 84300,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "Nghĩa",
+"startMs": 85050,
+"endMs": 85412,
+"timestampMs": 85231,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "là",
+"startMs": 85412,
+"endMs": 85492,
+"timestampMs": 85452,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "mỗi",
+"startMs": 85472,
+"endMs": 85616,
+"timestampMs": 85544,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "lần",
+"startMs": 85616,
+"endMs": 85821,
+"timestampMs": 85718,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "vỗ",
+"startMs": 85821,
+"endMs": 85978,
+"timestampMs": 85899,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "tay,",
+"startMs": 85978,
+"endMs": 86174,
+"timestampMs": 86076,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "bạn",
+"startMs": 86174,
+"endMs": 86458,
+"timestampMs": 86316,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "tiêu",
+"startMs": 86458,
+"endMs": 86702,
+"timestampMs": 86580,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "một",
+"startMs": 86702,
+"endMs": 86903,
+"timestampMs": 86802,
+"confidence": 0.5
+},
+{
+"line": "L057",
+"text": "trăm",
+"startMs": 86903,
+"endMs": 87145,
+"timestampMs": 87024,
+"confidence": 0.5
+},
+{
+"line": "L057",
+"text": "nghìn",
+"startMs": 87145,
+"endMs": 87480,
+"timestampMs": 87312,
+"confidence": 0.5
+},
+{
+"line": "L057",
+"text": "nhịp",
+"startMs": 87480,
+"endMs": 87669,
+"timestampMs": 87574,
+"confidence": 1
+},
+{
+"line": "L057",
+"text": "tim.",
+"startMs": 87669,
+"endMs": 87870,
+"timestampMs": 87769,
+"confidence": 1
+},
+{
+"line": "L058",
+"text": "Cho",
+"startMs": 88540,
+"endMs": 88733,
+"timestampMs": 88636,
+"confidence": 1
+},
+{
+"line": "L058",
+"text": "ba",
+"startMs": 88733,
+"endMs": 88887,
+"timestampMs": 88810,
+"confidence": 0.5
+},
+{
+"line": "L058",
+"text": "mươi",
+"startMs": 88887,
+"endMs": 89119,
+"timestampMs": 89003,
+"confidence": 0.5
+},
+{
+"line": "L058",
+"text": "giây.",
+"startMs": 89119,
+"endMs": 89350,
+"timestampMs": 89234,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "Ông",
+"startMs": 89910,
+"endMs": 90054,
+"timestampMs": 89982,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "nội",
+"startMs": 90054,
+"endMs": 90237,
+"timestampMs": 90145,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "bạn",
+"startMs": 90237,
+"endMs": 90429,
+"timestampMs": 90333,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "thì",
+"startMs": 90429,
+"endMs": 90620,
+"timestampMs": 90524,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "có",
+"startMs": 90620,
+"endMs": 90700,
+"timestampMs": 90660,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "một",
+"startMs": 90692,
+"endMs": 90883,
+"timestampMs": 90788,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "thói",
+"startMs": 90883,
+"endMs": 91131,
+"timestampMs": 91007,
+"confidence": 1
+},
+{
+"line": "L059",
+"text": "quen.",
+"startMs": 91131,
+"endMs": 91340,
+"timestampMs": 91235,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "Sáng",
+"startMs": 91920,
+"endMs": 92159,
+"timestampMs": 92039,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "nào",
+"startMs": 92159,
+"endMs": 92256,
+"timestampMs": 92207,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "ông",
+"startMs": 92256,
+"endMs": 92424,
+"timestampMs": 92340,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "cũng",
+"startMs": 92424,
+"endMs": 92636,
+"timestampMs": 92530,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "xé",
+"startMs": 92636,
+"endMs": 92751,
+"timestampMs": 92694,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "một",
+"startMs": 92751,
+"endMs": 92964,
+"timestampMs": 92858,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "tờ",
+"startMs": 92964,
+"endMs": 93123,
+"timestampMs": 93043,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "lịch",
+"startMs": 93123,
+"endMs": 93362,
+"timestampMs": 93242,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "treo",
+"startMs": 93362,
+"endMs": 93556,
+"timestampMs": 93459,
+"confidence": 1
+},
+{
+"line": "L060",
+"text": "tường.",
+"startMs": 93556,
+"endMs": 93800,
+"timestampMs": 93678,
+"confidence": 1
+},
+{
+"line": "L061",
+"text": "Rồi",
+"startMs": 94040,
+"endMs": 94213,
+"timestampMs": 94126,
+"confidence": 1
+},
+{
+"line": "L061",
+"text": "gật",
+"startMs": 94213,
+"endMs": 94519,
+"timestampMs": 94366,
+"confidence": 1
+},
+{
+"line": "L061",
+"text": "gù:",
+"startMs": 94519,
+"endMs": 94710,
+"timestampMs": 94614,
+"confidence": 1
+},
+{
+"line": "L062",
+"text": "Thêm",
+"startMs": 95260,
+"endMs": 95445,
+"timestampMs": 95353,
+"confidence": 1
+},
+{
+"line": "L062",
+"text": "một",
+"startMs": 95445,
+"endMs": 95767,
+"timestampMs": 95606,
+"confidence": 1
+},
+{
+"line": "L062",
+"text": "ngày",
+"startMs": 95767,
+"endMs": 95847,
+"timestampMs": 95807,
+"confidence": 1
+},
+{
+"line": "L062",
+"text": "lời.",
+"startMs": 95832,
+"endMs": 96000,
+"timestampMs": 95916,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "Đầu",
+"startMs": 96510,
+"endMs": 96756,
+"timestampMs": 96633,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "tiên,",
+"startMs": 96756,
+"endMs": 97036,
+"timestampMs": 96896,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "bạn",
+"startMs": 97036,
+"endMs": 97239,
+"timestampMs": 97138,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "phải",
+"startMs": 97239,
+"endMs": 97612,
+"timestampMs": 97426,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "học",
+"startMs": 97612,
+"endMs": 97692,
+"timestampMs": 97652,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "lại",
+"startMs": 97689,
+"endMs": 97892,
+"timestampMs": 97790,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "mọi",
+"startMs": 97892,
+"endMs": 98096,
+"timestampMs": 97994,
+"confidence": 1
+},
+{
+"line": "L063",
+"text": "thứ.",
+"startMs": 98096,
+"endMs": 98310,
+"timestampMs": 98203,
+"confidence": 1
+},
+{
+"line": "L064",
+"text": "Ba",
+"startMs": 98790,
+"endMs": 98928,
+"timestampMs": 98859,
+"confidence": 0.5
+},
+{
+"line": "L064",
+"text": "mươi",
+"startMs": 98928,
+"endMs": 99134,
+"timestampMs": 99031,
+"confidence": 0.5
+},
+{
+"line": "L064",
+"text": "giây",
+"startMs": 99134,
+"endMs": 99412,
+"timestampMs": 99273,
+"confidence": 1
+},
+{
+"line": "L064",
+"text": "ngắn",
+"startMs": 99412,
+"endMs": 99548,
+"timestampMs": 99480,
+"confidence": 1
+},
+{
+"line": "L064",
+"text": "lắm.",
+"startMs": 99548,
+"endMs": 99720,
+"timestampMs": 99634,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "Đủ",
+"startMs": 100160,
+"endMs": 100337,
+"timestampMs": 100248,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "để",
+"startMs": 100337,
+"endMs": 100587,
+"timestampMs": 100462,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "chép",
+"startMs": 100587,
+"endMs": 100815,
+"timestampMs": 100701,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "một",
+"startMs": 100815,
+"endMs": 100895,
+"timestampMs": 100855,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "câu",
+"startMs": 100875,
+"endMs": 100998,
+"timestampMs": 100937,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "trả",
+"startMs": 100998,
+"endMs": 101175,
+"timestampMs": 101087,
+"confidence": 1
+},
+{
+"line": "L065",
+"text": "lời.",
+"startMs": 101175,
+"endMs": 101350,
+"timestampMs": 101262,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "Không",
+"startMs": 101840,
+"endMs": 102118,
+"timestampMs": 101979,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "đủ",
+"startMs": 102118,
+"endMs": 102489,
+"timestampMs": 102303,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "để",
+"startMs": 102489,
+"endMs": 102612,
+"timestampMs": 102550,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "hiểu",
+"startMs": 102612,
+"endMs": 102890,
+"timestampMs": 102751,
+"confidence": 1
+},
+{
+"line": "L066",
+"text": "nó.",
+"startMs": 102890,
+"endMs": 103090,
+"timestampMs": 102990,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "Đủ",
+"startMs": 103100,
+"endMs": 103293,
+"timestampMs": 103197,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "để",
+"startMs": 103293,
+"endMs": 103609,
+"timestampMs": 103451,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "đi",
+"startMs": 103609,
+"endMs": 103689,
+"timestampMs": 103649,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "từ",
+"startMs": 103669,
+"endMs": 103802,
+"timestampMs": 103736,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "bàn",
+"startMs": 103802,
+"endMs": 103960,
+"timestampMs": 103881,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "này",
+"startMs": 103960,
+"endMs": 104127,
+"timestampMs": 104044,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "qua",
+"startMs": 104127,
+"endMs": 104241,
+"timestampMs": 104184,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "bàn",
+"startMs": 104241,
+"endMs": 104408,
+"timestampMs": 104325,
+"confidence": 1
+},
+{
+"line": "L067",
+"text": "kia.",
+"startMs": 104408,
+"endMs": 104590,
+"timestampMs": 104499,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "Không",
+"startMs": 105020,
+"endMs": 105236,
+"timestampMs": 105128,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "đủ",
+"startMs": 105236,
+"endMs": 105598,
+"timestampMs": 105417,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "để",
+"startMs": 105598,
+"endMs": 105678,
+"timestampMs": 105638,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "ra",
+"startMs": 105660,
+"endMs": 105740,
+"timestampMs": 105700,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "khỏi",
+"startMs": 105720,
+"endMs": 105884,
+"timestampMs": 105802,
+"confidence": 1
+},
+{
+"line": "L068",
+"text": "trường.",
+"startMs": 105884,
+"endMs": 106160,
+"timestampMs": 106022,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "Giờ",
+"startMs": 106630,
+"endMs": 106865,
+"timestampMs": 106748,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "ra",
+"startMs": 106865,
+"endMs": 107057,
+"timestampMs": 106961,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "chơi,",
+"startMs": 107057,
+"endMs": 107280,
+"timestampMs": 107168,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "Vy",
+"startMs": 107280,
+"endMs": 107423,
+"timestampMs": 107351,
+"confidence": 0.5
+},
+{
+"line": "L069",
+"text": "hỏi",
+"startMs": 107423,
+"endMs": 107623,
+"timestampMs": 107523,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "bạn",
+"startMs": 107623,
+"endMs": 107902,
+"timestampMs": 107762,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "mượn",
+"startMs": 107902,
+"endMs": 108180,
+"timestampMs": 108041,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "cây",
+"startMs": 108180,
+"endMs": 108363,
+"timestampMs": 108272,
+"confidence": 1
+},
+{
+"line": "L069",
+"text": "bút.",
+"startMs": 108363,
+"endMs": 108580,
+"timestampMs": 108472,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "Bạn",
+"startMs": 109310,
+"endMs": 109495,
+"timestampMs": 109403,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "muốn",
+"startMs": 109495,
+"endMs": 109727,
+"timestampMs": 109611,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "nói",
+"startMs": 109727,
+"endMs": 109872,
+"timestampMs": 109800,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "một",
+"startMs": 109872,
+"endMs": 110034,
+"timestampMs": 109953,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "câu",
+"startMs": 110034,
+"endMs": 110208,
+"timestampMs": 110121,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "thật",
+"startMs": 110208,
+"endMs": 110434,
+"timestampMs": 110321,
+"confidence": 1
+},
+{
+"line": "L070",
+"text": "hay.",
+"startMs": 110434,
+"endMs": 110610,
+"timestampMs": 110522,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "Bạn",
+"startMs": 111180,
+"endMs": 111386,
+"timestampMs": 111283,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "vỗ",
+"startMs": 111386,
+"endMs": 111579,
+"timestampMs": 111482,
+"confidence": 1
+},
+{
+"line": "L071",
+"text": "tay.",
+"startMs": 111579,
+"endMs": 111800,
+"timestampMs": 111689,
+"confidence": 1
+},
+{
+"line": "L072",
+"text": "Nghĩ.",
+"startMs": 112560,
+"endMs": 112900,
+"timestampMs": 112730,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "Ba",
+"startMs": 113420,
+"endMs": 113555,
+"timestampMs": 113488,
+"confidence": 0.5
+},
+{
+"line": "L073",
+"text": "mươi",
+"startMs": 113555,
+"endMs": 113758,
+"timestampMs": 113657,
+"confidence": 0.5
+},
+{
+"line": "L073",
+"text": "giây",
+"startMs": 113758,
+"endMs": 113961,
+"timestampMs": 113860,
+"confidence": 1
+},
+{
+"line": "L073",
+"text": "hết.",
+"startMs": 113961,
+"endMs": 114130,
+"timestampMs": 114045,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "Vỗ",
+"startMs": 114500,
+"endMs": 114696,
+"timestampMs": 114598,
+"confidence": 1
+},
+{
+"line": "L074",
+"text": "tay.",
+"startMs": 114696,
+"endMs": 114940,
+"timestampMs": 114818,
+"confidence": 1
+},
+{
+"line": "L075",
+"text": "Nghĩ",
+"startMs": 115420,
+"endMs": 115625,
+"timestampMs": 115523,
+"confidence": 1
+},
+{
+"line": "L075",
+"text": "tiếp.",
+"startMs": 115625,
+"endMs": 115830,
+"timestampMs": 115727,
+"confidence": 1
+},
+{
+"line": "L076",
+"text": "Mười",
+"startMs": 116400,
+"endMs": 116656,
+"timestampMs": 116528,
+"confidence": 0.5
+},
+{
+"line": "L076",
+"text": "lần.",
+"startMs": 116656,
+"endMs": 116870,
+"timestampMs": 116763,
+"confidence": 1
+},
+{
+"line": "L077",
+"text": "Nè.",
+"startMs": 117200,
+"endMs": 117450,
+"timestampMs": 117325,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "Bạn",
+"startMs": 117930,
+"endMs": 118260,
+"timestampMs": 118095,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "già",
+"startMs": 118260,
+"endMs": 118340,
+"timestampMs": 118300,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "thêm",
+"startMs": 118320,
+"endMs": 118541,
+"timestampMs": 118431,
+"confidence": 1
+},
+{
+"line": "L078",
+"text": "mười",
+"startMs": 118541,
+"endMs": 118771,
+"timestampMs": 118656,
+"confidence": 0.5
+},
+{
+"line": "L078",
+"text": "ngày.",
+"startMs": 118771,
+"endMs": 119000,
+"timestampMs": 118885,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "Để",
+"startMs": 119330,
+"endMs": 119565,
+"timestampMs": 119447,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "nói",
+"startMs": 119565,
+"endMs": 119956,
+"timestampMs": 119760,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "một",
+"startMs": 119956,
+"endMs": 120036,
+"timestampMs": 119996,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "chữ",
+"startMs": 120016,
+"endMs": 120305,
+"timestampMs": 120160,
+"confidence": 1
+},
+{
+"line": "L079",
+"text": "\"nè\".",
+"startMs": 120305,
+"endMs": 120510,
+"timestampMs": 120407,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "Nhưng",
+"startMs": 120800,
+"endMs": 121031,
+"timestampMs": 120915,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "rồi",
+"startMs": 121031,
+"endMs": 121225,
+"timestampMs": 121128,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "nó",
+"startMs": 121225,
+"endMs": 121341,
+"timestampMs": 121283,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "bắt",
+"startMs": 121341,
+"endMs": 121528,
+"timestampMs": 121434,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "đầu",
+"startMs": 121528,
+"endMs": 121759,
+"timestampMs": 121644,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "vui",
+"startMs": 121759,
+"endMs": 121867,
+"timestampMs": 121813,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "thật",
+"startMs": 121867,
+"endMs": 122090,
+"timestampMs": 121979,
+"confidence": 1
+},
+{
+"line": "L080",
+"text": "sự.",
+"startMs": 122090,
+"endMs": 122230,
+"timestampMs": 122160,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "Mẹ",
+"startMs": 122780,
+"endMs": 122974,
+"timestampMs": 122877,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "làm",
+"startMs": 122974,
+"endMs": 123169,
+"timestampMs": 123072,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "rơi",
+"startMs": 123169,
+"endMs": 123363,
+"timestampMs": 123266,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "rổ",
+"startMs": 123363,
+"endMs": 123558,
+"timestampMs": 123460,
+"confidence": 1
+},
+{
+"line": "L081",
+"text": "trứng.",
+"startMs": 123558,
+"endMs": 123860,
+"timestampMs": 123709,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "Vỗ",
+"startMs": 124360,
+"endMs": 124604,
+"timestampMs": 124482,
+"confidence": 1
+},
+{
+"line": "L082",
+"text": "tay.",
+"startMs": 124604,
+"endMs": 124910,
+"timestampMs": 124757,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "Bạn",
+"startMs": 125340,
+"endMs": 125550,
+"timestampMs": 125445,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "đi",
+"startMs": 125550,
+"endMs": 125695,
+"timestampMs": 125622,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "tới,",
+"startMs": 125695,
+"endMs": 126133,
+"timestampMs": 125914,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "nhặt",
+"startMs": 126133,
+"endMs": 126324,
+"timestampMs": 126228,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "từng",
+"startMs": 126324,
+"endMs": 126607,
+"timestampMs": 126465,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "quả",
+"startMs": 126607,
+"endMs": 126953,
+"timestampMs": 126780,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "trứng",
+"startMs": 126953,
+"endMs": 127253,
+"timestampMs": 127103,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "đang",
+"startMs": 127253,
+"endMs": 127445,
+"timestampMs": 127349,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "lơ",
+"startMs": 127445,
+"endMs": 127581,
+"timestampMs": 127513,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "lửng,",
+"startMs": 127581,
+"endMs": 127955,
+"timestampMs": 127768,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "xếp",
+"startMs": 127955,
+"endMs": 128183,
+"timestampMs": 128069,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "lại",
+"startMs": 128183,
+"endMs": 128529,
+"timestampMs": 128356,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "vào",
+"startMs": 128529,
+"endMs": 128629,
+"timestampMs": 128579,
+"confidence": 1
+},
+{
+"line": "L083",
+"text": "rổ.",
+"startMs": 128629,
+"endMs": 128820,
+"timestampMs": 128725,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "Mẹ",
+"startMs": 129340,
+"endMs": 129420,
+"timestampMs": 129380,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "chớp",
+"startMs": 129408,
+"endMs": 129807,
+"timestampMs": 129607,
+"confidence": 1
+},
+{
+"line": "L084",
+"text": "mắt.",
+"startMs": 129807,
+"endMs": 130040,
+"timestampMs": 129923,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "Nhìn",
+"startMs": 130560,
+"endMs": 130771,
+"timestampMs": 130666,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "rổ",
+"startMs": 130771,
+"endMs": 131048,
+"timestampMs": 130910,
+"confidence": 1
+},
+{
+"line": "L085",
+"text": "trứng.",
+"startMs": 131048,
+"endMs": 131390,
+"timestampMs": 131219,
+"confidence": 1
+},
+{
+"line": "L086",
+"text": "Mười",
+"startMs": 131870,
+"endMs": 132225,
+"timestampMs": 132047,
+"confidence": 0.5
+},
+{
+"line": "L086",
+"text": "quả.",
+"startMs": 132225,
+"endMs": 132520,
+"timestampMs": 132372,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "Không",
+"startMs": 132940,
+"endMs": 133230,
+"timestampMs": 133085,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "sứt",
+"startMs": 133230,
+"endMs": 133378,
+"timestampMs": 133304,
+"confidence": 0.5
+},
+{
+"line": "L087",
+"text": "một",
+"startMs": 133378,
+"endMs": 133644,
+"timestampMs": 133511,
+"confidence": 1
+},
+{
+"line": "L087",
+"text": "vỏ.",
+"startMs": 133644,
+"endMs": 133810,
+"timestampMs": 133727,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "Đá",
+"startMs": 134300,
+"endMs": 134516,
+"timestampMs": 134408,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "bóng",
+"startMs": 134516,
+"endMs": 134766,
+"timestampMs": 134641,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "sân",
+"startMs": 134766,
+"endMs": 134990,
+"timestampMs": 134878,
+"confidence": 1
+},
+{
+"line": "L088",
+"text": "xóm.",
+"startMs": 134990,
+"endMs": 135220,
+"timestampMs": 135105,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "Bóng",
+"startMs": 135490,
+"endMs": 135648,
+"timestampMs": 135569,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "bay",
+"startMs": 135648,
+"endMs": 135772,
+"timestampMs": 135710,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "về",
+"startMs": 135772,
+"endMs": 135936,
+"timestampMs": 135854,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "phía",
+"startMs": 135936,
+"endMs": 136218,
+"timestampMs": 136077,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "khung",
+"startMs": 136218,
+"endMs": 136343,
+"timestampMs": 136281,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "thành",
+"startMs": 136343,
+"endMs": 136592,
+"timestampMs": 136468,
+"confidence": 1
+},
+{
+"line": "L089",
+"text": "bạn.",
+"startMs": 136592,
+"endMs": 136750,
+"timestampMs": 136671,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "Vỗ",
+"startMs": 137590,
+"endMs": 137848,
+"timestampMs": 137719,
+"confidence": 1
+},
+{
+"line": "L090",
+"text": "tay.",
+"startMs": 137848,
+"endMs": 138170,
+"timestampMs": 138009,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "Bạn",
+"startMs": 138390,
+"endMs": 138833,
+"timestampMs": 138611,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "đi",
+"startMs": 138833,
+"endMs": 138913,
+"timestampMs": 138873,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "tới,",
+"startMs": 138893,
+"endMs": 139221,
+"timestampMs": 139057,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "ôm",
+"startMs": 139221,
+"endMs": 139384,
+"timestampMs": 139303,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "bóng,",
+"startMs": 139384,
+"endMs": 139763,
+"timestampMs": 139574,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "đứng",
+"startMs": 139763,
+"endMs": 140224,
+"timestampMs": 139994,
+"confidence": 1
+},
+{
+"line": "L091",
+"text": "chờ.",
+"startMs": 140224,
+"endMs": 140530,
+"timestampMs": 140377,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "Ba",
+"startMs": 141240,
+"endMs": 141396,
+"timestampMs": 141318,
+"confidence": 0.5
+},
+{
+"line": "L092",
+"text": "mươi",
+"startMs": 141396,
+"endMs": 141629,
+"timestampMs": 141512,
+"confidence": 0.5
+},
+{
+"line": "L092",
+"text": "giây",
+"startMs": 141629,
+"endMs": 142112,
+"timestampMs": 141870,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "sau,",
+"startMs": 142112,
+"endMs": 142192,
+"timestampMs": 142152,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "bạn",
+"startMs": 142185,
+"endMs": 142375,
+"timestampMs": 142280,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "bắt",
+"startMs": 142375,
+"endMs": 142565,
+"timestampMs": 142470,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "bóng",
+"startMs": 142565,
+"endMs": 142851,
+"timestampMs": 142708,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "như",
+"startMs": 142851,
+"endMs": 142931,
+"timestampMs": 142891,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "thủ",
+"startMs": 142911,
+"endMs": 143099,
+"timestampMs": 143005,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "môn",
+"startMs": 143099,
+"endMs": 143231,
+"timestampMs": 143165,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "đội",
+"startMs": 143231,
+"endMs": 143458,
+"timestampMs": 143344,
+"confidence": 1
+},
+{
+"line": "L092",
+"text": "tuyển.",
+"startMs": 143458,
+"endMs": 143730,
+"timestampMs": 143594,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "Thằng",
+"startMs": 144310,
+"endMs": 144390,
+"timestampMs": 144350,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "Đạt",
+"startMs": 144384,
+"endMs": 144868,
+"timestampMs": 144626,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "quỳ",
+"startMs": 144868,
+"endMs": 144974,
+"timestampMs": 144921,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "xuống",
+"startMs": 144974,
+"endMs": 145237,
+"timestampMs": 145106,
+"confidence": 1
+},
+{
+"line": "L093",
+"text": "sân.",
+"startMs": 145237,
+"endMs": 145430,
+"timestampMs": 145333,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "Bạn",
+"startMs": 145570,
+"endMs": 145765,
+"timestampMs": 145667,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "chụp",
+"startMs": 145765,
+"endMs": 145995,
+"timestampMs": 145880,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "ảnh",
+"startMs": 145995,
+"endMs": 146190,
+"timestampMs": 146092,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "cả",
+"startMs": 146190,
+"endMs": 146349,
+"timestampMs": 146269,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "hẻm",
+"startMs": 146349,
+"endMs": 146535,
+"timestampMs": 146442,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "đứng",
+"startMs": 146535,
+"endMs": 146818,
+"timestampMs": 146677,
+"confidence": 1
+},
+{
+"line": "L094",
+"text": "hình.",
+"startMs": 146818,
+"endMs": 147060,
+"timestampMs": 146939,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "Một",
+"startMs": 147740,
+"endMs": 147820,
+"timestampMs": 147780,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "con",
+"startMs": 147808,
+"endMs": 148126,
+"timestampMs": 147967,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "bồ",
+"startMs": 148126,
+"endMs": 148345,
+"timestampMs": 148236,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "câu",
+"startMs": 148345,
+"endMs": 148504,
+"timestampMs": 148425,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "treo",
+"startMs": 148504,
+"endMs": 148739,
+"timestampMs": 148621,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "giữa",
+"startMs": 148739,
+"endMs": 148988,
+"timestampMs": 148864,
+"confidence": 1
+},
+{
+"line": "L095",
+"text": "trời.",
+"startMs": 148988,
+"endMs": 149230,
+"timestampMs": 149109,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "Ly",
+"startMs": 149790,
+"endMs": 149957,
+"timestampMs": 149873,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "cà",
+"startMs": 149957,
+"endMs": 150053,
+"timestampMs": 150005,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "phê",
+"startMs": 150053,
+"endMs": 150395,
+"timestampMs": 150224,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "đá",
+"startMs": 150395,
+"endMs": 150535,
+"timestampMs": 150465,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "đổ",
+"startMs": 150535,
+"endMs": 150807,
+"timestampMs": 150671,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "dở,",
+"startMs": 150807,
+"endMs": 151132,
+"timestampMs": 150969,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "tung",
+"startMs": 151132,
+"endMs": 151359,
+"timestampMs": 151245,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "ra",
+"startMs": 151359,
+"endMs": 151640,
+"timestampMs": 151500,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "như",
+"startMs": 151640,
+"endMs": 151720,
+"timestampMs": 151680,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "pháo",
+"startMs": 151710,
+"endMs": 151991,
+"timestampMs": 151850,
+"confidence": 1
+},
+{
+"line": "L096",
+"text": "hoa.",
+"startMs": 151991,
+"endMs": 152230,
+"timestampMs": 152110,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "Một",
+"startMs": 153050,
+"endMs": 153283,
+"timestampMs": 153167,
+"confidence": 1
+},
+{
+"line": "L097",
+"text": "tháng.",
+"startMs": 153283,
+"endMs": 153610,
+"timestampMs": 153447,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "Ba",
+"startMs": 153940,
+"endMs": 154110,
+"timestampMs": 154025,
+"confidence": 0.5
+},
+{
+"line": "L098",
+"text": "mươi",
+"startMs": 154110,
+"endMs": 154365,
+"timestampMs": 154238,
+"confidence": 0.5
+},
+{
+"line": "L098",
+"text": "lần",
+"startMs": 154365,
+"endMs": 154566,
+"timestampMs": 154465,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "vỗ",
+"startMs": 154566,
+"endMs": 154748,
+"timestampMs": 154657,
+"confidence": 1
+},
+{
+"line": "L098",
+"text": "tay.",
+"startMs": 154748,
+"endMs": 154960,
+"timestampMs": 154854,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "Bạn",
+"startMs": 155790,
+"endMs": 155942,
+"timestampMs": 155866,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "bắt",
+"startMs": 155942,
+"endMs": 156052,
+"timestampMs": 155997,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "đầu",
+"startMs": 156052,
+"endMs": 156376,
+"timestampMs": 156214,
+"confidence": 1
+},
+{
+"line": "L099",
+"text": "thấy",
+"startMs": 156376,
+"endMs": 156610,
+"timestampMs": 156493,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "mình",
+"startMs": 157210,
+"endMs": 157422,
+"timestampMs": 157316,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "lớn",
+"startMs": 157422,
+"endMs": 157627,
+"timestampMs": 157524,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "nhanh",
+"startMs": 157627,
+"endMs": 157826,
+"timestampMs": 157726,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "hơn",
+"startMs": 157826,
+"endMs": 158031,
+"timestampMs": 157928,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "bình",
+"startMs": 158031,
+"endMs": 158198,
+"timestampMs": 158114,
+"confidence": 1
+},
+{
+"line": "L100",
+"text": "thường.",
+"startMs": 158198,
+"endMs": 158470,
+"timestampMs": 158334,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "Chuyện",
+"startMs": 159290,
+"endMs": 159533,
+"timestampMs": 159412,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "này",
+"startMs": 159533,
+"endMs": 159744,
+"timestampMs": 159638,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "là",
+"startMs": 159744,
+"endMs": 159824,
+"timestampMs": 159784,
+"confidence": 1
+},
+{
+"line": "L101",
+"text": "thật:",
+"startMs": 159804,
+"endMs": 159910,
+"timestampMs": 159857,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "tóc",
+"startMs": 160170,
+"endMs": 160438,
+"timestampMs": 160304,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "người",
+"startMs": 160438,
+"endMs": 160769,
+"timestampMs": 160603,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "mọc",
+"startMs": 160769,
+"endMs": 161037,
+"timestampMs": 160903,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "khoảng",
+"startMs": 161037,
+"endMs": 161227,
+"timestampMs": 161132,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "một",
+"startMs": 161227,
+"endMs": 161439,
+"timestampMs": 161333,
+"confidence": 0.5
+},
+{
+"line": "L102",
+"text": "xăng-ti-mét",
+"startMs": 161439,
+"endMs": 161679,
+"timestampMs": 161559,
+"confidence": 0.5
+},
+{
+"line": "L102",
+"text": "mỗi",
+"startMs": 161679,
+"endMs": 161904,
+"timestampMs": 161792,
+"confidence": 1
+},
+{
+"line": "L102",
+"text": "tháng.",
+"startMs": 161904,
+"endMs": 162200,
+"timestampMs": 162052,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "Tóc",
+"startMs": 162840,
+"endMs": 163014,
+"timestampMs": 162927,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "bạn",
+"startMs": 163014,
+"endMs": 163431,
+"timestampMs": 163223,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "thì",
+"startMs": 163431,
+"endMs": 163511,
+"timestampMs": 163471,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "mọc",
+"startMs": 163491,
+"endMs": 163666,
+"timestampMs": 163579,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "nhanh",
+"startMs": 163666,
+"endMs": 163939,
+"timestampMs": 163803,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "hơn",
+"startMs": 163939,
+"endMs": 164068,
+"timestampMs": 164004,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "tóc",
+"startMs": 164068,
+"endMs": 164250,
+"timestampMs": 164159,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "bạn",
+"startMs": 164250,
+"endMs": 164493,
+"timestampMs": 164371,
+"confidence": 1
+},
+{
+"line": "L103",
+"text": "bè.",
+"startMs": 164493,
+"endMs": 164650,
+"timestampMs": 164571,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "Áo",
+"startMs": 164980,
+"endMs": 165211,
+"timestampMs": 165096,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "đồng",
+"startMs": 165211,
+"endMs": 165535,
+"timestampMs": 165373,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "phục",
+"startMs": 165535,
+"endMs": 165739,
+"timestampMs": 165637,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "chật",
+"startMs": 165739,
+"endMs": 166035,
+"timestampMs": 165887,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "hơn",
+"startMs": 166035,
+"endMs": 166220,
+"timestampMs": 166128,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "áo",
+"startMs": 166220,
+"endMs": 166359,
+"timestampMs": 166290,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "bạn",
+"startMs": 166359,
+"endMs": 166600,
+"timestampMs": 166480,
+"confidence": 1
+},
+{
+"line": "L104",
+"text": "bè.",
+"startMs": 166600,
+"endMs": 166780,
+"timestampMs": 166690,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "Giọng",
+"startMs": 167300,
+"endMs": 167614,
+"timestampMs": 167457,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "bạn",
+"startMs": 167614,
+"endMs": 167790,
+"timestampMs": 167702,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "bắt",
+"startMs": 167790,
+"endMs": 167996,
+"timestampMs": 167893,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "đầu",
+"startMs": 167996,
+"endMs": 168250,
+"timestampMs": 168123,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "vỡ",
+"startMs": 168250,
+"endMs": 168407,
+"timestampMs": 168329,
+"confidence": 1
+},
+{
+"line": "L105",
+"text": "sớm.",
+"startMs": 168407,
+"endMs": 168620,
+"timestampMs": 168514,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "Ông",
+"startMs": 169050,
+"endMs": 169130,
+"timestampMs": 169090,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "nội",
+"startMs": 169110,
+"endMs": 169335,
+"timestampMs": 169222,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "nhìn",
+"startMs": 169335,
+"endMs": 169606,
+"timestampMs": 169471,
+"confidence": 1
+},
+{
+"line": "L106",
+"text": "bạn.",
+"startMs": 169606,
+"endMs": 169780,
+"timestampMs": 169693,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "Xoa",
+"startMs": 170410,
+"endMs": 170685,
+"timestampMs": 170548,
+"confidence": 1
+},
+{
+"line": "L107",
+"text": "đầu.",
+"startMs": 170685,
+"endMs": 170960,
+"timestampMs": 170822,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "Thằng",
+"startMs": 171590,
+"endMs": 171806,
+"timestampMs": 171698,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "này",
+"startMs": 171806,
+"endMs": 172230,
+"timestampMs": 172018,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "lớn",
+"startMs": 172230,
+"endMs": 172310,
+"timestampMs": 172270,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "nhanh",
+"startMs": 172307,
+"endMs": 172529,
+"timestampMs": 172418,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "quá",
+"startMs": 172529,
+"endMs": 172706,
+"timestampMs": 172617,
+"confidence": 1
+},
+{
+"line": "L108",
+"text": "ta.",
+"startMs": 172706,
+"endMs": 172860,
+"timestampMs": 172783,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "Nhưng",
+"startMs": 173420,
+"endMs": 173681,
+"timestampMs": 173551,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "có",
+"startMs": 173681,
+"endMs": 173951,
+"timestampMs": 173816,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "một",
+"startMs": 173951,
+"endMs": 174054,
+"timestampMs": 174002,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "cái",
+"startMs": 174054,
+"endMs": 174236,
+"timestampMs": 174145,
+"confidence": 1
+},
+{
+"line": "L109",
+"text": "giá.",
+"startMs": 174236,
+"endMs": 174430,
+"timestampMs": 174333,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "Bạn",
+"startMs": 174960,
+"endMs": 175142,
+"timestampMs": 175051,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "bắt",
+"startMs": 175142,
+"endMs": 175487,
+"timestampMs": 175315,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "đầu",
+"startMs": 175487,
+"endMs": 175567,
+"timestampMs": 175527,
+"confidence": 1
+},
+{
+"line": "L110",
+"text": "đếm.",
+"startMs": 175547,
+"endMs": 175730,
+"timestampMs": 175639,
+"confidence": 1
+},
+{
+"line": "L111",
+"text": "Bốn",
+"startMs": 176240,
+"endMs": 176494,
+"timestampMs": 176367,
+"confidence": 0.5
+},
+{
+"line": "L111",
+"text": "tháng.",
+"startMs": 176494,
+"endMs": 176850,
+"timestampMs": 176672,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "Một",
+"startMs": 177330,
+"endMs": 177506,
+"timestampMs": 177418,
+"confidence": 0.5
+},
+{
+"line": "L112",
+"text": "trăm",
+"startMs": 177506,
+"endMs": 177718,
+"timestampMs": 177612,
+"confidence": 0.5
+},
+{
+"line": "L112",
+"text": "hai",
+"startMs": 177718,
+"endMs": 177894,
+"timestampMs": 177806,
+"confidence": 0.5
+},
+{
+"line": "L112",
+"text": "mươi",
+"startMs": 177894,
+"endMs": 178106,
+"timestampMs": 178000,
+"confidence": 0.5
+},
+{
+"line": "L112",
+"text": "lần",
+"startMs": 178106,
+"endMs": 178270,
+"timestampMs": 178188,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "vỗ",
+"startMs": 178270,
+"endMs": 178424,
+"timestampMs": 178347,
+"confidence": 1
+},
+{
+"line": "L112",
+"text": "tay.",
+"startMs": 178424,
+"endMs": 178600,
+"timestampMs": 178512,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "Bạn",
+"startMs": 179120,
+"endMs": 179550,
+"timestampMs": 179335,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "đã",
+"startMs": 179550,
+"endMs": 179660,
+"timestampMs": 179605,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "già",
+"startMs": 179660,
+"endMs": 179786,
+"timestampMs": 179723,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "thêm",
+"startMs": 179786,
+"endMs": 179970,
+"timestampMs": 179878,
+"confidence": 1
+},
+{
+"line": "L113",
+"text": "bốn",
+"startMs": 179970,
+"endMs": 180182,
+"timestampMs": 180076,
+"confidence": 0.5
+},
+{
+"line": "L113",
+"text": "tháng.",
+"startMs": 180182,
+"endMs": 180480,
+"timestampMs": 180331,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "Không",
+"startMs": 180880,
+"endMs": 181244,
+"timestampMs": 181062,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "ai",
+"startMs": 181244,
+"endMs": 181324,
+"timestampMs": 181284,
+"confidence": 1
+},
+{
+"line": "L114",
+"text": "biết.",
+"startMs": 181304,
+"endMs": 181510,
+"timestampMs": 181407,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "Không",
+"startMs": 181910,
+"endMs": 182278,
+"timestampMs": 182094,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "ai",
+"startMs": 182278,
+"endMs": 182358,
+"timestampMs": 182318,
+"confidence": 1
+},
+{
+"line": "L115",
+"text": "thấy.",
+"startMs": 182338,
+"endMs": 182570,
+"timestampMs": 182454,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "Nhưng",
+"startMs": 183050,
+"endMs": 183404,
+"timestampMs": 183227,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "bạn",
+"startMs": 183404,
+"endMs": 183484,
+"timestampMs": 183444,
+"confidence": 1
+},
+{
+"line": "L116",
+"text": "biết.",
+"startMs": 183464,
+"endMs": 183630,
+"timestampMs": 183547,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "Bạn",
+"startMs": 184070,
+"endMs": 184269,
+"timestampMs": 184169,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "nhìn",
+"startMs": 184269,
+"endMs": 184650,
+"timestampMs": 184459,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "ông",
+"startMs": 184650,
+"endMs": 184730,
+"timestampMs": 184690,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "nội",
+"startMs": 184710,
+"endMs": 184857,
+"timestampMs": 184783,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "xé",
+"startMs": 184857,
+"endMs": 184981,
+"timestampMs": 184919,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "tờ",
+"startMs": 184981,
+"endMs": 185147,
+"timestampMs": 185064,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "lịch",
+"startMs": 185147,
+"endMs": 185436,
+"timestampMs": 185292,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "mỗi",
+"startMs": 185436,
+"endMs": 185635,
+"timestampMs": 185536,
+"confidence": 1
+},
+{
+"line": "L117",
+"text": "sáng.",
+"startMs": 185635,
+"endMs": 185870,
+"timestampMs": 185753,
+"confidence": 1
+},
+{
+"line": "L118",
+"text": "Tám",
+"startMs": 186130,
+"endMs": 186294,
+"timestampMs": 186212,
+"confidence": 0.5
+},
+{
+"line": "L118",
+"text": "mươi",
+"startMs": 186294,
+"endMs": 186490,
+"timestampMs": 186392,
+"confidence": 0.5
+},
+{
+"line": "L118",
+"text": "mốt",
+"startMs": 186490,
+"endMs": 186654,
+"timestampMs": 186572,
+"confidence": 0.5
+},
+{
+"line": "L118",
+"text": "tuổi.",
+"startMs": 186654,
+"endMs": 186850,
+"timestampMs": 186752,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "Ông",
+"startMs": 187350,
+"endMs": 187430,
+"timestampMs": 187390,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "quý",
+"startMs": 187410,
+"endMs": 187664,
+"timestampMs": 187537,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "từng",
+"startMs": 187664,
+"endMs": 187902,
+"timestampMs": 187783,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "ngày",
+"startMs": 187902,
+"endMs": 188194,
+"timestampMs": 188048,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "như",
+"startMs": 188194,
+"endMs": 188422,
+"timestampMs": 188308,
+"confidence": 1
+},
+{
+"line": "L119",
+"text": "vàng.",
+"startMs": 188422,
+"endMs": 188660,
+"timestampMs": 188541,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "Còn",
+"startMs": 189170,
+"endMs": 189718,
+"timestampMs": 189444,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "bạn",
+"startMs": 189718,
+"endMs": 189841,
+"timestampMs": 189780,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "bạn",
+"startMs": 189841,
+"endMs": 190399,
+"timestampMs": 190120,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "đã",
+"startMs": 190399,
+"endMs": 190479,
+"timestampMs": 190439,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "ném",
+"startMs": 190459,
+"endMs": 190635,
+"timestampMs": 190547,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "đi",
+"startMs": 190635,
+"endMs": 190715,
+"timestampMs": 190675,
+"confidence": 1
+},
+{
+"line": "L120",
+"text": "một",
+"startMs": 190695,
+"endMs": 190775,
+"timestampMs": 190735,
+"confidence": 0.5
+},
+{
+"line": "L120",
+"text": "trăm",
+"startMs": 190755,
+"endMs": 190925,
+"timestampMs": 190840,
+"confidence": 0.5
+},
+{
+"line": "L120",
+"text": "hai",
+"startMs": 190925,
+"endMs": 191150,
+"timestampMs": 191038,
+"confidence": 0.5
+},
+{
+"line": "L120",
+"text": "mươi",
+"startMs": 191150,
+"endMs": 191420,
+"timestampMs": 191285,
+"confidence": 0.5
+},
+{
+"line": "L120",
+"text": "ngày.",
+"startMs": 191420,
+"endMs": 191690,
+"timestampMs": 191555,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "Để",
+"startMs": 192020,
+"endMs": 192167,
+"timestampMs": 192093,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "đỡ",
+"startMs": 192167,
+"endMs": 192367,
+"timestampMs": 192267,
+"confidence": 1
+},
+{
+"line": "L121",
+"text": "trứng.",
+"startMs": 192367,
+"endMs": 192670,
+"timestampMs": 192518,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "Để",
+"startMs": 193180,
+"endMs": 193390,
+"timestampMs": 193285,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "chép",
+"startMs": 193390,
+"endMs": 193607,
+"timestampMs": 193498,
+"confidence": 1
+},
+{
+"line": "L122",
+"text": "bài.",
+"startMs": 193607,
+"endMs": 193820,
+"timestampMs": 193713,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "Để",
+"startMs": 194270,
+"endMs": 194730,
+"timestampMs": 194500,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "nói",
+"startMs": 194730,
+"endMs": 194810,
+"timestampMs": 194770,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "chữ",
+"startMs": 194790,
+"endMs": 195063,
+"timestampMs": 194927,
+"confidence": 1
+},
+{
+"line": "L123",
+"text": "\"nè\".",
+"startMs": 195063,
+"endMs": 195290,
+"timestampMs": 195177,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "Vậy",
+"startMs": 195820,
+"endMs": 195966,
+"timestampMs": 195893,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "là",
+"startMs": 195966,
+"endMs": 196188,
+"timestampMs": 196077,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "có",
+"startMs": 196188,
+"endMs": 196268,
+"timestampMs": 196228,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "một",
+"startMs": 196248,
+"endMs": 196360,
+"timestampMs": 196304,
+"confidence": 1
+},
+{
+"line": "L124",
+"text": "luật.",
+"startMs": 196360,
+"endMs": 196540,
+"timestampMs": 196450,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "Không",
+"startMs": 197030,
+"endMs": 197214,
+"timestampMs": 197122,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "dừng",
+"startMs": 197214,
+"endMs": 197543,
+"timestampMs": 197379,
+"confidence": 1
+},
+{
+"line": "L125",
+"text": "nữa.",
+"startMs": 197543,
+"endMs": 197740,
+"timestampMs": 197641,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "Không",
+"startMs": 198080,
+"endMs": 198446,
+"timestampMs": 198263,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "bao",
+"startMs": 198446,
+"endMs": 198553,
+"timestampMs": 198499,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "giờ",
+"startMs": 198553,
+"endMs": 198652,
+"timestampMs": 198602,
+"confidence": 1
+},
+{
+"line": "L126",
+"text": "nữa.",
+"startMs": 198652,
+"endMs": 198820,
+"timestampMs": 198736,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "Ly",
+"startMs": 199230,
+"endMs": 199666,
+"timestampMs": 199448,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "nước",
+"startMs": 199666,
+"endMs": 199791,
+"timestampMs": 199729,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "rơi",
+"startMs": 199791,
+"endMs": 200165,
+"timestampMs": 199978,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "kệ",
+"startMs": 200165,
+"endMs": 200593,
+"timestampMs": 200379,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "nó",
+"startMs": 200593,
+"endMs": 200673,
+"timestampMs": 200633,
+"confidence": 1
+},
+{
+"line": "L127",
+"text": "rơi.",
+"startMs": 200653,
+"endMs": 200900,
+"timestampMs": 200776,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "Bóng",
+"startMs": 201340,
+"endMs": 201791,
+"timestampMs": 201566,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "bay",
+"startMs": 201791,
+"endMs": 201871,
+"timestampMs": 201831,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "qua",
+"startMs": 201851,
+"endMs": 201965,
+"timestampMs": 201908,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "đầu",
+"startMs": 201965,
+"endMs": 202425,
+"timestampMs": 202195,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "kệ",
+"startMs": 202425,
+"endMs": 202833,
+"timestampMs": 202629,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "nó",
+"startMs": 202833,
+"endMs": 202913,
+"timestampMs": 202873,
+"confidence": 1
+},
+{
+"line": "L128",
+"text": "bay.",
+"startMs": 202893,
+"endMs": 203090,
+"timestampMs": 202991,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "Câu",
+"startMs": 203390,
+"endMs": 203533,
+"timestampMs": 203462,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "trả",
+"startMs": 203533,
+"endMs": 203689,
+"timestampMs": 203611,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "lời",
+"startMs": 203689,
+"endMs": 203859,
+"timestampMs": 203774,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "không",
+"startMs": 203859,
+"endMs": 204067,
+"timestampMs": 203963,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "biết",
+"startMs": 204067,
+"endMs": 204457,
+"timestampMs": 204262,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "thì",
+"startMs": 204457,
+"endMs": 204704,
+"timestampMs": 204581,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "không",
+"startMs": 204704,
+"endMs": 205303,
+"timestampMs": 205004,
+"confidence": 1
+},
+{
+"line": "L129",
+"text": "biết.",
+"startMs": 205303,
+"endMs": 205590,
+"timestampMs": 205447,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "Bạn",
+"startMs": 205680,
+"endMs": 205984,
+"timestampMs": 205832,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "giữ",
+"startMs": 205984,
+"endMs": 206227,
+"timestampMs": 206106,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "từng",
+"startMs": 206227,
+"endMs": 206384,
+"timestampMs": 206305,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "ngày",
+"startMs": 206384,
+"endMs": 206627,
+"timestampMs": 206505,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "của",
+"startMs": 206627,
+"endMs": 206809,
+"timestampMs": 206718,
+"confidence": 1
+},
+{
+"line": "L130",
+"text": "mình.",
+"startMs": 206809,
+"endMs": 207060,
+"timestampMs": 206935,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "Chặt",
+"startMs": 207580,
+"endMs": 207995,
+"timestampMs": 207788,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "hơn",
+"startMs": 207995,
+"endMs": 208075,
+"timestampMs": 208035,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "bao",
+"startMs": 208055,
+"endMs": 208135,
+"timestampMs": 208095,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "giờ",
+"startMs": 208119,
+"endMs": 208323,
+"timestampMs": 208221,
+"confidence": 1
+},
+{
+"line": "L131",
+"text": "hết.",
+"startMs": 208323,
+"endMs": 208500,
+"timestampMs": 208412,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "Mỗi",
+"startMs": 208920,
+"endMs": 209261,
+"timestampMs": 209091,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "sáng,",
+"startMs": 209261,
+"endMs": 209611,
+"timestampMs": 209436,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "ông",
+"startMs": 209611,
+"endMs": 209900,
+"timestampMs": 209756,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "xé",
+"startMs": 209900,
+"endMs": 210066,
+"timestampMs": 209983,
+"confidence": 1
+},
+{
+"line": "L132",
+"text": "lịch.",
+"startMs": 210066,
+"endMs": 210410,
+"timestampMs": 210238,
+"confidence": 1
+},
+{
+"line": "L133",
+"text": "Bạn",
+"startMs": 210940,
+"endMs": 211127,
+"timestampMs": 211033,
+"confidence": 1
+},
+{
+"line": "L133",
+"text": "đứng",
+"startMs": 211127,
+"endMs": 211425,
+"timestampMs": 211276,
+"confidence": 1
+},
+{
+"line": "L133",
+"text": "nhìn.",
+"startMs": 211425,
+"endMs": 211690,
+"timestampMs": 211558,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "Con",
+"startMs": 212280,
+"endMs": 212360,
+"timestampMs": 212320,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "biết",
+"startMs": 212340,
+"endMs": 212807,
+"timestampMs": 212573,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "sao",
+"startMs": 212807,
+"endMs": 212887,
+"timestampMs": 212847,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "ông",
+"startMs": 212867,
+"endMs": 212973,
+"timestampMs": 212920,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "vui",
+"startMs": 212973,
+"endMs": 213105,
+"timestampMs": 213039,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "mỗi",
+"startMs": 213105,
+"endMs": 213289,
+"timestampMs": 213197,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "lần",
+"startMs": 213289,
+"endMs": 213491,
+"timestampMs": 213390,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "xé",
+"startMs": 213491,
+"endMs": 213605,
+"timestampMs": 213548,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "lịch",
+"startMs": 213605,
+"endMs": 213842,
+"timestampMs": 213724,
+"confidence": 1
+},
+{
+"line": "L134",
+"text": "không?",
+"startMs": 213842,
+"endMs": 214080,
+"timestampMs": 213961,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "Vì",
+"startMs": 214560,
+"endMs": 214683,
+"timestampMs": 214621,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "ông",
+"startMs": 214683,
+"endMs": 215020,
+"timestampMs": 214851,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "còn",
+"startMs": 215020,
+"endMs": 215100,
+"timestampMs": 215060,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "ở",
+"startMs": 215080,
+"endMs": 215160,
+"timestampMs": 215120,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "đây",
+"startMs": 215143,
+"endMs": 215350,
+"timestampMs": 215246,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "để",
+"startMs": 215350,
+"endMs": 215557,
+"timestampMs": 215453,
+"confidence": 1
+},
+{
+"line": "L135",
+"text": "xé.",
+"startMs": 215557,
+"endMs": 215710,
+"timestampMs": 215633,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "Tối",
+"startMs": 216450,
+"endMs": 216642,
+"timestampMs": 216546,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "thứ",
+"startMs": 216642,
+"endMs": 216863,
+"timestampMs": 216752,
+"confidence": 1
+},
+{
+"line": "L136",
+"text": "Sáu.",
+"startMs": 216863,
+"endMs": 217070,
+"timestampMs": 216967,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "Cả",
+"startMs": 217850,
+"endMs": 218074,
+"timestampMs": 217962,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "nhà",
+"startMs": 218074,
+"endMs": 218385,
+"timestampMs": 218229,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "đang",
+"startMs": 218385,
+"endMs": 218561,
+"timestampMs": 218473,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "ăn",
+"startMs": 218561,
+"endMs": 218721,
+"timestampMs": 218641,
+"confidence": 1
+},
+{
+"line": "L137",
+"text": "cơm.",
+"startMs": 218721,
+"endMs": 218950,
+"timestampMs": 218835,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "Ông",
+"startMs": 219370,
+"endMs": 219534,
+"timestampMs": 219452,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "nội",
+"startMs": 219534,
+"endMs": 219795,
+"timestampMs": 219664,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "đưa",
+"startMs": 219795,
+"endMs": 219936,
+"timestampMs": 219865,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "chén",
+"startMs": 219936,
+"endMs": 220137,
+"timestampMs": 220037,
+"confidence": 1
+},
+{
+"line": "L138",
+"text": "lên.",
+"startMs": 220137,
+"endMs": 220320,
+"timestampMs": 220229,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "Rồi",
+"startMs": 220510,
+"endMs": 221089,
+"timestampMs": 220800,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "tay",
+"startMs": 221089,
+"endMs": 221169,
+"timestampMs": 221129,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "ông",
+"startMs": 221149,
+"endMs": 221395,
+"timestampMs": 221272,
+"confidence": 1
+},
+{
+"line": "L139",
+"text": "run.",
+"startMs": 221395,
+"endMs": 221690,
+"timestampMs": 221542,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "Cái",
+"startMs": 222030,
+"endMs": 222377,
+"timestampMs": 222204,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "chén",
+"startMs": 222377,
+"endMs": 222551,
+"timestampMs": 222464,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "rơi",
+"startMs": 222551,
+"endMs": 222783,
+"timestampMs": 222667,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "xuống",
+"startMs": 222783,
+"endMs": 223188,
+"timestampMs": 222986,
+"confidence": 1
+},
+{
+"line": "L140",
+"text": "mâm.",
+"startMs": 223188,
+"endMs": 223440,
+"timestampMs": 223314,
+"confidence": 1
+},
+{
+"line": "L141",
+"text": "Ông",
+"startMs": 223610,
+"endMs": 223897,
+"timestampMs": 223753,
+"confidence": 1
+},
+{
+"line": "L141",
+"text": "nói",
+"startMs": 223897,
+"endMs": 224366,
+"timestampMs": 224131,
+"confidence": 1
+},
+{
+"line": "L141",
+"text": "gì",
+"startMs": 224366,
+"endMs": 224446,
+"timestampMs": 224406,
+"confidence": 1
+},
+{
+"line": "L141",
+"text": "đó.",
+"startMs": 224442,
+"endMs": 224680,
+"timestampMs": 224561,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "Nhưng",
+"startMs": 225190,
+"endMs": 225419,
+"timestampMs": 225304,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "chữ",
+"startMs": 225419,
+"endMs": 225681,
+"timestampMs": 225550,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "không",
+"startMs": 225681,
+"endMs": 225836,
+"timestampMs": 225758,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "ra",
+"startMs": 225836,
+"endMs": 225916,
+"timestampMs": 225876,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "thành",
+"startMs": 225910,
+"endMs": 226139,
+"timestampMs": 226024,
+"confidence": 1
+},
+{
+"line": "L142",
+"text": "tiếng.",
+"startMs": 226139,
+"endMs": 226360,
+"timestampMs": 226249,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "Một",
+"startMs": 226650,
+"endMs": 226909,
+"timestampMs": 226780,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "bên",
+"startMs": 226909,
+"endMs": 227192,
+"timestampMs": 227051,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "mắt",
+"startMs": 227192,
+"endMs": 227499,
+"timestampMs": 227346,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "ông",
+"startMs": 227499,
+"endMs": 227641,
+"timestampMs": 227570,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "sụp",
+"startMs": 227641,
+"endMs": 227900,
+"timestampMs": 227770,
+"confidence": 1
+},
+{
+"line": "L143",
+"text": "xuống.",
+"startMs": 227900,
+"endMs": 228250,
+"timestampMs": 228075,
+"confidence": 1
+},
+{
+"line": "L144",
+"text": "Ba!",
+"startMs": 228320,
+"endMs": 228800,
+"timestampMs": 228560,
+"confidence": 1
+},
+{
+"line": "L145",
+"text": "Ba",
+"startMs": 228810,
+"endMs": 229105,
+"timestampMs": 228958,
+"confidence": 1
+},
+{
+"line": "L145",
+"text": "ơi!",
+"startMs": 229105,
+"endMs": 229400,
+"timestampMs": 229252,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "Ba",
+"startMs": 229410,
+"endMs": 229490,
+"timestampMs": 229450,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "gọi",
+"startMs": 229470,
+"endMs": 229684,
+"timestampMs": 229577,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "một",
+"startMs": 229684,
+"endMs": 230000,
+"timestampMs": 229842,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "một",
+"startMs": 230000,
+"endMs": 230249,
+"timestampMs": 230125,
+"confidence": 1
+},
+{
+"line": "L146",
+"text": "lăm.",
+"startMs": 230249,
+"endMs": 230470,
+"timestampMs": 230360,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "Giọng",
+"startMs": 230710,
+"endMs": 231103,
+"timestampMs": 230907,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "ba",
+"startMs": 231103,
+"endMs": 231239,
+"timestampMs": 231171,
+"confidence": 1
+},
+{
+"line": "L147",
+"text": "run.",
+"startMs": 231239,
+"endMs": 231480,
+"timestampMs": 231360,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "Kẹt",
+"startMs": 231850,
+"endMs": 232235,
+"timestampMs": 232043,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "xe",
+"startMs": 232235,
+"endMs": 232315,
+"timestampMs": 232275,
+"confidence": 1
+},
+{
+"line": "L148",
+"text": "hả?",
+"startMs": 232307,
+"endMs": 232510,
+"timestampMs": 232408,
+"confidence": 1
+},
+{
+"line": "L149",
+"text": "Hai",
+"startMs": 232960,
+"endMs": 233101,
+"timestampMs": 233030,
+"confidence": 0.5
+},
+{
+"line": "L149",
+"text": "mươi",
+"startMs": 233101,
+"endMs": 233270,
+"timestampMs": 233185,
+"confidence": 0.5
+},
+{
+"line": "L149",
+"text": "lăm",
+"startMs": 233270,
+"endMs": 233411,
+"timestampMs": 233340,
+"confidence": 0.5
+},
+{
+"line": "L149",
+"text": "phút?",
+"startMs": 233411,
+"endMs": 233580,
+"timestampMs": 233495,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "Chuyện",
+"startMs": 234070,
+"endMs": 234399,
+"timestampMs": 234234,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "này",
+"startMs": 234399,
+"endMs": 234479,
+"timestampMs": 234439,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "là",
+"startMs": 234459,
+"endMs": 234539,
+"timestampMs": 234499,
+"confidence": 1
+},
+{
+"line": "L150",
+"text": "thật:",
+"startMs": 234519,
+"endMs": 234630,
+"timestampMs": 234574,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "với",
+"startMs": 235040,
+"endMs": 235369,
+"timestampMs": 235204,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "đột",
+"startMs": 235369,
+"endMs": 235553,
+"timestampMs": 235461,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "quỵ,",
+"startMs": 235553,
+"endMs": 235959,
+"timestampMs": 235756,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "mỗi",
+"startMs": 235959,
+"endMs": 236288,
+"timestampMs": 236123,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "phút",
+"startMs": 236288,
+"endMs": 236500,
+"timestampMs": 236394,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "trôi",
+"startMs": 236500,
+"endMs": 236723,
+"timestampMs": 236612,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "qua,",
+"startMs": 236723,
+"endMs": 237052,
+"timestampMs": 236887,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "não",
+"startMs": 237052,
+"endMs": 237322,
+"timestampMs": 237187,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "có",
+"startMs": 237322,
+"endMs": 237429,
+"timestampMs": 237376,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "thể",
+"startMs": 237429,
+"endMs": 237526,
+"timestampMs": 237477,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "mất",
+"startMs": 237526,
+"endMs": 237719,
+"timestampMs": 237622,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "gần",
+"startMs": 237719,
+"endMs": 237799,
+"timestampMs": 237759,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "hai",
+"startMs": 237779,
+"endMs": 238028,
+"timestampMs": 237904,
+"confidence": 0.5
+},
+{
+"line": "L151",
+"text": "triệu",
+"startMs": 238028,
+"endMs": 238299,
+"timestampMs": 238164,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "tế",
+"startMs": 238299,
+"endMs": 238464,
+"timestampMs": 238381,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "bào",
+"startMs": 238464,
+"endMs": 238667,
+"timestampMs": 238565,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "thần",
+"startMs": 238667,
+"endMs": 238841,
+"timestampMs": 238754,
+"confidence": 1
+},
+{
+"line": "L151",
+"text": "kinh.",
+"startMs": 238841,
+"endMs": 239100,
+"timestampMs": 238970,
+"confidence": 1
+},
+{
+"line": "L152",
+"text": "Hai",
+"startMs": 239440,
+"endMs": 239610,
+"timestampMs": 239525,
+"confidence": 0.5
+},
+{
+"line": "L152",
+"text": "mươi",
+"startMs": 239610,
+"endMs": 239815,
+"timestampMs": 239713,
+"confidence": 0.5
+},
+{
+"line": "L152",
+"text": "lăm",
+"startMs": 239815,
+"endMs": 239985,
+"timestampMs": 239900,
+"confidence": 0.5
+},
+{
+"line": "L152",
+"text": "phút.",
+"startMs": 239985,
+"endMs": 240190,
+"timestampMs": 240088,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "Bệnh",
+"startMs": 240460,
+"endMs": 240767,
+"timestampMs": 240614,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "viện",
+"startMs": 240767,
+"endMs": 240945,
+"timestampMs": 240856,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "cách",
+"startMs": 240945,
+"endMs": 241147,
+"timestampMs": 241046,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "nhà",
+"startMs": 241147,
+"endMs": 241309,
+"timestampMs": 241228,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "bạn",
+"startMs": 241309,
+"endMs": 241493,
+"timestampMs": 241401,
+"confidence": 1
+},
+{
+"line": "L153",
+"text": "hai",
+"startMs": 241493,
+"endMs": 241678,
+"timestampMs": 241586,
+"confidence": 0.5
+},
+{
+"line": "L153",
+"text": "cây",
+"startMs": 241678,
+"endMs": 241862,
+"timestampMs": 241770,
+"confidence": 0.5
+},
+{
+"line": "L153",
+"text": "số.",
+"startMs": 241862,
+"endMs": 242010,
+"timestampMs": 241936,
+"confidence": 0.5
+},
+{
+"line": "L154",
+"text": "Bạn",
+"startMs": 242430,
+"endMs": 242510,
+"timestampMs": 242470,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "nhìn",
+"startMs": 242503,
+"endMs": 242842,
+"timestampMs": 242673,
+"confidence": 1
+},
+{
+"line": "L154",
+"text": "ông.",
+"startMs": 242842,
+"endMs": 243030,
+"timestampMs": 242936,
+"confidence": 1
+},
+{
+"line": "L155",
+"text": "Ông",
+"startMs": 243430,
+"endMs": 243599,
+"timestampMs": 243515,
+"confidence": 1
+},
+{
+"line": "L155",
+"text": "nhìn",
+"startMs": 243599,
+"endMs": 243815,
+"timestampMs": 243707,
+"confidence": 1
+},
+{
+"line": "L155",
+"text": "bạn.",
+"startMs": 243815,
+"endMs": 243990,
+"timestampMs": 243902,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "Mắt",
+"startMs": 244400,
+"endMs": 244778,
+"timestampMs": 244589,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "ông",
+"startMs": 244778,
+"endMs": 244858,
+"timestampMs": 244818,
+"confidence": 1
+},
+{
+"line": "L156",
+"text": "sợ.",
+"startMs": 244850,
+"endMs": 245030,
+"timestampMs": 244940,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "Bạn",
+"startMs": 245490,
+"endMs": 245659,
+"timestampMs": 245574,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "biết",
+"startMs": 245659,
+"endMs": 245872,
+"timestampMs": 245766,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "chính",
+"startMs": 245872,
+"endMs": 246109,
+"timestampMs": 245991,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "xác",
+"startMs": 246109,
+"endMs": 246266,
+"timestampMs": 246187,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "mình",
+"startMs": 246266,
+"endMs": 246491,
+"timestampMs": 246379,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "phải",
+"startMs": 246491,
+"endMs": 246671,
+"timestampMs": 246581,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "làm",
+"startMs": 246671,
+"endMs": 246817,
+"timestampMs": 246744,
+"confidence": 1
+},
+{
+"line": "L157",
+"text": "gì.",
+"startMs": 246817,
+"endMs": 246950,
+"timestampMs": 246884,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "Và",
+"startMs": 247450,
+"endMs": 247574,
+"timestampMs": 247512,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "bạn",
+"startMs": 247574,
+"endMs": 247928,
+"timestampMs": 247751,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "biết",
+"startMs": 247928,
+"endMs": 248044,
+"timestampMs": 247986,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "nó",
+"startMs": 248044,
+"endMs": 248168,
+"timestampMs": 248106,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "sẽ",
+"startMs": 248168,
+"endMs": 248374,
+"timestampMs": 248271,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "tốn",
+"startMs": 248374,
+"endMs": 248539,
+"timestampMs": 248456,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "bao",
+"startMs": 248539,
+"endMs": 248663,
+"timestampMs": 248601,
+"confidence": 1
+},
+{
+"line": "L158",
+"text": "nhiêu.",
+"startMs": 248663,
+"endMs": 248920,
+"timestampMs": 248791,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "Bạn",
+"startMs": 249330,
+"endMs": 249587,
+"timestampMs": 249458,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "vỗ",
+"startMs": 249587,
+"endMs": 249786,
+"timestampMs": 249687,
+"confidence": 1
+},
+{
+"line": "L159",
+"text": "tay.",
+"startMs": 249786,
+"endMs": 250040,
+"timestampMs": 249913,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "Cả",
+"startMs": 250600,
+"endMs": 250724,
+"timestampMs": 250662,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "nhà",
+"startMs": 250724,
+"endMs": 250953,
+"timestampMs": 250838,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "đứng",
+"startMs": 250953,
+"endMs": 251136,
+"timestampMs": 251044,
+"confidence": 1
+},
+{
+"line": "L160",
+"text": "hình.",
+"startMs": 251136,
+"endMs": 251350,
+"timestampMs": 251243,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "Ba",
+"startMs": 251790,
+"endMs": 252117,
+"timestampMs": 251953,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "với",
+"startMs": 252117,
+"endMs": 252243,
+"timestampMs": 252180,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "cái",
+"startMs": 252243,
+"endMs": 252323,
+"timestampMs": 252283,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "điện",
+"startMs": 252303,
+"endMs": 252620,
+"timestampMs": 252461,
+"confidence": 1
+},
+{
+"line": "L161",
+"text": "thoại.",
+"startMs": 252620,
+"endMs": 252910,
+"timestampMs": 252765,
+"confidence": 1
+},
+{
+"line": "L162",
+"text": "Mẹ",
+"startMs": 253360,
+"endMs": 253743,
+"timestampMs": 253551,
+"confidence": 1
+},
+{
+"line": "L162",
+"text": "với",
+"startMs": 253743,
+"endMs": 253823,
+"timestampMs": 253783,
+"confidence": 1
+},
+{
+"line": "L162",
+"text": "cái",
+"startMs": 253803,
+"endMs": 253934,
+"timestampMs": 253868,
+"confidence": 1
+},
+{
+"line": "L162",
+"text": "khăn.",
+"startMs": 253934,
+"endMs": 254180,
+"timestampMs": 254057,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "Ông",
+"startMs": 254270,
+"endMs": 254498,
+"timestampMs": 254384,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "với",
+"startMs": 254498,
+"endMs": 254635,
+"timestampMs": 254566,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "bàn",
+"startMs": 254635,
+"endMs": 254794,
+"timestampMs": 254714,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "tay",
+"startMs": 254794,
+"endMs": 254920,
+"timestampMs": 254857,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "đang",
+"startMs": 254920,
+"endMs": 255125,
+"timestampMs": 255022,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "buông",
+"startMs": 255125,
+"endMs": 255376,
+"timestampMs": 255250,
+"confidence": 1
+},
+{
+"line": "L163",
+"text": "xuống.",
+"startMs": 255376,
+"endMs": 255610,
+"timestampMs": 255493,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "Bạn",
+"startMs": 256130,
+"endMs": 256333,
+"timestampMs": 256231,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "kéo",
+"startMs": 256333,
+"endMs": 256637,
+"timestampMs": 256485,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "cái",
+"startMs": 256637,
+"endMs": 256738,
+"timestampMs": 256687,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "xe",
+"startMs": 256738,
+"endMs": 256818,
+"timestampMs": 256778,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "lăn",
+"startMs": 256808,
+"endMs": 256987,
+"timestampMs": 256898,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "của",
+"startMs": 256987,
+"endMs": 257213,
+"timestampMs": 257100,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "ông",
+"startMs": 257213,
+"endMs": 257401,
+"timestampMs": 257307,
+"confidence": 1
+},
+{
+"line": "L164",
+"text": "ra.",
+"startMs": 257401,
+"endMs": 257550,
+"timestampMs": 257475,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "Bạn",
+"startMs": 258110,
+"endMs": 258295,
+"timestampMs": 258202,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "bế",
+"startMs": 258295,
+"endMs": 258555,
+"timestampMs": 258425,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "ông",
+"startMs": 258555,
+"endMs": 258685,
+"timestampMs": 258620,
+"confidence": 1
+},
+{
+"line": "L165",
+"text": "lên.",
+"startMs": 258685,
+"endMs": 258890,
+"timestampMs": 258787,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "Ông",
+"startMs": 259450,
+"endMs": 259620,
+"timestampMs": 259535,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "nặng",
+"startMs": 259620,
+"endMs": 260061,
+"timestampMs": 259840,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "hơn",
+"startMs": 260061,
+"endMs": 260141,
+"timestampMs": 260101,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "bạn",
+"startMs": 260121,
+"endMs": 260290,
+"timestampMs": 260205,
+"confidence": 1
+},
+{
+"line": "L166",
+"text": "tưởng.",
+"startMs": 260290,
+"endMs": 260570,
+"timestampMs": 260430,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "Bạn",
+"startMs": 261050,
+"endMs": 261195,
+"timestampMs": 261123,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "đẩy",
+"startMs": 261195,
+"endMs": 261558,
+"timestampMs": 261377,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "ông",
+"startMs": 261558,
+"endMs": 261747,
+"timestampMs": 261653,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "ra",
+"startMs": 261747,
+"endMs": 261842,
+"timestampMs": 261794,
+"confidence": 1
+},
+{
+"line": "L167",
+"text": "cửa.",
+"startMs": 261842,
+"endMs": 262050,
+"timestampMs": 261946,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "Ra",
+"startMs": 262620,
+"endMs": 262847,
+"timestampMs": 262733,
+"confidence": 1
+},
+{
+"line": "L168",
+"text": "hẻm.",
+"startMs": 262847,
+"endMs": 263130,
+"timestampMs": 262988,
+"confidence": 1
+},
+{
+"line": "L169",
+"text": "Hai",
+"startMs": 263820,
+"endMs": 264017,
+"timestampMs": 263919,
+"confidence": 0.5
+},
+{
+"line": "L169",
+"text": "mươi",
+"startMs": 264017,
+"endMs": 264254,
+"timestampMs": 264135,
+"confidence": 0.5
+},
+{
+"line": "L169",
+"text": "giây.",
+"startMs": 264254,
+"endMs": 264490,
+"timestampMs": 264372,
+"confidence": 1
+},
+{
+"line": "L170",
+"text": "Mười",
+"startMs": 265250,
+"endMs": 265560,
+"timestampMs": 265405,
+"confidence": 0.5
+},
+{
+"line": "L170",
+"text": "giây.",
+"startMs": 265560,
+"endMs": 265870,
+"timestampMs": 265715,
+"confidence": 1
+},
+{
+"line": "L171",
+"text": "Ba.",
+"startMs": 266460,
+"endMs": 266860,
+"timestampMs": 266660,
+"confidence": 0.5
+},
+{
+"line": "L172",
+"text": "Hai.",
+"startMs": 267380,
+"endMs": 267830,
+"timestampMs": 267605,
+"confidence": 0.5
+},
+{
+"line": "L173",
+"text": "Một.",
+"startMs": 268270,
+"endMs": 268680,
+"timestampMs": 268475,
+"confidence": 0.5
+},
+{
+"line": "L174",
+"text": "Thời",
+"startMs": 269130,
+"endMs": 269361,
+"timestampMs": 269245,
+"confidence": 1
+},
+{
+"line": "L174",
+"text": "gian",
+"startMs": 269361,
+"endMs": 269540,
+"timestampMs": 269450,
+"confidence": 1
+},
+{
+"line": "L174",
+"text": "chạy",
+"startMs": 269540,
+"endMs": 269748,
+"timestampMs": 269644,
+"confidence": 1
+},
+{
+"line": "L174",
+"text": "lại.",
+"startMs": 269748,
+"endMs": 269920,
+"timestampMs": 269834,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "Tiếng",
+"startMs": 270580,
+"endMs": 270981,
+"timestampMs": 270780,
+"confidence": 1
+},
+{
+"line": "L175",
+"text": "xe.",
+"startMs": 270981,
+"endMs": 271210,
+"timestampMs": 271095,
+"confidence": 1
+},
+{
+"line": "L176",
+"text": "Tiếng",
+"startMs": 271690,
+"endMs": 272005,
+"timestampMs": 271847,
+"confidence": 1
+},
+{
+"line": "L176",
+"text": "còi.",
+"startMs": 272005,
+"endMs": 272230,
+"timestampMs": 272118,
+"confidence": 1
+},
+{
+"line": "L177",
+"text": "Vỗ",
+"startMs": 272380,
+"endMs": 272589,
+"timestampMs": 272484,
+"confidence": 1
+},
+{
+"line": "L177",
+"text": "tay.",
+"startMs": 272589,
+"endMs": 272850,
+"timestampMs": 272719,
+"confidence": 1
+},
+{
+"line": "L178",
+"text": "Dừng.",
+"startMs": 273340,
+"endMs": 273680,
+"timestampMs": 273510,
+"confidence": 1
+},
+{
+"line": "L179",
+"text": "Thêm",
+"startMs": 274420,
+"endMs": 274575,
+"timestampMs": 274498,
+"confidence": 1
+},
+{
+"line": "L179",
+"text": "một",
+"startMs": 274575,
+"endMs": 274795,
+"timestampMs": 274685,
+"confidence": 1
+},
+{
+"line": "L179",
+"text": "ngày.",
+"startMs": 274795,
+"endMs": 275000,
+"timestampMs": 274898,
+"confidence": 1
+},
+{
+"line": "L180",
+"text": "Bạn",
+"startMs": 275440,
+"endMs": 275623,
+"timestampMs": 275531,
+"confidence": 1
+},
+{
+"line": "L180",
+"text": "đẩy",
+"startMs": 275623,
+"endMs": 275871,
+"timestampMs": 275747,
+"confidence": 1
+},
+{
+"line": "L180",
+"text": "tiếp.",
+"startMs": 275871,
+"endMs": 276130,
+"timestampMs": 276001,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "Qua",
+"startMs": 276690,
+"endMs": 277034,
+"timestampMs": 276862,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "đầu",
+"startMs": 277034,
+"endMs": 277114,
+"timestampMs": 277074,
+"confidence": 1
+},
+{
+"line": "L181",
+"text": "hẻm.",
+"startMs": 277094,
+"endMs": 277230,
+"timestampMs": 277162,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "Qua",
+"startMs": 277820,
+"endMs": 277928,
+"timestampMs": 277874,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "chợ",
+"startMs": 277928,
+"endMs": 278205,
+"timestampMs": 278066,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "đêm",
+"startMs": 278205,
+"endMs": 278320,
+"timestampMs": 278263,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "đứng",
+"startMs": 278320,
+"endMs": 278590,
+"timestampMs": 278455,
+"confidence": 1
+},
+{
+"line": "L182",
+"text": "hình.",
+"startMs": 278590,
+"endMs": 278810,
+"timestampMs": 278700,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "Qua",
+"startMs": 279360,
+"endMs": 279773,
+"timestampMs": 279566,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "những",
+"startMs": 279773,
+"endMs": 279853,
+"timestampMs": 279813,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "dòng",
+"startMs": 279833,
+"endMs": 280010,
+"timestampMs": 279921,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "xe",
+"startMs": 280010,
+"endMs": 280090,
+"timestampMs": 280050,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "máy",
+"startMs": 280070,
+"endMs": 280203,
+"timestampMs": 280136,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "đông",
+"startMs": 280203,
+"endMs": 280449,
+"timestampMs": 280326,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "cứng",
+"startMs": 280449,
+"endMs": 280694,
+"timestampMs": 280571,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "như",
+"startMs": 280694,
+"endMs": 280861,
+"timestampMs": 280778,
+"confidence": 1
+},
+{
+"line": "L183",
+"text": "tượng.",
+"startMs": 280861,
+"endMs": 281100,
+"timestampMs": 280981,
+"confidence": 1
+},
+{
+"line": "L184",
+"text": "Vỗ",
+"startMs": 281650,
+"endMs": 281863,
+"timestampMs": 281757,
+"confidence": 1
+},
+{
+"line": "L184",
+"text": "tay.",
+"startMs": 281863,
+"endMs": 282130,
+"timestampMs": 281997,
+"confidence": 1
+},
+{
+"line": "L185",
+"text": "Thêm",
+"startMs": 282650,
+"endMs": 283007,
+"timestampMs": 282829,
+"confidence": 1
+},
+{
+"line": "L185",
+"text": "một",
+"startMs": 283007,
+"endMs": 283087,
+"timestampMs": 283047,
+"confidence": 1
+},
+{
+"line": "L185",
+"text": "ngày.",
+"startMs": 283067,
+"endMs": 283230,
+"timestampMs": 283149,
+"confidence": 1
+},
+{
+"line": "L186",
+"text": "Ra",
+"startMs": 283640,
+"endMs": 283835,
+"timestampMs": 283737,
+"confidence": 1
+},
+{
+"line": "L186",
+"text": "đường",
+"startMs": 283835,
+"endMs": 284176,
+"timestampMs": 284006,
+"confidence": 1
+},
+{
+"line": "L186",
+"text": "lớn.",
+"startMs": 284176,
+"endMs": 284420,
+"timestampMs": 284298,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "Bạn",
+"startMs": 284720,
+"endMs": 284928,
+"timestampMs": 284824,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "lách",
+"startMs": 284928,
+"endMs": 285175,
+"timestampMs": 285051,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "xe",
+"startMs": 285175,
+"endMs": 285255,
+"timestampMs": 285215,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "lăn",
+"startMs": 285235,
+"endMs": 285382,
+"timestampMs": 285308,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "giữa",
+"startMs": 285382,
+"endMs": 285639,
+"timestampMs": 285511,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "hai",
+"startMs": 285639,
+"endMs": 285768,
+"timestampMs": 285704,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "chiếc",
+"startMs": 285768,
+"endMs": 286064,
+"timestampMs": 285916,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "xe",
+"startMs": 286064,
+"endMs": 286144,
+"timestampMs": 286104,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "buýt",
+"startMs": 286143,
+"endMs": 286351,
+"timestampMs": 286247,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "đứng",
+"startMs": 286351,
+"endMs": 286697,
+"timestampMs": 286524,
+"confidence": 1
+},
+{
+"line": "L187",
+"text": "yên.",
+"startMs": 286697,
+"endMs": 286880,
+"timestampMs": 286788,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "Vỗ",
+"startMs": 287330,
+"endMs": 287552,
+"timestampMs": 287441,
+"confidence": 1
+},
+{
+"line": "L188",
+"text": "tay.",
+"startMs": 287552,
+"endMs": 287830,
+"timestampMs": 287691,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "Vỗ",
+"startMs": 288290,
+"endMs": 288574,
+"timestampMs": 288432,
+"confidence": 1
+},
+{
+"line": "L189",
+"text": "tay.",
+"startMs": 288574,
+"endMs": 288930,
+"timestampMs": 288752,
+"confidence": 1
+},
+{
+"line": "L190",
+"text": "Vỗ",
+"startMs": 289250,
+"endMs": 289534,
+"timestampMs": 289392,
+"confidence": 1
+},
+{
+"line": "L190",
+"text": "tay.",
+"startMs": 289534,
+"endMs": 289890,
+"timestampMs": 289712,
+"confidence": 1
+},
+{
+"line": "L191",
+"text": "Mười",
+"startMs": 290200,
+"endMs": 290530,
+"timestampMs": 290365,
+"confidence": 0.5
+},
+{
+"line": "L191",
+"text": "ngày.",
+"startMs": 290530,
+"endMs": 290860,
+"timestampMs": 290695,
+"confidence": 1
+},
+{
+"line": "L192",
+"text": "Hai",
+"startMs": 291220,
+"endMs": 291408,
+"timestampMs": 291314,
+"confidence": 0.5
+},
+{
+"line": "L192",
+"text": "mươi",
+"startMs": 291408,
+"endMs": 291634,
+"timestampMs": 291521,
+"confidence": 0.5
+},
+{
+"line": "L192",
+"text": "ngày.",
+"startMs": 291634,
+"endMs": 291860,
+"timestampMs": 291747,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "Chân",
+"startMs": 292240,
+"endMs": 292320,
+"timestampMs": 292280,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "bạn",
+"startMs": 292300,
+"endMs": 292501,
+"timestampMs": 292401,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "bắt",
+"startMs": 292501,
+"endMs": 292762,
+"timestampMs": 292632,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "đầu",
+"startMs": 292762,
+"endMs": 293023,
+"timestampMs": 292893,
+"confidence": 1
+},
+{
+"line": "L193",
+"text": "run.",
+"startMs": 293023,
+"endMs": 293210,
+"timestampMs": 293117,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "Tay",
+"startMs": 293300,
+"endMs": 293706,
+"timestampMs": 293503,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "bạn",
+"startMs": 293706,
+"endMs": 293786,
+"timestampMs": 293746,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "phồng",
+"startMs": 293766,
+"endMs": 294073,
+"timestampMs": 293919,
+"confidence": 1
+},
+{
+"line": "L194",
+"text": "rộp.",
+"startMs": 294073,
+"endMs": 294300,
+"timestampMs": 294186,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "Bạn",
+"startMs": 294670,
+"endMs": 295023,
+"timestampMs": 294847,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "không",
+"startMs": 295023,
+"endMs": 295114,
+"timestampMs": 295069,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "cảm",
+"startMs": 295114,
+"endMs": 295316,
+"timestampMs": 295215,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "được",
+"startMs": 295316,
+"endMs": 295640,
+"timestampMs": 295478,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "mình",
+"startMs": 295640,
+"endMs": 295842,
+"timestampMs": 295741,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "già",
+"startMs": 295842,
+"endMs": 296003,
+"timestampMs": 295922,
+"confidence": 1
+},
+{
+"line": "L195",
+"text": "đi.",
+"startMs": 296003,
+"endMs": 296160,
+"timestampMs": 296082,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "Nhưng",
+"startMs": 296360,
+"endMs": 296697,
+"timestampMs": 296528,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "bạn",
+"startMs": 296697,
+"endMs": 296777,
+"timestampMs": 296737,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "cảm",
+"startMs": 296757,
+"endMs": 296853,
+"timestampMs": 296805,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "được",
+"startMs": 296853,
+"endMs": 297108,
+"timestampMs": 296981,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "mình",
+"startMs": 297108,
+"endMs": 297264,
+"timestampMs": 297186,
+"confidence": 1
+},
+{
+"line": "L196",
+"text": "mệt.",
+"startMs": 297264,
+"endMs": 297420,
+"timestampMs": 297342,
+"confidence": 1
+},
+{
+"line": "L197",
+"text": "Bốn",
+"startMs": 297740,
+"endMs": 297961,
+"timestampMs": 297850,
+"confidence": 0.5
+},
+{
+"line": "L197",
+"text": "mươi",
+"startMs": 297961,
+"endMs": 298225,
+"timestampMs": 298093,
+"confidence": 0.5
+},
+{
+"line": "L197",
+"text": "ngày.",
+"startMs": 298225,
+"endMs": 298490,
+"timestampMs": 298358,
+"confidence": 1
+},
+{
+"line": "L198",
+"text": "Cây",
+"startMs": 298850,
+"endMs": 299145,
+"timestampMs": 298998,
+"confidence": 1
+},
+{
+"line": "L198",
+"text": "cầu.",
+"startMs": 299145,
+"endMs": 299440,
+"timestampMs": 299292,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "Bạn",
+"startMs": 299600,
+"endMs": 299849,
+"timestampMs": 299725,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "đẩy",
+"startMs": 299849,
+"endMs": 299996,
+"timestampMs": 299922,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "ông",
+"startMs": 299996,
+"endMs": 300142,
+"timestampMs": 300069,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "lên",
+"startMs": 300142,
+"endMs": 300288,
+"timestampMs": 300215,
+"confidence": 1
+},
+{
+"line": "L199",
+"text": "dốc.",
+"startMs": 300288,
+"endMs": 300460,
+"timestampMs": 300374,
+"confidence": 1
+},
+{
+"line": "L200",
+"text": "Từng",
+"startMs": 301050,
+"endMs": 301270,
+"timestampMs": 301160,
+"confidence": 1
+},
+{
+"line": "L200",
+"text": "bước.",
+"startMs": 301270,
+"endMs": 301490,
+"timestampMs": 301380,
+"confidence": 1
+},
+{
+"line": "L201",
+"text": "Năm",
+"startMs": 302090,
+"endMs": 302296,
+"timestampMs": 302193,
+"confidence": 0.5
+},
+{
+"line": "L201",
+"text": "mươi",
+"startMs": 302296,
+"endMs": 302543,
+"timestampMs": 302419,
+"confidence": 0.5
+},
+{
+"line": "L201",
+"text": "ngày.",
+"startMs": 302543,
+"endMs": 302790,
+"timestampMs": 302666,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "Bạn",
+"startMs": 303120,
+"endMs": 303520,
+"timestampMs": 303320,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "thấy",
+"startMs": 303520,
+"endMs": 303600,
+"timestampMs": 303560,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "biển",
+"startMs": 303580,
+"endMs": 303733,
+"timestampMs": 303657,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "hiệu",
+"startMs": 303733,
+"endMs": 303946,
+"timestampMs": 303840,
+"confidence": 1
+},
+{
+"line": "L202",
+"text": "đỏ:",
+"startMs": 303946,
+"endMs": 304090,
+"timestampMs": 304018,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "\"Cấp",
+"startMs": 305050,
+"endMs": 305370,
+"timestampMs": 305210,
+"confidence": 1
+},
+{
+"line": "L203",
+"text": "cứu\".",
+"startMs": 305370,
+"endMs": 305690,
+"timestampMs": 305530,
+"confidence": 1
+},
+{
+"line": "L204",
+"text": "Sáu",
+"startMs": 306560,
+"endMs": 306775,
+"timestampMs": 306667,
+"confidence": 0.5
+},
+{
+"line": "L204",
+"text": "mươi",
+"startMs": 306775,
+"endMs": 307032,
+"timestampMs": 306904,
+"confidence": 0.5
+},
+{
+"line": "L204",
+"text": "ngày.",
+"startMs": 307032,
+"endMs": 307290,
+"timestampMs": 307161,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "Bạn",
+"startMs": 307740,
+"endMs": 307892,
+"timestampMs": 307816,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "đẩy",
+"startMs": 307892,
+"endMs": 308248,
+"timestampMs": 308070,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "ông",
+"startMs": 308248,
+"endMs": 308452,
+"timestampMs": 308350,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "qua",
+"startMs": 308452,
+"endMs": 308596,
+"timestampMs": 308524,
+"confidence": 1
+},
+{
+"line": "L205",
+"text": "cửa.",
+"startMs": 308596,
+"endMs": 308810,
+"timestampMs": 308703,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "Tới",
+"startMs": 309340,
+"endMs": 309799,
+"timestampMs": 309570,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "trước",
+"startMs": 309799,
+"endMs": 309879,
+"timestampMs": 309839,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "mặt",
+"startMs": 309859,
+"endMs": 309993,
+"timestampMs": 309926,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "một",
+"startMs": 309993,
+"endMs": 310152,
+"timestampMs": 310073,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "bác",
+"startMs": 310152,
+"endMs": 310294,
+"timestampMs": 310223,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "sĩ",
+"startMs": 310294,
+"endMs": 310400,
+"timestampMs": 310347,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "đang",
+"startMs": 310400,
+"endMs": 310576,
+"timestampMs": 310488,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "đứng",
+"startMs": 310576,
+"endMs": 310823,
+"timestampMs": 310700,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "hình",
+"startMs": 310823,
+"endMs": 311000,
+"timestampMs": 310912,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "giữa",
+"startMs": 311000,
+"endMs": 311203,
+"timestampMs": 311102,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "hành",
+"startMs": 311203,
+"endMs": 311389,
+"timestampMs": 311296,
+"confidence": 1
+},
+{
+"line": "L206",
+"text": "lang.",
+"startMs": 311389,
+"endMs": 311590,
+"timestampMs": 311489,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "Bạn",
+"startMs": 312090,
+"endMs": 312271,
+"timestampMs": 312181,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "vỗ",
+"startMs": 312271,
+"endMs": 312600,
+"timestampMs": 312436,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "tay",
+"startMs": 312600,
+"endMs": 312680,
+"timestampMs": 312640,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "lần",
+"startMs": 312660,
+"endMs": 312880,
+"timestampMs": 312770,
+"confidence": 1
+},
+{
+"line": "L207",
+"text": "cuối.",
+"startMs": 312880,
+"endMs": 313130,
+"timestampMs": 313005,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "Không",
+"startMs": 313700,
+"endMs": 314142,
+"timestampMs": 313921,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "phải",
+"startMs": 314142,
+"endMs": 314222,
+"timestampMs": 314182,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "để",
+"startMs": 314202,
+"endMs": 314321,
+"timestampMs": 314261,
+"confidence": 1
+},
+{
+"line": "L208",
+"text": "dừng.",
+"startMs": 314321,
+"endMs": 314540,
+"timestampMs": 314430,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "Mà",
+"startMs": 315070,
+"endMs": 315214,
+"timestampMs": 315142,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "để",
+"startMs": 315214,
+"endMs": 315501,
+"timestampMs": 315357,
+"confidence": 1
+},
+{
+"line": "L209",
+"text": "thả.",
+"startMs": 315501,
+"endMs": 315770,
+"timestampMs": 315635,
+"confidence": 1
+},
+{
+"line": "L210",
+"text": "Thời",
+"startMs": 316460,
+"endMs": 316672,
+"timestampMs": 316566,
+"confidence": 1
+},
+{
+"line": "L210",
+"text": "gian",
+"startMs": 316672,
+"endMs": 316922,
+"timestampMs": 316797,
+"confidence": 1
+},
+{
+"line": "L210",
+"text": "chạy",
+"startMs": 316922,
+"endMs": 317078,
+"timestampMs": 317000,
+"confidence": 1
+},
+{
+"line": "L210",
+"text": "lại.",
+"startMs": 317078,
+"endMs": 317250,
+"timestampMs": 317164,
+"confidence": 1
+},
+{
+"line": "L211",
+"text": "Bác",
+"startMs": 317820,
+"endMs": 318000,
+"timestampMs": 317910,
+"confidence": 1
+},
+{
+"line": "L211",
+"text": "sĩ",
+"startMs": 318000,
+"endMs": 318225,
+"timestampMs": 318113,
+"confidence": 1
+},
+{
+"line": "L211",
+"text": "giật",
+"startMs": 318225,
+"endMs": 318413,
+"timestampMs": 318319,
+"confidence": 1
+},
+{
+"line": "L211",
+"text": "mình.",
+"startMs": 318413,
+"endMs": 318650,
+"timestampMs": 318531,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "Trước",
+"startMs": 319200,
+"endMs": 319511,
+"timestampMs": 319356,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "mặt",
+"startMs": 319511,
+"endMs": 319749,
+"timestampMs": 319630,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "cô",
+"startMs": 319749,
+"endMs": 319829,
+"timestampMs": 319789,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "là",
+"startMs": 319814,
+"endMs": 320019,
+"timestampMs": 319917,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "một",
+"startMs": 320019,
+"endMs": 320125,
+"timestampMs": 320072,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "ông",
+"startMs": 320125,
+"endMs": 320281,
+"timestampMs": 320203,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "cụ",
+"startMs": 320281,
+"endMs": 320429,
+"timestampMs": 320355,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "trên",
+"startMs": 320429,
+"endMs": 320641,
+"timestampMs": 320535,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "xe",
+"startMs": 320641,
+"endMs": 320721,
+"timestampMs": 320681,
+"confidence": 1
+},
+{
+"line": "L212",
+"text": "lăn.",
+"startMs": 320701,
+"endMs": 320860,
+"timestampMs": 320781,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "Và",
+"startMs": 321430,
+"endMs": 321573,
+"timestampMs": 321502,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "một",
+"startMs": 321573,
+"endMs": 321914,
+"timestampMs": 321743,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "thằng",
+"startMs": 321914,
+"endMs": 322155,
+"timestampMs": 322034,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "nhóc",
+"startMs": 322155,
+"endMs": 322397,
+"timestampMs": 322276,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "áo",
+"startMs": 322397,
+"endMs": 322540,
+"timestampMs": 322469,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "cam,",
+"startMs": 322540,
+"endMs": 322863,
+"timestampMs": 322702,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "ướt",
+"startMs": 322863,
+"endMs": 323176,
+"timestampMs": 323019,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "đẫm",
+"startMs": 323176,
+"endMs": 323337,
+"timestampMs": 323257,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "mồ",
+"startMs": 323337,
+"endMs": 323498,
+"timestampMs": 323418,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "hôi,",
+"startMs": 323498,
+"endMs": 323830,
+"timestampMs": 323664,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "quỳ",
+"startMs": 323830,
+"endMs": 324063,
+"timestampMs": 323946,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "dưới",
+"startMs": 324063,
+"endMs": 324304,
+"timestampMs": 324184,
+"confidence": 1
+},
+{
+"line": "L213",
+"text": "sàn.",
+"startMs": 324304,
+"endMs": 324540,
+"timestampMs": 324422,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "Ông",
+"startMs": 325110,
+"endMs": 325370,
+"timestampMs": 325240,
+"confidence": 1
+},
+{
+"line": "L214",
+"text": "con",
+"startMs": 325370,
+"endMs": 325630,
+"timestampMs": 325500,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "đột",
+"startMs": 326120,
+"endMs": 326395,
+"timestampMs": 326258,
+"confidence": 1
+},
+{
+"line": "L215",
+"text": "quỵ.",
+"startMs": 326395,
+"endMs": 326670,
+"timestampMs": 326532,
+"confidence": 1
+},
+{
+"line": "L216",
+"text": "Mới",
+"startMs": 327380,
+"endMs": 327850,
+"timestampMs": 327615,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "vài",
+"startMs": 328410,
+"endMs": 328637,
+"timestampMs": 328524,
+"confidence": 1
+},
+{
+"line": "L217",
+"text": "phút.",
+"startMs": 328637,
+"endMs": 328910,
+"timestampMs": 328774,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "Cô",
+"startMs": 329100,
+"endMs": 329291,
+"timestampMs": 329195,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "bác",
+"startMs": 329291,
+"endMs": 329448,
+"timestampMs": 329369,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "sĩ",
+"startMs": 329448,
+"endMs": 329583,
+"timestampMs": 329515,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "nhìn",
+"startMs": 329583,
+"endMs": 329852,
+"timestampMs": 329717,
+"confidence": 1
+},
+{
+"line": "L218",
+"text": "ông.",
+"startMs": 329852,
+"endMs": 330050,
+"timestampMs": 329951,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "Rồi",
+"startMs": 330390,
+"endMs": 330697,
+"timestampMs": 330543,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "hét",
+"startMs": 330697,
+"endMs": 330850,
+"timestampMs": 330773,
+"confidence": 1
+},
+{
+"line": "L219",
+"text": "lên:",
+"startMs": 330850,
+"endMs": 331080,
+"timestampMs": 330965,
+"confidence": 1
+},
+{
+"line": "L220",
+"text": "Đột",
+"startMs": 331460,
+"endMs": 331765,
+"timestampMs": 331612,
+"confidence": 1
+},
+{
+"line": "L220",
+"text": "quỵ!",
+"startMs": 331765,
+"endMs": 332070,
+"timestampMs": 331918,
+"confidence": 1
+},
+{
+"line": "L221",
+"text": "Kíp",
+"startMs": 332430,
+"endMs": 332680,
+"timestampMs": 332555,
+"confidence": 0.5
+},
+{
+"line": "L221",
+"text": "cấp",
+"startMs": 332680,
+"endMs": 332930,
+"timestampMs": 332805,
+"confidence": 1
+},
+{
+"line": "L221",
+"text": "cứu!",
+"startMs": 332930,
+"endMs": 333180,
+"timestampMs": 333055,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "Cánh",
+"startMs": 333400,
+"endMs": 333647,
+"timestampMs": 333524,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "cửa",
+"startMs": 333647,
+"endMs": 333914,
+"timestampMs": 333781,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "phòng",
+"startMs": 333914,
+"endMs": 334191,
+"timestampMs": 334053,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "cấp",
+"startMs": 334191,
+"endMs": 334478,
+"timestampMs": 334335,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "cứu",
+"startMs": 334478,
+"endMs": 334696,
+"timestampMs": 334587,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "mở",
+"startMs": 334696,
+"endMs": 334893,
+"timestampMs": 334794,
+"confidence": 1
+},
+{
+"line": "L222",
+"text": "ra.",
+"startMs": 334893,
+"endMs": 335080,
+"timestampMs": 334987,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "Rồi",
+"startMs": 335390,
+"endMs": 335727,
+"timestampMs": 335558,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "đóng",
+"startMs": 335727,
+"endMs": 335807,
+"timestampMs": 335767,
+"confidence": 1
+},
+{
+"line": "L223",
+"text": "lại.",
+"startMs": 335802,
+"endMs": 335990,
+"timestampMs": 335896,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "Bạn",
+"startMs": 336580,
+"endMs": 336786,
+"timestampMs": 336683,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "ngồi",
+"startMs": 336786,
+"endMs": 337074,
+"timestampMs": 336930,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "bệt",
+"startMs": 337074,
+"endMs": 337239,
+"timestampMs": 337157,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "xuống",
+"startMs": 337239,
+"endMs": 337552,
+"timestampMs": 337395,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "sàn",
+"startMs": 337552,
+"endMs": 337700,
+"timestampMs": 337626,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "hành",
+"startMs": 337700,
+"endMs": 337906,
+"timestampMs": 337803,
+"confidence": 1
+},
+{
+"line": "L224",
+"text": "lang.",
+"startMs": 337906,
+"endMs": 338140,
+"timestampMs": 338023,
+"confidence": 1
+},
+{
+"line": "L225",
+"text": "Bạn",
+"startMs": 338420,
+"endMs": 338710,
+"timestampMs": 338565,
+"confidence": 1
+},
+{
+"line": "L225",
+"text": "đếm.",
+"startMs": 338710,
+"endMs": 339000,
+"timestampMs": 338855,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "Sáu",
+"startMs": 339500,
+"endMs": 339722,
+"timestampMs": 339611,
+"confidence": 0.5
+},
+{
+"line": "L226",
+"text": "mươi",
+"startMs": 339722,
+"endMs": 339989,
+"timestampMs": 339856,
+"confidence": 0.5
+},
+{
+"line": "L226",
+"text": "ba",
+"startMs": 339989,
+"endMs": 340167,
+"timestampMs": 340078,
+"confidence": 0.5
+},
+{
+"line": "L226",
+"text": "lần",
+"startMs": 340167,
+"endMs": 340370,
+"timestampMs": 340269,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "vỗ",
+"startMs": 340370,
+"endMs": 340568,
+"timestampMs": 340469,
+"confidence": 1
+},
+{
+"line": "L226",
+"text": "tay.",
+"startMs": 340568,
+"endMs": 340790,
+"timestampMs": 340679,
+"confidence": 1
+},
+{
+"line": "L227",
+"text": "Sáu",
+"startMs": 341270,
+"endMs": 341472,
+"timestampMs": 341371,
+"confidence": 0.5
+},
+{
+"line": "L227",
+"text": "mươi",
+"startMs": 341472,
+"endMs": 341715,
+"timestampMs": 341594,
+"confidence": 0.5
+},
+{
+"line": "L227",
+"text": "ba",
+"startMs": 341715,
+"endMs": 341877,
+"timestampMs": 341796,
+"confidence": 0.5
+},
+{
+"line": "L227",
+"text": "ngày.",
+"startMs": 341877,
+"endMs": 342120,
+"timestampMs": 341999,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "Tính",
+"startMs": 342400,
+"endMs": 342635,
+"timestampMs": 342518,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "từ",
+"startMs": 342635,
+"endMs": 342759,
+"timestampMs": 342697,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "lúc",
+"startMs": 342759,
+"endMs": 342982,
+"timestampMs": 342871,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "chén",
+"startMs": 342982,
+"endMs": 343131,
+"timestampMs": 343057,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "cơm",
+"startMs": 343131,
+"endMs": 343292,
+"timestampMs": 343211,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "rơi",
+"startMs": 343292,
+"endMs": 343453,
+"timestampMs": 343372,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "xuống",
+"startMs": 343453,
+"endMs": 343787,
+"timestampMs": 343620,
+"confidence": 1
+},
+{
+"line": "L228",
+"text": "mâm",
+"startMs": 343787,
+"endMs": 343970,
+"timestampMs": 343879,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "mới",
+"startMs": 344250,
+"endMs": 344590,
+"timestampMs": 344420,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "trôi",
+"startMs": 344590,
+"endMs": 344732,
+"timestampMs": 344661,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "qua",
+"startMs": 344732,
+"endMs": 344875,
+"timestampMs": 344804,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "có",
+"startMs": 344875,
+"endMs": 344979,
+"timestampMs": 344927,
+"confidence": 1
+},
+{
+"line": "L229",
+"text": "bốn",
+"startMs": 344979,
+"endMs": 345161,
+"timestampMs": 345070,
+"confidence": 0.5
+},
+{
+"line": "L229",
+"text": "phút.",
+"startMs": 345161,
+"endMs": 345380,
+"timestampMs": 345271,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "Hai",
+"startMs": 345920,
+"endMs": 346083,
+"timestampMs": 346001,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "tuần",
+"startMs": 346083,
+"endMs": 346408,
+"timestampMs": 346245,
+"confidence": 1
+},
+{
+"line": "L230",
+"text": "sau.",
+"startMs": 346408,
+"endMs": 346630,
+"timestampMs": 346519,
+"confidence": 1
+},
+{
+"line": "L231",
+"text": "Bệnh",
+"startMs": 347110,
+"endMs": 347360,
+"timestampMs": 347235,
+"confidence": 1
+},
+{
+"line": "L231",
+"text": "viện.",
+"startMs": 347360,
+"endMs": 347610,
+"timestampMs": 347485,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "Ông",
+"startMs": 348020,
+"endMs": 348208,
+"timestampMs": 348114,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "ngồi",
+"startMs": 348208,
+"endMs": 348499,
+"timestampMs": 348354,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "dựa",
+"startMs": 348499,
+"endMs": 348744,
+"timestampMs": 348622,
+"confidence": 1
+},
+{
+"line": "L232",
+"text": "gối.",
+"startMs": 348744,
+"endMs": 348970,
+"timestampMs": 348857,
+"confidence": 1
+},
+{
+"line": "L233",
+"text": "Nói",
+"startMs": 349290,
+"endMs": 349715,
+"timestampMs": 349503,
+"confidence": 1
+},
+{
+"line": "L233",
+"text": "còn",
+"startMs": 349715,
+"endMs": 349795,
+"timestampMs": 349755,
+"confidence": 1
+},
+{
+"line": "L233",
+"text": "chậm.",
+"startMs": 349775,
+"endMs": 349970,
+"timestampMs": 349873,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "Tay",
+"startMs": 350430,
+"endMs": 350510,
+"timestampMs": 350470,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "trái",
+"startMs": 350490,
+"endMs": 350930,
+"timestampMs": 350710,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "còn",
+"startMs": 350930,
+"endMs": 351184,
+"timestampMs": 351057,
+"confidence": 1
+},
+{
+"line": "L234",
+"text": "yếu.",
+"startMs": 351184,
+"endMs": 351420,
+"timestampMs": 351302,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "Nhưng",
+"startMs": 351900,
+"endMs": 352116,
+"timestampMs": 352008,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "ông",
+"startMs": 352116,
+"endMs": 352291,
+"timestampMs": 352204,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "cười",
+"startMs": 352291,
+"endMs": 352515,
+"timestampMs": 352403,
+"confidence": 1
+},
+{
+"line": "L235",
+"text": "được.",
+"startMs": 352515,
+"endMs": 352720,
+"timestampMs": 352618,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "Bác",
+"startMs": 353070,
+"endMs": 353171,
+"timestampMs": 353120,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "sĩ",
+"startMs": 353171,
+"endMs": 353547,
+"timestampMs": 353359,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "nói",
+"startMs": 353547,
+"endMs": 353627,
+"timestampMs": 353587,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "ông",
+"startMs": 353612,
+"endMs": 353814,
+"timestampMs": 353713,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "tới",
+"startMs": 353814,
+"endMs": 354062,
+"timestampMs": 353938,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "kịp",
+"startMs": 354062,
+"endMs": 354502,
+"timestampMs": 354282,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "\"giờ",
+"startMs": 354502,
+"endMs": 354787,
+"timestampMs": 354645,
+"confidence": 1
+},
+{
+"line": "L236",
+"text": "vàng\".",
+"startMs": 354787,
+"endMs": 355090,
+"timestampMs": 354938,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "Chậm",
+"startMs": 355410,
+"endMs": 355642,
+"timestampMs": 355526,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "thêm",
+"startMs": 355642,
+"endMs": 355882,
+"timestampMs": 355762,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "chút",
+"startMs": 355882,
+"endMs": 356046,
+"timestampMs": 355964,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "nữa",
+"startMs": 356046,
+"endMs": 356235,
+"timestampMs": 356140,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "thôi",
+"startMs": 356235,
+"endMs": 356441,
+"timestampMs": 356338,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "là",
+"startMs": 356441,
+"endMs": 356552,
+"timestampMs": 356496,
+"confidence": 1
+},
+{
+"line": "L237",
+"text": "khác.",
+"startMs": 356552,
+"endMs": 356760,
+"timestampMs": 356656,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "Ba",
+"startMs": 357110,
+"endMs": 357255,
+"timestampMs": 357183,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "vẫn",
+"startMs": 357255,
+"endMs": 357516,
+"timestampMs": 357386,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "không",
+"startMs": 357516,
+"endMs": 357596,
+"timestampMs": 357556,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "hiểu",
+"startMs": 357576,
+"endMs": 357816,
+"timestampMs": 357696,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "ông",
+"startMs": 357816,
+"endMs": 357923,
+"timestampMs": 357870,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "tới",
+"startMs": 357923,
+"endMs": 358097,
+"timestampMs": 358010,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "bệnh",
+"startMs": 358097,
+"endMs": 358300,
+"timestampMs": 358199,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "viện",
+"startMs": 358300,
+"endMs": 358513,
+"timestampMs": 358407,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "bằng",
+"startMs": 358513,
+"endMs": 358707,
+"timestampMs": 358610,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "cách",
+"startMs": 358707,
+"endMs": 358900,
+"timestampMs": 358803,
+"confidence": 1
+},
+{
+"line": "L238",
+"text": "nào.",
+"startMs": 358900,
+"endMs": 359060,
+"timestampMs": 358980,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "Ba",
+"startMs": 359300,
+"endMs": 359458,
+"timestampMs": 359379,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "hỏi",
+"startMs": 359458,
+"endMs": 359734,
+"timestampMs": 359596,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "cả",
+"startMs": 359734,
+"endMs": 359892,
+"timestampMs": 359813,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "chục",
+"startMs": 359892,
+"endMs": 360218,
+"timestampMs": 360055,
+"confidence": 1
+},
+{
+"line": "L239",
+"text": "lần.",
+"startMs": 360218,
+"endMs": 360460,
+"timestampMs": 360339,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "Bạn",
+"startMs": 360790,
+"endMs": 361203,
+"timestampMs": 360996,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "chỉ",
+"startMs": 361203,
+"endMs": 361310,
+"timestampMs": 361256,
+"confidence": 1
+},
+{
+"line": "L240",
+"text": "nói:",
+"startMs": 361310,
+"endMs": 361570,
+"timestampMs": 361440,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "Con",
+"startMs": 361950,
+"endMs": 362209,
+"timestampMs": 362079,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "đẩy",
+"startMs": 362209,
+"endMs": 362398,
+"timestampMs": 362303,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "ông",
+"startMs": 362398,
+"endMs": 362605,
+"timestampMs": 362502,
+"confidence": 1
+},
+{
+"line": "L241",
+"text": "đi.",
+"startMs": 362605,
+"endMs": 362780,
+"timestampMs": 362693,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "Hơi",
+"startMs": 363060,
+"endMs": 363320,
+"timestampMs": 363190,
+"confidence": 1
+},
+{
+"line": "L242",
+"text": "lâu.",
+"startMs": 363320,
+"endMs": 363580,
+"timestampMs": 363450,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "Ông",
+"startMs": 363920,
+"endMs": 364077,
+"timestampMs": 363999,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "nhìn",
+"startMs": 364077,
+"endMs": 364278,
+"timestampMs": 364177,
+"confidence": 1
+},
+{
+"line": "L243",
+"text": "bạn.",
+"startMs": 364278,
+"endMs": 364440,
+"timestampMs": 364359,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "Rất",
+"startMs": 364860,
+"endMs": 365160,
+"timestampMs": 365010,
+"confidence": 1
+},
+{
+"line": "L244",
+"text": "lâu.",
+"startMs": 365160,
+"endMs": 365460,
+"timestampMs": 365310,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "Rồi",
+"startMs": 365550,
+"endMs": 365953,
+"timestampMs": 365752,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "ông",
+"startMs": 365953,
+"endMs": 366033,
+"timestampMs": 365993,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "xoa",
+"startMs": 366013,
+"endMs": 366093,
+"timestampMs": 366053,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "đầu",
+"startMs": 366091,
+"endMs": 366366,
+"timestampMs": 366228,
+"confidence": 1
+},
+{
+"line": "L245",
+"text": "bạn.",
+"startMs": 366366,
+"endMs": 366570,
+"timestampMs": 366468,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "Bằng",
+"startMs": 366790,
+"endMs": 367059,
+"timestampMs": 366925,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "bàn",
+"startMs": 367059,
+"endMs": 367239,
+"timestampMs": 367149,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "tay",
+"startMs": 367239,
+"endMs": 367388,
+"timestampMs": 367314,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "còn",
+"startMs": 367388,
+"endMs": 367568,
+"timestampMs": 367478,
+"confidence": 1
+},
+{
+"line": "L246",
+"text": "khỏe.",
+"startMs": 367568,
+"endMs": 367790,
+"timestampMs": 367679,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "Thằng",
+"startMs": 368280,
+"endMs": 368572,
+"timestampMs": 368426,
+"confidence": 1
+},
+{
+"line": "L247",
+"text": "này",
+"startMs": 368572,
+"endMs": 368780,
+"timestampMs": 368676,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "lớn",
+"startMs": 369330,
+"endMs": 369586,
+"timestampMs": 369458,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "nhanh",
+"startMs": 369586,
+"endMs": 369841,
+"timestampMs": 369713,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "quá",
+"startMs": 369841,
+"endMs": 370059,
+"timestampMs": 369950,
+"confidence": 1
+},
+{
+"line": "L248",
+"text": "ta.",
+"startMs": 370059,
+"endMs": 370230,
+"timestampMs": 370144,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "Trên",
+"startMs": 370920,
+"endMs": 371135,
+"timestampMs": 371027,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "tường",
+"startMs": 371135,
+"endMs": 371539,
+"timestampMs": 371337,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "phòng",
+"startMs": 371539,
+"endMs": 371738,
+"timestampMs": 371639,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "bệnh,",
+"startMs": 371738,
+"endMs": 372159,
+"timestampMs": 371948,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "bạn",
+"startMs": 372159,
+"endMs": 372415,
+"timestampMs": 372287,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "treo",
+"startMs": 372415,
+"endMs": 372495,
+"timestampMs": 372455,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "một",
+"startMs": 372475,
+"endMs": 372630,
+"timestampMs": 372552,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "cuốn",
+"startMs": 372630,
+"endMs": 372861,
+"timestampMs": 372745,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "lịch",
+"startMs": 372861,
+"endMs": 373034,
+"timestampMs": 372948,
+"confidence": 1
+},
+{
+"line": "L249",
+"text": "mới.",
+"startMs": 373034,
+"endMs": 373230,
+"timestampMs": 373132,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "Sáng",
+"startMs": 373830,
+"endMs": 374182,
+"timestampMs": 374006,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "hôm",
+"startMs": 374182,
+"endMs": 374381,
+"timestampMs": 374282,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "đó,",
+"startMs": 374381,
+"endMs": 374785,
+"timestampMs": 374583,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "ông",
+"startMs": 374785,
+"endMs": 375064,
+"timestampMs": 374924,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "chỉ",
+"startMs": 375064,
+"endMs": 375188,
+"timestampMs": 375126,
+"confidence": 1
+},
+{
+"line": "L250",
+"text": "tay.",
+"startMs": 375188,
+"endMs": 375460,
+"timestampMs": 375324,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "Bạn",
+"startMs": 376050,
+"endMs": 376323,
+"timestampMs": 376187,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "xé",
+"startMs": 376323,
+"endMs": 376581,
+"timestampMs": 376452,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "một",
+"startMs": 376581,
+"endMs": 376773,
+"timestampMs": 376677,
+"confidence": 1
+},
+{
+"line": "L251",
+"text": "tờ.",
+"startMs": 376773,
+"endMs": 376980,
+"timestampMs": 376877,
+"confidence": 1
+},
+{
+"line": "L252",
+"text": "Thêm",
+"startMs": 377550,
+"endMs": 377950,
+"timestampMs": 377750,
+"confidence": 1
+},
+{
+"line": "L252",
+"text": "một",
+"startMs": 377950,
+"endMs": 378030,
+"timestampMs": 377990,
+"confidence": 1
+},
+{
+"line": "L252",
+"text": "ngày",
+"startMs": 378010,
+"endMs": 378176,
+"timestampMs": 378093,
+"confidence": 1
+},
+{
+"line": "L252",
+"text": "lời.",
+"startMs": 378176,
+"endMs": 378360,
+"timestampMs": 378268,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "Bạn",
+"startMs": 379070,
+"endMs": 379150,
+"timestampMs": 379110,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "đã",
+"startMs": 379130,
+"endMs": 379646,
+"timestampMs": 379388,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "cho",
+"startMs": 379646,
+"endMs": 379726,
+"timestampMs": 379686,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "đi",
+"startMs": 379710,
+"endMs": 379790,
+"timestampMs": 379750,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "sáu",
+"startMs": 379770,
+"endMs": 379850,
+"timestampMs": 379810,
+"confidence": 0.5
+},
+{
+"line": "L253",
+"text": "mươi",
+"startMs": 379847,
+"endMs": 380050,
+"timestampMs": 379949,
+"confidence": 0.5
+},
+{
+"line": "L253",
+"text": "ba",
+"startMs": 380050,
+"endMs": 380130,
+"timestampMs": 380090,
+"confidence": 0.5
+},
+{
+"line": "L253",
+"text": "ngày",
+"startMs": 380110,
+"endMs": 380317,
+"timestampMs": 380214,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "của",
+"startMs": 380317,
+"endMs": 380557,
+"timestampMs": 380437,
+"confidence": 1
+},
+{
+"line": "L253",
+"text": "mình.",
+"startMs": 380557,
+"endMs": 380760,
+"timestampMs": 380659,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "Và",
+"startMs": 381500,
+"endMs": 381616,
+"timestampMs": 381558,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "ông",
+"startMs": 381616,
+"endMs": 381724,
+"timestampMs": 381670,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "có",
+"startMs": 381724,
+"endMs": 381871,
+"timestampMs": 381797,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "thêm",
+"startMs": 381871,
+"endMs": 382156,
+"timestampMs": 382014,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "rất",
+"startMs": 382156,
+"endMs": 382272,
+"timestampMs": 382214,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "nhiều",
+"startMs": 382272,
+"endMs": 382543,
+"timestampMs": 382407,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "tờ",
+"startMs": 382543,
+"endMs": 382728,
+"timestampMs": 382635,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "lịch",
+"startMs": 382728,
+"endMs": 382929,
+"timestampMs": 382828,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "nữa",
+"startMs": 382929,
+"endMs": 383122,
+"timestampMs": 383025,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "để",
+"startMs": 383122,
+"endMs": 383315,
+"timestampMs": 383218,
+"confidence": 1
+},
+{
+"line": "L254",
+"text": "xé.",
+"startMs": 383315,
+"endMs": 383460,
+"timestampMs": 383387,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "Có",
+"startMs": 384240,
+"endMs": 384574,
+"timestampMs": 384407,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "những",
+"startMs": 384574,
+"endMs": 384654,
+"timestampMs": 384614,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "ngày",
+"startMs": 384634,
+"endMs": 384853,
+"timestampMs": 384743,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "không",
+"startMs": 384853,
+"endMs": 384943,
+"timestampMs": 384898,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "phải",
+"startMs": 384943,
+"endMs": 385173,
+"timestampMs": 385058,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "để",
+"startMs": 385173,
+"endMs": 385312,
+"timestampMs": 385243,
+"confidence": 1
+},
+{
+"line": "L255",
+"text": "giữ.",
+"startMs": 385312,
+"endMs": 385470,
+"timestampMs": 385391,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "Mà",
+"startMs": 386130,
+"endMs": 386482,
+"timestampMs": 386306,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "để",
+"startMs": 386482,
+"endMs": 386562,
+"timestampMs": 386522,
+"confidence": 1
+},
+{
+"line": "L256",
+"text": "cho.",
+"startMs": 386542,
+"endMs": 386740,
+"timestampMs": 386641,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "Còn",
+"startMs": 387580,
+"endMs": 388353,
+"timestampMs": 387967,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "bạn",
+"startMs": 388353,
+"endMs": 388662,
+"timestampMs": 388508,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "nếu",
+"startMs": 388662,
+"endMs": 388851,
+"timestampMs": 388757,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "mỗi",
+"startMs": 388851,
+"endMs": 389006,
+"timestampMs": 388929,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "lần",
+"startMs": 389006,
+"endMs": 389264,
+"timestampMs": 389135,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "dừng",
+"startMs": 389264,
+"endMs": 389453,
+"timestampMs": 389358,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "thời",
+"startMs": 389453,
+"endMs": 389676,
+"timestampMs": 389564,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "gian",
+"startMs": 389676,
+"endMs": 389848,
+"timestampMs": 389762,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "tốn",
+"startMs": 389848,
+"endMs": 390020,
+"timestampMs": 389934,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "một",
+"startMs": 390020,
+"endMs": 390209,
+"timestampMs": 390114,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "ngày",
+"startMs": 390209,
+"endMs": 390397,
+"timestampMs": 390303,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "tuổi,",
+"startMs": 390397,
+"endMs": 390810,
+"timestampMs": 390604,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "bạn",
+"startMs": 390810,
+"endMs": 391153,
+"timestampMs": 390982,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "sẽ",
+"startMs": 391153,
+"endMs": 391233,
+"timestampMs": 391193,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "dùng",
+"startMs": 391213,
+"endMs": 391342,
+"timestampMs": 391278,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "nó",
+"startMs": 391342,
+"endMs": 391454,
+"timestampMs": 391398,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "cho",
+"startMs": 391454,
+"endMs": 391566,
+"timestampMs": 391510,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "điều",
+"startMs": 391566,
+"endMs": 391841,
+"timestampMs": 391703,
+"confidence": 1
+},
+{
+"line": "L257",
+"text": "gì?",
+"startMs": 391841,
+"endMs": 392020,
+"timestampMs": 391930,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "Kể",
+"startMs": 392330,
+"endMs": 392434,
+"timestampMs": 392382,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "cho",
+"startMs": 392434,
+"endMs": 392549,
+"timestampMs": 392491,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "mình",
+"startMs": 392549,
+"endMs": 392710,
+"timestampMs": 392629,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "nghe",
+"startMs": 392710,
+"endMs": 392848,
+"timestampMs": 392779,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "trong",
+"startMs": 392848,
+"endMs": 393020,
+"timestampMs": 392934,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "phần",
+"startMs": 393020,
+"endMs": 393227,
+"timestampMs": 393124,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "bình",
+"startMs": 393227,
+"endMs": 393400,
+"timestampMs": 393313,
+"confidence": 1
+},
+{
+"line": "L258",
+"text": "luận.",
+"startMs": 393400,
+"endMs": 393560,
+"timestampMs": 393480,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "Bấm",
+"startMs": 394420,
+"endMs": 394643,
+"timestampMs": 394532,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "like",
+"startMs": 394643,
+"endMs": 394800,
+"timestampMs": 394722,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "và",
+"startMs": 394800,
+"endMs": 395065,
+"timestampMs": 394933,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "đăng",
+"startMs": 395065,
+"endMs": 395255,
+"timestampMs": 395160,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "ký",
+"startMs": 395255,
+"endMs": 395388,
+"timestampMs": 395321,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "để",
+"startMs": 395388,
+"endMs": 395644,
+"timestampMs": 395516,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "xem",
+"startMs": 395644,
+"endMs": 395768,
+"timestampMs": 395706,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "thêm",
+"startMs": 395768,
+"endMs": 396000,
+"timestampMs": 395884,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "những",
+"startMs": 396000,
+"endMs": 396330,
+"timestampMs": 396165,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "chữ",
+"startMs": 396330,
+"endMs": 396562,
+"timestampMs": 396446,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "\"nếu\"",
+"startMs": 396562,
+"endMs": 397017,
+"timestampMs": 396789,
+"confidence": 1
+},
+{
+"line": "L259",
+"text": "khác.",
+"startMs": 397017,
+"endMs": 397290,
+"timestampMs": 397153,
+"confidence": 1
+},
+{
+"line": "L260",
+"text": "Một",
+"startMs": 397840,
+"endMs": 398178,
+"timestampMs": 398009,
+"confidence": 1
+},
+{
+"line": "L260",
+"text": "chữ",
+"startMs": 398178,
+"endMs": 398320,
+"timestampMs": 398249,
+"confidence": 1
+},
+{
+"line": "L260",
+"text": "nếu",
+"startMs": 398320,
+"endMs": 398560,
+"timestampMs": 398440,
+"confidence": 1
+},
+{
+"line": "L261",
+"text": "một",
+"startMs": 399050,
+"endMs": 399230,
+"timestampMs": 399140,
+"confidence": 0.5
+},
+{
+"line": "L261",
+"text": "cuộc",
+"startMs": 399230,
+"endMs": 399445,
+"timestampMs": 399337,
+"confidence": 0.5
+},
+{
+"line": "L261",
+"text": "đời",
+"startMs": 399445,
+"endMs": 399625,
+"timestampMs": 399535,
+"confidence": 0.5
+},
+{
+"line": "L261",
+"text": "khác.",
+"startMs": 399625,
+"endMs": 399840,
+"timestampMs": 399732,
+"confidence": 0.5
+}
+]
+}

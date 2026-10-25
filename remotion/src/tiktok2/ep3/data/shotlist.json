@@ -1,0 +1,489 @@
+{
+ "_doc": "Danh sách shot EP3. moc = vài chữ đầu câu (so khớp gần đúng, theo thứ tự). hold = giây giữ hình sau câu cuối của shot. lineHolds = giữ sau một câu cụ thể. fast = cắt dồn dập. atHold = shot chỉ có hình, đặt trong hold sau câu đó (9.12 teaser – voice không có câu này).",
+ "shots": [
+  {
+   "id": "1.1",
+   "act": 1,
+   "moc": "Nếu bạn quay lại được",
+   "hold": 0.5
+  },
+  {
+   "id": "2.1",
+   "act": 2,
+   "moc": "Bảy giờ sáng",
+   "hold": 0.2
+  },
+  {
+   "id": "2.2",
+   "act": 2,
+   "moc": "Bạn đã tập câu chào",
+   "hold": 0.3
+  },
+  {
+   "id": "2.3",
+   "act": 2,
+   "moc": "Linh nhìn bạn",
+   "hold": 0.3
+  },
+  {
+   "id": "2.4",
+   "act": 2,
+   "moc": "Chào",
+   "hold": 0.3
+  },
+  {
+   "id": "2.5",
+   "act": 2,
+   "moc": "Linh khựng lại",
+   "hold": 1.2
+  },
+  {
+   "id": "2.6",
+   "act": 2,
+   "moc": "Bạn vừa gọi",
+   "hold": 0.6
+  },
+  {
+   "id": "2.7",
+   "act": 2,
+   "moc": "Bạn nhắm mắt",
+   "hold": 0.2,
+   "lineHolds": {
+    "L014": 0.5
+   }
+  },
+  {
+   "id": "2.8",
+   "act": 2,
+   "moc": "Chào linh",
+   "hold": 0.4
+  },
+  {
+   "id": "2.9",
+   "act": 2,
+   "moc": "Tua lại",
+   "hold": 0.4
+  },
+  {
+   "id": "2.10",
+   "act": 2,
+   "moc": "Lần thứ ba",
+   "hold": 0.9
+  },
+  {
+   "id": "2.11",
+   "act": 2,
+   "moc": "Bảy giờ năm phút",
+   "hold": 1.0
+  },
+  {
+   "id": "3.1",
+   "act": 3,
+   "moc": "Luật thế này"
+  },
+  {
+   "id": "3.2",
+   "act": 3,
+   "moc": "Nắm chặt tay",
+   "hold": 0.3
+  },
+  {
+   "id": "3.3",
+   "act": 3,
+   "moc": "Chỉ mình bạn nhớ",
+   "hold": 0.3
+  },
+  {
+   "id": "3.4",
+   "act": 3,
+   "moc": "Mỗi ngày ba lần",
+   "hold": 0.3
+  },
+  {
+   "id": "3.5",
+   "act": 3,
+   "moc": "Và khi đã dùng hết lượt thứ ba",
+   "hold": 0.6
+  },
+  {
+   "id": "3.6",
+   "act": 3,
+   "moc": "trung bình mỗi người nói",
+   "hold": 0.4
+  },
+  {
+   "id": "3.7",
+   "act": 3,
+   "moc": "ấn tượng đầu tiên",
+   "hold": 0.5
+  },
+  {
+   "id": "4.1",
+   "act": 4,
+   "moc": "Ngày thứ hai",
+   "fast": true
+  },
+  {
+   "id": "4.2",
+   "act": 4,
+   "moc": "Tám giờ mười",
+   "fast": true
+  },
+  {
+   "id": "4.3",
+   "act": 4,
+   "moc": "Tám giờ mười lăm",
+   "fast": true,
+   "hold": 0.4
+  },
+  {
+   "id": "4.4",
+   "act": 4,
+   "moc": "Thế là bạn mua một cuốn sổ",
+   "hold": 0.3
+  },
+  {
+   "id": "4.5",
+   "act": 4,
+   "moc": "Bạn bắt đầu tiêu",
+   "hold": 0.4
+  },
+  {
+   "id": "5.1",
+   "act": 5,
+   "moc": "Đá phạt đền",
+   "hold": 0.3
+  },
+  {
+   "id": "5.2",
+   "act": 5,
+   "moc": "Bạn sút",
+   "hold": 0.4
+  },
+  {
+   "id": "5.3",
+   "act": 5,
+   "moc": "Tua lại",
+   "hold": 0.2
+  },
+  {
+   "id": "5.4",
+   "act": 5,
+   "moc": "Vào",
+   "hold": 0.9
+  },
+  {
+   "id": "5.5",
+   "act": 5,
+   "moc": "Thủ môn đứng nhìn",
+   "hold": 1.0
+  },
+  {
+   "id": "5.6",
+   "act": 5,
+   "moc": "Giờ sinh hoạt"
+  },
+  {
+   "id": "5.7",
+   "act": 5,
+   "moc": "Câu thứ nhất",
+   "hold": 0.3
+  },
+  {
+   "id": "5.8",
+   "act": 5,
+   "moc": "Câu thứ ba",
+   "hold": 0.4,
+   "lineHolds": {
+    "L083": 1.0
+   }
+  },
+  {
+   "id": "5.9",
+   "act": 5,
+   "moc": "Và Linh",
+   "hold": 0.3
+  },
+  {
+   "id": "5.10",
+   "act": 5,
+   "moc": "Lần hai",
+   "hold": 0.6
+  },
+  {
+   "id": "5.11",
+   "act": 5,
+   "moc": "Bạn trở thành người hoàn hảo",
+   "hold": 0.6
+  },
+  {
+   "id": "6.1",
+   "act": 6,
+   "moc": "Nhưng có một cái giá"
+  },
+  {
+   "id": "6.2",
+   "act": 6,
+   "moc": "Một câu nói hớ",
+   "fast": true
+  },
+  {
+   "id": "6.3",
+   "act": 6,
+   "moc": "Và khi đã hết lượt",
+   "hold": 0.4
+  },
+  {
+   "id": "6.4",
+   "act": 6,
+   "moc": "Vậy là có một luật",
+   "hold": 0.6
+  },
+  {
+   "id": "6.5",
+   "act": 6,
+   "moc": "Từ trưa tới tối",
+   "hold": 0.4
+  },
+  {
+   "id": "6.6",
+   "act": 6,
+   "moc": "Phong thằng bạn thân",
+   "hold": 0.3
+  },
+  {
+   "id": "6.7",
+   "act": 6,
+   "moc": "Dạo này mày nói chuyện",
+   "hold": 0.4
+  },
+  {
+   "id": "6.8",
+   "act": 6,
+   "moc": "Mẹ cũng nói y vậy",
+   "hold": 0.4
+  },
+  {
+   "id": "6.9",
+   "act": 6,
+   "moc": "Bạn hoàn hảo hơn bao giờ hết",
+   "hold": 1.2
+  },
+  {
+   "id": "7.1",
+   "act": 7,
+   "moc": "Lượt một",
+   "fast": true
+  },
+  {
+   "id": "7.2",
+   "act": 7,
+   "moc": "Lượt hai",
+   "fast": true
+  },
+  {
+   "id": "7.3",
+   "act": 7,
+   "moc": "Lượt ba",
+   "fast": true
+  },
+  {
+   "id": "7.4",
+   "act": 7,
+   "moc": "Bốn giờ chiều",
+   "hold": 0.5
+  },
+  {
+   "id": "7.5",
+   "act": 7,
+   "moc": "Phong chạy tới"
+  },
+  {
+   "id": "7.6",
+   "act": 7,
+   "moc": "Ba tao chuyển công tác",
+   "hold": 0.5
+  },
+  {
+   "id": "7.7",
+   "act": 7,
+   "moc": "Phong là đứa duy nhất biết",
+   "hold": 0.4
+  },
+  {
+   "id": "7.8",
+   "act": 7,
+   "moc": "Sao giờ mày mới nói",
+   "hold": 0.3
+  },
+  {
+   "id": "7.9",
+   "act": 7,
+   "moc": "Bạn nắm chặt tay",
+   "hold": 0.6,
+   "lineHolds": {
+    "L146": 1.0
+   }
+  },
+  {
+   "id": "7.10",
+   "act": 7,
+   "moc": "Phong nhìn bạn",
+   "hold": 0.8
+  },
+  {
+   "id": "7.11",
+   "act": 7,
+   "moc": "Ba ô tròn đã tô kín",
+   "hold": 0.8
+  },
+  {
+   "id": "8.1",
+   "act": 8,
+   "moc": "Bốn giờ bốn mươi",
+   "hold": 0.3
+  },
+  {
+   "id": "8.2",
+   "act": 8,
+   "moc": "Bạn có thể đợi tới nửa đêm",
+   "hold": 0.4
+  },
+  {
+   "id": "8.3",
+   "act": 8,
+   "moc": "Bạn chạy",
+   "fast": true
+  },
+  {
+   "id": "8.4",
+   "act": 8,
+   "moc": "Bến xe",
+   "hold": 0.4
+  },
+  {
+   "id": "8.5",
+   "act": 8,
+   "moc": "Phong ngồi cạnh cửa sổ",
+   "hold": 0.4
+  },
+  {
+   "id": "8.6",
+   "act": 8,
+   "moc": "Bạn gõ lên kính",
+   "hold": 0.4
+  },
+  {
+   "id": "8.7",
+   "act": 8,
+   "moc": "Bạn đã chạy suốt quãng đường",
+   "hold": 0.5
+  },
+  {
+   "id": "8.8",
+   "act": 8,
+   "moc": "Tao",
+   "hold": 1.2
+  },
+  {
+   "id": "8.9",
+   "act": 8,
+   "moc": "Phong nhìn bạn",
+   "hold": 0.3
+  },
+  {
+   "id": "8.10",
+   "act": 8,
+   "moc": "Nhưng tao biết mày nói thật",
+   "hold": 1.5
+  },
+  {
+   "id": "8.11",
+   "act": 8,
+   "moc": "Xe lăn bánh",
+   "hold": 1.2
+  },
+  {
+   "id": "8.12",
+   "act": 8,
+   "moc": "Câu nói hoàn hảo",
+   "hold": 1.0
+  },
+  {
+   "id": "9.1",
+   "act": 9,
+   "moc": "Thứ hai"
+  },
+  {
+   "id": "9.2",
+   "act": 9,
+   "moc": "Ba ô tròn trong sổ",
+   "hold": 0.3
+  },
+  {
+   "id": "9.3",
+   "act": 9,
+   "moc": "Chào",
+   "hold": 0.3
+  },
+  {
+   "id": "9.4",
+   "act": 9,
+   "moc": "Linh khựng lại",
+   "hold": 0.4
+  },
+  {
+   "id": "9.5",
+   "act": 9,
+   "moc": "Bạn kỳ ghê",
+   "hold": 0.5
+  },
+  {
+   "id": "9.6",
+   "act": 9,
+   "moc": "Tay bạn đã nắm lại",
+   "hold": 1.2
+  },
+  {
+   "id": "9.7",
+   "act": 9,
+   "moc": "Lần này bạn để nguyên",
+   "hold": 0.8
+  },
+  {
+   "id": "9.8",
+   "act": 9,
+   "moc": "Tối đó điện thoại rung",
+   "hold": 0.3
+  },
+  {
+   "id": "9.9",
+   "act": 9,
+   "moc": "Phong gửi một tấm ảnh",
+   "hold": 0.6
+  },
+  {
+   "id": "9.10",
+   "act": 9,
+   "moc": "Tao tới rồi",
+   "hold": 1.2
+  },
+  {
+   "id": "9.11",
+   "act": 9,
+   "moc": "Nửa đêm Ba ô tròn mới",
+   "hold": 2.8
+  },
+  {
+   "id": "9.12",
+   "act": 9,
+   "moc": "(teaser – chỉ hình)",
+   "atHold": "L219"
+  },
+  {
+   "id": "9.13",
+   "act": 9,
+   "moc": "Còn bạn"
+  }
+ ]
+}

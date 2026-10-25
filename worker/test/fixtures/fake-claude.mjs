@@ -24,6 +24,7 @@ function emit(result, code = 0) {
 const SCRIPT = {
   title: 'Bầu trời xanh',
   hook: 'Bạn có biết vì sao bầu trời màu xanh?',
+  music_style: 'curious',
   scenes: [
     {
       narration: 'Ánh sáng mặt trời có nhiều màu.',
