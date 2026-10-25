@@ -67,7 +67,7 @@ async function checkedJobDir(workDir: string, jobId: string, what: string): Prom
 }
 
 export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler {
-  return async ({ input, workDir, signal, attemptNo, logger }) => {
+  return async ({ input, workDir, signal, attemptNo, logger, progress }) => {
     const parsed = inputSchema.safeParse(input);
     if (!parsed.success) {
       throw new PermanentJobError(`invalid render_episode input: ${parsed.error.message}`);
@@ -85,7 +85,9 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
     const ws = await realpath(copy);
 
     logger.info({ frames: timing.totalFrames }, 'rendering episode');
+    await progress({ stage: 'render', frames: timing.totalFrames });
     await deps.render(ws, RAW, EPISODE_PREVIEW_SCALE, signal);
+    await progress({ stage: 'loudness' });
     const loudness = await deps.loudness(join(ws, RAW), join(workDir, VIDEO), signal);
     await rm(join(ws, RAW), { force: true });
 

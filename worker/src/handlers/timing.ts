@@ -126,11 +126,13 @@ async function analyse(context: HandlerContext, deps: TimingHandlerDeps, transcr
   const script = await loadScript(workDir, input.script_job_id);
   const clips = await loadClips(workDir, input.tts_job_id, script.acts.length);
 
+  await context.progress({ stage: 'voice' });
   await deps.buildVoice(
     clips,
     { voice: join(workDir, VOICE), analysis: join(workDir, ANALYSIS) },
     signal,
   );
+  await context.progress({ stage: 'whisper' });
   const transcript = await transcribe(
     join(workDir, ANALYSIS),
     join(workDir, TRANSCRIPT_PREFIX),

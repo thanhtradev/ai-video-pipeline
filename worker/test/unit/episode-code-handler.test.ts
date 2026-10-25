@@ -46,6 +46,7 @@ const TEXT_FAIL: GateReport = {
 let jobsDir: string;
 let workDir: string;
 let turns: AgentTurn[];
+let reported: Record<string, unknown>[];
 
 async function writeJob(id: string, files: Record<string, string>): Promise<void> {
   const dir = join(jobsDir, id);
@@ -62,6 +63,7 @@ beforeEach(async () => {
   workDir = join(jobsDir, CODE_JOB);
   await mkdir(workDir);
   turns = [];
+  reported = [];
   await writeJob(SCRIPT_JOB, { 'script.json': '{}', 'script.md': '# Nếu bạn dừng thời gian\n' });
   await writeJob(TIMING_JOB, {
     'timing.json': '{"shots":[]}',
@@ -115,6 +117,9 @@ function context(input: unknown = INPUT, attemptNo = 1): HandlerContext {
     workDir,
     signal: new AbortController().signal,
     logger: pino({ level: 'silent' }),
+    progress: async (p) => {
+      reported.push(p);
+    },
   };
 }
 
@@ -149,6 +154,13 @@ describe('episode_code handler', () => {
     expect(result.result.board_token).toMatch(/^[0-9a-f]{32}$/);
     const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
     expect(log).toHaveLength(2);
+    // /status on Telegram (P-017) sees each agent turn and gate run.
+    expect(reported).toEqual([
+      { stage: 'agent', turn: 1, of: 3 },
+      { stage: 'gates', turn: 1, of: 3 },
+      { stage: 'agent', turn: 2, of: 3 },
+      { stage: 'gates', turn: 2, of: 3 },
+    ]);
   });
 
   test('gives the agent the gate failures and stops once they pass', async () => {

@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Well-formed A1 / storyboard buttons, and replies with notes to a storyboard request, reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] === 'sb' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: match[1] === 'sb' ? 'storyboard' : 'script',\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status commands, well-formed A1 / storyboard buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] === 'sb' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: match[1] === 'sb' ? 'storyboard' : 'script',\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -133,11 +133,72 @@
       "typeVersion": 1.2,
       "position": [990, 220],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "status",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000610",
+      "name": "Status?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [330, -220]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM telegram_status($1::bigint, $2);",
+        "options": { "queryReplacement": "={{ [$json.userId, $json.prefix] }}" }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000611",
+      "name": "Progress",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [550, -220],
+      "alwaysOutputData": true,
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// telegram_status() rows -> one status message (P-017). System text is English; titles are\n// quoted Vietnamese video content. Times are minutes since the step or job started.\nconst input = $('Parse callback').first().json;\nconst rows = $input.all().map((item) => item.json).filter((row) => row.allowed !== undefined);\nconst reply = (text) => [{ json: { text: text.slice(0, 4096), chatId: input.chatId, messageId: input.messageId } }];\nif (rows.some((row) => row.allowed === false)) return reply('You are not an approver.');\nif (rows.length === 0) {\n  return reply(input.prefix ? `[AI Video] No video id starts with ${input.prefix}.` : '[AI Video] No active videos.');\n}\nconst minutes = (from, to = Date.now()) => {\n  const m = Math.max(0, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 60_000));\n  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;\n};\nconst describe = (p) => {\n  if (!p || !p.stage) return '';\n  const turn = p.turn ? ` ${p.turn}/${p.of}` : '';\n  switch (p.stage) {\n    case 'agent': return `agent turn${turn}`;\n    case 'gates': return `checking (turn${turn})`;\n    case 'tts': return `narration ${p.scene}/${p.of}`;\n    case 'voice': return 'joining the voice';\n    case 'whisper': return 'whisper';\n    case 'render': return `rendering ${p.frames ?? ''} frames`.replace('  ', ' ');\n    case 'loudness': return 'loudness';\n    default: return String(p.stage);\n  }\n};\nconst head = (row) => `${String(row.video_id).slice(0, 8)} v${row.version} · ${row.title ?? '?'}`;\nconst cost = (row) => Object.entries(row.cost ?? {}).map(([c, v]) => `${Math.round(v * 100) / 100} ${c}`).join(', ');\n\nif (input.prefix) {\n  const row = rows[0];\n  const marks = { SUCCEEDED: '✓', RUNNING: '▶', FAILED_PERMANENT: '✗', FAILED_RETRYABLE: '↻', BLOCKED: '⏸' };\n  const jobs = (row.jobs ?? []).map((job) => {\n    const parts = [`${marks[job.status] ?? '·'} ${job.step}`];\n    if (job.started) parts.push(minutes(job.started, job.status === 'RUNNING' ? undefined : job.finished ?? undefined));\n    else parts.push('waiting');\n    if (job.attempts > 1) parts.push(`${job.attempts} attempts`);\n    if (job.status === 'RUNNING' && describe(job.progress)) parts.push(describe(job.progress));\n    if (job.error && job.status !== 'SUCCEEDED') parts.push(job.error);\n    return parts.join(' · ');\n  });\n  return reply([\n    `[AI Video] Video ${head(row)}`,\n    `Status: ${row.status} (${minutes(row.status_since)})`,\n    ...jobs,\n    cost(row) ? `Cost: ${cost(row)}` : 'Cost: none recorded',\n    ...(row.approval ? [`Waiting for: ${row.approval}`] : []),\n  ].join('\\n'));\n}\n\nconst lines = rows.flatMap((row) => {\n  const step = row.step\n    ? `${row.step} ${String(row.step_status).toLowerCase()} ${minutes(row.step_since)}`\n    : 'no job yet';\n  const extra = [describe(row.progress), `${row.steps_done}/${row.steps_total} jobs done`, row.approval ? `waiting for ${row.approval}` : '']\n    .filter(Boolean);\n  return ['', head(row), [row.status, step, ...extra].join(' · ')];\n});\nreturn reply([`[AI Video] ${rows.length} active video${rows.length === 1 ? '' : 's'}`, ...lines, '', 'Details: /status <first 8 characters of the id>'].join('\\n'));"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000612",
+      "name": "Build status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [770, -220]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.messageId }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000613",
+      "name": "Send status",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [990, -220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
     "Telegram button": { "main": [[{ "node": "Parse callback", "type": "main", "index": 0 }]] },
-    "Parse callback": { "main": [[{ "node": "Decide", "type": "main", "index": 0 }]] },
+    "Parse callback": { "main": [[{ "node": "Status?", "type": "main", "index": 0 }]] },
     "Decide": { "main": [[{ "node": "Build reply", "type": "main", "index": 0 }]] },
     "Build reply": { "main": [[{ "node": "Button?", "type": "main", "index": 0 }]] },
     "Answer button": { "main": [[{ "node": "Settled?", "type": "main", "index": 0 }]] },
@@ -147,7 +208,15 @@
         [{ "node": "Answer button", "type": "main", "index": 0 }],
         [{ "node": "Answer reply", "type": "main", "index": 0 }]
       ]
-    }
+    },
+    "Status?": {
+      "main": [
+        [{ "node": "Progress", "type": "main", "index": 0 }],
+        [{ "node": "Decide", "type": "main", "index": 0 }]
+      ]
+    },
+    "Progress": { "main": [[{ "node": "Build status", "type": "main", "index": 0 }]] },
+    "Build status": { "main": [[{ "node": "Send status", "type": "main", "index": 0 }]] }
   },
   "settings": {
     "executionOrder": "v1",

@@ -58,6 +58,7 @@ One video end-to-end from n8n Form to MP4. Delivered in slices, each its own PR 
 | Restart n8n, Redis, worker → system recovers from checkpoints, no duplicate cost |
 | Simulated quota exhaustion → new requests stop, no fallback, notification sent |
 | Batch cost report + per-step processing time (input for benchmarking) |
+| Progress check on Telegram (P-017): `/status` for all active videos and per video, with current step, time in step and render/agent progress; only approvers get answers — ✅ implemented early (`ops/progress-check.md`) |
 
 ## Phase 4 — Expansion
 

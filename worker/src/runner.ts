@@ -35,6 +35,8 @@ export interface HandlerContext {
   workDir: string;
   signal: AbortSignal;
   logger: Logger;
+  /** Reports what the step is doing (P-017, /status on Telegram). Never fails the job. */
+  progress: (progress: Record<string, unknown>) => Promise<void>;
 }
 
 export interface HandlerResult {
@@ -151,6 +153,11 @@ async function runHandler(deps: RunnerDeps, lease: Lease, workDir: string): Prom
       workDir,
       signal: controller.signal,
       logger: log,
+      progress: (progress) =>
+        deps.store.reportProgress(job.jobId, deps.workerId, progress).then(
+          () => undefined,
+          (error: unknown) => log.warn({ err: errorMessage(error) }, 'progress report failed'),
+        ),
     });
   } catch (error: unknown) {
     if (controller.signal.aborted) return aborted(lease);

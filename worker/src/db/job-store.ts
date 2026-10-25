@@ -18,6 +18,12 @@ export interface StartedJob {
 export interface JobStore {
   start: (jobId: string, workerId: string, leaseSeconds: number) => Promise<StartedJob | null>;
   heartbeat: (jobId: string, workerId: string, leaseSeconds: number) => Promise<HeartbeatStatus>;
+  /** What a running job is doing (P-017); false when the job is not running for this worker. */
+  reportProgress: (
+    jobId: string,
+    workerId: string,
+    progress: Record<string, unknown>,
+  ) => Promise<boolean>;
   succeed: (jobId: string, workerId: string, output: Record<string, unknown>) => Promise<boolean>;
   fail: (jobId: string, workerId: string, error: string, retryable: boolean) => Promise<string>;
   /** Provider usage limit: BLOCKED until retryAfterSeconds pass. Returns BLOCKED or LOST. */
@@ -68,6 +74,14 @@ export function createJobStore(pool: pg.Pool): JobStore {
         [jobId, workerId, leaseSeconds],
       );
       return result.rows[0]!.status;
+    },
+
+    reportProgress: async (jobId, workerId, progress) => {
+      const result = await pool.query<{ ok: boolean }>(
+        'SELECT job_report_progress($1, $2, $3::jsonb) AS ok',
+        [jobId, workerId, JSON.stringify(progress)],
+      );
+      return result.rows[0]!.ok;
     },
 
     succeed: async (jobId, workerId, output) => {

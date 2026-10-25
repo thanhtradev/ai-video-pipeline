@@ -99,6 +99,22 @@ describe('runNextJob', () => {
     expect(await redis.llen(`${h.stream}:processing:mac-mini-m4`)).toBe(0);
   });
 
+  test('a handler reports progress on its running job (P-017)', async () => {
+    const h = await setup();
+    await h.dispatch();
+    let seen: unknown;
+    const reporting: JobHandler = async (context) => {
+      await context.progress({ stage: 'agent', turn: 1, of: 3 });
+      seen = (await db.pool.query('SELECT progress FROM job WHERE id = $1', [h.jobId])).rows[0]
+        .progress;
+      return writeResult(context);
+    };
+
+    await runNextJob(h.deps({ simulate: reporting }));
+
+    expect(seen).toEqual({ stage: 'agent', turn: 1, of: 3 });
+  });
+
   test('returns idle when the queue is empty', async () => {
     const h = await setup();
     expect(await runNextJob(h.deps({ simulate: writeResult }))).toEqual({ kind: 'idle' });

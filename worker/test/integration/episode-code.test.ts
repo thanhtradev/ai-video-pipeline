@@ -63,6 +63,7 @@ const ctx = (jobId: string, input: unknown, workDir: string) => ({
   workDir,
   signal: new AbortController().signal,
   logger: pino({ level: 'silent' }),
+  progress: async () => undefined,
 });
 
 describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real agent)', () => {

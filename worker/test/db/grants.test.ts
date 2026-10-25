@@ -89,6 +89,15 @@ describe('worker role', () => {
     expect(started.rows).toHaveLength(1);
   });
 
+  test('can report the progress of its running job (P-017)', async () => {
+    const result = await asRole('aivideo_worker', (client) =>
+      client.query(`SELECT job_report_progress($1, 'mac-mini-m4', '{"stage":"x"}'::jsonb) AS ok`, [
+        jobId,
+      ]),
+    );
+    expect(result.rows[0]).toHaveProperty('ok');
+  });
+
   test('can hand a job back when a provider is blocked', async () => {
     const id = await queuedJob('q:block');
     const status = await asRole('aivideo_worker', async (client) => {
