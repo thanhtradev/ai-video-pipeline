@@ -53,6 +53,9 @@ const envSchema = z
     FFMPEG_BIN: z.string().min(1).default('ffmpeg'),
     // Shared royalty-free music library with catalog.json (D-021). Unset: previews have no music.
     MUSIC_LIBRARY_DIR: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
+    // whisper.cpp word timing for episodes (timing step). Unset model: timing jobs wait BLOCKED.
+    WHISPER_BIN: z.string().min(1).default('whisper-cli'),
+    WHISPER_MODEL: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
   })
   .refine((env) => env.HEARTBEAT_SECONDS * 2 <= env.LEASE_SECONDS, {
     path: ['HEARTBEAT_SECONDS'],
@@ -90,6 +93,7 @@ export interface Config {
   ffprobeBin: string;
   ffmpegBin: string;
   musicLibraryDir: string | undefined;
+  whisper: { bin: string; model: string | undefined };
 }
 
 /** Validates the environment at startup; errors name the variables but never their values. */
@@ -131,5 +135,6 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     ffprobeBin: e.FFPROBE_BIN,
     ffmpegBin: e.FFMPEG_BIN,
     musicLibraryDir: e.MUSIC_LIBRARY_DIR,
+    whisper: { bin: e.WHISPER_BIN, model: e.WHISPER_MODEL },
   };
 }

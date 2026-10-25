@@ -17,7 +17,8 @@ What it adds:
 - Migrations `20261027000100` (2c preview flow, Shorts only), `20261028000100` (episode briefs),
   `20261028000200` (registers `eleven_v4`, disabled), `20261028000300` (episode A1 approval).
 
-Until B3 (timing) lands, an approved episode stops after its narration, in `GENERATING_ASSETS`.
+Until C2 (episode code) lands, an approved episode stops after its timeline (B3), in
+`GENERATING_ASSETS`. Roll out B1, B2 and B3 together.
 **Approving A1 spends ITERA credits**; Reject and Regenerate are free.
 
 ### 1. Code (Mac mini)
@@ -77,6 +78,63 @@ unset PGPASSWORD DATABASE_URL
    `script.md` must show your narration word for word.
 4. Press **Regenerate** or **Reject** to keep it free. Press **Approve** only to hear the
    narration: about 1 credit per character, one MP3 per act in the `tts` job folder.
+
+## B3: timing (whisper.cpp)
+
+What it adds: approving an episode A1 also creates a `timing` job on `q:heavy` that waits for the
+narration, joins the act clips into `voice.wav`, transcribes it with whisper.cpp and writes
+`timing.json`, `captions.json` and `timeline.md` (docs/episode-pipeline.md §5). **Free** (local).
+Migration: none beyond B1 + B2 (`20261028000300` already creates the job).
+
+### 1. whisper.cpp and the model (Mac mini)
+
+`whisper.cpp` 1.9.5 is already installed (S-27). The model the reference episodes used is on the
+external SSD; copy it to the internal disk so the worker does not depend on the SSD (1.6 GB; 19 GiB
+free on 2026-10-26):
+
+```bash
+brew list --versions whisper.cpp          # whisper.cpp 1.9.5
+mkdir -p ~/Models/whisper
+cp /Volumes/256GB/my-video/whisper.cpp/ggml-large-v3-turbo.bin ~/Models/whisper/
+shasum -a 256 ~/Models/whisper/ggml-large-v3-turbo.bin   # note it in docs/infrastructure.md S-27
+```
+
+### 2. Free test with real speech (about 10 s)
+
+Uses the macOS voice Linh instead of a paid TTS call:
+
+```bash
+cd ~/remote-dev/AIVIdeo/ai-video-pipeline/worker
+WHISPER_MODEL=$HOME/Models/whisper/ggml-large-v3-turbo.bin npx vitest run test/integration/timing.test.ts
+cd ..
+```
+
+**Check**: `1 passed`.
+
+### 3. Worker
+
+```bash
+grep '^WORKER_STREAMS=' ~/.config/aivideo/worker.env      # must include q:heavy
+printf 'WHISPER_BIN=%s\nWHISPER_MODEL=%s\n' "$(which whisper-cli)" "$HOME/Models/whisper/ggml-large-v3-turbo.bin" >> ~/.config/aivideo/worker.env
+launchctl kickstart -k gui/$(id -u)/com.aivideo.worker
+tail -n 5 ~/Library/Logs/aivideo-worker.log      # "worker ready"
+```
+
+Without `WHISPER_MODEL`, timing jobs wait as `BLOCKED` and resume within an hour once it is set.
+
+### 4. Check after an approved episode
+
+Within about a minute of the narration finishing:
+
+```bash
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/timeline.md | head -1)"
+open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/voice.wav | head -1)"
+```
+
+Look for: every shot on the right sentence, holds after the gag beats, total length close to the
+A1 estimate. A failed timing job (a MỐC never spoken, a cut in speech) puts the video in
+`NEEDS_DECISION` with the reason; nothing was spent by it.
 
 ## Rollback
 

@@ -10,11 +10,14 @@ import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-
 import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
+import { createTimingHandler } from './handlers/timing.js';
 import { createTtsHandler } from './handlers/tts.js';
 import { createLogger, redactUrl } from './logger.js';
 import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
 import { createLoudnessNormalizer } from './media/loudness.js';
+import { createVoiceBuilder } from './media/voice.js';
+import { createWhisper } from './media/whisper.js';
 import { createRedisQueue } from './queue/redis-queue.js';
 import { createMusicLibrary } from './render/music.js';
 import { createRemotionRenderer } from './render/remotion-renderer.js';
@@ -25,6 +28,8 @@ import { createWorkerLoop } from './worker-loop.js';
 
 const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
 const ITERA_REQUEST_TIMEOUT_MS = 60_000;
+/** A timing job without a whisper model waits this long before it checks again. */
+const WHISPER_BLOCK_SECONDS = 3600;
 
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
@@ -69,6 +74,16 @@ function buildHandlers(
       routeScriptJobs(createScriptHandler({ claude }), createEpisodeScriptHandler({ claude })),
     ],
     ['tts', tts],
+    [
+      'timing',
+      createTimingHandler({
+        buildVoice: createVoiceBuilder(config.ffmpegBin),
+        transcribe: config.whisper.model
+          ? createWhisper({ bin: config.whisper.bin, model: config.whisper.model })
+          : null,
+        blockSeconds: WHISPER_BLOCK_SECONDS,
+      }),
+    ],
     [
       'render_preview',
       createRenderPreviewHandler({

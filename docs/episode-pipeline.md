@@ -45,7 +45,7 @@ The script step returns one JSON document (schema in `worker/src/handlers/episod
 - `title`, `logline` (shown in A1), `characters[]` (`name`, `look`), `effects` and `notes` (Markdown);
 - `acts[]` (1–12): `title`, `grade` (colour note), `lines[]` (narration with ElevenLabs audio tags
   such as `[punchy]`), `shots[]` (`id` "act.n", `moc` = first words of the narration where it
-  starts, `description`, optional `hold_seconds`, `sfx[]`).
+  starts, `description`, optional `hold_seconds` and `fast`, `sfx[]`).
 
 The worker checks what the schema cannot and retries the step otherwise: shot ids numbered
 `act.n` in order, every MỐC found in its act's narration after the previous one, each act under
@@ -65,11 +65,31 @@ per act: an act's lines joined with newlines, tags included. `eleven_v4` honours
 
 ## 5. Timing
 
-Port of `scripts/tiktok2/ep1/build_timing.py` + `check_cuts.py` to the worker:
-act clips → `voice.wav` (48 kHz) and a 16 kHz copy → `whisper-cli` (large-v3-turbo, `-l vi`,
-word timestamps) → align the known line texts (tags stripped) to the words → boundary of each
-line = nearest silence run → shots placed on their `moc`, holds and gaps (0.15–0.38 s) applied →
-`timing.json`, `captions.json`. A cut that lands in speech fails the job (bounded retries).
+`timing` job (q:heavy, free), created with the TTS job when A1 is approved and run after it. A port of
+the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
+
+1. The act clips are joined in order with 0.6 s of silence between acts → `voice.wav` (48 kHz mono,
+   what the composition plays) and a 16 kHz copy.
+2. `whisper-cli` (whisper.cpp, model `large-v3-turbo`, `-l vi -ml 1 -sow -ojf`) gives word times;
+   digits it writes ("30", "100.000") are read the Vietnamese way for matching.
+3. The script lines are split into spoken **sentences** `S001…` (after `. ! ? … :`, tags removed;
+   each keeps its script line id `L…`), the reference episodes' timing unit. Their words are
+   aligned with whisper's (jsdiff).
+4. Sentence boundaries: every real silence (10 ms dB envelope, voiced = floor + 14 dB) near a rough
+   boundary is a candidate; one ordered set is chosen by dynamic programming, scoring distance to
+   the rough boundary, silence length, and each sentence's length against its expected length
+   (its words × the voice's speaking rate). Pauses shorter than 0.2 s are cut exactly at their
+   quietest frame; no pause at all → read in one breath (no gap or hold there).
+5. Cuts get 0.06 s lead-in and 0.09 s tail; gaps are the natural pause bounded to 0.15–0.38 s
+   (0.15 s in `fast` shots); a shot's `hold_seconds` follows its last sentence; shots start at
+   the sentence where their MỐC is spoken; 1.5 s end card.
+6. `timing.json` and `captions.json` in the reference shapes (the kit's `time.ts` reads them),
+   `timeline.md` for people. A cut louder than floor + 20 dB, or a MỐC never spoken, fails the
+   job permanently (re-running cannot change it).
+
+Measured on EP5 (reference episode, real ffmpeg + whisper.cpp 1.9.5, 2026-10-26): 261/261
+sentences as in the reference, 242 of them cut within 3 frames of the hand-checked reference,
+no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 43 s.
 
 ## 6. Episode code (Claude Code headless)
 
@@ -126,7 +146,7 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 |---|---|---|
 | B1 | ✅ episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import |
 | B2 | ✅ `eleven_v4` + voice, per-act TTS, no typography preview for episodes | migration, `itera-tts.sql` |
-| B3 | timing job (whisper.cpp + port of build_timing/check_cuts) | `brew install whisper-cpp`, model download |
+| B3 | ✅ timing job (whisper.cpp + port of build_timing/check_cuts) | whisper model path, `q:heavy` |
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
 | C2 | episode_code job, workspace, gates | migration |
 | C3 | STORYBOARD approval + Telegram media group + feedback loop | migration, WF import |

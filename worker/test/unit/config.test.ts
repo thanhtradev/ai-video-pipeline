@@ -74,6 +74,15 @@ describe('loadConfig', () => {
     );
   });
 
+  test('episode timing: whisper-cli by default, the model file is optional and absolute', () => {
+    expect(loadConfig(VALID_ENV).whisper).toEqual({ bin: 'whisper-cli', model: undefined });
+    expect(
+      loadConfig({ ...VALID_ENV, WHISPER_MODEL: '/Users/aivideo/Models/ggml-large-v3-turbo.bin' })
+        .whisper.model,
+    ).toBe('/Users/aivideo/Models/ggml-large-v3-turbo.bin');
+    expect(() => loadConfig({ ...VALID_ENV, WHISPER_MODEL: 'ggml.bin' })).toThrow(/WHISPER_MODEL/);
+  });
+
   test('accepts only an https ITERA base url', () => {
     expect(() => loadConfig({ ...VALID_ENV, ITERA_BASE_URL: 'http://api.genmax.io' })).toThrow(
       /ITERA_BASE_URL/,

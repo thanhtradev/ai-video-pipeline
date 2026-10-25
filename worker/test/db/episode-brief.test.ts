@@ -135,7 +135,7 @@ async function completeEpisodeScript(jobId: string, acts: string[]): Promise<voi
 }
 
 describe('A1 approval of an episode', () => {
-  test('creates one TTS request per act and no typography preview', async () => {
+  test('creates one TTS request per act, then the timeline, and no typography preview', async () => {
     const acts = ['[punchy] Nếu bạn dừng được thời gian…', '[explaining] Luật thế này.\nVỗ tay.'];
     const submitted = await submit('ep-approve', { format: 'episode', topic: 'Dừng thời gian' });
     await completeEpisodeScript(submitted.job_id, acts);
@@ -151,14 +151,33 @@ describe('A1 approval of an episode', () => {
 
     expect(decided.rows[0]!.result).toBe('OK');
     expect(await versionStatus(db.pool, submitted.version_id)).toBe('GENERATING_ASSETS');
-    const jobs = await db.pool.query<{ step: string; input: { scenes?: object[] } }>(
-      `SELECT step, input FROM job WHERE video_version_id = $1 AND step <> 'script'`,
+    const jobs = await db.pool.query<{
+      id: string;
+      step: string;
+      stream: string;
+      status: string;
+      input: Record<string, unknown>;
+    }>(
+      `SELECT id, step, stream, status, input FROM job
+       WHERE video_version_id = $1 AND step <> 'script' ORDER BY created_at`,
       [submitted.version_id],
     );
-    expect(jobs.rows.map((job) => job.step)).toEqual(['tts']);
-    expect(jobs.rows[0]!.input.scenes).toEqual([
+    expect(jobs.rows.map((job) => job.step)).toEqual(['tts', 'timing']);
+    const [tts, timing] = jobs.rows;
+    expect(tts!.input.scenes).toEqual([
       { index: 1, text: acts[0] },
       { index: 2, text: acts[1] },
     ]);
+    // The timeline waits for the narration, reads the approved script, and runs on q:heavy.
+    expect(timing).toMatchObject({
+      stream: 'q:heavy',
+      status: 'PENDING',
+      input: { script_job_id: submitted.job_id, tts_job_id: tts!.id, language: 'vi' },
+    });
+    const deps = await db.pool.query<{ depends_on_job_id: string }>(
+      'SELECT depends_on_job_id FROM job_dependency WHERE job_id = $1',
+      [timing!.id],
+    );
+    expect(deps.rows.map((row) => row.depends_on_job_id)).toEqual([tts!.id]);
   });
 });

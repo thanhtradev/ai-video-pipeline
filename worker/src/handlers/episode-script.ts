@@ -39,6 +39,8 @@ const shotSchema = z.object({
   moc: z.string().min(1).max(80),
   description: z.string().min(1).max(800),
   hold_seconds: z.number().min(0).max(6).optional(),
+  /** Rapid cutting: the shot's sentences keep only the minimum gap between them. */
+  fast: z.boolean().optional(),
   sfx: z.array(z.string().min(1).max(80)).max(8),
 });
 
@@ -164,7 +166,8 @@ const SHARED_RULES = [
   '  narration where the shot starts, copied exactly from a line of the same act; shots follow',
   '  the narration order. description says framing, action, eye expression and any on-screen',
   '  TEXT "…" in Vietnamese; sfx lists sounds and foley; hold_seconds only where the picture',
-  '  needs extra time after the line (gags, emotional beats).',
+  '  needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting',
+  '  (montages, countdowns), where pauses between sentences are kept to the minimum.',
   '- characters: name and look (hoodie colour, hair, props); the main character is BẠN in an',
   '  orange hoodie. effects: the episode-specific visual effects and signature sounds.',
   '  notes: pacing hints and checks for the animator. Both in Vietnamese Markdown.',
@@ -228,8 +231,9 @@ function toMarkdown(script: NumberedScript): string {
     const shots = act.shots
       .map((shot) => {
         const hold = shot.hold_seconds ? ` (hold ${shot.hold_seconds}s)` : '';
+        const fast = shot.fast ? ' (fast)' : '';
         const sfx = shot.sfx.length > 0 ? ` (${shot.sfx.join(', ')})` : '';
-        return `- ${shot.id} MỐC "${shot.moc}": ${shot.description}${sfx}${hold}`;
+        return `- ${shot.id} MỐC "${shot.moc}": ${shot.description}${sfx}${hold}${fast}`;
       })
       .join('\n');
     return `## ${index + 1}. ${act.title}\n\n_${act.grade}_\n\n${lines}\n\n${shots}\n`;
