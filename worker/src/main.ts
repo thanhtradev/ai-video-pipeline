@@ -6,12 +6,17 @@ import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
+import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
 import { createTtsHandler } from './handlers/tts.js';
 import { createLogger, redactUrl } from './logger.js';
+import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
+import { createLoudnessNormalizer } from './media/loudness.js';
 import { createRedisQueue } from './queue/redis-queue.js';
+import { createMusicLibrary } from './render/music.js';
+import { createRemotionRenderer } from './render/remotion-renderer.js';
 import type { JobHandler } from './runner.js';
 import { createRedisNonceStore } from './security/redis-nonce-store.js';
 import { createIteraClient } from './tts/itera-client.js';
@@ -24,8 +29,12 @@ const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
 );
 
-// Step name -> handler. Phase 2 adds visuals, render, qa, archive.
-function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHandler> {
+// Step name -> handler. Phase 2d adds qa, final render, archive.
+function buildHandlers(
+  config: Config,
+  pool: pg.Pool,
+  logger: Logger,
+): ReadonlyMap<string, JobHandler> {
   const claude = createClaudeCli({
     bin: config.claude.bin,
     settingsPath: CLAUDE_SETTINGS,
@@ -35,6 +44,7 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
   const { itera } = config;
+  const probe = createFfprobe(config.ffprobeBin);
   const tts = createTtsHandler({
     itera: itera.apiKey
       ? createIteraClient({
@@ -45,7 +55,7 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
         })
       : null,
     costs: createCostStore(pool),
-    probe: createFfprobe(config.ffprobeBin),
+    probe,
     workerId: config.workerId,
     pollMs: itera.pollMs,
     taskTimeoutMs: itera.taskTimeoutSeconds * 1000,
@@ -55,6 +65,15 @@ function buildHandlers(config: Config, pool: pg.Pool): ReadonlyMap<string, JobHa
     ['simulate', simulateHandler],
     ['script', createScriptHandler({ claude })],
     ['tts', tts],
+    [
+      'render_preview',
+      createRenderPreviewHandler({
+        renderer: createRemotionRenderer(logger),
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
+        probe,
+        music: config.musicLibraryDir ? createMusicLibrary(config.musicLibraryDir) : null,
+      }),
+    ],
   ]);
 }
 
@@ -86,7 +105,7 @@ async function main(): Promise<void> {
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
-    handlers: buildHandlers(config, pool),
+    handlers: buildHandlers(config, pool, logger),
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,

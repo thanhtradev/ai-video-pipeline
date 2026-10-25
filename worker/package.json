@@ -11,6 +11,8 @@
     "archive:selftest": "tsx src/tools/archive-selftest.ts"
   },
   "dependencies": {
+    "@remotion/bundler": "4.0.534",
+    "@remotion/renderer": "4.0.534",
     "fast-xml-parser": "5.11.2",
     "fastify": "5.12.7",
     "ioredis": "6.0.0",

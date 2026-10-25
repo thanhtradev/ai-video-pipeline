@@ -60,6 +60,20 @@ describe('loadConfig', () => {
     );
   });
 
+  test('preview rendering: ffmpeg defaults, the music library is optional and absolute', () => {
+    expect(loadConfig(VALID_ENV)).toMatchObject({
+      ffmpegBin: 'ffmpeg',
+      musicLibraryDir: undefined,
+    });
+    expect(
+      loadConfig({ ...VALID_ENV, MUSIC_LIBRARY_DIR: '/Users/aivideo/MediaLibrary/music' })
+        .musicLibraryDir,
+    ).toBe('/Users/aivideo/MediaLibrary/music');
+    expect(() => loadConfig({ ...VALID_ENV, MUSIC_LIBRARY_DIR: 'MediaLibrary/music' })).toThrow(
+      /MUSIC_LIBRARY_DIR/,
+    );
+  });
+
   test('accepts only an https ITERA base url', () => {
     expect(() => loadConfig({ ...VALID_ENV, ITERA_BASE_URL: 'http://api.genmax.io' })).toThrow(
       /ITERA_BASE_URL/,

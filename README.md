@@ -1,7 +1,7 @@
 # AI Video Production Pipeline (Homelab)
 
 An automated AI video production system running on a homelab, with human approval at decision points.
-**Current status: Phase 1 in production (2026-10-24). Phase 2a (brief → script → Telegram approval) and 2b (narration via ITERA TTS with cost guard) implemented; rollout via [`ops/phase-2a.md`](ops/phase-2a.md), then [`ops/phase-2b.md`](ops/phase-2b.md).**
+**Current status: Phase 1 in production (2026-10-24); Phase 2a (brief → script → Telegram approval) and 2b (narration via ITERA TTS with cost guard) live since 2026-10-25. Phase 2c (preview render: Remotion template in [`remotion/`](remotion/), music, subtitles, thumbnail) implemented; rollout via [`ops/phase-2c.md`](ops/phase-2c.md).**
 
 ## Goals
 

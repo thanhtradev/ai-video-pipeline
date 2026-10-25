@@ -32,9 +32,9 @@ One video end-to-end from n8n Form to MP4. Delivered in slices, each its own PR 
 
 | Slice | Scope | Status |
 |---|---|---|
-| 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ code + tests · ⏳ rollout `ops/phase-2a.md` |
-| 2b | TTS job (ITERA, D-040/D-043, one request per scene), provider registry, cost guard (`cost_guard`, D-045), cost recording, estimate in A1 | ✅ code + tests · ⏳ rollout `ops/phase-2b.md` |
-| 2c | Typography template (D-041), music + license, subtitles SRT/VTT, preview 720p + thumbnail | — |
+| 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ live 2026-10-25 (`ops/phase-2a.md`) |
+| 2b | TTS job (ITERA, D-040/D-043, one request per scene), provider registry, cost guard (`cost_guard`, D-045), cost recording, estimate in A1 | ✅ live 2026-10-25 (`ops/phase-2b.md`) |
+| 2c | Typography template (D-041, D-049), music + license (D-047), subtitles SRT/VTT (D-048), preview 720p + thumbnail: `render_preview` job | ✅ code + tests · ⏳ rollout `ops/phase-2c.md` |
 | 2d | QA, A2, final 1080p, archive + manifest, cost report | — |
 
 | Criteria |

@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "worker"
+    "worker",
+    "remotion"
   ],
   "engines": {
     "node": ">=22"
