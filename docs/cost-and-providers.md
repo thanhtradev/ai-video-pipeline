@@ -14,7 +14,7 @@
 
 ## 2. Provider registry [PROPOSED]
 
-TTS provider: ITERA TTS (D-040), model `eleven_multilingual_v2` (D-043), priced in ITERA credits (`CRD`, D-044). **Implemented (2b):** migration `20261026000100_tts_flow.sql` seeds the ITERA rows disabled; the voice, the price and enabling are a rollout step (`ops/postgres/itera-tts.sql`). Money price per credit and terms `[UNKNOWN]` (U-20). Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
+TTS provider: ITERA TTS (D-040), model `eleven_v3` (D-043), priced in ITERA credits (`CRD`, D-044). **Implemented (2b):** migration `20261026000100_tts_flow.sql` seeds the ITERA rows disabled (`20261026000200` renames the model to `eleven_v3`); the voice, the price and enabling are a rollout step (`ops/postgres/itera-tts.sql`). Money price per credit and terms `[UNKNOWN]` (U-20). Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
 
 | Table | Key fields |
 |---|---|

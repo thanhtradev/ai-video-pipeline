@@ -24,7 +24,7 @@ afterAll(async () => {
 
 async function modelId(): Promise<string> {
   const result = await db.pool.query<{ id: string }>(
-    `SELECT id FROM provider_model WHERE provider_id = 'itera' AND model_id = 'eleven_multilingual_v2'`,
+    `SELECT id FROM provider_model WHERE provider_id = 'itera' AND model_id = 'eleven_v3'`,
   );
   return result.rows[0]!.id;
 }
@@ -189,7 +189,7 @@ describe('cost_guard', () => {
     expect(await guard(jobId, 10)).toMatchObject({
       decision: 'ALLOW',
       provider_id: 'itera',
-      model_id: 'eleven_multilingual_v2',
+      model_id: 'eleven_v3',
       params: { provider: 'elevenlabs', language_code: 'vi', voice_id: 'voice-1' },
       amount: 10,
       budget: 25,

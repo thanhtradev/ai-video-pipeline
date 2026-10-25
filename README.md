@@ -29,7 +29,7 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 | Worker service | Runs AI, audio, QA, render tasks | Mac mini M4 (only active worker); MacBook Pro M1 offline for now (D-034) |
 | Remotion | Video composition | On Mac workers |
 | Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | Mac workers |
-| TTS API | The only external paid API | ITERA TTS (ElevenLabs `eleven_multilingual_v2` via a reseller, D-040/D-043); API surveyed (S-24); money price per credit `[UNKNOWN]` (U-20) |
+| TTS API | The only external paid API | ITERA TTS (ElevenLabs `eleven_v3` via a reseller, D-040/D-043); API surveyed (S-24); money price per credit `[UNKNOWN]` (U-20) |
 | Telegram Bot | Approvals, status, alerts, reports | — |
 | NAS | Archive | Interim: LXC 106 Nextcloud, WebDAV via tailnet `lxc-nextcloud:8080` (D-033, D-036); dedicated NAS planned |
 | Beszel / Uptime Kuma | Monitoring | LXC 104 (Docker) `[CONFIRMED]` |

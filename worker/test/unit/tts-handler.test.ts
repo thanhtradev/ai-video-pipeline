@@ -69,7 +69,7 @@ function fakeCosts(): CostStore {
       return {
         decision,
         providerId: 'itera',
-        modelId: 'eleven_multilingual_v2',
+        modelId: 'eleven_v3',
         params: PARAMS,
         amount: units,
         budget: 30,
@@ -114,8 +114,8 @@ describe('tts handler', () => {
 
     expect(result.outputs).toEqual(['scene-01.mp3', 'scene-02.mp3']);
     expect(created.map((r) => [r.voiceId, r.modelId, r.provider, r.languageCode, r.text])).toEqual([
-      ['voice-1', 'eleven_multilingual_v2', 'elevenlabs', 'vi', 'Bầu trời xanh.'],
-      ['voice-1', 'eleven_multilingual_v2', 'elevenlabs', 'vi', 'Vì tán xạ.'],
+      ['voice-1', 'eleven_v3', 'elevenlabs', 'vi', 'Bầu trời xanh.'],
+      ['voice-1', 'eleven_v3', 'elevenlabs', 'vi', 'Vì tán xạ.'],
     ]);
     // One configuration check, then one guard per paid call with its billed characters.
     expect(guardCalls).toEqual([0, 14, 10]);

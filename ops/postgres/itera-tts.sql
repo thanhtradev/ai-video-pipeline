@@ -2,7 +2,7 @@
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
 --     -v voice_id=<ElevenLabs voice id> -v credits_per_char=<number> -v source='<where from>' \
 --     -f ops/postgres/itera-tts.sql
--- credits_per_char: ITERA credits billed per narration character for eleven_multilingual_v2
+-- credits_per_char: ITERA credits billed per narration character for eleven_v3
 -- (GET /v1/models: model_rates.character_cost_multiplier; ops/phase-2b.md §2). Re-running with a new
 -- price closes the old price row and adds a new one (prices are versioned, never overwritten).
 -- No secrets here: the API key lives only in the Mac's Keychain.
@@ -14,20 +14,20 @@ SELECT set_config('app.actor', 'rollout:' || current_user, true) \g /dev/null
 
 UPDATE provider_model
 SET default_params = default_params || jsonb_build_object('voice_id', :'voice_id'::text)
-WHERE provider_id = 'itera' AND model_id = 'eleven_multilingual_v2';
+WHERE provider_id = 'itera' AND model_id = 'eleven_v3';
 
 UPDATE provider_price SET valid_to = now()
 WHERE valid_to IS NULL
   AND provider_model_id = (SELECT id FROM provider_model
-                           WHERE provider_id = 'itera' AND model_id = 'eleven_multilingual_v2');
+                           WHERE provider_id = 'itera' AND model_id = 'eleven_v3');
 
 INSERT INTO provider_price (provider_model_id, unit, unit_price, currency, valid_from, source_note)
 SELECT id, 'per_char', :'credits_per_char'::numeric, 'CRD', now(), :'source'
-FROM provider_model WHERE provider_id = 'itera' AND model_id = 'eleven_multilingual_v2';
+FROM provider_model WHERE provider_id = 'itera' AND model_id = 'eleven_v3';
 
 UPDATE provider SET enabled = true WHERE id = 'itera';
 UPDATE provider_model SET enabled = true
-WHERE provider_id = 'itera' AND model_id = 'eleven_multilingual_v2';
+WHERE provider_id = 'itera' AND model_id = 'eleven_v3';
 
 SELECT audit(current_actor(), 'provider_configured', 'provider', 'itera',
              jsonb_build_object('voice_id', :'voice_id'::text,
