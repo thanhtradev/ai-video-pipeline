@@ -2,10 +2,13 @@ import { fileURLToPath } from 'node:url';
 import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
+import { createAgentCli } from './claude/agent-cli.js';
 import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
+import { createGateRunner } from './episode/gates.js';
+import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
 import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
@@ -33,6 +36,9 @@ const WHISPER_BLOCK_SECONDS = 3600;
 
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
+);
+const EPISODE_RENDER_PROFILE = fileURLToPath(
+  new URL('../../ops/claude/episode-render.sb', import.meta.url),
 );
 
 // Step name -> handler. Phase 2d adds qa, final render, archive.
@@ -74,6 +80,24 @@ function buildHandlers(
       routeScriptJobs(createScriptHandler({ claude }), createEpisodeScriptHandler({ claude })),
     ],
     ['tts', tts],
+    [
+      'episode_code',
+      createEpisodeCodeHandler({
+        agent: createAgentCli({
+          bin: config.claude.bin,
+          model: config.claude.agentModel,
+          blockSeconds: config.claude.blockSeconds,
+          env: claudeChildEnv(process.env),
+        }),
+        gates: createGateRunner({ profile: EPISODE_RENDER_PROFILE }),
+        // Values the agent's files must never contain.
+        secrets: [
+          process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
+          config.itera.apiKey ?? '',
+          ...Object.values(config.apiClientKeys),
+        ],
+      }),
+    ],
     [
       'timing',
       createTimingHandler({

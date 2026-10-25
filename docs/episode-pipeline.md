@@ -93,37 +93,54 @@ no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 
 
 ## 6. Episode code (Claude Code headless)
 
-Workspace `jobs/<job>/ws/`, prepared by the worker:
+`episode_code` job (q:render), created with the TTS and timing jobs when A1 is approved and run
+after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/`:
 
 ```
-CLAUDE.md               channel rules (style, logic lock, text-in-frame, mix, timing API)
-brief.md                the approved script, rendered as the user's brief format
-data/timing.json …      from the timing job
-kit/  (read-only)       remotion/src/tiktok2/ep1 shared kit + EP2/EP3/EP5 as examples
-src/episode/            Claude writes here: kit.tsx, sets.tsx, shots/act*.tsx, audio.tsx
-sfx/generate-sfx.mjs    Claude writes; the worker runs it (deterministic synthesis)
+CLAUDE.md               channel rules + contract (remotion/episode/AGENT.md in the repo)
+brief.md, feedback.md   the approved script.md; the owner's notes on a revision
+FILES.md                every file with its size (the CLI has no Glob/Grep tools)
+kit/                    remotion/src/tiktok2/{ep1,ep2,ep3,ep5,qa,sfx}: shared kit, reference episodes, SFX synthesis
+src/index.ts, Root.tsx  compositions Episode, EpisodeBoard (storyboard), EpisodeQA (text bounds)
+src/time.ts, data/      timeline queries over timing.json / captions.json from the timing job
+src/episode/            the agent writes here; Episode.tsx exports `Episode`
+sfx/generate-sfx.mjs    the agent writes; writes the WAVs into public/sfx
+public/voice.wav        from the timing job
+node_modules            symlink to the repo's packages
 ```
 
-`claude -p` with model `claude-opus-5-5`, `--permission-mode dontAsk`, an allow-list of tools
-(Read, Write, Edit, Glob, Grep, Bash for `npm run check|sfx` only), no MCP, a 90-minute
-timeout, the worker's environment stripped of secrets, and the **macOS sandbox**:
-writes only inside the workspace, no network (`strictAllowlist`, no domains), no unsandboxed
-fallback (`allowUnsandboxedCommands: false`, `failIfUnavailable: true`), reads of `~/.ssh`,
-`~/.config/aivideo`, Keychain and `.env*` denied. Fonts come from `@fontsource` packages so the
-render needs no network. The transcript is kept in the workspace.
+`claude -p` with `claude-opus-5-5` (`CLAUDE_AGENT_MODEL`), `--permission-mode dontAsk`,
+`--setting-sources project`, no MCP, the worker's environment stripped of secrets, and per-job
+settings written outside the workspace (`worker/src/episode/agent-settings.ts`, spiked 2026-10-26
+with CLI 2.1.310):
 
-Chrome cannot start inside Claude Code's sandbox (it needs Mach bootstrap ports; spike C1,
-2026-10-26), and `excludedCommands` does not lift the sandbox while `allowUnsandboxedCommands` is
-false. So the agent never renders (D-054). Remotion always launches Chrome with `--no-sandbox`, so
-every render of agent-written code is run **by the worker** under its own Seatbelt profile
-`ops/claude/episode-render.sb`: loopback only (no DNS, no egress), writes only in the workspace,
-secret paths unreadable, `TMPDIR` inside the workspace.
+- file tools: Read only inside the workspace, Edit/Write only in `src/episode/` and `sfx/`;
+- Bash: the macOS sandbox (no network, writes only in the workspace, reads of `~/.ssh`,
+  `~/.config`, `~/.claude`, `~/Library`, `/Volumes`, … denied, no unsandboxed fallback) with
+  auto-allow **off**: only `node node_modules/typescript/bin/tsc …` and `node sfx/generate-sfx.mjs …`
+  run (never chained), plus the CLI's built-in read-only commands (`cat`, `ls`, `grep`, `sed`);
+- the worker files in the workspace (`CLAUDE.md`, `kit/`, `src/time.ts`, …) are write-protected.
 
-Worker gates after Claude stops (the agent's own claims are not trusted):
-`tsc` on the workspace, timeline cut check, text-out-of-frame check (0 sharp hits), storyboard
-render (12 shots per page). The storyboard pages are written to `board/` and the session is
-resumed so the agent reviews them (the Read tool shows images) and fixes what it sees; a failed
-gate resumes it with the report. At most 2 resumed turns, all inside the 90-minute limit.
+Chrome cannot start inside that sandbox, so the agent never renders (D-054). The worker runs every
+render of agent-written code under its own profile `ops/claude/episode-render.sb` (loopback only,
+writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
+
+1. typecheck; 2. the SFX script; 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
+55 % of each shot; a missing audio file fails here); 4. text-out-of-frame scan of the whole episode
+(every 10th frame, 0 sharp hits allowed); then a scan of the agent's files for secret values.
+
+Turns (one session, resumed): turn 1 writes; turn 2 always reviews the storyboard pages (the Read
+tool shows images) with the gate report; turn 3 only if gates still fail. All turns share a 90-minute
+limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace stays for an interactive
+session. `agent-turns.json` keeps prompts, replies and usage.
+
+The board and QA compositions last as long as the episode: Remotion drops any `<Sequence>` that
+starts after its composition ends. The reference `check-text-bounds.mjs` used a composition one
+tenth as long, so it only measured the first tenth of each episode; scanned in full, EP5 has 25 sharp
+texts partly outside the frame (e.g. `NHỚ CHI TIẾT NÀY`, wall-calendar numbers).
+
+Measured: the gates take about 1.5 min on EP5 (7 pages, 1200 samples). A 3-shot mini episode went
+through the whole step (macOS `say` voice → whisper timing → real agent → gates) in under 6 min.
 
 ## 7. Storyboard approval
 
@@ -148,6 +165,6 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | B2 | ✅ `eleven_v4` + voice, per-act TTS, no typography preview for episodes | migration, `itera-tts.sql` |
 | B3 | ✅ timing job (whisper.cpp + port of build_timing/check_cuts) | whisper model path, `q:heavy` |
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
-| C2 | episode_code job, workspace, gates | migration |
+| C2 | ✅ episode_code job, workspace, gates | Chrome download, migration |
 | C3 | STORYBOARD approval + Telegram media group + feedback loop | migration, WF import |
 | C4 | render_preview on the episode composition | — |

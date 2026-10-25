@@ -1,0 +1,112 @@
+import { execFile } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
+import { z } from 'zod';
+import { GATES_SCRIPT } from './workspace.js';
+
+// Worker gates on the agent's workspace (docs/episode-pipeline.md §6): the agent's own claims are
+// not trusted. remotion/scripts/episode-gates.mjs runs agent-written code (SFX script, the episode
+// in Chrome), so it runs under the worker's Seatbelt profile (D-054), never in the worker itself.
+
+const execFileAsync = promisify(execFile);
+const GATES_TIMEOUT_MS = 45 * 60 * 1000;
+const MAX_BUFFER = 16 * 1024 * 1024;
+const REPORT_ROWS = 30;
+
+const stepSchema = z.object({ ok: z.boolean(), error: z.string().optional() }).loose();
+const reportSchema = z
+  .object({
+    ok: z.boolean(),
+    typecheck: z.object({ ok: z.boolean(), output: z.string() }),
+    sfx: stepSchema
+      .extend({ files: z.array(z.string()).optional(), output: z.string().optional() })
+      .optional(),
+    bundle: stepSchema.optional(),
+    board: stepSchema.extend({ pages: z.array(z.string()).optional() }).optional(),
+    textBounds: stepSchema
+      .extend({
+        sharp: z.number().optional(),
+        blur: z.number().optional(),
+        rows: z
+          .array(
+            z.object({
+              kind: z.string(),
+              side: z.string(),
+              text: z.string(),
+              from: z.number(),
+              to: z.number(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
+  })
+  .loose();
+
+export type GateReport = z.infer<typeof reportSchema>;
+export type GateRunner = (ws: string, signal: AbortSignal) => Promise<GateReport>;
+
+export interface GateRunnerOptions {
+  /** ops/claude/episode-render.sb */
+  profile: string;
+  sandboxExec?: string;
+  nodeBin?: string;
+}
+
+/** `ws` must be the real path (Seatbelt matches resolved paths, e.g. /private/tmp). */
+export function createGateRunner(options: GateRunnerOptions): GateRunner {
+  return async (ws, signal) => {
+    const tmp = join(ws, 'tmp');
+    await execFileAsync(
+      options.sandboxExec ?? '/usr/bin/sandbox-exec',
+      [
+        ...['-f', options.profile, '-D', `WS=${ws}`, '-D', `TMP=${tmp}`, '-D', `HOME=${homedir()}`],
+        options.nodeBin ?? process.execPath,
+        GATES_SCRIPT,
+        ws,
+      ],
+      {
+        env: {
+          PATH: process.env.PATH ?? '/usr/bin:/bin',
+          HOME: homedir(),
+          TMPDIR: tmp,
+          LANG: 'en_US.UTF-8',
+        },
+        timeout: GATES_TIMEOUT_MS,
+        maxBuffer: MAX_BUFFER,
+        signal,
+      },
+    );
+    return reportSchema.parse(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')));
+  };
+}
+
+const frames = (from: number, to: number) => `episode frames ${from}–${to}`;
+
+/** What failed, in words the agent can act on. */
+export function describeFailures(report: GateReport): string[] {
+  const out: string[] = [];
+  if (!report.typecheck.ok) out.push(`Typecheck failed:\n${report.typecheck.output}`);
+  if (report.sfx && !report.sfx.ok)
+    out.push(`The SFX script failed:\n${report.sfx.output ?? report.sfx.error ?? ''}`);
+  if (report.bundle && !report.bundle.ok)
+    out.push(`Bundling failed:\n${report.bundle.error ?? ''}`);
+  if (report.board && !report.board.ok)
+    out.push(`The storyboard render failed:\n${report.board.error ?? ''}`);
+  const tb = report.textBounds;
+  if (tb && !tb.ok) {
+    const rows = (tb.rows ?? []).filter((r) => r.kind !== 'blur').slice(0, REPORT_ROWS);
+    out.push(
+      tb.error
+        ? `The text-bounds QA failed:\n${tb.error}`
+        : `${tb.sharp ?? rows.length} sharp texts are partly outside the 1920×1080 frame ` +
+            `(side: t/r/b/l = top/right/bottom/left and pixels outside):\n` +
+            rows
+              .map((r) => `- "${r.text}" ${r.kind}, ${r.side}, ${frames(r.from, r.to)}`)
+              .join('\n'),
+    );
+  }
+  return out;
+}

@@ -40,10 +40,10 @@ export interface ClaudeCliOptions {
 const MAX_STDOUT_BYTES = 5 * 1024 * 1024;
 const STDERR_TAIL = 500;
 const KILL_GRACE_MS = 5_000;
-const USAGE_LIMIT = /usage limit|limit reached|out of extra usage/i;
+export const USAGE_LIMIT = /usage limit|limit reached|out of extra usage/i;
 // A login the worker cannot repair itself (e.g. OAuth refresh against a locked Keychain): block the
 // job until a person fixes it instead of spending its attempts.
-const AUTH_FAILURE = /failed to authenticate|oauth|not logged in|invalid api key|\/login/i;
+export const AUTH_FAILURE = /failed to authenticate|oauth|not logged in|invalid api key|\/login/i;
 // Non-secret variables the CLI needs (HOME for its config), plus the long-lived subscription token
 // from `claude setup-token` (D-046). Nothing else from the worker environment is passed.
 const CHILD_ENV_KEYS = [
@@ -72,7 +72,7 @@ interface CliEnvelope {
   usage?: unknown;
 }
 
-interface ProcessResult {
+export interface ProcessResult {
   code: number | null;
   stdout: string;
   stderr: string;
@@ -99,15 +99,28 @@ function buildArgs(options: ClaudeCliOptions, request: ClaudeRequest): string[] 
   ];
 }
 
-function runProcess(options: ClaudeCliOptions, request: ClaudeRequest): Promise<ProcessResult> {
+export interface ClaudeProcess {
+  bin: string;
+  args: string[];
+  env: Readonly<Record<string, string>>;
+  cwd: string;
+  /** Sent on stdin (the prompt). */
+  input: string;
+  timeoutMs: number;
+  signal: AbortSignal;
+  maxStdoutBytes: number;
+}
+
+/** Runs the CLI once; rejects on timeout, cancellation, oversized output or a failed start. */
+export function runClaudeProcess(p: ClaudeProcess): Promise<ProcessResult> {
   return new Promise((resolve, reject) => {
-    if (request.signal.aborted) {
-      reject(new Error(`claude aborted: ${String(request.signal.reason)}`));
+    if (p.signal.aborted) {
+      reject(new Error(`claude aborted: ${String(p.signal.reason)}`));
       return;
     }
-    const child = spawn(options.bin, buildArgs(options, request), {
-      cwd: request.cwd,
-      env: { ...options.env },
+    const child = spawn(p.bin, p.args, {
+      cwd: p.cwd,
+      env: { ...p.env },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -119,17 +132,16 @@ function runProcess(options: ClaudeCliOptions, request: ClaudeRequest): Promise<
       child.kill('SIGTERM');
       setTimeout(() => child.kill('SIGKILL'), KILL_GRACE_MS).unref();
     };
-    const timeoutMs = request.timeoutMs ?? options.timeoutMs;
     const timer = setTimeout(
-      () => stop(new Error(`claude timed out after ${timeoutMs} ms`)),
-      timeoutMs,
+      () => stop(new Error(`claude timed out after ${p.timeoutMs} ms`)),
+      p.timeoutMs,
     );
-    const onAbort = (): void => stop(new Error(`claude aborted: ${String(request.signal.reason)}`));
-    request.signal.addEventListener('abort', onAbort, { once: true });
+    const onAbort = (): void => stop(new Error(`claude aborted: ${String(p.signal.reason)}`));
+    p.signal.addEventListener('abort', onAbort, { once: true });
 
     child.stdout.setEncoding('utf8').on('data', (chunk: string) => {
       stdout += chunk;
-      if (stdout.length > MAX_STDOUT_BYTES) stop(new Error('claude output too large'));
+      if (stdout.length > p.maxStdoutBytes) stop(new Error('claude output too large'));
     });
     child.stderr.setEncoding('utf8').on('data', (chunk: string) => {
       stderr = (stderr + chunk).slice(-STDERR_TAIL);
@@ -137,13 +149,26 @@ function runProcess(options: ClaudeCliOptions, request: ClaudeRequest): Promise<
     child.on('error', (error) => stop(error));
     child.on('close', (code) => {
       clearTimeout(timer);
-      request.signal.removeEventListener('abort', onAbort);
+      p.signal.removeEventListener('abort', onAbort);
       if (failure) reject(failure);
       else resolve({ code, stdout, stderr });
     });
     // A child that failed to start closes stdin early; the spawn error above is the real cause.
     child.stdin.on('error', () => undefined);
-    child.stdin.end(request.prompt);
+    child.stdin.end(p.input);
+  });
+}
+
+function runProcess(options: ClaudeCliOptions, request: ClaudeRequest): Promise<ProcessResult> {
+  return runClaudeProcess({
+    bin: options.bin,
+    args: buildArgs(options, request),
+    env: options.env,
+    cwd: request.cwd,
+    input: request.prompt,
+    timeoutMs: request.timeoutMs ?? options.timeoutMs,
+    signal: request.signal,
+    maxStdoutBytes: MAX_STDOUT_BYTES,
   });
 }
 

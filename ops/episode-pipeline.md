@@ -17,8 +17,8 @@ What it adds:
 - Migrations `20261027000100` (2c preview flow, Shorts only), `20261028000100` (episode briefs),
   `20261028000200` (registers `eleven_v4`, disabled), `20261028000300` (episode A1 approval).
 
-Until C2 (episode code) lands, an approved episode stops after its timeline (B3), in
-`GENERATING_ASSETS`. Roll out B1, B2 and B3 together.
+Until C3 (storyboard approval) lands, an approved episode stops after its episode code (C2), in
+`GENERATING_ASSETS`. Roll out B1–C2 together.
 **Approving A1 spends ITERA credits**; Reject and Regenerate are free.
 
 ### 1. Code (Mac mini)
@@ -135,6 +135,54 @@ open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/voice.wav | head -1)"
 Look for: every shot on the right sentence, holds after the gag beats, total length close to the
 A1 estimate. A failed timing job (a MỐC never spoken, a cut in speech) puts the video in
 `NEEDS_DECISION` with the reason; nothing was spent by it.
+
+## C2: episode code (Claude Code agent)
+
+What it adds: approving an episode A1 also creates an `episode_code` job on `q:render` that waits
+for the timeline. Claude Code (`claude-opus-5-5`) writes the episode in a sandboxed workspace, the
+worker checks it (typecheck, SFX, storyboard, text in frame) and resumes the agent with the report
+and the storyboard. **Uses the Claude subscription**: up to 90 minutes of Opus per episode (more on
+revisions); no paid API. Migration: none beyond B1–B3 (`20261028000300` creates the job).
+
+### 1. Chrome for the worker's renders (Mac mini)
+
+The gates render with no network, so Remotion's Chrome must already be downloaded:
+
+```bash
+cd ~/remote-dev/AIVIdeo/ai-video-pipeline/remotion && npx remotion browser ensure && cd ..
+ls remotion/node_modules/.remotion       # chrome-headless-shell
+```
+
+### 2. Optional: plumbing test (about 6 min; a small Claude model on the subscription)
+
+Runs the whole step on a 3-shot mini episode with the macOS voice Linh and a small Claude model:
+
+```bash
+cd ~/remote-dev/AIVIdeo/ai-video-pipeline/worker
+RUN_AGENT_TESTS=1 WHISPER_MODEL=$HOME/Models/whisper/ggml-large-v3-turbo.bin \
+  npx vitest run test/integration/episode-code.test.ts
+cd ..
+```
+
+**Check**: `1 passed`; the printed folder has `ws/board/page-01.jpg`.
+
+### 3. Worker
+
+`grep '^WORKER_STREAMS=' ~/.config/aivideo/worker.env` must include `q:render`. Optional:
+`CLAUDE_AGENT_MODEL` (default `claude-opus-5-5`). Restart:
+`launchctl kickstart -k gui/$(id -u)/com.aivideo.worker`.
+
+### 4. Check after an approved episode
+
+```bash
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+J=$(ls -td "$WORK_ROOT"/videos/*/v1/jobs/*/ws | head -1); echo "$J"
+open "$J"/board/page-*.jpg
+```
+
+The storyboard approval on Telegram (C3) is not there yet: after this job the version stays in
+`GENERATING_ASSETS`. A failed job leaves its workspace; open it with `claude` in that folder to
+continue by hand.
 
 ## Rollback
 
