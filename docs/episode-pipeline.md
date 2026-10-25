@@ -2,7 +2,7 @@
 
 How one 16:9 episode in the TikTok 2 style (D-050) goes from a topic to a rendered MP4 with no
 interactive session. Reference process (manual, EP1–EP5): `docs/video-process-export.md`.
-Decisions: D-050 (format/style), D-051 (kit port), D-052 (automated step 5, storyboard approval), D-053 (agent sandbox and limits).
+Decisions: D-050 (format/style), D-051 (kit port), D-052 (automated step 5, storyboard approval), D-053 (agent sandbox and limits), D-054 (renders run by the worker).
 
 ## 1. Flow
 
@@ -75,16 +75,25 @@ sfx/generate-sfx.mjs    Claude writes; the worker runs it (deterministic synthes
 ```
 
 `claude -p` with model `claude-opus-5-5`, `--permission-mode dontAsk`, an allow-list of tools
-(Read, Write, Edit, Glob, Grep, Bash for `npm run check|board|sfx` only), no MCP, a 90-minute
+(Read, Write, Edit, Glob, Grep, Bash for `npm run check|sfx` only), no MCP, a 90-minute
 timeout, the worker's environment stripped of secrets, and the **macOS sandbox**:
 writes only inside the workspace, no network (`strictAllowlist`, no domains), no unsandboxed
 fallback (`allowUnsandboxedCommands: false`, `failIfUnavailable: true`), reads of `~/.ssh`,
 `~/.config/aivideo`, Keychain and `.env*` denied. Fonts come from `@fontsource` packages so the
 render needs no network. The transcript is kept in the workspace.
 
+Chrome cannot start inside Claude Code's sandbox (it needs Mach bootstrap ports; spike C1,
+2026-10-26), and `excludedCommands` does not lift the sandbox while `allowUnsandboxedCommands` is
+false. So the agent never renders (D-054). Remotion always launches Chrome with `--no-sandbox`, so
+every render of agent-written code is run **by the worker** under its own Seatbelt profile
+`ops/claude/episode-render.sb`: loopback only (no DNS, no egress), writes only in the workspace,
+secret paths unreadable, `TMPDIR` inside the workspace.
+
 Worker gates after Claude stops (the agent's own claims are not trusted):
 `tsc` on the workspace, timeline cut check, text-out-of-frame check (0 sharp hits), storyboard
-render (12 shots per page). A failed gate starts another Claude turn with the report (≤ 2).
+render (12 shots per page). The storyboard pages are written to `board/` and the session is
+resumed so the agent reviews them (the Read tool shows images) and fixes what it sees; a failed
+gate resumes it with the report. At most 2 resumed turns, all inside the 90-minute limit.
 
 ## 7. Storyboard approval
 
@@ -106,7 +115,7 @@ captions, sidecar SRT from the word timings.
 | B1 | episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import |
 | B2 | `eleven_v4` + voice, per-act TTS | migration, `itera-tts.sql` |
 | B3 | timing job (whisper.cpp + port of build_timing/check_cuts) | `brew install whisper-cpp`, model download |
-| C1 | sandbox spike on the Mac mini: Remotion render inside the Seatbelt sandbox | run a test command |
+| C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
 | C2 | episode_code job, workspace, gates | migration |
 | C3 | STORYBOARD approval + Telegram media group + feedback loop | migration, WF import |
 | C4 | render_preview on the episode composition | — |

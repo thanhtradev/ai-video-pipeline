@@ -1,10 +1,5 @@
-import { loadFont } from '@remotion/google-fonts/Baloo2';
-
 /** TikTok 2 channel – palette & type. Environment + side characters: muted, desaturated. Main character: saturated ORANGE hoodie. */
-export const { fontFamily: FONT } = loadFont('normal', {
-  weights: ['600', '800'],
-  subsets: ['vietnamese', 'latin'],
-});
+export { FONT, HAND } from './fonts';
 
 /** 16:9 frame (the user switched from 9:16 to 16:9). */
 export const W = 1920;
@@ -73,10 +68,3 @@ export const desat = (c: string, t: number) => {
   return mix(c, `#${[g, g, g].map((v) => v.toString(16).padStart(2, '0')).join('')}`, t);
 };
 export const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
-
-import { loadFont as loadHand } from '@remotion/google-fonts/PatrickHand';
-/** Handwriting (red teacher's remark). */
-export const { fontFamily: HAND } = loadHand('normal', {
-  weights: ['400'],
-  subsets: ['vietnamese', 'latin'],
-});

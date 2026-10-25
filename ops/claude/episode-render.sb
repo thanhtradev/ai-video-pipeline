@@ -1,0 +1,24 @@
+;; Seatbelt profile for worker-run renders of agent-written episode code (D-054).
+;; Usage: sandbox-exec -f episode-render.sb -D WS=<job workspace> -D TMP=<WS/tmp> -D HOME=$HOME <cmd>
+;; with TMPDIR=<WS/tmp>. Chrome needs Mach bootstrap ports, so this profile starts from
+;; "allow default" and denies what matters: the network (except loopback for Remotion's
+;; bundle server), writes outside the workspace, and reads of secret paths.
+;; Spike results (2026-10-26): render OK; DNS, direct-IP egress, ~/.ssh reads and writes
+;; outside WS are all denied. Do not use (allow network* (local ip ...)): it also admits
+;; outbound connections to any host.
+(version 1)
+(allow default)
+(deny network*)
+(allow network-bind network-inbound (local ip "localhost:*"))
+(allow network-outbound (remote ip "localhost:*"))
+(deny file-write*)
+(allow file-write*
+  (subpath (param "WS"))
+  (subpath (param "TMP"))
+  (literal "/dev/null")
+  (regex #"^/dev/tty")
+  (regex #"^/dev/fd/"))
+(deny file-read*
+  (subpath (string-append (param "HOME") "/.ssh"))
+  (subpath (string-append (param "HOME") "/.config/aivideo"))
+  (subpath (string-append (param "HOME") "/Library/Keychains")))

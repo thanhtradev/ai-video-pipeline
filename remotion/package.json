@@ -8,8 +8,9 @@
     "studio": "remotion studio src/index.ts"
   },
   "dependencies": {
+    "@fontsource/baloo-2": "5.3.0",
     "@fontsource/be-vietnam-pro": "5.3.0",
-    "@remotion/google-fonts": "4.0.534",
+    "@fontsource/patrick-hand": "5.3.0",
     "@remotion/media": "4.0.534",
     "react": "19.3.0",
     "react-dom": "19.3.0",
