@@ -102,6 +102,7 @@ function context(input: unknown = INPUT): HandlerContext {
     workDir,
     signal: new AbortController().signal,
     logger: pino({ level: 'silent' }),
+    progress: async () => undefined,
   };
 }
 

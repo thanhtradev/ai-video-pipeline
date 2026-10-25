@@ -61,6 +61,7 @@ describe.runIf(MODEL)('timing (real ffmpeg + whisper.cpp)', () => {
         workDir,
         signal: new AbortController().signal,
         logger: pino({ level: 'silent' }),
+        progress: async () => undefined,
       });
 
       expect(result.result).toMatchObject({ sentences: 3, shots: 3 });

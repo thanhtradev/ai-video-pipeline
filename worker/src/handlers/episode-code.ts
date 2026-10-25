@@ -102,6 +102,7 @@ async function runTurns(context: HandlerContext, deps: EpisodeCodeDeps, ws: stri
           ? REVISION_PROMPT
           : FIRST_PROMPT
         : followUpPrompt(report!, n === 1);
+    await context.progress({ stage: 'agent', turn: n + 1, of: MAX_FOLLOW_UPS + 1 });
     const result = await deps.agent({
       prompt,
       cwd: ws,
@@ -111,6 +112,7 @@ async function runTurns(context: HandlerContext, deps: EpisodeCodeDeps, ws: stri
       signal: context.signal,
     });
     sessionId = result.sessionId;
+    await context.progress({ stage: 'gates', turn: n + 1, of: MAX_FOLLOW_UPS + 1 });
     report = await deps.gates(ws, context.signal);
     turns.push({ prompt, result, gates: { ok: report.ok, failures: describeFailures(report) } });
     context.logger.info(

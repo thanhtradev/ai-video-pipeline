@@ -255,7 +255,10 @@ export function createTtsHandler(deps: TtsHandlerDeps): JobHandler {
     const voice = await resolveVoice(deps, context.jobId);
     const run: SceneRun = { deps: { ...deps, itera }, context, voice };
     const scenes: SceneResult[] = [];
-    for (const scene of parsed.data.scenes) scenes.push(await synthesizeScene(run, scene));
+    for (const [i, scene] of parsed.data.scenes.entries()) {
+      await context.progress({ stage: 'tts', scene: i + 1, of: parsed.data.scenes.length });
+      scenes.push(await synthesizeScene(run, scene));
+    }
 
     const totalSeconds = scenes.reduce((sum, scene) => sum + scene.duration_seconds, 0);
     const totalCredits = scenes.reduce((sum, scene) => sum + scene.credits, 0);

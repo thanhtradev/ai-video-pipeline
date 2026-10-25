@@ -92,6 +92,7 @@ describe.runIf(process.env.RUN_RENDER_TESTS === '1')('render_preview (real rende
         workDir,
         signal: new AbortController().signal,
         logger,
+        progress: async () => undefined,
         input: {
           title: 'Vì sao bầu trời có màu xanh?',
           hook: 'Câu trả lời nằm ở ánh sáng',

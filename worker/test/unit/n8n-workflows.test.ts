@@ -365,6 +365,129 @@ describe('WF-06 Telegram Callback', () => {
   });
 });
 
+describe('WF-06 /status (P-017)', () => {
+  const command = (text: string, isBot = false): Item => ({
+    json: {
+      message: { message_id: 5, from: { id: 111, is_bot: isBot }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+
+  test('parses /status with or without a video id prefix', () => {
+    expect(parse(command('/status'))[0]!.json).toEqual({
+      kind: 'status',
+      prefix: '',
+      userId: '111',
+      chatId: '-100',
+      messageId: '5',
+    });
+    expect(parse(command('/status@aivideo_bot 679CD22F'))[0]!.json).toMatchObject({
+      kind: 'status',
+      prefix: '679cd22f',
+    });
+  });
+
+  test.each(['/statusx', '/status 679cd22f extra', '/status zz'])('ignores %j', (text) => {
+    expect(parse(command(text))).toEqual([]);
+  });
+
+  const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+  const video = {
+    allowed: true,
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 1,
+    title: 'Nếu bạn nghe được suy nghĩ của mèo?',
+    status: 'GENERATING_ASSETS',
+    status_since: minutesAgo(30),
+    step: 'episode_code',
+    step_status: 'RUNNING',
+    step_since: minutesAgo(12),
+    progress: { stage: 'agent', turn: 1, of: 3 },
+    steps_done: 4,
+    steps_total: 5,
+    approval: null,
+    cost: { CRD: 2817 },
+    jobs: null,
+  };
+  const status = (rows: Record<string, unknown>[], prefix = '') =>
+    runCode('wf-06-telegram-callback.json', 'Build status', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'status', prefix, chatId: '-100', messageId: '5' } }],
+      },
+    })[0]!.json;
+
+  test('lists active videos with their step, time in step and progress', () => {
+    const out = status([video]);
+    expect(out.text).toContain('[AI Video] 1 active video');
+    expect(out.text).toContain('679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
+    expect(out.text).toContain(
+      'GENERATING_ASSETS · episode_code running 12 min · agent turn 1/3 · 4/5 jobs done',
+    );
+    expect(out).toMatchObject({ chatId: '-100', messageId: '5' });
+  });
+
+  test('details one video: every job, cost and the approval it waits for', () => {
+    const jobs = [
+      {
+        step: 'script',
+        status: 'SUCCEEDED',
+        attempts: 1,
+        started: minutesAgo(40),
+        finished: minutesAgo(39),
+        error: null,
+        progress: null,
+      },
+      {
+        step: 'timing',
+        status: 'SUCCEEDED',
+        attempts: 2,
+        started: minutesAgo(35),
+        finished: minutesAgo(13),
+        error: null,
+        progress: null,
+      },
+      {
+        step: 'episode_code',
+        status: 'RUNNING',
+        attempts: 1,
+        started: minutesAgo(12),
+        finished: null,
+        error: null,
+        progress: { stage: 'gates', turn: 2, of: 3 },
+      },
+      {
+        step: 'render_episode',
+        status: 'PENDING',
+        attempts: 0,
+        started: null,
+        finished: null,
+        error: null,
+        progress: null,
+      },
+    ];
+    const out = status(
+      [{ ...video, jobs, approval: 'STORYBOARD until 2026-10-29 10:00 UTC' }],
+      '679cd22f',
+    );
+
+    expect(out.text).toContain('Video 679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
+    expect(out.text).toContain('✓ script · 1 min');
+    expect(out.text).toContain('✓ timing · 22 min · 2 attempts');
+    expect(out.text).toContain('▶ episode_code · 12 min · checking (turn 2/3)');
+    expect(out.text).toContain('· render_episode · waiting');
+    expect(out.text).toContain('Cost: 2817 CRD');
+    expect(out.text).toContain('Waiting for: STORYBOARD until 2026-10-29 10:00 UTC');
+  });
+
+  test('says when nothing matches and refuses strangers', () => {
+    expect(status([{}]).text).toBe('[AI Video] No active videos.');
+    expect(status([{}], 'abcd').text).toBe('[AI Video] No video id starts with abcd.');
+    expect(status([{ allowed: false }]).text).toBe('You are not an approver.');
+  });
+});
+
 describe('WF-12 Storyboard Approval Request', () => {
   const token = 'b'.repeat(32);
   const row = {

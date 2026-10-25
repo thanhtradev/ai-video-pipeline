@@ -280,13 +280,14 @@ export interface EpisodeScriptHandlerDeps {
 }
 
 export function createEpisodeScriptHandler(deps: EpisodeScriptHandlerDeps): JobHandler {
-  return async ({ input, workDir, signal, logger }) => {
+  return async ({ input, workDir, signal, logger, progress }) => {
     const parsedInput = inputSchema.safeParse(input);
     if (!parsedInput.success) {
       throw new PermanentJobError(`invalid episode script input: ${parsedInput.error.message}`);
     }
     const { brief } = parsedInput.data;
 
+    await progress({ stage: 'writing the script' });
     const reply = await deps.claude({
       prompt: buildPrompt(brief),
       systemPrompt: SYSTEM_PROMPT,
