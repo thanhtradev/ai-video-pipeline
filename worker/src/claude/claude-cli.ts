@@ -13,6 +13,8 @@ export interface ClaudeRequest {
   /** Empty per-job directory; the CLI runs there. */
   cwd: string;
   signal: AbortSignal;
+  /** Overrides the runner's timeout for a request known to take longer (e.g. a whole episode). */
+  timeoutMs?: number;
 }
 
 export interface ClaudeResult {
@@ -117,9 +119,10 @@ function runProcess(options: ClaudeCliOptions, request: ClaudeRequest): Promise<
       child.kill('SIGTERM');
       setTimeout(() => child.kill('SIGKILL'), KILL_GRACE_MS).unref();
     };
+    const timeoutMs = request.timeoutMs ?? options.timeoutMs;
     const timer = setTimeout(
-      () => stop(new Error(`claude timed out after ${options.timeoutMs} ms`)),
-      options.timeoutMs,
+      () => stop(new Error(`claude timed out after ${timeoutMs} ms`)),
+      timeoutMs,
     );
     const onAbort = (): void => stop(new Error(`claude aborted: ${String(request.signal.reason)}`));
     request.signal.addEventListener('abort', onAbort, { once: true });

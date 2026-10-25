@@ -154,6 +154,18 @@ describe('claude cli', () => {
     await expect(run('hang')).rejects.toThrow(/timed out/);
   });
 
+  test('a request can set its own timeout', async () => {
+    const pending = claude({
+      prompt: 'MODE:hang\nWrite an episode.',
+      systemPrompt: 'You write episodes.',
+      jsonSchema: SCHEMA,
+      cwd,
+      signal: new AbortController().signal,
+      timeoutMs: 300,
+    });
+    await expect(pending).rejects.toThrow(/timed out after 300 ms/);
+  });
+
   test('stops when the job is cancelled', async () => {
     const controller = new AbortController();
     const pending = run('hang', controller.signal);

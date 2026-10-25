@@ -6,6 +6,7 @@ import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
+import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
 import { createRenderPreviewHandler } from './handlers/render-preview.js';
 import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
@@ -63,7 +64,10 @@ function buildHandlers(
   });
   return new Map([
     ['simulate', simulateHandler],
-    ['script', createScriptHandler({ claude })],
+    [
+      'script',
+      routeScriptJobs(createScriptHandler({ claude }), createEpisodeScriptHandler({ claude })),
+    ],
     ['tts', tts],
     [
       'render_preview',

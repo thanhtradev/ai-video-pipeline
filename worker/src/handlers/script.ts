@@ -95,7 +95,7 @@ function toPreview(script: Script): string {
 }
 
 /** Writes via a temp file + rename so a crash never leaves a half-written output. */
-async function writeAtomic(path: string, content: string): Promise<void> {
+export async function writeAtomic(path: string, content: string): Promise<void> {
   const temp = `${path}.tmp`;
   await writeFile(temp, content);
   await rename(temp, path);

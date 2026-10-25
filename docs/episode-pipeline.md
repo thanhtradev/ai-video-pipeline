@@ -36,22 +36,31 @@ A fourth feedback, an episode_code job that keeps failing its gates, or a 90-min
 
 ## 3. Script (A1)
 
+Intake (WF-01): `Topic` (required), `Duration (minutes)` (2–12, optional), `Full brief`
+(optional, ≤ 30000 characters, kept verbatim), `Notes`. The brief gets `format: "episode"`, which
+`brief_normalize` validates and `video_submit` turns into a 16:9 video; Shorts briefs still work.
+
 The script step returns one JSON document (schema in `worker/src/handlers/episode-script.ts`):
 
-- `title`, `logline` (shown in A1), `characters[]` (`name`, `look`), `effects` (Markdown);
+- `title`, `logline` (shown in A1), `characters[]` (`name`, `look`), `effects` and `notes` (Markdown);
 - `acts[]` (1–12): `title`, `grade` (colour note), `lines[]` (narration with ElevenLabs audio tags
-  such as `[punchy]`), `shots[]` (`id` "act.n", `moc` = first words of the line it starts on,
-  `description`, optional `hold_seconds`, `sfx[]`).
+  such as `[punchy]`), `shots[]` (`id` "act.n", `moc` = first words of the narration where it
+  starts, `description`, optional `hold_seconds`, `sfx[]`).
 
-Line ids `L001…` are assigned in order by SQL, not by the model. From a full brief in the user's
-format (VOICE / NHÂN VẬT / VISUAL STYLE / HIỆU ỨNG / DANH SÁCH SHOT), Claude only restructures it
-and keeps the Vietnamese text verbatim; from a topic it writes the episode.
+The worker checks what the schema cannot and retries the step otherwise: shot ids numbered
+`act.n` in order, every MỐC found in its act's narration after the previous one, each act under
+10000 characters (one TTS request), and, from a full brief, every line present verbatim in it
+(the EP5 brief passes all of these). It then assigns line ids `L001…` in order (never the model)
+and writes `script.json` (the hashed A1 content) and `script.md`. From a full brief in the user's
+format (VOICE / NHÂN VẬT / VISUAL STYLE / HIỆU ỨNG / DANH SÁCH SHOT), Claude only restructures it;
+from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with holds).
 
 ## 4. TTS
 
 Model `eleven_v4` (1 credit/char, ≤ 10000 chars per request), Vietnamese voice
 `47rM9DW5VmjOw23BVHWi`, enabled by a rollout SQL like `ops/postgres/itera-tts.sql`. One request
-per act: an act's lines joined with newlines, tags included. The A1 estimate counts the same text.
+per act: an act's lines joined with newlines, tags included. `eleven_v4` honours the audio tags
+(`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The A1 estimate counts the same text.
 
 ## 5. Timing
 
@@ -112,7 +121,7 @@ captions, sidecar SRT from the word timings.
 
 | Slice | Content | User rollout |
 |---|---|---|
-| B1 | episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import |
+| B1 | ✅ episode script schema + prompt, form fields, A1 message | migration, WF-01/WF-05 import (with B2) |
 | B2 | `eleven_v4` + voice, per-act TTS | migration, `itera-tts.sql` |
 | B3 | timing job (whisper.cpp + port of build_timing/check_cuts) | `brew install whisper-cpp`, model download |
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |

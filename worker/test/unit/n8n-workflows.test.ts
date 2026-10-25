@@ -102,16 +102,16 @@ describe.each(files)('%s', (file) => {
 });
 
 describe('WF-01 Intake', () => {
-  test('builds a trimmed brief keyed by the execution id', () => {
+  test('builds a trimmed episode brief keyed by the execution id', () => {
     const [out] = runCode('wf-01-intake.json', 'Build brief', {
       executionId: '42',
       input: [
         {
           json: {
-            Topic: '  Vì sao bầu trời có màu xanh? ',
-            'Duration (seconds)': 45,
-            Audience: '',
-            Tone: 'vui vẻ',
+            Topic: '  Nếu bạn dừng được thời gian 30 giây? ',
+            'Duration (minutes)': 6,
+            'Full brief': '',
+            Notes: 'giọng kể vui',
           },
         },
       ],
@@ -119,9 +119,23 @@ describe('WF-01 Intake', () => {
 
     expect(out!.json.submissionId).toBe('n8n-form-42');
     expect(JSON.parse(out!.json.brief as string)).toEqual({
-      topic: 'Vì sao bầu trời có màu xanh?',
-      duration_seconds: 45,
-      tone: 'vui vẻ',
+      format: 'episode',
+      topic: 'Nếu bạn dừng được thời gian 30 giây?',
+      duration_minutes: 6,
+      notes: 'giọng kể vui',
+    });
+  });
+
+  test('passes a full brief through and leaves an empty duration out', () => {
+    const fullBrief = 'VOICE\n[punchy] Nếu bạn dừng được thời gian…\n\n[1. HOOK]';
+    const [out] = runCode('wf-01-intake.json', 'Build brief', {
+      input: [{ json: { Topic: 'EP5', 'Duration (minutes)': '', 'Full brief': fullBrief } }],
+    });
+
+    expect(JSON.parse(out!.json.brief as string)).toEqual({
+      format: 'episode',
+      topic: 'EP5',
+      full_brief: fullBrief,
     });
   });
 });
@@ -170,6 +184,26 @@ describe('WF-05 Script Approval Request', () => {
       'TTS budget: up to 462 ITERA credits (420 characters)',
     );
     expect(without[0]!.json.text).toContain('approving allows no TTS spend');
+  });
+
+  test('summarizes an episode script in minutes, acts and shots', () => {
+    const episode = {
+      format: 'episode',
+      title: 'Nếu bạn dừng được thời gian 30 giây?',
+      total_seconds: 395,
+      act_count: 9,
+      shot_count: 83,
+      line_count: 126,
+      narration_chars: 6251,
+      preview: 'Mỗi lần dừng thời gian, bạn già thêm một ngày.',
+    };
+    const [out] = runCode('wf-05-script-approval.json', 'Build message', {
+      input: [{ json: { ...row, script: episode } }],
+    });
+
+    expect(out!.json.text).toContain('Episode ~6.6 min, 9 acts, 83 shots, 126 lines');
+    expect(out!.json.text).toContain('6251 narration characters');
+    expect(out!.json.text).not.toContain('scenes');
   });
 
   test('labels reminders and skips empty results', () => {
