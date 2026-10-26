@@ -71,6 +71,12 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 | Over the approved budget, no price | Cost guard refuses before the request → `FAILED_PERMANENT` → `NEEDS_DECISION` (D-023, D-045) |
 | Render/QA error | Render: bounded retry; QA failure: no retry, user decides |
 
+| Remotion's Chrome missing (episode steps) | `BLOCKED` before any agent turn, checked again every 30 min (D-056) |
+
+`NEEDS_DECISION` after a permanent failure: an approver sends `/retry <video id prefix>` on Telegram
+once the cause is fixed. `telegram_retry()` gives the failed job one more attempt and resumes the video
+where it was; the step's checkpoints decide what is redone (D-056).
+
 **Never** retry with a different provider/model. Every attempt of a paid step goes through the cost guard again.
 
 ## 7. Recovery

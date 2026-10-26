@@ -8,7 +8,7 @@ import { agentArgs, type AgentRunner, type AgentTurn } from '../../src/claude/ag
 import { agentSettings, SFX_COMMAND, TYPECHECK_COMMAND } from '../../src/episode/agent-settings.js';
 import { describeFailures, type GateReport, type GateRunner } from '../../src/episode/gates.js';
 import { createEpisodeCodeHandler, type EpisodeCodeDeps } from '../../src/handlers/episode-code.js';
-import { PermanentJobError, type HandlerContext } from '../../src/runner.js';
+import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import { writeCheckpoint } from '../../src/storage/checkpoint.js';
 
 const SCRIPT_JOB = '11111111-1111-4111-8111-111111111111';
@@ -106,7 +106,14 @@ function gates(...reports: GateReport[]): GateRunner {
 }
 
 function deps(overrides: Partial<EpisodeCodeDeps> = {}): EpisodeCodeDeps {
-  return { agent: agent(), gates: gates(PASS), secrets: [SECRET], ...overrides };
+  return {
+    agent: agent(),
+    gates: gates(PASS),
+    secrets: [SECRET],
+    browserReady: () => true,
+    blockSeconds: 1800,
+    ...overrides,
+  };
 }
 
 function context(input: unknown = INPUT, attemptNo = 1): HandlerContext {
@@ -153,7 +160,8 @@ describe('episode_code handler', () => {
     // WF-12 fetches the pages from the worker API with this token (D-055).
     expect(result.result.board_token).toMatch(/^[0-9a-f]{32}$/);
     const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
-    expect(log).toHaveLength(2);
+    expect(log).toMatchObject({ sessionId: 'session-1', report: { ok: true } });
+    expect(log.turns.map((t: { gates: { ok: boolean } }) => t.gates.ok)).toEqual([true, true]);
     // /status on Telegram (P-017) sees each agent turn and gate run.
     expect(reported).toEqual([
       { stage: 'agent', turn: 1, of: 3 },
@@ -231,6 +239,80 @@ describe('episode_code handler', () => {
     await writeFile(join(workDir, 'ws', 'note.txt'), 'attempt 1');
     await createEpisodeCodeHandler(deps())(context(INPUT, 2));
     expect(await readFile(join(workDir, 'ws.attempt-1', 'note.txt'), 'utf8')).toBe('attempt 1');
+  });
+
+  test("waits (blocked) while Remotion's Chrome is missing, before any agent turn", async () => {
+    const error = await createEpisodeCodeHandler(deps({ browserReady: () => false }))(
+      context(),
+    ).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ProviderBlockedError);
+    expect((error as Error).message).toMatch(/npx remotion browser ensure/);
+    expect(turns).toEqual([]);
+    expect(existsSync(join(workDir, 'ws'))).toBe(false);
+  });
+
+  test('a retry after the gates crashed resumes the session instead of writing again', async () => {
+    const crash: GateRunner = async () => {
+      throw new Error('EPERM: mkdir node_modules/.remotion');
+    };
+    await expect(createEpisodeCodeHandler(deps({ gates: crash }))(context())).rejects.toThrow(
+      /EPERM/,
+    );
+    expect(turns).toHaveLength(1);
+
+    const result = await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    // Gates for turn 1, then the review turn in the same session; the code was not rewritten.
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.resumeSessionId).toBe('session-1');
+    expect(turns[1]!.prompt).toMatch(/review the storyboard/);
+    expect(existsSync(join(workDir, 'ws.attempt-1'))).toBe(false);
+    expect(await readFile(join(workDir, 'ws/src/episode/Episode.tsx'), 'utf8')).toMatch(/Episode/);
+    expect(result.result).toMatchObject({ turns: 2, session_id: 'session-1' });
+    expect(reported.slice(2)).toEqual([
+      { stage: 'gates', turn: 1, of: 3 },
+      { stage: 'agent', turn: 2, of: 3 },
+      { stage: 'gates', turn: 2, of: 3 },
+    ]);
+  });
+
+  test('a retry after a failed review continues with the fix turn', async () => {
+    let calls = 0;
+    const crashOnSecond: GateRunner = async (ws, signal) => {
+      if (++calls === 2) throw new Error('bundle crashed');
+      return gates(FAIL)(ws, signal);
+    };
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: crashOnSecond }))(context()),
+    ).rejects.toThrow(/bundle crashed/);
+
+    await createEpisodeCodeHandler(deps({ gates: gates(PASS) }))(context(INPUT, 2));
+
+    expect(turns).toHaveLength(2);
+  });
+
+  test('the time limit counts the agent time of earlier attempts', async () => {
+    const crash: GateRunner = async () => {
+      throw new Error('crashed');
+    };
+    const slow = agent(() => new Promise((resolve) => setTimeout(resolve, 30)));
+    await expect(
+      createEpisodeCodeHandler(deps({ agent: slow, gates: crash, limitMs: 25 }))(context()),
+    ).rejects.toThrow(/crashed/);
+
+    await createEpisodeCodeHandler(deps({ gates: gates(FAIL), limitMs: 25 }))(
+      context(INPUT, 2),
+    ).catch(() => undefined);
+
+    expect(turns).toHaveLength(1);
+  });
+
+  test('a retry starts over when the checkpoint is unreadable', async () => {
+    await mkdir(join(workDir, 'ws'));
+    await writeFile(join(workDir, 'agent-turns.json'), '[{"prompt":"old format"}]');
+    await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+    expect(turns[0]!.prompt).toMatch(/Write the episode/);
+    expect(existsSync(join(workDir, 'ws.attempt-1'))).toBe(true);
   });
 
   test('rejects invalid input or a missing timing job permanently', async () => {

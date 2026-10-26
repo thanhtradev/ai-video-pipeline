@@ -488,6 +488,81 @@ describe('WF-06 /status (P-017)', () => {
   });
 });
 
+describe('WF-06 /retry (D-056)', () => {
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 6, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+  const reply = (row: Record<string, unknown>, prefix = '679cd22f') =>
+    runCode('wf-06-telegram-callback.json', 'Build retry', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'retry', prefix, chatId: '-100', messageId: '6' } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test('parses /retry with a video id prefix of at least 4 characters', () => {
+    expect(parse(command('/retry@aivideo_bot 679CD22F'))[0]!.json).toEqual({
+      kind: 'retry',
+      prefix: '679cd22f',
+      userId: '111',
+      chatId: '-100',
+      messageId: '6',
+    });
+  });
+
+  test.each(['/retry', '/retry 679', '/retry zzzz', '/retry 679cd22f now'])(
+    'ignores %j',
+    (text) => {
+      expect(parse(command(text))).toEqual([]);
+    },
+  );
+
+  test('answers each result of telegram_retry()', () => {
+    const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+    expect(reply({ result: 'RETRIED', video_id: id, step: 'episode_code', attempt: 3 })).toEqual({
+      text: '[AI Video] Retrying episode_code of video 679cd22f (attempt 3). Progress: /status 679cd22f',
+      chatId: '-100',
+      messageId: '6',
+    });
+    expect(reply({ result: 'NOT_APPROVER' }).text).toBe('You are not an approver.');
+    expect(reply({ result: 'NOT_FOUND' }, 'abcd').text).toBe(
+      '[AI Video] No video id starts with abcd.',
+    );
+    expect(reply({ result: 'AMBIGUOUS' }, 'abcd').text).toMatch(/send more characters/);
+    expect(reply({ result: 'NOT_STOPPED', video_id: id }).text).toMatch(/679cd22f is not waiting/);
+    expect(reply({ result: 'NO_FAILED_JOB', video_id: id }).text).toMatch(/no failed job/);
+  });
+
+  test('/status of a stopped video shows the retry command', () => {
+    const out = runCode('wf-06-telegram-callback.json', 'Build status', {
+      input: [
+        {
+          json: {
+            allowed: true,
+            video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+            version: 1,
+            title: 'x',
+            status: 'NEEDS_DECISION',
+            status_since: new Date().toISOString(),
+            jobs: [],
+            cost: {},
+          },
+        },
+      ],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'status', prefix: '679cd22f', chatId: '-100', messageId: '5' } },
+        ],
+      },
+    })[0]!.json as { text: string };
+    expect(out.text).toContain('Retry the failed step: /retry 679cd22f');
+  });
+});
+
 describe('WF-12 Storyboard Approval Request', () => {
   const token = 'b'.repeat(32);
   const row = {
