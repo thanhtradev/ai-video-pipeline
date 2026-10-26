@@ -149,7 +149,10 @@ limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace sta
 session. `agent-turns.json` keeps prompts, replies and usage, and is the step's checkpoint (D-056):
 it is written after every agent turn and gate run, so a retry (worker restart, a gate crash,
 `/retry` on Telegram) resumes the same session where it stopped. The limit counts all attempts. The
-step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed.
+step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
+during the board or QA render (`Page crashed!`, `Target closed`) is never shown to the agent: the
+attempt fails retryable and the retry re-runs the gates. The QA scan opens a fresh browser every 20
+samples; 100 per browser crashed Chrome (a V8 fatal check) on one episode, 2026-10-27.
 
 The board and QA compositions last as long as the episode: Remotion drops any `<Sequence>` that
 starts after its composition ends. The reference `check-text-bounds.mjs` used a composition one
