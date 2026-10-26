@@ -30,6 +30,9 @@ New status `AWAITING_STORYBOARD_APPROVAL` and approval type `STORYBOARD`:
 | `GENERATING_ASSETS` | `AWAITING_STORYBOARD_APPROVAL` | episode_code succeeded and its gates passed |
 | `AWAITING_STORYBOARD_APPROVAL` | `GENERATING_ASSETS` | feedback: a revision job is created |
 | `AWAITING_STORYBOARD_APPROVAL` | `RENDERING_PREVIEW` | approved: render_preview becomes READY |
+| `RENDERING_PREVIEW` | `QA_RUNNING` | the preview rendered: WF-13 creates `qa_preview` (§9) |
+| `QA_RUNNING` | `AWAITING_PREVIEW_APPROVAL` | QA passed (or only warned): A2 is requested |
+| `AWAITING_PREVIEW_APPROVAL` | `RENDERING_FINAL` / `GENERATING_ASSETS` / `CANCELLED` | A2 approve / notes / reject |
 
 A fourth feedback, an episode_code job that keeps failing its gates, or a 90-minute timeout →
 `NEEDS_DECISION` (the user can still open an interactive session on the job workspace).
@@ -167,11 +170,36 @@ WF-06 handles both through `telegram_decide()`:
 `render_episode` (q:render, free) copies the approved workspace and renders `Episode` at 1280×720
 under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
 captions are part of the composition), normalises loudness (-14 LUFS, -1.5 dBTP, D-032) and writes
-`vi.srt` from the sentence timeline. The version stays in `RENDERING_PREVIEW`; delivery, QA, A2 and
-the final 1080p render are 2d. A real mini episode (say voice → whisper → agent → render) came out
+`vi.srt` from the sentence timeline. QA and A2 follow (§9). A real mini episode (say voice → whisper → agent → render) came out
 at -14.0 LUFS with matching subtitles.
 
-## 9. Rollout slices
+## 9. Preview QA and A2 (D-057)
+
+Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
+
+1. A version in `RENDERING_PREVIEW` whose newest `render_episode` (of the newest code) succeeded gets
+   a `qa_preview` job (q:light, free) → `QA_RUNNING`.
+2. `qa_preview` checks the 720p file (`worker/src/episode/qa.ts`): MP4 with H.264/AAC, 1280×720 at
+   30 fps, duration = timeline ± 0.5 s, -14 ± 1 LUFS and true peak ≤ -1 dBTP, a valid SRT (FAIL);
+   black stretches ≥ 1 s and silences ≥ 3 s (WARN). Any FAIL fails the job permanently →
+   `NEEDS_DECISION` (WF-08 alerts; `/retry` after a fix). `qa-report.json` is kept either way.
+3. QA passed → `AWAITING_PREVIEW_APPROVAL` and an A2 request bound to the SHA-256 of the render's
+   outputs. WF-13 fetches `preview.mp4` from the worker (`GET /media/<video>/<version>/<qa job>/
+   preview.mp4?t=<media token>`, the token from the QA checkpoint, like D-055) and sends it as a
+   Telegram video (bots may upload up to 50 MB; a 3-minute 720p preview is about 25 MB), then the
+   message with the QA warnings, cost so far and **Approve** / **Reject**.
+
+| Telegram | Effect |
+|---|---|
+| Approve | → `RENDERING_FINAL`, `render_final` job: the same render at 1920×1080 (`final.mp4`) |
+| Reject | → `CANCELLED` |
+| reply with notes | → `GENERATING_ASSETS`, a revision of the code as for storyboard notes, sharing its rounds; storyboard, preview, QA and A2 follow again |
+
+The version stays in `RENDERING_FINAL` after the final render: final QA, metadata, archive and the
+cost report are the rest of 2d. The final file is not sent to Telegram (a 1080p episode exceeds the
+50 MB bot upload limit).
+
+## 10. Rollout slices
 
 Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 
@@ -184,3 +212,4 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | C2 | ✅ episode_code job, workspace, gates | Chrome download, migration |
 | C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
 | C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |
+| D1 | ✅ preview QA, A2 on Telegram with the video, final 1080p render (D-057) | migration, WF-06/WF-13 import (`ops/preview-approval.md`) |

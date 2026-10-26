@@ -14,19 +14,25 @@ import { NO_CHROME } from './episode-code.js';
 
 // Episode `render_episode` step (q:render, docs/episode-pipeline.md §8): the approved storyboard's
 // code rendered at 1280×720 with its burned-in captions, loudness normalised (D-032), plus a
-// sidecar SRT from the sentence timeline. The render runs agent-written code, so it runs on a copy
+// sidecar SRT from the sentence timeline. `render_final` (after A2, D-057) is the same at 1920×1080. The render runs agent-written code, so it runs on a copy
 // of the approved workspace under the worker's sandbox profile (D-054). Free (local).
 
 export const EPISODE_PREVIEW_SCALE = 2 / 3;
+const QUALITIES = {
+  preview: { scale: EPISODE_PREVIEW_SCALE, video: 'preview.mp4' },
+  final: { scale: 1, video: 'final.mp4' },
+} as const;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const FPS = 30;
 const RENDER_TIMEOUT_MS = 90 * 60 * 1000;
-const RAW = 'out/preview.raw.mp4';
-const VIDEO = 'preview.mp4';
 const SRT = 'vi.srt';
 
-const inputSchema = z.object({ episode_code_job_id: z.uuid(), timing_job_id: z.uuid() });
+const inputSchema = z.object({
+  episode_code_job_id: z.uuid(),
+  timing_job_id: z.uuid(),
+  quality: z.enum(['preview', 'final']).default('preview'),
+});
 
 const timingSchema = z.object({
   totalFrames: z.number().int().positive(),
@@ -88,13 +94,15 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
     if (existsSync(copy)) await rename(copy, join(workDir, `ws.attempt-${attemptNo - 1}`));
     await copyWorkspace(join(codeDir, 'ws'), copy);
     const ws = await realpath(copy);
+    const { scale, video } = QUALITIES[parsed.data.quality];
+    const raw = `out/${video.replace('.mp4', '.raw.mp4')}`;
 
     logger.info({ frames: timing.totalFrames }, 'rendering episode');
     await progress({ stage: 'render', frames: timing.totalFrames });
-    await deps.render(ws, RAW, EPISODE_PREVIEW_SCALE, signal);
+    await deps.render(ws, raw, scale, signal);
     await progress({ stage: 'loudness' });
-    const loudness = await deps.loudness(join(ws, RAW), join(workDir, VIDEO), signal);
-    await rm(join(ws, RAW), { force: true });
+    const loudness = await deps.loudness(join(ws, raw), join(workDir, video), signal);
+    await rm(join(ws, raw), { force: true });
 
     const cues = buildCues(
       timing.lines.map((line) => ({
@@ -104,14 +112,15 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
       })),
     );
     await writeFile(join(workDir, SRT), toSrt(cues));
-    const durationSeconds = await deps.probe(join(workDir, VIDEO));
+    const durationSeconds = await deps.probe(join(workDir, video));
 
     return {
-      outputs: [VIDEO, SRT],
+      outputs: [video, SRT],
       result: {
         template: 'Episode',
-        width: Math.round(WIDTH * EPISODE_PREVIEW_SCALE),
-        height: Math.round(HEIGHT * EPISODE_PREVIEW_SCALE),
+        quality: parsed.data.quality,
+        width: Math.round(WIDTH * scale),
+        height: Math.round(HEIGHT * scale),
         fps: FPS,
         frames: timing.totalFrames,
         duration_seconds: Math.round(durationSeconds * 100) / 100,

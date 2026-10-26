@@ -385,6 +385,30 @@ describe('WF-06 Telegram Callback', () => {
       'Already decided.',
     );
   });
+
+  test('parses A2 buttons (no regenerate) and answers A2 decisions (D-057)', () => {
+    const parse = (data: string) =>
+      runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback(data)] });
+    expect(parse(`a2:A:${token}`)[0]!.json).toMatchObject({
+      kind: 'button',
+      approval: 'preview',
+      action: 'APPROVE',
+      token,
+    });
+    expect(parse(`a2:R:${token}`)[0]!.json).toMatchObject({ action: 'REJECT' });
+    expect(parse(`a2:G:${token}`)).toEqual([]);
+
+    const decide = (result: string, action: string) =>
+      runCode('wf-06-telegram-callback.json', 'Build reply', {
+        input: [{ json: { result, version: 1, round: 1 } }],
+        nodeOutputs: { 'Parse callback': parse(`a2:${action[0]}:${token}`) },
+      })[0]!.json;
+    expect(decide('OK', 'APPROVE').answer).toBe('Approved: rendering the final 1080p');
+    expect(decide('OK', 'REJECT').answer).toBe('Rejected (video cancelled)');
+    expect(decide('HASH_MISMATCH', 'APPROVE').answer).toBe(
+      'The preview changed after this request; wait for the new request.',
+    );
+  });
 });
 
 describe('WF-06 /status (P-017)', () => {
@@ -635,6 +659,71 @@ describe('WF-12 Storyboard Approval Request', () => {
     for (const key of ['approve', 'reject']) {
       expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
     }
+  });
+});
+
+describe('WF-13 Preview Approval Request (D-057)', () => {
+  const token = 'b'.repeat(32);
+  const row = {
+    kind: 'REQUEST',
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 1,
+    token,
+    expires_at: '2026-10-29T10:00:00.000Z',
+    round: 1,
+    title: 'Nếu bạn nghe được suy nghĩ của mèo?',
+    cost: { CRD: 2817 },
+    media: {
+      job_id: '87654321-aaaa-bbbb-cccc-000000000000',
+      token: 'c'.repeat(32),
+      level: 'WARN',
+      duration_seconds: 178.6,
+      checks: [
+        { name: 'format', level: 'PASS', detail: 'MP4, h264/aac' },
+        { name: 'black frames', level: 'WARN', detail: '0:42.0–0:43.2' },
+      ],
+    },
+  };
+
+  test('fetches the preview from the worker with the media token', () => {
+    const [out] = runCode('wf-13-preview-approval.json', 'Build video', { input: [{ json: row }] });
+    expect(out!.json).toEqual({
+      url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${row.media.job_id}/preview.mp4?t=${'c'.repeat(32)}`,
+      caption: 'Video 679cd22f v1 · preview 720p · Nếu bạn nghe được suy nghĩ của mèo?',
+    });
+    expect(
+      runCode('wf-13-preview-approval.json', 'Build video', {
+        input: [{ json: { ...row, kind: 'REMINDER', media: null } }],
+      }),
+    ).toEqual([]);
+  });
+
+  test('asks for A2 with the QA warnings and cost, with buttons under 64 bytes', () => {
+    const [out] = runCode('wf-13-preview-approval.json', 'Build message', {
+      input: [{ json: row }],
+    });
+    const text = out!.json.text as string;
+
+    expect(text).toContain('Preview ready for approval (A2)');
+    expect(text).toContain('QA: WARN · 2:59');
+    expect(text).toContain('- black frames: 0:42.0–0:43.2');
+    expect(text).not.toContain('format');
+    expect(text).toContain('Cost so far: 2817 CRD');
+    expect(text).toMatch(/render the final 1080p/);
+    expect(text).toContain(`ref:${token}`);
+    expect(out!.json.approve).toBe(`a2:A:${token}`);
+    expect(out!.json.reject).toBe(`a2:R:${token}`);
+    for (const key of ['approve', 'reject']) {
+      expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
+    }
+  });
+
+  test('reminds without the report', () => {
+    const [out] = runCode('wf-13-preview-approval.json', 'Build message', {
+      input: [{ json: { ...row, kind: 'REMINDER', media: null, cost: null } }],
+    });
+    expect(out!.json.text).toContain('Reminder: preview approval (A2) pending');
+    expect(out!.json.text).not.toContain('Cost so far');
   });
 });
 

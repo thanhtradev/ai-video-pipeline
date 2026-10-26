@@ -11,6 +11,7 @@ import { createGateRunner } from './episode/gates.js';
 import { chromeInstalled } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
+import { createQaPreviewHandler } from './handlers/qa-preview.js';
 import {
   createRenderEpisodeHandler,
   createSandboxedEpisodeRenderer,
@@ -23,6 +24,7 @@ import { createTtsHandler } from './handlers/tts.js';
 import { createLogger, redactUrl } from './logger.js';
 import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
+import { createGapDetector, createMediaInspector } from './media/inspect.js';
 import { createLoudnessNormalizer } from './media/loudness.js';
 import { createVoiceBuilder } from './media/voice.js';
 import { createWhisper } from './media/whisper.js';
@@ -64,6 +66,13 @@ function buildHandlers(
   });
   const { itera } = config;
   const probe = createFfprobe(config.ffprobeBin);
+  const renderEpisode = createRenderEpisodeHandler({
+    render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
+    loudness: createLoudnessNormalizer(config.ffmpegBin),
+    probe,
+    browserReady: chromeInstalled,
+    blockSeconds: CHROME_BLOCK_SECONDS,
+  });
   const tts = createTtsHandler({
     itera: itera.apiKey
       ? createIteraClient({
@@ -117,14 +126,14 @@ function buildHandlers(
         blockSeconds: WHISPER_BLOCK_SECONDS,
       }),
     ],
+    // The final 1080p render (D-057) is the same handler; its input says quality: final.
+    ['render_episode', renderEpisode],
+    ['render_final', renderEpisode],
     [
-      'render_episode',
-      createRenderEpisodeHandler({
-        render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
-        loudness: createLoudnessNormalizer(config.ffmpegBin),
-        probe,
-        browserReady: chromeInstalled,
-        blockSeconds: CHROME_BLOCK_SECONDS,
+      'qa_preview',
+      createQaPreviewHandler({
+        inspect: createMediaInspector(config.ffprobeBin),
+        detectGaps: createGapDetector(config.ffmpegBin),
       }),
     ],
     [

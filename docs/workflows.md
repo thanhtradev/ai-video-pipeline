@@ -27,6 +27,7 @@ Claude Code never imports/activates production workflows.
 | WF-10 | Retention Reminder | Daily cron | List Mac working copies older than 30 days after verified archive → **request approval** to delete (never auto-delete) |
 | WF-11 | Provider Health | Cron | Check provider quota/status; mark `provider_blocked`, notify |
 | WF-12 | Storyboard Approval Request | Every 30 s | `storyboard_approvals_due()`: episodes whose newest `episode_code` job succeeded → STORYBOARD token; sends each storyboard page (fetched from the worker's `GET /boards/…` with the board token, D-055) and a message with Approve / Reject that also asks for notes as a reply; reminders every 6 h. **Implemented (2c, episodes):** `wf-12-storyboard-approval.json` |
+| WF-13 | Preview Approval Request | Every 30 s | `preview_approvals_due()`: episodes whose preview rendered → `qa_preview` job; passed QA → A2 token, the preview video fetched from the worker (`GET /media/…` with the QA job's media token) and a message with the QA warnings, cost, Approve / Reject (notes by reply). **Implemented (D-057):** `wf-13-preview-approval.json` |
 | WF-99 | Error Handler | n8n Error Trigger | Write audit log, notify Telegram with execution id (no payloads). **Implemented:** `wf-99-error-handler.json`. Must be **active** — n8n 2.x skips inactive error workflows |
 
 ## Dependencies
@@ -35,6 +36,7 @@ Claude Code never imports/activates production workflows.
 WF-01 → (DB) → WF-02 → Redis → worker (cost_guard before paid calls) → (DB functions) → WF-02 ...
                                               (DB) → WF-05 → Telegram → WF-06 → (DB)
                        (DB) → WF-12 → worker GET /boards → Telegram → WF-06 → (DB)   (episodes)
+                       (DB) → WF-13 → worker GET /media  → Telegram → WF-06 → (DB)   (episode A2)
 WF-08 watches everything; WF-99 catches errors from every workflow.
 ```
 
