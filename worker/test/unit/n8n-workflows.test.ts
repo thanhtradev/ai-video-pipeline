@@ -192,7 +192,7 @@ describe('WF-05 Script Approval Request', () => {
       input: [{ json: row }],
     });
 
-    expect(out!.json.text).toContain('Script ready for approval (A1)');
+    expect(out!.json.text).toContain('Kịch bản sẵn sàng để duyệt (A1)');
     expect(out!.json.text).toContain('Video 12345678 v2');
     expect(out!.json.text).toContain('Bầu trời xanh');
     for (const key of ['approve', 'regenerate', 'reject']) {
@@ -217,9 +217,9 @@ describe('WF-05 Script Approval Request', () => {
     });
 
     expect(withBudget[0]!.json.text).toContain(
-      'TTS budget: up to 462 ITERA credits (420 characters)',
+      'Ngân sách TTS: tối đa 462 credit ITERA (420 ký tự)',
     );
-    expect(without[0]!.json.text).toContain('approving allows no TTS spend');
+    expect(without[0]!.json.text).toContain('duyệt sẽ không cho chi tiền TTS');
   });
 
   test('summarizes an episode script in minutes, acts and shots', () => {
@@ -237,9 +237,9 @@ describe('WF-05 Script Approval Request', () => {
       input: [{ json: { ...row, script: episode } }],
     });
 
-    expect(out!.json.text).toContain('Episode ~6.6 min, 9 acts, 83 shots, 126 lines');
-    expect(out!.json.text).toContain('6251 narration characters');
-    expect(out!.json.text).not.toContain('scenes');
+    expect(out!.json.text).toContain('Tập ~6.6 phút, 9 hồi, 83 shot, 126 câu thoại');
+    expect(out!.json.text).toContain('6251 ký tự lời đọc');
+    expect(out!.json.text).not.toContain('cảnh');
   });
 
   test('labels reminders and skips empty results', () => {
@@ -248,7 +248,7 @@ describe('WF-05 Script Approval Request', () => {
     });
 
     expect(outputs).toHaveLength(1);
-    expect(outputs[0]!.json.text).toContain('Reminder');
+    expect(outputs[0]!.json.text).toContain('Nhắc');
   });
 });
 
@@ -291,13 +291,13 @@ describe('WF-06 Telegram Callback', () => {
 
   test('settles and edits the message on success', () => {
     const out = reply('OK', 'REGENERATE', 2);
-    expect(out.json).toMatchObject({ answer: 'Regenerating as v2', settled: true });
-    expect(out.json.editedText).toContain('Decision: Regenerating as v2');
+    expect(out.json).toMatchObject({ answer: 'Đang viết lại thành v2', settled: true });
+    expect(out.json.editedText).toContain('Quyết định: Đang viết lại thành v2');
   });
 
   test('leaves the buttons for a refused stranger', () => {
     expect(reply('NOT_ALLOWED', 'APPROVE', null).json).toMatchObject({
-      answer: 'You are not an approver.',
+      answer: 'Bạn không phải approver.',
       settled: false,
     });
   });
@@ -381,22 +381,22 @@ describe('WF-06 Telegram Callback', () => {
 
   test('answers storyboard decisions and notes', () => {
     expect(storyboardReply('OK', 'button', 'APPROVE', 1)).toMatchObject({
-      answer: 'Approved: rendering the preview',
+      answer: 'Đã duyệt: đang render preview',
       settled: true,
       isButton: true,
     });
     expect(storyboardReply('OK', 'reply', 'FEEDBACK', 2)).toMatchObject({
-      answer: 'Notes received: revising the storyboard (round 2 of 4).',
+      answer: 'Đã nhận ghi chú: đang sửa storyboard (vòng 2/4).',
       isButton: false,
     });
     expect(storyboardReply('NEEDS_DECISION', 'reply', 'FEEDBACK', 4).answer).toMatch(
-      /last round.*needs a decision/,
+      /vòng ghi chú cuối.*quyết định/,
     );
     expect(storyboardReply('EMPTY_NOTE', 'reply', 'FEEDBACK', null).answer).toMatch(
-      /Write your notes/,
+      /Hãy viết ghi chú/,
     );
     expect(storyboardReply('NOT_PENDING', 'reply', 'FEEDBACK', null).answer).toBe(
-      'Already decided.',
+      'Đã được quyết định rồi.',
     );
   });
 
@@ -417,10 +417,10 @@ describe('WF-06 Telegram Callback', () => {
         input: [{ json: { result, version: 1, round: 1 } }],
         nodeOutputs: { 'Parse callback': parse(`a2:${action[0]}:${token}`) },
       })[0]!.json;
-    expect(decide('OK', 'APPROVE').answer).toBe('Approved: rendering the final 1080p');
-    expect(decide('OK', 'REJECT').answer).toBe('Rejected (video cancelled)');
+    expect(decide('OK', 'APPROVE').answer).toBe('Đã duyệt: đang render bản cuối 1080p');
+    expect(decide('OK', 'REJECT').answer).toBe('Đã từ chối (hủy video)');
     expect(decide('HASH_MISMATCH', 'APPROVE').answer).toBe(
-      'The preview changed after this request; wait for the new request.',
+      'Preview đã thay đổi sau khi gửi yêu cầu; hãy chờ yêu cầu mới.',
     );
   });
 });
@@ -480,10 +480,10 @@ describe('WF-06 /status (P-017)', () => {
 
   test('lists active videos with their step, time in step and progress', () => {
     const out = status([video]);
-    expect(out.text).toContain('[AI Video] 1 active video');
+    expect(out.text).toContain('[AI Video] 1 video đang chạy');
     expect(out.text).toContain('679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
     expect(out.text).toContain(
-      'GENERATING_ASSETS · episode_code running 12 min · agent turn 1/3 · 4/5 jobs done',
+      'GENERATING_ASSETS · episode_code running 12 phút · agent lượt 1/3 · 4/5 job xong',
     );
     expect(out).toMatchObject({ chatId: '-100', messageId: '5' });
   });
@@ -533,18 +533,20 @@ describe('WF-06 /status (P-017)', () => {
     );
 
     expect(out.text).toContain('Video 679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
-    expect(out.text).toContain('✓ script · 1 min');
-    expect(out.text).toContain('✓ timing · 22 min · 2 attempts');
-    expect(out.text).toContain('▶ episode_code · 12 min · checking (turn 2/3)');
-    expect(out.text).toContain('· render_episode · waiting');
-    expect(out.text).toContain('Cost: 2817 CRD');
-    expect(out.text).toContain('Waiting for: STORYBOARD until 2026-10-29 10:00 UTC');
+    expect(out.text).toContain('✓ script · 1 phút');
+    expect(out.text).toContain('✓ timing · 22 phút · 2 lần chạy');
+    expect(out.text).toContain('▶ episode_code · 12 phút · đang kiểm tra (lượt 2/3)');
+    expect(out.text).toContain('· render_episode · đang chờ');
+    expect(out.text).toContain('Chi phí: 2817 CRD');
+    expect(out.text).toContain('Đang chờ: STORYBOARD, hạn 2026-10-29 10:00 UTC');
   });
 
   test('says when nothing matches and refuses strangers', () => {
-    expect(status([{}]).text).toBe('[AI Video] No active videos.');
-    expect(status([{}], 'abcd').text).toBe('[AI Video] No video id starts with abcd.');
-    expect(status([{ allowed: false }]).text).toBe('You are not an approver.');
+    expect(status([{}]).text).toBe('[AI Video] Không có video nào đang chạy.');
+    expect(status([{}], 'abcd').text).toBe(
+      '[AI Video] Không có video nào có id bắt đầu bằng abcd.',
+    );
+    expect(status([{ allowed: false }]).text).toBe('Bạn không phải approver.');
   });
 });
 
@@ -584,17 +586,19 @@ describe('WF-06 /retry (D-056)', () => {
   test('answers each result of telegram_retry()', () => {
     const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
     expect(reply({ result: 'RETRIED', video_id: id, step: 'episode_code', attempt: 3 })).toEqual({
-      text: '[AI Video] Retrying episode_code of video 679cd22f (attempt 3). Progress: /status 679cd22f',
+      text: '[AI Video] Đang chạy lại bước episode_code của video 679cd22f (lần 3). Tiến độ: /status 679cd22f',
       chatId: '-100',
       messageId: '6',
     });
-    expect(reply({ result: 'NOT_APPROVER' }).text).toBe('You are not an approver.');
+    expect(reply({ result: 'NOT_APPROVER' }).text).toBe('Bạn không phải approver.');
     expect(reply({ result: 'NOT_FOUND' }, 'abcd').text).toBe(
-      '[AI Video] No video id starts with abcd.',
+      '[AI Video] Không có video nào có id bắt đầu bằng abcd.',
     );
-    expect(reply({ result: 'AMBIGUOUS' }, 'abcd').text).toMatch(/send more characters/);
-    expect(reply({ result: 'NOT_STOPPED', video_id: id }).text).toMatch(/679cd22f is not waiting/);
-    expect(reply({ result: 'NO_FAILED_JOB', video_id: id }).text).toMatch(/no failed job/);
+    expect(reply({ result: 'AMBIGUOUS' }, 'abcd').text).toMatch(/gõ thêm ký tự/);
+    expect(reply({ result: 'NOT_STOPPED', video_id: id }).text).toMatch(
+      /679cd22f không ở trạng thái chờ/,
+    );
+    expect(reply({ result: 'NO_FAILED_JOB', video_id: id }).text).toMatch(/không có job lỗi/);
   });
 
   test('/status of a stopped video shows the retry command', () => {
@@ -619,7 +623,7 @@ describe('WF-06 /retry (D-056)', () => {
         ],
       },
     })[0]!.json as { text: string };
-    expect(out.text).toContain('Retry the failed step: /retry 679cd22f');
+    expect(out.text).toContain('Chạy lại bước lỗi: /retry 679cd22f');
   });
 });
 
@@ -649,7 +653,7 @@ describe('WF-12 Storyboard Approval Request', () => {
       `REPLACE_WITH_WORKER_URL/boards/${row.video_id}/1/${row.board.job_id}/page-01.jpg?t=${'c'.repeat(32)}`,
       `REPLACE_WITH_WORKER_URL/boards/${row.video_id}/1/${row.board.job_id}/page-02.jpg?t=${'c'.repeat(32)}`,
     ]);
-    expect(pages[1]!.json.caption).toBe('Video 12345678 v1 · storyboard 2/4 · page 2/2');
+    expect(pages[1]!.json.caption).toBe('Video 12345678 v1 · storyboard vòng 2/4 · trang 2/2');
   });
 
   test('sends no pages for reminders', () => {
@@ -664,9 +668,9 @@ describe('WF-12 Storyboard Approval Request', () => {
       input: [{ json: row }],
     });
 
-    expect(out!.json.text).toContain('Storyboard ready for approval (round 2 of 4)');
+    expect(out!.json.text).toContain('Storyboard sẵn sàng để duyệt (vòng 2/4)');
     expect(out!.json.text).toContain('Mèo nghĩ gì?');
-    expect(out!.json.text).toMatch(/reply to this message with your notes/);
+    expect(out!.json.text).toMatch(/trả lời \(reply\) tin này kèm ghi chú/);
     expect(out!.json.text).toContain(`ref:${token}`);
     expect(out!.json.approve).toBe(`sb:A:${token}`);
     expect(out!.json.reject).toBe(`sb:R:${token}`);
@@ -718,14 +722,14 @@ describe('WF-06 /new (D-058)', () => {
       parse(
         message('/new Mèo', { document: { file_id: 'F2', file_name: 'brief.pdf', file_size: 10 } }),
       ),
-    ).toMatchObject({ error: 'The full brief must be a .md or .txt file of at most 200 KB.' });
+    ).toMatchObject({ error: 'Full brief phải là file .md hoặc .txt, tối đa 200 KB.' });
   });
 
   test('refuses other chats (showing their id) and an empty topic', () => {
     expect(parse(message('/new Mèo', {}, -100999))!.error).toBe(
-      'This chat (-100999) is not the approval chat; /new works only there.',
+      'Chat này (-100999) không phải chat duyệt; /new chỉ dùng được ở đó.',
     );
-    expect(parse(message('/new  '))!.error).toMatch(/^Usage: \/new \[minutes\] <topic>/);
+    expect(parse(message('/new  '))!.error).toMatch(/^Cách dùng: \/new \[số phút\] <chủ đề>/);
     expect(parse(message('/newx Mèo'))).toBeUndefined();
   });
 
@@ -774,10 +778,10 @@ describe('WF-06 /new (D-058)', () => {
       brief: { topic: 'Mèo nghĩ gì?', duration_minutes: 8, full_brief: 'Dàn ý' },
       has_voice: false,
     });
-    expect(out.text).toContain('Topic: Mèo nghĩ gì?');
-    expect(out.text).toContain('Length: about 8 min');
-    expect(out.text).toContain('Full brief: 5 characters');
-    expect(out.text).toMatch(/no VOICE section/);
+    expect(out.text).toContain('Chủ đề: Mèo nghĩ gì?');
+    expect(out.text).toContain('Thời lượng: khoảng 8 phút');
+    expect(out.text).toContain('Full brief: 5 ký tự');
+    expect(out.text).toMatch(/không có mục VOICE/);
     expect(out).toMatchObject({ approve: `in:A:${token}`, reject: `in:R:${token}` });
 
     const plain = confirm({
@@ -787,7 +791,7 @@ describe('WF-06 /new (D-058)', () => {
       brief: { topic: 'Mèo' },
       has_voice: null,
     });
-    expect(plain.text).toContain('Full brief: none (Claude writes the episode)');
+    expect(plain.text).toContain('Full brief: không có (Claude tự viết tập)');
     expect(plain.text).not.toMatch(/VOICE/);
   });
 
@@ -795,11 +799,11 @@ describe('WF-06 /new (D-058)', () => {
     expect(confirm({ result: 'NOT_APPROVER' })).toEqual({
       chatId: CHAT,
       messageId: '12',
-      text: 'You are not an approver.',
+      text: 'Bạn không phải approver.',
     });
     expect(
       confirm({ result: 'INVALID', error: 'invalid brief: topic must be 3-500 characters' }).text,
-    ).toBe('[AI Video] Not created: invalid brief: topic must be 3-500 characters');
+    ).toBe('[AI Video] Chưa tạo: invalid brief: topic must be 3-500 characters');
   });
 
   test('parses Create / Cancel buttons and answers them', () => {
@@ -832,7 +836,7 @@ describe('WF-06 /new (D-058)', () => {
       nodeOutputs: { 'Parse callback': parsed },
     })[0]!.json;
     expect(answer).toMatchObject({
-      answer: 'Created video 302209bf: writing the script; the A1 request follows.',
+      answer: 'Đã tạo video 302209bf: đang viết kịch bản, yêu cầu duyệt A1 sẽ đến sau.',
       settled: true,
     });
     expect(
@@ -910,25 +914,25 @@ describe('WF-06 channel rules (D-059)', () => {
 
   test('lists the rules with their numbers', () => {
     const out = answer({ result: 'OK', rules }, { action: 'VIEW', scope: '' });
-    expect(out.text).toContain('Channel rules (version abcdef01)');
+    expect(out.text).toContain('Quy tắc kênh (phiên bản abcdef01)');
     expect(out.text).toContain('Video:\n#3 Không dùng nhạc nền.');
-    expect(out.text).toContain('TTS:\n(none)');
-    expect(out.text).toContain('Pronunciation:\nTikTok = tích tốc');
+    expect(out.text).toContain('TTS:\n(chưa có)');
+    expect(out.text).toContain('Phát âm:\nTikTok = tích tốc');
   });
 
   test('confirms edits and explains refusals', () => {
     expect(answer({ result: 'OK', detail: '7', rules }, { action: 'ADD', scope: 'tts' }).text).toBe(
-      '[AI Video] Added rule #7 (TTS). Applies to steps that start from now on.',
+      '[AI Video] Đã thêm quy tắc #7 (TTS). Áp dụng cho các bước bắt đầu từ bây giờ.',
     );
     expect(answer({ result: 'NOT_FOUND', detail: '9' }, { action: 'DELETE', text: '9' }).text).toBe(
-      '[AI Video] No rule #9.',
+      '[AI Video] Không có quy tắc #9.',
     );
     expect(
       answer({ result: 'INVALID', detail: 'scope must be video or tts' }, { action: 'ADD' }).text,
-    ).toBe('[AI Video] Not changed: scope must be video or tts');
-    expect(answer({ result: 'NOT_APPROVER' }, {}).text).toBe('You are not an approver.');
+    ).toBe('[AI Video] Chưa thay đổi: scope must be video or tts');
+    expect(answer({ result: 'NOT_APPROVER' }, {}).text).toBe('Bạn không phải approver.');
     expect(answer({ result: 'OK', rules }, { action: 'SET', scope: 'pronunciation' }).text).toBe(
-      '[AI Video] Pronunciation rules replaced: 1 now. Applies to steps that start from now on.',
+      '[AI Video] Đã thay toàn bộ quy tắc phát âm: giờ có 1 mục. Áp dụng cho các bước bắt đầu từ bây giờ.',
     );
   });
 
@@ -940,7 +944,7 @@ describe('WF-06 channel rules (D-059)', () => {
     expect(out).toMatchObject({
       exportFile: true,
       fileName: 'say-rules.md',
-      caption: 'Edit and send back with the caption /rules set say',
+      caption: 'Sửa xong gửi lại với caption /rules set say',
     });
     expect(out.markdown).toContain('- TikTok = tích tốc');
 
@@ -987,14 +991,14 @@ describe('WF-06 members (D-060)', () => {
     });
     expect(parse(message('/join@aivideo_bot'))).toMatchObject({ name: 'Bình Trần' });
     expect(parse(message('/join', {}, -5))!.error).toBe(
-      'This chat (-5) is not the approval chat; /join works only there.',
+      'Chat này (-5) không phải chat duyệt; /join chỉ dùng được ở đó.',
     );
   });
 
   test('parses /members and /revoke', () => {
     expect(parse(message('/members'))).toMatchObject({ action: 'LIST' });
     expect(parse(message('/revoke 222'))).toMatchObject({ action: 'REVOKE', target: '222' });
-    expect(parse(message('/revoke @binh'))!.error).toMatch(/^Usage: \/revoke <user id>/);
+    expect(parse(message('/revoke @binh'))!.error).toMatch(/^Cách dùng: \/revoke <user id>/);
   });
 
   const answer = (row: Record<string, unknown>, parsed: Record<string, unknown> = {}) =>
@@ -1010,7 +1014,7 @@ describe('WF-06 members (D-060)', () => {
   test('asks the owner with Approve / Reject', () => {
     const token = 'e'.repeat(32);
     const out = answer({ result: 'REQUESTED', token }, { action: 'JOIN' });
-    expect(out.text).toContain('@binh (id 333) asks to become an approver.');
+    expect(out.text).toContain('@binh (id 333) xin làm approver.');
     expect(out).toMatchObject({ approve: `mb:A:${token}`, reject: `mb:R:${token}` });
   });
 
@@ -1021,12 +1025,12 @@ describe('WF-06 members (D-060)', () => {
     ];
     const out = answer({ result: 'OK', members }, { action: 'LIST' });
     expect(out.text).toBe(
-      '[AI Video] Approvers (2)\n★ owner (id 111) · owner\n- An (id 222)\n\nThe owner can remove one with /revoke <user id>.',
+      '[AI Video] Approver (2)\n★ owner (id 111) · chủ sở hữu\n- An (id 222)\n\nChủ sở hữu có thể gỡ một người bằng /revoke <user id>.',
     );
-    expect(answer({ result: 'NOT_OWNER' }).text).toBe('Only the owner can do that.');
-    expect(answer({ result: 'ALREADY_REQUESTED' }).text).toMatch(/already waiting/);
+    expect(answer({ result: 'NOT_OWNER' }).text).toBe('Chỉ chủ sở hữu mới làm được việc này.');
+    expect(answer({ result: 'ALREADY_REQUESTED' }).text).toMatch(/đang chờ chủ sở hữu/);
     expect(answer({ result: 'OK', detail: '222', members }, { action: 'REVOKE' }).text).toMatch(
-      /^\[AI Video\] 222 is no longer an approver\./,
+      /^\[AI Video\] 222 không còn là approver\./,
     );
   });
 
@@ -1050,11 +1054,11 @@ describe('WF-06 members (D-060)', () => {
         nodeOutputs: { 'Parse callback': parsed },
       })[0]!.json;
     expect(reply('NOT_OWNER')).toMatchObject({
-      answer: 'Only the owner can approve new members.',
+      answer: 'Chỉ chủ sở hữu mới duyệt được thành viên mới.',
       settled: false,
     });
     expect(reply('OK')).toMatchObject({
-      answer: 'Approved: they are now an approver.',
+      answer: 'Đã duyệt: người này giờ là approver.',
       settled: true,
     });
   });
@@ -1102,12 +1106,12 @@ describe('WF-13 Preview Approval Request (D-057)', () => {
     });
     const text = out!.json.text as string;
 
-    expect(text).toContain('Preview ready for approval (A2)');
+    expect(text).toContain('Preview sẵn sàng để duyệt (A2)');
     expect(text).toContain('QA: WARN · 2:59');
-    expect(text).toContain('- black frames: 0:42.0–0:43.2');
-    expect(text).not.toContain('format');
-    expect(text).toContain('Cost so far: 2817 CRD');
-    expect(text).toMatch(/render the final 1080p/);
+    expect(text).toContain('- khung hình đen: 0:42.0–0:43.2');
+    expect(text).not.toContain('định dạng');
+    expect(text).toContain('Chi phí đến giờ: 2817 CRD');
+    expect(text).toMatch(/render bản cuối 1080p/);
     expect(text).toContain(`ref:${token}`);
     expect(out!.json.approve).toBe(`a2:A:${token}`);
     expect(out!.json.reject).toBe(`a2:R:${token}`);
@@ -1120,8 +1124,8 @@ describe('WF-13 Preview Approval Request (D-057)', () => {
     const [out] = runCode('wf-13-preview-approval.json', 'Build message', {
       input: [{ json: { ...row, kind: 'REMINDER', media: null, cost: null } }],
     });
-    expect(out!.json.text).toContain('Reminder: preview approval (A2) pending');
-    expect(out!.json.text).not.toContain('Cost so far');
+    expect(out!.json.text).toContain('Nhắc: preview đang chờ duyệt (A2)');
+    expect(out!.json.text).not.toContain('Chi phí đến giờ');
   });
 });
 
@@ -1155,7 +1159,7 @@ describe('WF-08 Watchdog', () => {
       });
 
     expect(run([failed])[0]!.json.text).toContain(
-      'Video abcdef12 v1 needs a decision: script failed: Error: script does not match the schema',
+      'Video abcdef12 v1 cần bạn quyết định: bước script lỗi: Error: script does not match the schema',
     );
     expect(run([failed])).toEqual([]);
   });
@@ -1167,9 +1171,9 @@ describe('WF-08 Watchdog', () => {
 
     expect(run([])).toEqual([]);
     expect(run(['12345678-0000-0000-0000-000000000000'])[0]!.json.text).toContain(
-      'blocked by a provider limit (waiting, no fallback): 12345678',
+      'bị chặn do giới hạn nhà cung cấp (đang chờ, không tự đổi nhà cung cấp): 12345678',
     );
     expect(run(['12345678-0000-0000-0000-000000000000'])).toEqual([]);
-    expect(run([])[0]!.json.text).toContain('No videos blocked');
+    expect(run([])[0]!.json.text).toContain('Không còn video nào bị');
   });
 });

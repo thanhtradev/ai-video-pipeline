@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per storyboard page of each new request (reminders send no pages). The worker serves\n// the pages against the episode_code job's board token (D-055). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.board);\nreturn rows.flatMap(({ json: row }) => {\n  const board = typeof row.board === 'string' ? JSON.parse(row.board) : row.board;\n  const shortId = String(row.video_id).slice(0, 8);\n  return board.pages.map((page, i) => ({\n    json: {\n      url: `${WORKER}/boards/${row.video_id}/${row.version}/${board.job_id}/${page.split('/').pop()}?t=${board.token}`,\n      caption: `Video ${shortId} v${row.version} · storyboard ${row.round}/4 · page ${i + 1}/${board.pages.length}`,\n    },\n  }));\n});"
+        "jsCode": "// One item per storyboard page of each new request (reminders send no pages). The worker serves\n// the pages against the episode_code job's board token (D-055). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.board);\nreturn rows.flatMap(({ json: row }) => {\n  const board = typeof row.board === 'string' ? JSON.parse(row.board) : row.board;\n  const shortId = String(row.video_id).slice(0, 8);\n  return board.pages.map((page, i) => ({\n    json: {\n      url: `${WORKER}/boards/${row.video_id}/${row.version}/${board.job_id}/${page.split('/').pop()}?t=${board.token}`,\n      caption: `Video ${shortId} v${row.version} · storyboard vòng ${row.round}/4 · trang ${i + 1}/${board.pages.length}`,\n    },\n  }));\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001203",
       "name": "Build pages",
@@ -54,7 +54,10 @@
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
         "binaryData": true,
         "binaryPropertyName": "data",
-        "additionalFields": { "parse_mode": "HTML", "caption": "={{ String($('Build pages').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}" }
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build pages').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
       },
       "id": "6f1d6a10-0000-4000-8000-000000001205",
       "name": "Send page",
@@ -65,7 +68,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages. System text is\n// English; the title is quoted Vietnamese video content. Notes come back as a reply to this message\n// (WF-06 finds the request by the trailing ref). Callback data: sb:<A|R>:<32-hex token>.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? `[AI Video] Reminder: storyboard approval pending (round ${row.round} of 4)`\n    : `[AI Video] Storyboard ready for approval (round ${row.round} of 4)`;\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Title: ${row.title ?? '?'}`,\n    '',\n    'Approve to render the preview. To ask for changes, reply to this message with your notes.',\n    `Expires: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    `ref:${row.token}`,\n  ].join('\\n');\n  return { json: { text, approve: `sb:A:${row.token}`, reject: `sb:R:${row.token}` } };\n});"
+        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages. Telegram text is\n// Vietnamese (D-061). Notes come back as a reply to this message\n// (WF-06 finds the request by the trailing ref). Callback data: sb:<A|R>:<32-hex token>.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? `[AI Video] Nhắc: storyboard đang chờ duyệt (vòng ${row.round}/4)`\n    : `[AI Video] Storyboard sẵn sàng để duyệt (vòng ${row.round}/4)`;\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Tiêu đề: ${row.title ?? '?'}`,\n    '',\n    'Bấm Duyệt để render preview. Muốn sửa thì trả lời (reply) tin này kèm ghi chú.',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    `ref:${row.token}`,\n  ].join('\\n');\n  return { json: { text, approve: `sb:A:${row.token}`, reject: `sb:R:${row.token}` } };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001206",
       "name": "Build message",
@@ -84,11 +87,11 @@
               "row": {
                 "buttons": [
                   {
-                    "text": "Approve",
+                    "text": "Duyệt",
                     "additionalFields": { "callback_data": "={{ $json.approve }}" }
                   },
                   {
-                    "text": "Reject",
+                    "text": "Từ chối",
                     "additionalFields": { "callback_data": "={{ $json.reject }}" }
                   }
                 ]

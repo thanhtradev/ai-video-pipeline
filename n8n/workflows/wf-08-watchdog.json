@@ -4,16 +4,7 @@
   "active": false,
   "nodes": [
     {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "minutes",
-              "minutesInterval": 1
-            }
-          ]
-        }
-      },
+      "parameters": { "rule": { "interval": [{ "field": "minutes", "minutesInterval": 1 }] } },
       "id": "6f1d6a10-0000-4000-8000-000000000801",
       "name": "Every minute",
       "type": "n8n-nodes-base.scheduleTrigger",
@@ -31,16 +22,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [220, 0],
-      "credentials": {
-        "postgres": {
-          "id": "aivideoPgCred001",
-          "name": "aivideo-postgres"
-        }
-      }
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
     },
     {
       "parameters": {
-        "jsCode": "// Alert only when something was recovered, or when the set of offline workers or of\n// provider-blocked videos changes (avoids a message every minute for a lasting state).\nconst raw = $input.first().json.summary;\nconst summary = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst state = $getWorkflowStaticData('global');\nconst offline = (summary.offline_workers || []).join(',');\nconst offlineChanged = offline !== (state.lastOffline || '');\nstate.lastOffline = offline;\nconst blocked = (summary.blocked_videos || []).map((id) => String(id).slice(0, 8)).sort().join(',');\nconst blockedChanged = blocked !== (state.lastBlocked || '');\nstate.lastBlocked = blocked;\nconst decisions = (summary.needs_decision || []).map(\n  (v) => `Video ${String(v.video_id).slice(0, 8)} v${v.version} needs a decision: ${v.step ?? 'step'} failed: ${v.error ?? 'unknown error'}`,\n);\nconst newDecisions = decisions.filter((line) => !(state.lastDecisions || []).includes(line));\nstate.lastDecisions = decisions;\n\nconst lines = [];\nif (summary.expired_leases > 0) lines.push(`Expired leases recovered: ${summary.expired_leases}`);\nif (summary.requeued > 0) lines.push(`Lost queue messages re-queued: ${summary.requeued}`);\nif (summary.approvals_expired > 0) lines.push(`Approvals expired: ${summary.approvals_expired}`);\nif (offlineChanged) lines.push(offline ? `Workers offline: ${offline}` : 'All workers back online');\nif (blockedChanged) lines.push(blocked ? `Videos blocked by a provider limit (waiting, no fallback): ${blocked}` : 'No videos blocked by a provider');\nlines.push(...newDecisions);\n\nif (lines.length === 0) return [];\nreturn [{ json: { text: ['[AI Video] Watchdog', ...lines].join('\\n') } }];"
+        "jsCode": "// Alert only when something was recovered, or when the set of offline workers or of\n// provider-blocked videos changes (avoids a message every minute for a lasting state).\nconst raw = $input.first().json.summary;\nconst summary = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst state = $getWorkflowStaticData('global');\nconst offline = (summary.offline_workers || []).join(',');\nconst offlineChanged = offline !== (state.lastOffline || '');\nstate.lastOffline = offline;\nconst blocked = (summary.blocked_videos || []).map((id) => String(id).slice(0, 8)).sort().join(',');\nconst blockedChanged = blocked !== (state.lastBlocked || '');\nstate.lastBlocked = blocked;\nconst decisions = (summary.needs_decision || []).map(\n  (v) => `Video ${String(v.video_id).slice(0, 8)} v${v.version} cần bạn quyết định: bước ${v.step ?? '?'} lỗi: ${v.error ?? 'lỗi không rõ'}`,\n);\nconst newDecisions = decisions.filter((line) => !(state.lastDecisions || []).includes(line));\nstate.lastDecisions = decisions;\n\nconst lines = [];\nif (summary.expired_leases > 0) lines.push(`Đã thu hồi job hết hạn lease: ${summary.expired_leases}`);\nif (summary.requeued > 0) lines.push(`Đã xếp lại job bị mất khỏi hàng đợi: ${summary.requeued}`);\nif (summary.approvals_expired > 0) lines.push(`Yêu cầu duyệt đã hết hạn: ${summary.approvals_expired}`);\nif (offlineChanged) lines.push(offline ? `Worker mất kết nối: ${offline}` : 'Tất cả worker đã hoạt động lại');\nif (blockedChanged) lines.push(blocked ? `Video bị chặn do giới hạn nhà cung cấp (đang chờ, không tự đổi nhà cung cấp): ${blocked}` : 'Không còn video nào bị nhà cung cấp chặn');\nlines.push(...newDecisions);\n\nif (lines.length === 0) return [];\nreturn [{ json: { text: ['[AI Video] Giám sát', ...lines].join('\\n') } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000803",
       "name": "Build alert",
@@ -52,34 +38,20 @@
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
         "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
-        "additionalFields": {
-          "parse_mode": "HTML",
-          "appendAttribution": false
-        }
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
       },
       "id": "6f1d6a10-0000-4000-8000-000000000804",
       "name": "Notify Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [660, 0],
-      "credentials": {
-        "telegramApi": {
-          "id": "aivideoTgCred001",
-          "name": "aivideo-telegram"
-        }
-      }
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
-    "Every minute": {
-      "main": [[{ "node": "Run watchdog", "type": "main", "index": 0 }]]
-    },
-    "Run watchdog": {
-      "main": [[{ "node": "Build alert", "type": "main", "index": 0 }]]
-    },
-    "Build alert": {
-      "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]]
-    }
+    "Every minute": { "main": [[{ "node": "Run watchdog", "type": "main", "index": 0 }]] },
+    "Run watchdog": { "main": [[{ "node": "Build alert", "type": "main", "index": 0 }]] },
+    "Build alert": { "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]] }
   },
   "settings": {
     "executionOrder": "v1",

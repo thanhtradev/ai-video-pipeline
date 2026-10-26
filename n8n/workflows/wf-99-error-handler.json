@@ -13,7 +13,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Keep alerts short and free of payloads: only names, ids and a truncated message.\nconst data = $input.first().json;\nconst workflowName = data.workflow?.name ?? 'unknown workflow';\nconst workflowId = String(data.workflow?.id ?? 'unknown');\nconst executionId = String(data.execution?.id ?? 'n/a');\nconst node = data.execution?.lastNodeExecuted ?? 'n/a';\nconst message = String(data.execution?.error?.message ?? data.trigger?.error?.message ?? 'unknown error').slice(0, 300);\n\nreturn [{\n  json: {\n    workflowId,\n    detail: JSON.stringify({ workflow: workflowName, executionId, node, message }),\n    text: `[AI Video] Workflow error\\n${workflowName}\\nNode: ${node}\\nExecution: ${executionId}\\n${message}`,\n  },\n}];"
+        "jsCode": "// Keep alerts short and free of payloads: only names, ids and a truncated message.\nconst data = $input.first().json;\nconst workflowName = data.workflow?.name ?? 'unknown workflow';\nconst workflowId = String(data.workflow?.id ?? 'unknown');\nconst executionId = String(data.execution?.id ?? 'n/a');\nconst node = data.execution?.lastNodeExecuted ?? 'n/a';\nconst message = String(data.execution?.error?.message ?? data.trigger?.error?.message ?? 'unknown error').slice(0, 300);\n\nreturn [{\n  json: {\n    workflowId,\n    detail: JSON.stringify({ workflow: workflowName, executionId, node, message }),\n    text: `[AI Video] Lỗi workflow\\n${workflowName}\\nNode: ${node}\\nLần chạy: ${executionId}\\n${message}`,\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000009902",
       "name": "Summarize error",
@@ -25,57 +25,34 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "SELECT audit('n8n', 'workflow_error', 'workflow', $1, $2::jsonb);",
-        "options": {
-          "queryReplacement": "={{ [$json.workflowId, $json.detail] }}"
-        }
+        "options": { "queryReplacement": "={{ [$json.workflowId, $json.detail] }}" }
       },
       "id": "6f1d6a10-0000-4000-8000-000000009903",
       "name": "Write audit log",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [440, 0],
-      "credentials": {
-        "postgres": {
-          "id": "aivideoPgCred001",
-          "name": "aivideo-postgres"
-        }
-      }
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
     },
     {
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
         "text": "={{ String($('Summarize error').item.json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
-        "additionalFields": {
-          "parse_mode": "HTML",
-          "appendAttribution": false
-        }
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
       },
       "id": "6f1d6a10-0000-4000-8000-000000009904",
       "name": "Notify Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [660, 0],
-      "credentials": {
-        "telegramApi": {
-          "id": "aivideoTgCred001",
-          "name": "aivideo-telegram"
-        }
-      }
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
-    "On workflow error": {
-      "main": [[{ "node": "Summarize error", "type": "main", "index": 0 }]]
-    },
-    "Summarize error": {
-      "main": [[{ "node": "Write audit log", "type": "main", "index": 0 }]]
-    },
-    "Write audit log": {
-      "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]]
-    }
+    "On workflow error": { "main": [[{ "node": "Summarize error", "type": "main", "index": 0 }]] },
+    "Summarize error": { "main": [[{ "node": "Write audit log", "type": "main", "index": 0 }]] },
+    "Write audit log": { "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]] }
   },
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": { "executionOrder": "v1" },
   "pinData": {}
 }
