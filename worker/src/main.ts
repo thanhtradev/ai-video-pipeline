@@ -8,6 +8,7 @@ import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
 import { createGateRunner } from './episode/gates.js';
+import { chromeInstalled } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
 import {
@@ -37,6 +38,8 @@ const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
 const ITERA_REQUEST_TIMEOUT_MS = 60_000;
 /** A timing job without a whisper model waits this long before it checks again. */
 const WHISPER_BLOCK_SECONDS = 3600;
+/** How long an episode job waits before checking again for Remotion's Chrome. */
+const CHROME_BLOCK_SECONDS = 1800;
 
 const CLAUDE_SETTINGS = fileURLToPath(
   new URL('../../ops/claude/pipeline-settings.json', import.meta.url),
@@ -100,6 +103,8 @@ function buildHandlers(
           config.itera.apiKey ?? '',
           ...Object.values(config.apiClientKeys),
         ],
+        browserReady: chromeInstalled,
+        blockSeconds: CHROME_BLOCK_SECONDS,
       }),
     ],
     [
@@ -118,6 +123,8 @@ function buildHandlers(
         render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
         loudness: createLoudnessNormalizer(config.ffmpegBin),
         probe,
+        browserReady: chromeInstalled,
+        blockSeconds: CHROME_BLOCK_SECONDS,
       }),
     ],
     [

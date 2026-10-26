@@ -132,7 +132,10 @@ writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
 Turns (one session, resumed): turn 1 writes; turn 2 always reviews the storyboard pages (the Read
 tool shows images) with the gate report; turn 3 only if gates still fail. All turns share a 90-minute
 limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace stays for an interactive
-session. `agent-turns.json` keeps prompts, replies and usage.
+session. `agent-turns.json` keeps prompts, replies and usage, and is the step's checkpoint (D-056):
+it is written after every agent turn and gate run, so a retry (worker restart, a gate crash,
+`/retry` on Telegram) resumes the same session where it stopped. The limit counts all attempts. The
+step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed.
 
 The board and QA compositions last as long as the episode: Remotion drops any `<Sequence>` that
 starts after its composition ends. The reference `check-text-bounds.mjs` used a composition one

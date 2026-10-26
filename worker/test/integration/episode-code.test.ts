@@ -10,6 +10,7 @@ import { describe, expect, test } from 'vitest';
 import { createAgentCli } from '../../src/claude/agent-cli.js';
 import { claudeChildEnv } from '../../src/claude/claude-cli.js';
 import { createGateRunner } from '../../src/episode/gates.js';
+import { chromeInstalled } from '../../src/episode/workspace.js';
 import { createEpisodeCodeHandler } from '../../src/handlers/episode-code.js';
 import {
   createRenderEpisodeHandler,
@@ -129,6 +130,8 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
         gates: createGateRunner({ profile: PROFILE }),
         secrets: [],
         limitMs: 30 * 60 * 1000,
+        browserReady: chromeInstalled,
+        blockSeconds: 60,
       });
       const result = await code(
         ctx(CODE_JOB, { script_job_id: SCRIPT_JOB, timing_job_id: TIMING_JOB }, dir(CODE_JOB)),
@@ -146,6 +149,8 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
         render: createSandboxedEpisodeRenderer(PROFILE),
         loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         probe: createFfprobe(process.env.FFPROBE_BIN ?? 'ffprobe'),
+        browserReady: chromeInstalled,
+        blockSeconds: 60,
       });
       const rendered = await render(
         ctx(

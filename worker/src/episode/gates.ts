@@ -11,7 +11,7 @@ const GATES_TIMEOUT_MS = 45 * 60 * 1000;
 const REPORT_ROWS = 30;
 
 const stepSchema = z.object({ ok: z.boolean(), error: z.string().optional() }).loose();
-const reportSchema = z
+export const gateReportSchema = z
   .object({
     ok: z.boolean(),
     typecheck: z.object({ ok: z.boolean(), output: z.string() }),
@@ -40,7 +40,7 @@ const reportSchema = z
   })
   .loose();
 
-export type GateReport = z.infer<typeof reportSchema>;
+export type GateReport = z.infer<typeof gateReportSchema>;
 export type GateRunner = (ws: string, signal: AbortSignal) => Promise<GateReport>;
 
 export interface GateRunnerOptions {
@@ -59,7 +59,7 @@ export function createGateRunner(options: GateRunnerOptions): GateRunner {
       timeoutMs: GATES_TIMEOUT_MS,
       signal,
     });
-    return reportSchema.parse(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')));
+    return gateReportSchema.parse(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')));
   };
 }
 

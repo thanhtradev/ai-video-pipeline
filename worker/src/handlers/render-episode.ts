@@ -9,7 +9,8 @@ import type { LoudnessNormalizer } from '../media/loudness.js';
 import { buildCues, toSrt } from '../render/subtitles.js';
 import { readValidCheckpoint } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
-import { PermanentJobError, type JobHandler } from '../runner.js';
+import { PermanentJobError, ProviderBlockedError, type JobHandler } from '../runner.js';
+import { NO_CHROME } from './episode-code.js';
 
 // Episode `render_episode` step (q:render, docs/episode-pipeline.md §8): the approved storyboard's
 // code rendered at 1280×720 with its burned-in captions, loudness normalised (D-032), plus a
@@ -56,6 +57,9 @@ export interface RenderEpisodeDeps {
   render: EpisodeRenderer;
   loudness: LoudnessNormalizer;
   probe: DurationProbe;
+  /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of failing. */
+  browserReady: () => boolean;
+  blockSeconds: number;
 }
 
 async function checkedJobDir(workDir: string, jobId: string, what: string): Promise<string> {
@@ -72,6 +76,7 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
     if (!parsed.success) {
       throw new PermanentJobError(`invalid render_episode input: ${parsed.error.message}`);
     }
+    if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
     const codeDir = await checkedJobDir(workDir, parsed.data.episode_code_job_id, 'episode_code');
     const timingDir = await checkedJobDir(workDir, parsed.data.timing_job_id, 'timing');
     const timing = timingSchema.parse(

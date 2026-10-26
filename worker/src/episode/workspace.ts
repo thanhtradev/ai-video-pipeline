@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rename, stat, symlink, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +19,16 @@ const KIT_PARTS = ['ep1', 'ep2', 'ep3', 'ep5', 'qa', 'sfx', 'env.d.ts'];
 export const AGENT_WRITABLE = ['src/episode', 'sfx'] as const;
 export const GATES_SCRIPT = join(REMOTION_DIR, 'scripts', 'episode-gates.mjs');
 export const RENDER_SCRIPT = join(REMOTION_DIR, 'scripts', 'episode-render.mjs');
+/** Remotion's Chrome, written by `npx remotion browser ensure` in remotion/. The sandboxed gates and
+ * renders have no network, so they cannot download it themselves. */
+export const CHROME_VERSION_FILE = join(
+  REMOTION_DIR,
+  'node_modules',
+  '.remotion',
+  'chrome-headless-shell',
+  'VERSION',
+);
+export const chromeInstalled = (): boolean => existsSync(CHROME_VERSION_FILE);
 
 export interface WorkspaceSources {
   /** script.md of the approved script job. */

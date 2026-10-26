@@ -8,7 +8,7 @@ import {
   EPISODE_PREVIEW_SCALE,
   type RenderEpisodeDeps,
 } from '../../src/handlers/render-episode.js';
-import { PermanentJobError, type HandlerContext } from '../../src/runner.js';
+import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import { writeCheckpoint } from '../../src/storage/checkpoint.js';
 
 const CODE_JOB = '11111111-1111-4111-8111-111111111111';
@@ -56,6 +56,8 @@ function deps(overrides: Partial<RenderEpisodeDeps> = {}): RenderEpisodeDeps {
       return { input_lufs: -20, input_true_peak: -3, output_lufs: -14, output_true_peak: -1.6 };
     },
     probe: async () => 5,
+    browserReady: () => true,
+    blockSeconds: 1800,
     ...overrides,
   };
 }
@@ -101,5 +103,14 @@ describe('render_episode handler', () => {
     );
     await writeFile(join(jobsDir, CODE_JOB, 'ws', 'src', 'episode', 'Episode.tsx'), 'changed');
     await expect(handler(context())).rejects.toThrow(/episode_code job .* is missing or changed/);
+  });
+
+  test("waits (blocked) while Remotion's Chrome is missing", async () => {
+    const error = await createRenderEpisodeHandler(deps({ browserReady: () => false }))(
+      context(),
+    ).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ProviderBlockedError);
+    expect((error as ProviderBlockedError).retryAfterSeconds).toBe(1800);
+    expect(renders).toEqual([]);
   });
 });

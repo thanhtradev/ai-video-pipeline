@@ -3,25 +3,39 @@ import { existsSync } from 'node:fs';
 import { readFile, realpath, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
-import type { AgentRunner, AgentTurnResult } from '../claude/agent-cli.js';
+import type { AgentRunner } from '../claude/agent-cli.js';
 import { agentSettings } from '../episode/agent-settings.js';
-import { describeFailures, type GateReport, type GateRunner } from '../episode/gates.js';
+import {
+  describeFailures,
+  gateReportSchema,
+  type GateReport,
+  type GateRunner,
+} from '../episode/gates.js';
 import { agentFiles, containsSecret, prepareWorkspace } from '../episode/workspace.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
-import { PermanentJobError, type HandlerContext, type JobHandler } from '../runner.js';
+import {
+  PermanentJobError,
+  ProviderBlockedError,
+  type HandlerContext,
+  type JobHandler,
+} from '../runner.js';
 
 // Episode `episode_code` step (q:render, docs/episode-pipeline.md §6, D-052–D-054): Claude Code
 // (Opus) writes the episode in a sandboxed workspace; the worker gates it and resumes the session
 // with the report and the storyboard. Turn 1 writes; turn 2 always reviews the storyboard; turn 3
 // only fixes failed gates. All agent turns share a 90-minute limit. Failing gates after the last
 // turn is permanent: a person decides (the workspace stays for an interactive session).
+// agent-turns.json checkpoints every agent turn and gate run: a retry (a crash, the gates' Chrome,
+// /retry on Telegram) resumes the same session where it stopped instead of writing it again.
 
 const AGENT_LIMIT_MS = 90 * 60 * 1000;
 const MAX_FOLLOW_UPS = 2;
 const WORKSPACE = 'ws';
 const SETTINGS = 'agent-settings.json';
 const TURNS_LOG = 'agent-turns.json';
+export const NO_CHROME =
+  "Remotion's Chrome is not installed: run `npx remotion browser ensure` in remotion/ (ops/episode-pipeline.md)";
 
 const inputSchema = z.object({
   script_job_id: z.uuid(),
@@ -37,6 +51,9 @@ export interface EpisodeCodeDeps {
   gates: GateRunner;
   /** Secret values the agent's files must never contain (e.g. the Claude token). */
   secrets: readonly string[];
+  /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of running. */
+  browserReady: () => boolean;
+  blockSeconds: number;
   /** Overridable for tests. */
   limitMs?: number;
 }
@@ -54,6 +71,47 @@ async function freshWorkspacePath(workDir: string, attemptNo: number): Promise<s
   const ws = join(workDir, WORKSPACE);
   if (existsSync(ws)) await rename(ws, join(workDir, `${WORKSPACE}.attempt-${attemptNo - 1}`));
   return ws;
+}
+
+const turnSchema = z.object({
+  prompt: z.string(),
+  result: z.object({ sessionId: z.string(), durationMs: z.number().nullable().optional() }).loose(),
+  /** Null until the gates ran after this turn. */
+  gates: z.object({ ok: z.boolean(), failures: z.array(z.string()) }).nullable(),
+});
+const stateSchema = z.object({
+  sessionId: z.string().nullable(),
+  /** Wall time of all agent turns so far, across attempts (the 90-minute limit). */
+  agentMs: z.number().nonnegative(),
+  turns: z.array(turnSchema),
+  /** The last gate report. */
+  report: gateReportSchema.nullable(),
+});
+type AgentState = z.infer<typeof stateSchema>;
+const EMPTY_STATE: AgentState = { sessionId: null, agentMs: 0, turns: [], report: null };
+
+/** The checkpoint of an earlier attempt with at least one finished agent turn, or null. */
+async function savedState(context: HandlerContext): Promise<AgentState | null> {
+  const path = join(context.workDir, TURNS_LOG);
+  if (context.attemptNo === 1 || !existsSync(path) || !existsSync(join(context.workDir, WORKSPACE)))
+    return null;
+  let json: unknown;
+  try {
+    json = JSON.parse(await readFile(path, 'utf8'));
+  } catch (error) {
+    context.logger.warn({ err: String(error) }, 'unreadable agent checkpoint; starting over');
+    return null;
+  }
+  // An older worker's log (a list of turns) is not a checkpoint: start over.
+  const parsed = stateSchema.safeParse(json);
+  if (!parsed.success) {
+    context.logger.warn(
+      { err: parsed.error.message },
+      'unreadable agent checkpoint; starting over',
+    );
+    return null;
+  }
+  return parsed.data.turns.length > 0 ? parsed.data : null;
 }
 
 const FIRST_PROMPT =
@@ -80,20 +138,37 @@ function followUpPrompt(report: GateReport, review: boolean): string {
     .join('\n\n');
 }
 
-interface Turn {
-  prompt: string;
-  result: AgentTurnResult;
-  gates: { ok: boolean; failures: string[] };
-}
-
-async function runTurns(context: HandlerContext, deps: EpisodeCodeDeps, ws: string, input: Input) {
+async function runTurns(
+  context: HandlerContext,
+  deps: EpisodeCodeDeps,
+  ws: string,
+  input: Input,
+  saved: AgentState,
+): Promise<AgentState> {
   const settingsPath = join(context.workDir, SETTINGS);
-  const deadline = Date.now() + (deps.limitMs ?? AGENT_LIMIT_MS);
-  const turns: Turn[] = [];
-  let sessionId: string | undefined;
-  let report: GateReport | null = null;
-  for (let n = 0; n <= MAX_FOLLOW_UPS; n++) {
-    if (n === 2 && report?.ok) break;
+  const deadline = Date.now() + (deps.limitMs ?? AGENT_LIMIT_MS) - saved.agentMs;
+  let state = saved;
+  const save = () =>
+    writeFileAtomic(join(context.workDir, TURNS_LOG), `${JSON.stringify(state, null, 1)}\n`);
+
+  const gate = async () => {
+    const n = state.turns.length;
+    await context.progress({ stage: 'gates', turn: n, of: MAX_FOLLOW_UPS + 1 });
+    const report = await deps.gates(ws, context.signal);
+    const gates = { ok: report.ok, failures: describeFailures(report) };
+    state = {
+      ...state,
+      report,
+      turns: state.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates } : turn)),
+    };
+    await save();
+    context.logger.info({ turn: n, gatesOk: report.ok }, 'episode gates');
+  };
+
+  // The last attempt stopped after an agent turn but before its gates finished.
+  if (state.turns.at(-1)?.gates === null) await gate();
+  for (let n = state.turns.length; n <= MAX_FOLLOW_UPS; n++) {
+    if (n === 2 && state.report?.ok) break;
     const timeoutMs = deadline - Date.now();
     if (timeoutMs <= 0) break;
     const prompt =
@@ -101,27 +176,28 @@ async function runTurns(context: HandlerContext, deps: EpisodeCodeDeps, ws: stri
         ? input.revision
           ? REVISION_PROMPT
           : FIRST_PROMPT
-        : followUpPrompt(report!, n === 1);
+        : followUpPrompt(state.report!, n === 1);
     await context.progress({ stage: 'agent', turn: n + 1, of: MAX_FOLLOW_UPS + 1 });
+    const started = Date.now();
     const result = await deps.agent({
       prompt,
       cwd: ws,
       settingsPath,
-      resumeSessionId: sessionId,
+      resumeSessionId: state.sessionId ?? undefined,
       timeoutMs,
       signal: context.signal,
     });
-    sessionId = result.sessionId;
-    await context.progress({ stage: 'gates', turn: n + 1, of: MAX_FOLLOW_UPS + 1 });
-    report = await deps.gates(ws, context.signal);
-    turns.push({ prompt, result, gates: { ok: report.ok, failures: describeFailures(report) } });
-    context.logger.info(
-      { turn: n + 1, gatesOk: report.ok, agentMs: result.durationMs },
-      'episode agent turn',
-    );
+    state = {
+      sessionId: result.sessionId,
+      agentMs: state.agentMs + (Date.now() - started),
+      turns: [...state.turns, { prompt, result: { ...result }, gates: null }],
+      report: state.report,
+    };
+    await save();
+    context.logger.info({ turn: n + 1, agentMs: result.durationMs }, 'episode agent turn');
+    await gate();
   }
-  await writeFileAtomic(join(context.workDir, TURNS_LOG), `${JSON.stringify(turns, null, 1)}\n`);
-  return { turns, report };
+  return state;
 }
 
 export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
@@ -137,19 +213,31 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
     const previous = input.revision
       ? join(await jobDir(workDir, input.revision.previous_job_id, 'episode_code'), WORKSPACE)
       : null;
-    const ws = await freshWorkspacePath(workDir, context.attemptNo);
-    await prepareWorkspace(ws, {
-      scriptMarkdown: await readFile(join(scriptDir, 'script.md'), 'utf8'),
-      timingDir,
-      revision:
-        input.revision && previous
-          ? { previousWorkspace: previous, feedback: input.revision.feedback }
-          : undefined,
-    });
-    const realWs = await realpath(ws);
+    if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
+
+    const saved = await savedState(context);
+    if (saved) {
+      context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');
+    } else {
+      await prepareWorkspace(await freshWorkspacePath(workDir, context.attemptNo), {
+        scriptMarkdown: await readFile(join(scriptDir, 'script.md'), 'utf8'),
+        timingDir,
+        revision:
+          input.revision && previous
+            ? { previousWorkspace: previous, feedback: input.revision.feedback }
+            : undefined,
+      });
+    }
+    const realWs = await realpath(join(workDir, WORKSPACE));
     await writeFile(join(workDir, SETTINGS), `${JSON.stringify(agentSettings(realWs), null, 1)}\n`);
 
-    const { turns, report } = await runTurns(context, deps, realWs, input);
+    const { turns, report, sessionId, agentMs } = await runTurns(
+      context,
+      deps,
+      realWs,
+      input,
+      saved ?? EMPTY_STATE,
+    );
     if (!report) throw new Error('the episode agent had no time for a first turn');
     if (!report.ok) {
       throw new PermanentJobError(
@@ -171,8 +259,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       ],
       result: {
         turns: turns.length,
-        session_id: turns.at(-1)?.result.sessionId ?? null,
-        agent_ms: turns.reduce((sum, t) => sum + (t.result.durationMs ?? 0), 0),
+        session_id: sessionId,
+        agent_ms: agentMs,
         board_pages: pages.map((p) => `${WORKSPACE}/${p}`),
         // Capability for GET /boards/… (D-055): only Postgres readers (n8n) learn it.
         board_token: randomBytes(16).toString('hex'),
