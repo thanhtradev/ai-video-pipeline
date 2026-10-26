@@ -1,0 +1,132 @@
+{
+  "id": "aivideoWf13Prev",
+  "name": "WF-13 Preview Approval Request",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "seconds", "secondsInterval": 30 }] } },
+      "id": "6f1d6a10-0000-4000-8000-000000001301",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, cost, media FROM preview_approvals_due();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001302",
+      "name": "Due previews",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 0],
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per new A2 request (reminders send no video). The worker serves the preview against the\n// qa_preview job's media token (D-057). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.media);\nreturn rows.map(({ json: row }) => {\n  const media = typeof row.media === 'string' ? JSON.parse(row.media) : row.media;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${media.job_id}/preview.mp4?t=${media.token}`,\n      caption: `Video ${shortId} v${row.version} · preview 720p · ${row.title ?? '?'}`.slice(0, 1024),\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001303",
+      "name": "Build video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 300000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001304",
+      "name": "Fetch video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build video').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001305",
+      "name": "Send video",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One message with buttons per row from preview_approvals_due(), after its video. System text is\n// English; the title is quoted Vietnamese video content. Notes come back as a reply to this message\n// (WF-06 finds the request by the trailing ref). Callback data: a2:<A|R>:<32-hex token>.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const media = parse(row.media);\n  const cost = Object.entries(parse(row.cost) ?? {})\n    .map(([currency, total]) => `${Math.round(total * 100) / 100} ${currency}`)\n    .join(', ');\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Reminder: preview approval (A2) pending'\n    : '[AI Video] Preview ready for approval (A2)';\n  const qa = media\n    ? [\n        `QA: ${media.level}${media.duration_seconds ? ` · ${clock(media.duration_seconds)}` : ''}`,\n        ...(media.checks ?? [])\n          .filter((check) => check.level !== 'PASS')\n          .map((check) => `- ${check.name}: ${check.detail}`),\n      ]\n    : [];\n  const text = [\n    header,\n    `Video ${shortId} v${row.version} · storyboard round ${row.round} of 4`,\n    `Title: ${row.title ?? '?'}`,\n    ...qa,\n    ...(row.kind === 'REQUEST' ? [`Cost so far: ${cost || 'none recorded'}`] : []),\n    '',\n    'Approve to render the final 1080p. To ask for changes, reply to this message with your notes (a new storyboard round).',\n    `Expires: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    `ref:${row.token}`,\n  ].join('\\n');\n  return { json: { text, approve: `a2:A:${row.token}`, reject: `a2:R:${row.token}` } };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001306",
+      "name": "Build message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Approve",
+                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Reject",
+                    "additionalFields": { "callback_data": "={{ $json.reject }}" }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001307",
+      "name": "Send buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": { "main": [[{ "node": "Due previews", "type": "main", "index": 0 }]] },
+    "Due previews": {
+      "main": [
+        [
+          { "node": "Build video", "type": "main", "index": 0 },
+          { "node": "Build message", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build video": { "main": [[{ "node": "Fetch video", "type": "main", "index": 0 }]] },
+    "Fetch video": { "main": [[{ "node": "Send video", "type": "main", "index": 0 }]] },
+    "Build message": { "main": [[{ "node": "Send buttons", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}

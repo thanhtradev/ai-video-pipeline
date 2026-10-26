@@ -4,13 +4,15 @@ import Fastify, {
   type FastifyInstance,
   type FastifyRequest,
 } from 'fastify';
+import { createReadStream } from 'node:fs';
 import pino, { type Logger } from 'pino';
 import { readBoardPage } from './episode/boards.js';
+import { findPreviewMedia } from './episode/media.js';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
 
 // Worker API (docs/architecture.md §5). Bind to the Tailscale interface only.
-// /health is unauthenticated for Uptime Kuma; /boards/… is guarded by the job's board token
-// (D-055); everything else requires an HMAC signature.
+// /health is unauthenticated for Uptime Kuma; /boards/… and /media/… are guarded by tokens from job
+// checkpoints (D-055, D-057); everything else requires an HMAC signature.
 
 export interface ApiOptions {
   workerId: string;
@@ -20,7 +22,7 @@ export interface ApiOptions {
   activeJobs: () => number;
   /** Worker logger; rejected requests are logged with their reason. */
   logger?: Logger;
-  /** WORK_ROOT, for storyboard pages; without it /boards answers 404. */
+  /** WORK_ROOT, for storyboard pages and previews; without it /boards and /media answer 404. */
   workRoot?: string;
 }
 
@@ -88,6 +90,26 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
       return reply.code(404).send(body);
     }
     return reply.type('image/jpeg').send(page);
+  });
+
+  app.get<{
+    Params: { videoId: string; version: string; jobId: string; file: string };
+    Querystring: { t?: string };
+  }>('/media/:videoId/:version/:jobId/:file', async (request, reply) => {
+    const media = options.workRoot
+      ? await findPreviewMedia(options.workRoot, {
+          ...request.params,
+          token: request.query.t ?? '',
+        })
+      : null;
+    if (!media) {
+      const body: ApiResponse<never> = { success: false, error: 'not found' };
+      return reply.code(404).send(body);
+    }
+    return reply
+      .type(media.contentType)
+      .header('content-length', media.bytes)
+      .send(createReadStream(media.path));
   });
 
   await app.ready();

@@ -1,121 +1,38 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/db.js';
+import {
+  codeOutput as nextCodeOutput,
+  decide as decideWith,
+  episodeAwaitingStoryboard as awaitingStoryboard,
+  jobs as jobsOf,
+  STRANGER,
+  storyboardDue,
+  succeed as succeedWith,
+} from '../helpers/episode-flow.js';
 import { versionStatus } from '../helpers/fixtures.js';
 
 // STORYBOARD approval (docs/episode-pipeline.md §7): after episode_code succeeds the storyboard is
 // requested on Telegram; Approve starts the episode render, a reply with notes starts a revision
 // (at most 3 rounds), Reject cancels. telegram_decide() serves A1 and storyboard buttons alike.
 
-const OWNER = 111;
-const STRANGER = 999;
-const WORKER = 'mac-mini-m4';
-
 let db: TestDb;
 
 beforeAll(async () => {
   db = await createTestDb();
-  await db.pool.query(`INSERT INTO approver (telegram_user_id, name) VALUES ($1, 'owner')`, [
-    OWNER,
-  ]);
+  await db.pool.query(`INSERT INTO approver (telegram_user_id, name) VALUES (111, 'owner')`);
 });
 
 afterAll(async () => {
   await db.drop();
 });
 
-interface JobRow {
-  id: string;
-  step: string;
-  stream: string;
-  status: string;
-  input: Record<string, unknown>;
-}
-
-async function jobs(versionId: string): Promise<JobRow[]> {
-  const result = await db.pool.query<JobRow>(
-    'SELECT id, step, stream, status, input FROM job WHERE video_version_id = $1 ORDER BY created_at',
-    [versionId],
-  );
-  return result.rows;
-}
-
-/** Promotes, queues, starts and succeeds a job like the dispatcher and the worker. */
-async function succeed(jobId: string, output: object): Promise<void> {
-  await db.pool.query('SELECT job_promote()');
-  await db.pool.query(
-    `UPDATE job SET status = 'QUEUED', queued_at = now() WHERE id = $1 AND status = 'READY'`,
-    [jobId],
-  );
-  await db.pool.query('SELECT * FROM job_start($1, $2, 60)', [jobId, WORKER]);
-  await db.pool.query('SELECT job_succeed($1, $2, $3::jsonb)', [
-    jobId,
-    WORKER,
-    JSON.stringify({ fromCheckpoint: false, ...output }),
-  ]);
-}
-
-let codeRun = 0;
-/** episode_code output as the worker writes it: hashed files, board pages and a board token. */
-function codeOutput() {
-  codeRun++;
-  return {
-    outputs: [
-      { path: 'ws/src/episode/Episode.tsx', bytes: 10, sha256: String(codeRun).padStart(64, 'c') },
-      { path: 'ws/board/page-01.jpg', bytes: 10, sha256: 'd'.repeat(64) },
-    ],
-    result: { board_pages: ['ws/board/page-01.jpg'], board_token: 'e'.repeat(32), turns: 2 },
-  };
-}
-
-async function decide(token: string, action: string, note: string | null = null, user = OWNER) {
-  const result = await db.pool.query<{ result: string; version: number; round: number | null }>(
-    'SELECT * FROM telegram_decide($1, $2, $3, $4)',
-    [token, user, action, note],
-  );
-  return result.rows[0]!;
-}
-
-interface DueRow {
-  kind: string;
-  video_id: string;
-  version: number;
-  video_version_id: string;
-  token: string;
-  round: number;
-  title: string;
-  board: { job_id: string; token: string; pages: string[] };
-}
-
-async function due(): Promise<DueRow[]> {
-  return (await db.pool.query<DueRow>('SELECT * FROM storyboard_approvals_due()')).rows;
-}
-
-/** A new episode through A1 approval, narration, timeline and episode code. */
-async function episodeAwaitingStoryboard(name: string) {
-  const submitted = (
-    await db.pool.query<{ video_id: string; version_id: string; job_id: string }>(
-      'SELECT * FROM video_submit($1, $2::jsonb)',
-      [name, JSON.stringify({ format: 'episode', topic: `Tập ${name}` })],
-    )
-  ).rows[0]!;
-  await succeed(submitted.job_id, {
-    outputs: [{ path: 'script.json', bytes: 1, sha256: 'a'.repeat(64) }],
-    result: { format: 'episode', title: 'Mèo nghĩ gì?', scenes: [{ narration: 'Một.' }] },
-  });
-  const a1 = (
-    await db.pool.query<{ token: string; video_version_id: string }>(
-      'SELECT token, video_version_id FROM script_approvals_due()',
-    )
-  ).rows.find((row) => row.video_version_id === submitted.version_id)!;
-  expect((await decide(a1.token, 'APPROVE')).result).toBe('OK');
-
-  const [, tts, timing, code] = await jobs(submitted.version_id);
-  await succeed(tts!.id, { outputs: [], result: { scenes: [] } });
-  await succeed(timing!.id, { outputs: [], result: {} });
-  await succeed(code!.id, codeOutput());
-  const request = (await due()).find((row) => row.video_version_id === submitted.version_id)!;
-  return { ...submitted, request, timingId: timing!.id, codeId: code!.id };
-}
+const jobs = (versionId: string) => jobsOf(db.pool, versionId);
+const succeed = (jobId: string, output: object) => succeedWith(db.pool, jobId, output);
+const codeOutput = nextCodeOutput;
+const decide = (token: string, action: string, note: string | null = null, user?: number) =>
+  decideWith(db.pool, token, action, note, user);
+const due = () => storyboardDue(db.pool);
+const episodeAwaitingStoryboard = (name: string) => awaitingStoryboard(db.pool, name);
 
 describe('storyboard_approvals_due', () => {
   test('requests approval once the episode code succeeds, with the board to send', async () => {

@@ -96,6 +96,16 @@ describe('render_episode handler', () => {
     });
   });
 
+  test('renders the final 1080p after A2', async () => {
+    const result = await createRenderEpisodeHandler(deps())(
+      context({ ...INPUT, quality: 'final' }),
+    );
+
+    expect(renders.map((r) => [r.output, r.scale])).toEqual([['out/final.raw.mp4', 1]]);
+    expect(result.outputs).toEqual(['final.mp4', 'vi.srt']);
+    expect(result.result).toMatchObject({ quality: 'final', width: 1920, height: 1080 });
+  });
+
   test('fails permanently on invalid input or a changed episode code', async () => {
     const handler = createRenderEpisodeHandler(deps());
     await expect(handler(context({ episode_code_job_id: 'x' }))).rejects.toBeInstanceOf(
