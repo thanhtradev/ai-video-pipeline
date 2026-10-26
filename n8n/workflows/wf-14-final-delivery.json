@@ -1,0 +1,157 @@
+{
+  "id": "aivideoWf14Final",
+  "name": "WF-14 Final Delivery",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "seconds", "secondsInterval": 30 }] } },
+      "id": "6f1d6a10-0000-4000-8000-000000001401",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, metadata, report FROM final_due();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001402",
+      "name": "Due finals",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 0],
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// The thumbnail of each new A3 request (reminders send none). The worker serves it against the\n// metadata job's media token (D-062). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.metadata);\nreturn rows.map(({ json: row }) => {\n  const meta = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${meta.job_id}/thumbnail.jpg?t=${meta.token}`,\n      caption: `Video ${shortId} v${row.version} · thumbnail (shot ${meta.thumbnail_shot}) · ${meta.title ?? ''}`.slice(0, 1024),\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001403",
+      "name": "Build thumbnail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 60000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001404",
+      "name": "Fetch thumbnail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build thumbnail').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001405",
+      "name": "Send thumbnail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, 0],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A3 (D-062): one message per REQUEST/REMINDER row of final_due(), after its thumbnail. Telegram\n// text is Vietnamese (D-061); the metadata is quoted as written. Notes come back as a reply to this\n// message (WF-06 finds the request by the trailing meta: marker). Callback data: a3:<A|G>:<token>.\nconst CHECKS = {\n  format: 'định dạng',\n  size: 'kích thước',\n  duration: 'thời lượng',\n  loudness: 'âm lượng',\n  subtitles: 'phụ đề',\n  'black frames': 'khung hình đen',\n  silence: 'im lặng',\n};\nconst rows = $input.all().filter((item) => item.json.kind !== 'DONE' && typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const meta = parse(row.metadata);\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Nhắc: metadata đang chờ duyệt (A3)'\n    : `[AI Video] Metadata sẵn sàng để duyệt (A3, lần ${row.round})`;\n  const body = meta\n    ? [\n        `Tiêu đề: ${meta.title}`,\n        '',\n        String(meta.description ?? '').slice(0, 1500),\n        '',\n        `Tag: ${(meta.tags ?? []).join(', ')}`,\n        `QA bản 1080p: ${meta.qa_level ?? '?'}`,\n        ...(meta.qa ?? [])\n          .filter((check) => check.level !== 'PASS')\n          .map((check) => `- ${CHECKS[check.name] ?? check.name}: ${check.detail}`),\n      ]\n    : [`Video: ${row.title ?? '?'}`];\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    ...body,\n    '',\n    'Bấm Duyệt để lưu trữ lên Nextcloud và hoàn tất video. Bấm Viết lại để Claude viết bản khác, hoặc trả lời (reply) tin này kèm ghi chú.',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    `meta:${row.token}`,\n  ].join('\\n');\n  return { json: { text: text.slice(0, 4096), approve: `a3:A:${row.token}`, regenerate: `a3:G:${row.token}` } };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001406",
+      "name": "Build message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Duyệt",
+                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Viết lại",
+                    "additionalFields": { "callback_data": "={{ $json.regenerate }}" }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001407",
+      "name": "Send buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A finished video (DONE rows of final_due(), D-062): where the archive is and what it cost.\nconst rows = $input.all().filter((item) => item.json.kind === 'DONE');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const meta = parse(row.metadata) ?? {};\n  const report = parse(row.report) ?? {};\n  const cost = Object.entries(report.cost ?? {})\n    .map(([currency, total]) => `${Math.round(total * 100) / 100} ${currency}`)\n    .join(', ');\n  const text = [\n    '[AI Video] Video hoàn tất ✓',\n    `Video ${String(row.video_id).slice(0, 8)} v${row.version} · ${meta.title ?? row.title ?? '?'}`,\n    '',\n    `Lưu trữ trên Nextcloud (đã kiểm tra checksum): ${report.path}`,\n    `${report.file_count} file, ${(Number(report.total_bytes ?? 0) / 1048576).toFixed(1)} MB`,\n    `Chi phí: ${cost || 'chưa ghi nhận'} · agent ${report.agent_minutes ?? 0} phút · ${report.jobs ?? '?'} job`,\n    `Hashtag: ${(meta.hashtags ?? []).join(' ')}`,\n    '',\n    'Bản trên Mac được giữ ít nhất 30 ngày; không có gì bị xóa tự động.',\n  ].join('\\n');\n  return { json: { text: text.slice(0, 4096) } };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001408",
+      "name": "Build done",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001409",
+      "name": "Send done",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": { "main": [[{ "node": "Due finals", "type": "main", "index": 0 }]] },
+    "Due finals": {
+      "main": [
+        [
+          { "node": "Build thumbnail", "type": "main", "index": 0 },
+          { "node": "Build message", "type": "main", "index": 0 },
+          { "node": "Build done", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build thumbnail": { "main": [[{ "node": "Fetch thumbnail", "type": "main", "index": 0 }]] },
+    "Fetch thumbnail": { "main": [[{ "node": "Send thumbnail", "type": "main", "index": 0 }]] },
+    "Build message": { "main": [[{ "node": "Send buttons", "type": "main", "index": 0 }]] },
+    "Build done": { "main": [[{ "node": "Send done", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}

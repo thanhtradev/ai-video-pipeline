@@ -35,7 +35,7 @@ One video end-to-end from n8n Form to MP4. Delivered in slices, each its own PR 
 | 2a | Form (WF-01) → `script` job (headless Claude Code, JSON schema) → A1 on Telegram (WF-05/06); usage-limit block path | ✅ live 2026-10-25 (`ops/phase-2a.md`) |
 | 2b | TTS job (ITERA, D-040/D-043, one request per scene), provider registry, cost guard (`cost_guard`, D-045), cost recording, estimate in A1 | ✅ live 2026-10-25 (`ops/phase-2b.md`) |
 | 2c | ~~Typography template (D-041, D-049)~~ reworked for D-050: Phase A ports the TikTok 2 kit (D-051) and reproduces EP5; render job, loudness and media server from the first 2c cut are kept | ⏳ episode pipeline B1–C4 implemented, not rolled out (PR #9, `ops/episode-pipeline.md`) |
-| 2d | QA, A2, final 1080p, archive + manifest, cost report | Episodes: preview QA, A2 with the video, final 1080p render ✅ (D-057); metadata, final QA, archive, cost report open |
+| 2d | QA, A2, final 1080p, archive + manifest, cost report | Episodes: preview QA, A2 with the video, final 1080p render ✅ (D-057); final QA, metadata + thumbnail (A3), archive to Nextcloud, cost report ✅ (D-062) |
 
 | Criteria |
 |---|

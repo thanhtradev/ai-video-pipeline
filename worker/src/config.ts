@@ -49,6 +49,12 @@ const envSchema = z
     ITERA_POLL_MS: z.coerce.number().int().min(500).default(2000),
     ITERA_TASK_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(300),
     ITERA_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
+    // Archive (D-036, D-062): Nextcloud WebDAV of the aivideo-archive user over the tailnet; the
+    // password comes from the Keychain (run-worker.sh). Without all three, archive jobs wait BLOCKED.
+    ARCHIVE_WEBDAV_URL: z.url().optional(),
+    ARCHIVE_WEBDAV_USER: z.string().min(1).optional(),
+    ARCHIVE_WEBDAV_PASSWORD: z.string().min(1).optional(),
+    ARCHIVE_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
     // ffmpeg's ffprobe measures clip durations; launchd's PATH includes /opt/homebrew/bin.
     FFPROBE_BIN: z.string().min(1).default('ffprobe'),
     // ffmpeg normalises the preview's loudness (render_preview, D-032).
@@ -93,6 +99,10 @@ export interface Config {
     /** How long a job waits after a key, credit, quota, or configuration problem. */
     blockSeconds: number;
   };
+  archive: {
+    webdav: { baseUrl: string; username: string; password: string } | null;
+    blockSeconds: number;
+  };
   ffprobeBin: string;
   ffmpegBin: string;
   musicLibraryDir: string | undefined;
@@ -135,6 +145,17 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
       pollMs: e.ITERA_POLL_MS,
       taskTimeoutSeconds: e.ITERA_TASK_TIMEOUT_SECONDS,
       blockSeconds: e.ITERA_BLOCK_SECONDS,
+    },
+    archive: {
+      webdav:
+        e.ARCHIVE_WEBDAV_URL && e.ARCHIVE_WEBDAV_USER && e.ARCHIVE_WEBDAV_PASSWORD
+          ? {
+              baseUrl: e.ARCHIVE_WEBDAV_URL,
+              username: e.ARCHIVE_WEBDAV_USER,
+              password: e.ARCHIVE_WEBDAV_PASSWORD,
+            }
+          : null,
+      blockSeconds: e.ARCHIVE_BLOCK_SECONDS,
     },
     ffprobeBin: e.FFPROBE_BIN,
     ffmpegBin: e.FFMPEG_BIN,

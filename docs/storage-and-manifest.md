@@ -18,7 +18,7 @@
 | Aspect ratio | 16:9 (1920×1080) or 9:16 (1080×1920); one ratio per video |
 | Subtitles | SRT and VTT |
 
-## 3. Directory layout [PROPOSED]
+## 3. Directory layout [PROPOSED; episodes implemented by D-062, see docs/episode-pipeline.md §10]
 
 `WORK_ROOT` on Mac and `ARCHIVE_ROOT` on NAS: `[UNKNOWN]` (U-04, U-05; Mac mini has ~31 GiB free, R-06).
 
@@ -45,7 +45,7 @@
 
 On NAS: `<ARCHIVE_ROOT>/{yyyy}/{mm}/{video_id}/v{n}/` — same layout, without `jobs/`.
 
-## 4. Archive procedure (`archive` job) [PROPOSED]
+## 4. Archive procedure (`archive` job) [implemented for episodes, D-062]
 
 1. Freeze the version: generate `manifest.json` + `checksums.sha256` (SHA-256 of every file).
 2. Copy to NAS into a temp directory `…/v{n}.partial/` through the storage adapter (WebDAV for interim Nextcloud per D-036, SMB for the future NAS — P-013).
