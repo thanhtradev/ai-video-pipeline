@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// /status and /retry commands, well-formed A1 / storyboard / A2 buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status, /retry and /new commands, well-formed A1 / storyboard / A2 / intake buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`This chat (${message.chat.id}) is not the approval chat; /new works only there.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Usage: /new [minutes] <topic>, notes on the next lines; attach the full brief as a .md or .txt file with this as its caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('The full brief must be a .md or .txt file of at most 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -40,7 +40,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// telegram_decide() result codes -> short replies. Buttons are removed once the request is\n// settled (decided, superseded, expired); a refused stranger leaves the message untouched. Replies\n// with notes (storyboard or A2) are answered in the chat; both revise the storyboard.\nconst input = $('Parse callback').first().json;\nconst { result, version, round } = $input.first().json;\nconst storyboard = input.approval === 'storyboard';\nconst preview = input.approval === 'preview';\nconst notes = `Notes received: revising the storyboard (round ${round} of 4).`;\nconst done = storyboard\n  ? { APPROVE: 'Approved: rendering the preview', REJECT: 'Rejected (video cancelled)', FEEDBACK: notes }\n  : preview\n    ? { APPROVE: 'Approved: rendering the final 1080p', REJECT: 'Rejected (video cancelled)' }\n    : { APPROVE: 'Approved', REJECT: 'Rejected (video cancelled)', REGENERATE: `Regenerating as v${version}` };\nconst replies = {\n  OK: done[input.action],\n  NOT_ALLOWED: 'You are not an approver.',\n  NOT_FOUND: 'Unknown approval.',\n  NOT_PENDING: 'Already decided.',\n  EXPIRED: 'This request expired.',\n  SUPERSEDED: 'A newer version exists; this request is no longer valid.',\n  HASH_MISMATCH: `The ${storyboard ? 'storyboard' : preview ? 'preview' : 'script'} changed after this request; wait for the new request.`,\n  EMPTY_NOTE: 'Write your notes in the reply text.',\n  NOT_SUPPORTED: 'Not available for this request.',\n  NEEDS_DECISION: 'That was the last round of notes; the video needs a decision.',\n};\nconst settled = ['OK', 'NOT_PENDING', 'EXPIRED', 'SUPERSEDED', 'NEEDS_DECISION'].includes(result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nconst answer = replies[result] ?? `Not applied (${result}).`;\nreturn [{\n  json: {\n    answer,\n    settled,\n    isButton: input.kind !== 'reply',\n    chatId: input.chatId,\n    messageId: input.messageId,\n    queryId: input.queryId,\n    editedText: `${input.originalText}\\n\\n${result === 'OK' ? 'Decision' : 'Closed'}: ${answer} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
+        "jsCode": "// telegram_decide() result codes -> short replies. Buttons are removed once the request is\n// settled (decided, superseded, expired); a refused stranger leaves the message untouched. Replies\n// with notes (storyboard or A2) are answered in the chat; both revise the storyboard.\nconst input = $('Parse callback').first().json;\nconst { result, version, round, video_id: videoId } = $input.first().json;\nconst storyboard = input.approval === 'storyboard';\nconst preview = input.approval === 'preview';\nconst intake = input.approval === 'intake';\nconst notes = `Notes received: revising the storyboard (round ${round} of 4).`;\nconst done = intake\n  ? {\n      APPROVE: `Created video ${String(videoId).slice(0, 8)}: writing the script; the A1 request follows.`,\n      REJECT: 'Cancelled; nothing was created.',\n    }\n  : storyboard\n  ? { APPROVE: 'Approved: rendering the preview', REJECT: 'Rejected (video cancelled)', FEEDBACK: notes }\n  : preview\n    ? { APPROVE: 'Approved: rendering the final 1080p', REJECT: 'Rejected (video cancelled)' }\n    : { APPROVE: 'Approved', REJECT: 'Rejected (video cancelled)', REGENERATE: `Regenerating as v${version}` };\nconst replies = {\n  OK: done[input.action],\n  NOT_ALLOWED: 'You are not an approver.',\n  NOT_FOUND: 'Unknown approval.',\n  NOT_PENDING: 'Already decided.',\n  EXPIRED: 'This request expired.',\n  SUPERSEDED: 'A newer version exists; this request is no longer valid.',\n  HASH_MISMATCH: `The ${storyboard ? 'storyboard' : preview ? 'preview' : 'script'} changed after this request; wait for the new request.`,\n  EMPTY_NOTE: 'Write your notes in the reply text.',\n  NOT_SUPPORTED: 'Not available for this request.',\n  NEEDS_DECISION: 'That was the last round of notes; the video needs a decision.',\n};\nconst settled = ['OK', 'NOT_PENDING', 'EXPIRED', 'SUPERSEDED', 'NEEDS_DECISION'].includes(result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nconst answer = replies[result] ?? `Not applied (${result}).`;\nreturn [{\n  json: {\n    answer,\n    settled,\n    isButton: input.kind !== 'reply',\n    chatId: input.chatId,\n    messageId: input.messageId,\n    queryId: input.queryId,\n    editedText: `${input.originalText}\\n\\n${result === 'OK' ? 'Decision' : 'Closed'}: ${answer} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000604",
       "name": "Build reply",
@@ -241,6 +241,174 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [880, -440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "intake",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000617",
+      "name": "Intake?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [550, -660]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.fileId }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000618",
+      "name": "File?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [770, -660]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.fileId }}",
+        "download": true,
+        "additionalFields": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000619",
+      "name": "Get file",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [990, -760],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// /new -> the brief for telegram_intake_draft() (D-058); a parse error becomes the reply instead.\n// The full brief file is read as UTF-8 text and kept verbatim (only a byte order mark is dropped).\nconst input = $('Parse callback').first().json;\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (input.error) return [{ json: { ...reply, ok: false, text: input.error } }];\nconst fullBrief = input.fileId\n  ? (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8').replace(/^\\uFEFF/, '')\n  : '';\nconst brief = {\n  topic: input.topic,\n  ...(input.minutes ? { duration_minutes: input.minutes } : {}),\n  ...(fullBrief.trim() ? { full_brief: fullBrief } : {}),\n  ...(input.notes ? { notes: input.notes } : {}),\n};\nreturn [{ json: { ...reply, ok: true, userId: input.userId, brief: JSON.stringify(brief) } }];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000620",
+      "name": "Build draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1210, -660]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000621",
+      "name": "Draft ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1430, -660]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT result, token, expires_at, brief, has_voice, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb);",
+        "options": { "queryReplacement": "={{ [$json.userId, $json.chatId, $json.brief] }}" }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000622",
+      "name": "Draft",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1650, -760],
+      "alwaysOutputData": true,
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// telegram_intake_draft() -> the confirmation with Create / Cancel (callback in:<A|R>:<token>), or\n// the reason nothing was drafted. System text is English; the topic and notes are quoted video\n// content.\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (row.result === 'NOT_APPROVER') return [{ json: { ...reply, text: 'You are not an approver.' } }];\nif (row.result !== 'DRAFT') {\n  return [{ json: { ...reply, text: `[AI Video] Not created: ${row.error ?? row.result ?? 'no answer'}` } }];\n}\nconst brief = typeof row.brief === 'string' ? JSON.parse(row.brief) : row.brief;\nconst text = [\n  '[AI Video] New episode: confirm',\n  `Topic: ${brief.topic}`,\n  `Length: ${brief.duration_minutes ? `about ${brief.duration_minutes} min` : 'not set (about 6 min)'}`,\n  `Full brief: ${brief.full_brief ? `${brief.full_brief.length} characters` : 'none (Claude writes the episode)'}`,\n  ...(brief.notes ? [`Notes: ${brief.notes}`] : []),\n  ...(row.has_voice === false\n    ? ['', 'Warning: the full brief has no VOICE section. With a full brief the script copies every narration line verbatim from it, so this brief will fail. Add a VOICE section, or send the outline as notes instead.']\n    : []),\n  '',\n  `Expires: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n].join('\\n');\nreturn [{ json: { ...reply, text, approve: `in:A:${row.token}`, reject: `in:R:${row.token}` } }];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000623",
+      "name": "Build confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1870, -760]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.approve }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000624",
+      "name": "Buttons?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2090, -760]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Create",
+                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Cancel",
+                    "additionalFields": { "callback_data": "={{ $json.reject }}" }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.messageId }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000625",
+      "name": "Send confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2310, -860],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
@@ -267,11 +435,39 @@
     "Retry?": {
       "main": [
         [{ "node": "Retry", "type": "main", "index": 0 }],
-        [{ "node": "Decide", "type": "main", "index": 0 }]
+        [{ "node": "Intake?", "type": "main", "index": 0 }]
       ]
     },
     "Retry": { "main": [[{ "node": "Build retry", "type": "main", "index": 0 }]] },
-    "Build retry": { "main": [[{ "node": "Send status", "type": "main", "index": 0 }]] }
+    "Build retry": { "main": [[{ "node": "Send status", "type": "main", "index": 0 }]] },
+    "Intake?": {
+      "main": [
+        [{ "node": "File?", "type": "main", "index": 0 }],
+        [{ "node": "Decide", "type": "main", "index": 0 }]
+      ]
+    },
+    "File?": {
+      "main": [
+        [{ "node": "Get file", "type": "main", "index": 0 }],
+        [{ "node": "Build draft", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get file": { "main": [[{ "node": "Build draft", "type": "main", "index": 0 }]] },
+    "Build draft": { "main": [[{ "node": "Draft ok?", "type": "main", "index": 0 }]] },
+    "Draft ok?": {
+      "main": [
+        [{ "node": "Draft", "type": "main", "index": 0 }],
+        [{ "node": "Send status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Draft": { "main": [[{ "node": "Build confirmation", "type": "main", "index": 0 }]] },
+    "Build confirmation": { "main": [[{ "node": "Buttons?", "type": "main", "index": 0 }]] },
+    "Buttons?": {
+      "main": [
+        [{ "node": "Send confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Send status", "type": "main", "index": 0 }]
+      ]
+    }
   },
   "settings": {
     "executionOrder": "v1",
