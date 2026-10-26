@@ -1,3 +1,4 @@
+import { NO_RULES } from '../../src/rules/channel-rules.js';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -110,6 +111,8 @@ const withAct = (index: number, patch: Partial<EpisodeScript['acts'][number]>): 
   acts: SCRIPT.acts.map((act, i) => (i === index ? { ...act, ...patch } : act)),
 });
 
+const noRules = async () => NO_RULES;
+
 describe('isEpisodeInput', () => {
   test('routes only briefs with format "episode"', () => {
     expect(isEpisodeInput({ brief: TOPIC_BRIEF })).toBe(true);
@@ -194,7 +197,7 @@ describe('checkEpisodeScript', () => {
 
 describe('episode script handler', () => {
   test('writes script.json with line ids and returns the A1 summary', async () => {
-    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT) });
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
 
     const result = await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
 
@@ -222,7 +225,7 @@ describe('episode script handler', () => {
   });
 
   test('writes a readable Markdown storyboard', async () => {
-    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT) });
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
 
     const markdown = await readFile(join(workDir, 'script.md'), 'utf8');
@@ -232,7 +235,7 @@ describe('episode script handler', () => {
   });
 
   test('asks in English to write an episode from a topic, with the brief as data', async () => {
-    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT) });
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
 
     const request = requests[0]!;
@@ -249,7 +252,7 @@ describe('episode script handler', () => {
   });
 
   test('asks to restructure a full brief verbatim', async () => {
-    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT) });
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     const brief = { ...TOPIC_BRIEF, full_brief: FULL_BRIEF_TEXT };
     await handler(context({ brief, language: 'vi' }));
 
@@ -258,15 +261,33 @@ describe('episode script handler', () => {
     expect(requests[0]!.prompt).toContain('Tiết Toán. Cô gọi tên bạn lên bảng.');
   });
 
+  test("puts the owner's rules into the prompt and records their version (D-059)", async () => {
+    const rules = async () => ({
+      ...NO_RULES,
+      version: 'abc',
+      video: [{ id: 1, text: 'Không dùng nhạc nền.' }],
+      tts: [{ id: 2, text: 'Câu hỏi mở đầu có [short pause] phía sau.' }],
+    });
+    const result = await createEpisodeScriptHandler({ claude: stub(SCRIPT), rules })(
+      context({ brief: TOPIC_BRIEF }),
+    );
+
+    expect(requests[0]!.prompt).toMatch(
+      /owner's rules for every video[^\n]*\n- Không dùng nhạc nền\./,
+    );
+    expect(requests[0]!.prompt).toMatch(/narration lines[^\n]*\n- Câu hỏi mở đầu/);
+    expect(result.result.rules_version).toBe('abc');
+  });
+
   test('rejects an invalid input permanently', async () => {
-    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT) });
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     await expect(
       handler(context({ brief: { format: 'episode', topic: '' } })),
     ).rejects.toBeInstanceOf(PermanentJobError);
   });
 
   test('retries (plain error) on a schema mismatch or failed checks', async () => {
-    const bad = createEpisodeScriptHandler({ claude: stub({ title: 'x' }) });
+    const bad = createEpisodeScriptHandler({ claude: stub({ title: 'x' }), rules: noRules });
     const schemaError = await bad(context({ brief: TOPIC_BRIEF })).catch((e: unknown) => e);
     expect(schemaError).not.toBeInstanceOf(PermanentJobError);
     expect((schemaError as Error).message).toMatch(/episode script does not match the schema/);
@@ -274,7 +295,7 @@ describe('episode script handler', () => {
     const wrongIds = withAct(0, {
       shots: SCRIPT.acts[0]!.shots.map((shot, i) => ({ ...shot, id: `1.${i + 5}` })),
     });
-    const inconsistent = createEpisodeScriptHandler({ claude: stub(wrongIds) });
+    const inconsistent = createEpisodeScriptHandler({ claude: stub(wrongIds), rules: noRules });
     const checkError = await inconsistent(context({ brief: TOPIC_BRIEF })).catch((e: unknown) => e);
     expect(checkError).not.toBeInstanceOf(PermanentJobError);
     expect((checkError as Error).message).toMatch(/episode script failed its checks/);

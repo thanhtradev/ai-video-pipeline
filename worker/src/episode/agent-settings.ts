@@ -43,6 +43,7 @@ const PROTECTED = [
   'CLAUDE.md',
   '.claude',
   'brief.md',
+  'rules.md',
   'feedback.md',
   'FILES.md',
   'kit',

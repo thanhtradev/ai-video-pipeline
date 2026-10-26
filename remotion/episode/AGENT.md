@@ -2,13 +2,15 @@
 
 You write the code of ONE episode: a 16:9 (1920×1080, 30 fps) Remotion composition drawn entirely
 in code, in this channel's style, from the approved script in `brief.md` (and `feedback.md` when it
-exists: the owner's notes on your previous version — apply every one of them). Work alone until the
-episode is complete; nobody answers questions during the run.
+exists: the owner's notes on your previous version — apply every one of them). `rules.md` holds the
+owner's standing rules for every video; follow them, they override this file where they disagree.
+Work alone until the episode is complete; nobody answers questions during the run.
 
 ## What exists
 
 | Path | What | You may |
 |---|---|---|
+| `rules.md` | the channel owner's rules for every video | read, follow |
 | `brief.md` | approved script: characters, effects, notes, acts with narration lines (`L001…`) and shots (`act.n`, MỐC, description, SFX, holds) | read |
 | `src/data/timing.json` | timeline built from the real narration: sentences `S001…` (each with its script `line`), shots, acts, word frames | read |
 | `src/time.ts` | the ONLY way to get times: `L(id)`, `Lend(id)`, `at(id, word)`, `line(id)`, `shot(id)`, `useShot(id)`, `SHOTS`, `LINES`, `TIMING`, `TOTAL`, `sec2f`, `speakingAt` | import |

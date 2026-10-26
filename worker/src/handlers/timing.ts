@@ -5,6 +5,7 @@ import { alignWords, parseWhisperJson } from '../episode/align.js';
 import { episodeSentences } from '../episode/sentences.js';
 import { buildTiming, checkCuts, envelope, FPS, type EpisodeTiming } from '../episode/timing.js';
 import { readPcm16, type VoiceBuilder } from '../media/voice.js';
+import { rulesSchema } from '../rules/channel-rules.js';
 import type { Transcriber } from '../media/whisper.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
@@ -55,6 +56,8 @@ const scriptSchema = z.object({
 
 const ttsResultSchema = z.object({
   scenes: z.array(z.object({ index: z.number().int().min(1), file: z.string().min(1) })).min(1),
+  /** What the voice read instead of a term (D-059); older tts jobs have none. */
+  pronunciation: z.object({ entries: rulesSchema.shape.pronunciation }).optional(),
 });
 
 export interface TimingHandlerDeps {
@@ -81,7 +84,7 @@ async function loadScript(workDir: string, jobId: string) {
   return parsed.data;
 }
 
-async function loadClips(workDir: string, jobId: string, acts: number): Promise<string[]> {
+async function loadClips(workDir: string, jobId: string, acts: number) {
   const { dir, checkpoint } = await checkpointOf(workDir, jobId, 'tts');
   const tts = ttsResultSchema.safeParse(checkpoint.result);
   if (!tts.success) throw new PermanentJobError('tts job result has no clips');
@@ -89,7 +92,10 @@ async function loadClips(workDir: string, jobId: string, acts: number): Promise<
   if (scenes.length !== acts) {
     throw new PermanentJobError(`tts job has ${scenes.length} clips for ${acts} acts`);
   }
-  return Promise.all(scenes.map((scene) => resolveInside(dir, scene.file)));
+  return {
+    clips: await Promise.all(scenes.map((scene) => resolveInside(dir, scene.file))),
+    pronunciation: tts.data.pronunciation?.entries ?? [],
+  };
 }
 
 const clock = (frames: number) => {
@@ -124,7 +130,7 @@ async function analyse(context: HandlerContext, deps: TimingHandlerDeps, transcr
   const { workDir, signal } = context;
   const input = inputSchema.parse(context.input);
   const script = await loadScript(workDir, input.script_job_id);
-  const clips = await loadClips(workDir, input.tts_job_id, script.acts.length);
+  const { clips, pronunciation } = await loadClips(workDir, input.tts_job_id, script.acts.length);
 
   await context.progress({ stage: 'voice' });
   await deps.buildVoice(
@@ -140,7 +146,12 @@ async function analyse(context: HandlerContext, deps: TimingHandlerDeps, transcr
     signal,
   );
   const pcm = await readPcm16(join(workDir, ANALYSIS));
-  return { script, heard: parseWhisperJson(transcript), db: envelope(pcm.samples, pcm.sampleRate) };
+  return {
+    script,
+    pronunciation,
+    heard: parseWhisperJson(transcript),
+    db: envelope(pcm.samples, pcm.sampleRate),
+  };
 }
 
 export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
@@ -154,10 +165,10 @@ export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
         deps.blockSeconds,
       );
     }
-    const { script, heard, db } = await analyse(context, deps, deps.transcribe);
+    const { script, pronunciation, heard, db } = await analyse(context, deps, deps.transcribe);
 
     const sentences = episodeSentences(script.acts);
-    const words = alignWords(sentences, heard);
+    const words = alignWords(sentences, heard, pronunciation);
     const shots = script.acts.flatMap((act, a) =>
       act.shots.map((shot) => ({ ...shot, act: a + 1 })),
     );

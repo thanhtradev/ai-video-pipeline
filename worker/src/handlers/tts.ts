@@ -6,6 +6,12 @@ import { z } from 'zod';
 import type { CostStore, GuardResult } from '../db/cost-store.js';
 import type { DurationProbe } from '../media/ffprobe.js';
 import { writeFileAtomic } from '../storage/checkpoint.js';
+import {
+  pronounce,
+  rulesSchema,
+  type Pronunciation,
+  type RulesSource,
+} from '../rules/channel-rules.js';
 import type { IteraClient, IteraTask } from '../tts/itera-client.js';
 import {
   PermanentJobError,
@@ -76,6 +82,34 @@ export interface TtsHandlerDeps {
   pollMs: number;
   taskTimeoutMs: number;
   blockSeconds: number;
+  /** The owner's pronunciation table (D-059), taken once per job. */
+  rules: RulesSource;
+}
+
+const PRONUNCIATION_FILE = 'pronunciation.json';
+const pronunciationSchema = z.object({
+  version: z.string(),
+  entries: rulesSchema.shape.pronunciation,
+});
+
+/**
+ * The pronunciation table of this job: read on the first attempt and kept in the job folder, so a
+ * retry reads the same text (an edit in between must not make paid clips again).
+ */
+async function jobPronunciation(
+  deps: TtsHandlerDeps,
+  workDir: string,
+): Promise<{ version: string; entries: Pronunciation }> {
+  const path = join(workDir, PRONUNCIATION_FILE);
+  try {
+    return pronunciationSchema.parse(JSON.parse(await readFile(path, 'utf8')));
+  } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  }
+  const rules = await deps.rules();
+  const snapshot = { version: rules.version, entries: rules.pronunciation };
+  await writeFileAtomic(path, `${JSON.stringify(snapshot, null, 1)}\n`);
+  return snapshot;
 }
 
 /** Characters the provider bills: code points after NFC, as tts_chars() counts in SQL. */
@@ -253,10 +287,21 @@ export function createTtsHandler(deps: TtsHandlerDeps): JobHandler {
       throw new ProviderBlockedError('ITERA API key is not configured', deps.blockSeconds);
 
     const voice = await resolveVoice(deps, context.jobId);
+    const pronunciation = await jobPronunciation(deps, context.workDir);
+    const spoken = parsed.data.scenes.map((scene) => ({
+      ...scene,
+      text: pronounce(scene.text, pronunciation.entries),
+    }));
+    const tooLong = spoken.find((scene) => scene.text.length > MAX_SCENE_CHARS);
+    if (tooLong) {
+      throw new PermanentJobError(
+        `scene ${tooLong.index} is over ${MAX_SCENE_CHARS} characters after pronunciation`,
+      );
+    }
     const run: SceneRun = { deps: { ...deps, itera }, context, voice };
     const scenes: SceneResult[] = [];
-    for (const [i, scene] of parsed.data.scenes.entries()) {
-      await context.progress({ stage: 'tts', scene: i + 1, of: parsed.data.scenes.length });
+    for (const [i, scene] of spoken.entries()) {
+      await context.progress({ stage: 'tts', scene: i + 1, of: spoken.length });
       scenes.push(await synthesizeScene(run, scene));
     }
 
@@ -273,6 +318,8 @@ export function createTtsHandler(deps: TtsHandlerDeps): JobHandler {
         total_seconds: Math.round(totalSeconds * 100) / 100,
         total_chars: scenes.reduce((sum, scene) => sum + scene.chars, 0),
         total_credits: totalCredits,
+        // The timing step aligns whisper with the same spoken forms.
+        pronunciation,
       },
     };
   };

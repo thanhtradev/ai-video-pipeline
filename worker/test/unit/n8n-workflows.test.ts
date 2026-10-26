@@ -843,6 +843,125 @@ describe('WF-06 /new (D-058)', () => {
   });
 });
 
+describe('WF-06 channel rules (D-059)', () => {
+  const message = (text: string, extra: object = {}): Item => ({
+    json: {
+      message: {
+        message_id: 21,
+        from: { id: 111, is_bot: false },
+        chat: { id: -100 },
+        ...(Object.keys(extra).length ? { caption: text, ...extra } : { text }),
+      },
+    },
+  });
+  const parse = (text: string, extra: object = {}) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [message(text, extra)] })[0]
+      ?.json;
+
+  test.each([
+    ['/rules', { action: 'VIEW', scope: '' }],
+    ['/rules say', { action: 'VIEW', scope: 'pronunciation' }],
+    ['/rules file video', { action: 'VIEW', scope: 'video', exportFile: true }],
+    [
+      '/rule add video Không dùng nhạc nền.',
+      { action: 'ADD', scope: 'video', text: 'Không dùng nhạc nền.' },
+    ],
+    ['/rule del #12', { action: 'DELETE', text: '12' }],
+    [
+      '/say TikTok Shop = tích tốc sốp',
+      { action: 'SAY', text: 'TikTok Shop', extra: 'tích tốc sốp' },
+    ],
+    ['/unsay TikTok', { action: 'UNSAY', text: 'TikTok' }],
+  ])('parses %j', (text, expected) => {
+    expect(parse(text)).toMatchObject({ kind: 'rules', userId: '111', error: '', ...expected });
+  });
+
+  test.each([
+    '/rules music',
+    '/rule add music x',
+    '/rule del x',
+    '/say TikTok',
+    '/unsay',
+    '/rules set video',
+  ])('answers %j with usage or a hint', (text) => {
+    expect(parse(text)!.error).not.toBe('');
+  });
+
+  test('takes a /rules set file', () => {
+    const file = { document: { file_id: 'R1', file_name: 'video-rules.md', file_size: 500 } };
+    expect(parse('/rules set say', file)).toMatchObject({
+      action: 'SET',
+      scope: 'pronunciation',
+      fileId: 'R1',
+    });
+  });
+
+  const rules = {
+    version: 'abcdef0123456789',
+    video: [{ id: 3, text: 'Không dùng nhạc nền.' }],
+    tts: [],
+    pronunciation: [{ id: 1, term: 'TikTok', spoken: 'tích tốc' }],
+  };
+  const answer = (row: Record<string, unknown>, parsed: Record<string, unknown>) =>
+    runCode('wf-06-telegram-callback.json', 'Build rules reply', {
+      input: [{ json: row }],
+      nodeOutputs: { 'Parse callback': [{ json: { chatId: '-100', messageId: '21', ...parsed } }] },
+    })[0]!.json;
+
+  test('lists the rules with their numbers', () => {
+    const out = answer({ result: 'OK', rules }, { action: 'VIEW', scope: '' });
+    expect(out.text).toContain('Channel rules (version abcdef01)');
+    expect(out.text).toContain('Video:\n#3 Không dùng nhạc nền.');
+    expect(out.text).toContain('TTS:\n(none)');
+    expect(out.text).toContain('Pronunciation:\nTikTok = tích tốc');
+  });
+
+  test('confirms edits and explains refusals', () => {
+    expect(answer({ result: 'OK', detail: '7', rules }, { action: 'ADD', scope: 'tts' }).text).toBe(
+      '[AI Video] Added rule #7 (TTS). Applies to steps that start from now on.',
+    );
+    expect(answer({ result: 'NOT_FOUND', detail: '9' }, { action: 'DELETE', text: '9' }).text).toBe(
+      '[AI Video] No rule #9.',
+    );
+    expect(
+      answer({ result: 'INVALID', detail: 'scope must be video or tts' }, { action: 'ADD' }).text,
+    ).toBe('[AI Video] Not changed: scope must be video or tts');
+    expect(answer({ result: 'NOT_APPROVER' }, {}).text).toBe('You are not an approver.');
+    expect(answer({ result: 'OK', rules }, { action: 'SET', scope: 'pronunciation' }).text).toBe(
+      '[AI Video] Pronunciation rules replaced: 1 now. Applies to steps that start from now on.',
+    );
+  });
+
+  test('exports a scope as an editable Markdown file', async () => {
+    const out = answer(
+      { result: 'OK', rules },
+      { action: 'VIEW', scope: 'pronunciation', exportFile: true },
+    );
+    expect(out).toMatchObject({
+      exportFile: true,
+      fileName: 'say-rules.md',
+      caption: 'Edit and send back with the caption /rules set say',
+    });
+    expect(out.markdown).toContain('- TikTok = tích tốc');
+
+    const prepared: unknown[] = [];
+    const [doc] = await runAsyncCode('wf-06-telegram-callback.json', 'Rules document', {
+      input: [{ json: out }],
+      helpers: {
+        prepareBinaryData: async (...args: never[]) => {
+          prepared.push(args);
+          return { fileName: 'say-rules.md' };
+        },
+      },
+    });
+    expect((prepared[0] as [Buffer, string, string])[0].toString('utf8')).toBe(out.markdown);
+    expect(doc).toMatchObject({
+      json: { chatId: '-100' },
+      binary: { data: { fileName: 'say-rules.md' } },
+    });
+  });
+});
+
 describe('WF-13 Preview Approval Request (D-057)', () => {
   const token = 'b'.repeat(32);
   const row = {
