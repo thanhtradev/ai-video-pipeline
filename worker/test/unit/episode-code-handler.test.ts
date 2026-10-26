@@ -43,6 +43,14 @@ const TEXT_FAIL: GateReport = {
     rows: [{ kind: 'html', side: 't16', text: 'NHỚ CHI TIẾT NÀY', from: 2310, to: 2380 }],
   },
 };
+const CHROME_CRASH: GateReport = {
+  ...PASS,
+  ok: false,
+  textBounds: {
+    ok: false,
+    error: 'Error: Page crashed!\n    at #onTargetCrashed (index.mjs:3562:24)',
+  },
+};
 
 let jobsDir: string;
 let workDir: string;
@@ -277,6 +285,32 @@ describe('episode_code handler', () => {
       { stage: 'agent', turn: 2, of: 3 },
       { stage: 'gates', turn: 2, of: 3 },
     ]);
+  });
+
+  test('a Chrome crash in the gates is retried, not handed to the agent', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(CHROME_CRASH) }))(context()),
+    ).rejects.toThrow(/the gates' Chrome crashed[\s\S]*Page crashed!/);
+    expect(turns).toHaveLength(1);
+    const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
+    expect(log.turns[0].gates).toBeNull();
+
+    await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).not.toMatch(/Page crashed/);
+  });
+
+  test('a render error thrown by the episode code still goes to the agent', async () => {
+    const RENDER_ERROR: GateReport = {
+      ...PASS,
+      ok: false,
+      board: { ok: false, error: "TypeError: Cannot read properties of undefined (reading 'x')" },
+    };
+    await createEpisodeCodeHandler(deps({ gates: gates(RENDER_ERROR, PASS) }))(context());
+
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).toMatch(/storyboard render failed:[\s\S]*reading 'x'/);
   });
 
   test('a retry after a failed review continues with the fix turn', async () => {

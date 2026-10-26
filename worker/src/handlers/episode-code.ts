@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { AgentRunner } from '../claude/agent-cli.js';
 import { agentSettings } from '../episode/agent-settings.js';
 import {
+  browserCrash,
   describeFailures,
   gateReportSchema,
   type GateReport,
@@ -158,6 +159,9 @@ async function runTurns(
     const n = state.turns.length;
     await context.progress({ stage: 'gates', turn: n, of: MAX_FOLLOW_UPS + 1 });
     const report = await deps.gates(ws, context.signal);
+    // Not recorded as this turn's gates, so the retry runs the gates again before any agent turn.
+    const crash = browserCrash(report);
+    if (crash) throw new Error(`the gates' Chrome crashed: ${crash.slice(0, 1000)}`);
     const gates = { ok: report.ok, failures: describeFailures(report) };
     state = {
       ...state,
