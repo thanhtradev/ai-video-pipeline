@@ -54,7 +54,7 @@
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
         "binaryData": true,
         "binaryPropertyName": "data",
-        "additionalFields": { "caption": "={{ $('Build pages').item.json.caption }}" }
+        "additionalFields": { "parse_mode": "HTML", "caption": "={{ String($('Build pages').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}" }
       },
       "id": "6f1d6a10-0000-4000-8000-000000001205",
       "name": "Send page",
@@ -76,7 +76,7 @@
     {
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
-        "text": "={{ $json.text }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -96,7 +96,7 @@
             }
           ]
         },
-        "additionalFields": { "appendAttribution": false }
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
       },
       "id": "6f1d6a10-0000-4000-8000-000000001207",
       "name": "Send buttons",

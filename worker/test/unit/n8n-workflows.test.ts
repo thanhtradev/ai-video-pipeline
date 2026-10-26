@@ -94,6 +94,28 @@ describe.each(files)('%s', (file) => {
     expect(wf.settings.errorWorkflow).toBe('aivideoWf99Error');
   });
 
+  // The Telegram node parses text as Markdown unless told otherwise, so a step name such as
+  // episode_code breaks the message ("can't parse entities"). Texts go out as escaped HTML.
+  test('Telegram texts are sent as escaped HTML', () => {
+    const escape =
+      /^=\{\{ String\(.+\)\.replace\(\/&\/g, '&amp;'\)\.replace\(\/<\/g, '&lt;'\)\.replace\(\/>\/g, '&gt;'\) \}\}$/;
+    for (const node of wf.nodes.filter((n) => n.type === 'n8n-nodes-base.telegram')) {
+      const fields = (node.parameters.additionalFields ?? {}) as Record<string, unknown>;
+      const text = node.parameters.text ?? fields.caption;
+      if (text === undefined) continue;
+      expect(text, node.name).toMatch(escape);
+      expect(fields.parse_mode, node.name).toBe('HTML');
+    }
+  });
+
+  test('the escaping expression makes any text safe for HTML mode', () => {
+    const expr = "String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')";
+    const run = new Function('t', `return ${expr};`) as (t: string) => string;
+    expect(run('Retrying episode_code <b>&</b> *x*')).toBe(
+      'Retrying episode_code &lt;b&gt;&amp;&lt;/b&gt; *x*',
+    );
+  });
+
   test('code nodes compile', () => {
     for (const node of wf.nodes.filter((n) => n.type === 'n8n-nodes-base.code')) {
       expect(() => new Function(node.parameters.jsCode as string)).not.toThrow();
