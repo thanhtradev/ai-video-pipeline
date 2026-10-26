@@ -2,10 +2,10 @@
 
 ## 1. Rules [CONFIRMED]
 
-- Mac SSD is the working area; NAS is the archive. Interim NAS: LXC 106 Nextcloud, on the same disk as production until a dedicated NAS is bought (D-033, R-01).
+- Mac SSD is the working area; the archive is **Google Drive** (personal account, through rclone, D-063). Nextcloud on LXC 106 (D-033) remains only as a fallback target; its disk is now 128 GB.
 - Verify file count, size, and checksum before treating an archive as successful.
-- Never delete the Mac copy before NAS verification succeeds.
-- Keep the Mac working copy for 30 days after a successful NAS transfer.
+- Never delete the Mac copy before archive verification succeeds.
+- After a verified archive the owner is asked on Telegram whether to delete the Mac copy now (D-063, replaces the 30-day rule); only the owner's approval deletes it, after a fresh verification of the remote copy.
 - Never delete files automatically: warn and ask for approval.
 - Daily backups, 30-day retention, backup before upgrades, restores must be tested.
 
@@ -48,14 +48,14 @@ On NAS: `<ARCHIVE_ROOT>/{yyyy}/{mm}/{video_id}/v{n}/` — same layout, without `
 ## 4. Archive procedure (`archive` job) [implemented for episodes, D-062]
 
 1. Freeze the version: generate `manifest.json` + `checksums.sha256` (SHA-256 of every file).
-2. Copy to NAS into a temp directory `…/v{n}.partial/` through the storage adapter (WebDAV for interim Nextcloud per D-036, SMB for the future NAS — P-013).
+2. Copy to the archive into a temp directory `…/v{n}.partial/` through the storage adapter (rclone to Google Drive per D-063; WebDAV for Nextcloud per D-036 as a fallback).
    WebDAV notes: create folders with `MKCOL`, upload with `PUT`, list file count/size with `PROPFIND`, rename with `MOVE`. Nextcloud does not compute SHA-256 server-side, so step 3 verifies by **downloading each file back and hashing it** on the worker.
 3. Verify on NAS: file count, total size, SHA-256 of each file matches `checksums.sha256`.
 4. Rename `.partial` → `v{n}` (atomic within the same share).
 5. Write `archive_record` (path, file_count, total_bytes, manifest checksum, verified_at) → `ARCHIVE_VERIFIED`.
 6. Any failure: keep the Mac copy untouched, notify Telegram, no infinite retry.
 
-## 5. Retention [PROPOSED implementation / CONFIRMED rule]
+## 5. Retention [implemented for episodes by D-063; the WF-10 schedule below is not needed for them]
 
 - `verified_at + 30 days` → WF-10 lists eligible working copies and asks for approval via Telegram.
 - Delete only after user approval **and** a fresh NAS checksum re-verification right before deletion.

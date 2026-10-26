@@ -4,16 +4,17 @@ import { z } from 'zod';
 import { archiveDirectory, ArchiveConflictError, ArchiveSourceError } from '../archive/archiver.js';
 import type { ArchiveTarget } from '../archive/webdav-target.js';
 import { readValidCheckpoint, sha256File, type Checkpoint } from '../storage/checkpoint.js';
+import { diskBytes } from '../storage/disk-usage.js';
 import { resolveInside } from '../storage/workspace.js';
 import { PermanentJobError, ProviderBlockedError, type JobHandler } from '../runner.js';
 
 // Episode `archive` step (q:heavy, D-062, docs/storage-and-manifest.md §3–§4): after A3, gathers the
 // deliverables of every job into the version folder (renders, subtitles, script, voice, episode
 // code, thumbnail, metadata, QA reports) with a manifest, then archives that folder to Nextcloud and
-// verifies every file there (archiveDirectory). Files are hard links to the checkpointed job
-// outputs, never copies or moves; jobs/ itself is not archived. Nothing is ever deleted.
+// verifies every file there (archiveDirectory): Google Drive through rclone (D-063), or Nextcloud.
+// Files are hard links to the checkpointed job outputs, never copies or moves; jobs/ itself is not
+// archived. This step deletes nothing; the Mac copy goes only with the owner's approval (cleanup).
 
-const TARGET_NAME = 'nextcloud';
 const REPORT = 'archive-report.json';
 /** Result fields that are capabilities, never archived. */
 const SECRET_FIELD = /_token$/;
@@ -36,8 +37,10 @@ const inputSchema = z.object({
 type Input = z.infer<typeof inputSchema>;
 
 export interface ArchiveVideoDeps {
-  /** Null while ARCHIVE_WEBDAV_* is not configured: jobs wait as BLOCKED. */
+  /** Null while no archive is configured: jobs wait as BLOCKED. */
   target: ArchiveTarget | null;
+  /** Recorded in archive_record, e.g. gdrive. */
+  targetName: string;
   blockSeconds: number;
 }
 
@@ -171,7 +174,10 @@ export function createArchiveVideoHandler(deps: ArchiveVideoDeps): JobHandler {
       throw new PermanentJobError(`invalid archive input: ${parsed.error.message}`);
     }
     if (!deps.target) {
-      throw new ProviderBlockedError('archive WebDAV is not configured', deps.blockSeconds);
+      throw new ProviderBlockedError(
+        'no archive is configured (ARCHIVE_RCLONE_REMOTE)',
+        deps.blockSeconds,
+      );
     }
     const data = parsed.data;
     const jobsDir = dirname(workDir);
@@ -217,12 +223,14 @@ export function createArchiveVideoHandler(deps: ArchiveVideoDeps): JobHandler {
       throw error;
     }
     const report = {
-      target: TARGET_NAME,
+      target: deps.targetName,
       path: result.remotePath,
       file_count: result.fileCount,
       total_bytes: result.totalBytes,
       manifest_sha256: result.manifestSha256,
       verified_at: new Date().toISOString(),
+      // What deleting the Mac copy would free (the owner is asked, D-063).
+      local_bytes: await diskBytes(versionDir),
     };
     await writeFile(join(workDir, REPORT), `${JSON.stringify(report, null, 2)}\n`);
     return { outputs: [REPORT], result: report };

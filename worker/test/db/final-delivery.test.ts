@@ -48,6 +48,15 @@ async function due(versionId: string): Promise<FinalRow[]> {
   return rows.filter((row) => row.video_version_id === versionId);
 }
 
+const ARCHIVED = (videoId: string) => ({
+  target: 'gdrive',
+  path: `2026/10/${videoId}/v1`,
+  file_count: 42,
+  total_bytes: 123456789,
+  local_bytes: 987654321,
+  manifest_sha256: 'a'.repeat(64),
+  verified_at: '2026-10-26T10:00:00Z',
+});
 const out = (path: string, digit: string) => ({ path, bytes: 10, sha256: digit.repeat(64) });
 const METADATA = (title: string) => ({
   outputs: [out('metadata.json', '4'), out('thumbnail.jpg', '5')],
@@ -162,7 +171,7 @@ describe('telegram_decide on metadata (A3)', () => {
     expect((await jobOf(v, 'metadata')).input).toMatchObject({ revision: { feedback: '' } });
   });
 
-  test('approve archives; the verified archive completes the video with a cost report', async () => {
+  test('approve archives; the verified archive asks the owner about the Mac copy', async () => {
     const { version_id: v, video_id, a3, codeId, finalId } = await episodeAwaitingMetadata('a3-ok');
     expect((await decide(a3.token!, 'REJECT')).result).toBe('NOT_SUPPORTED');
     expect((await decide(a3.token!, 'APPROVE', null, STRANGER)).result).toBe('NOT_ALLOWED');
@@ -190,14 +199,7 @@ describe('telegram_decide on metadata (A3)', () => {
     );
     await succeed(archive.id, {
       outputs: [],
-      result: {
-        target: 'nextcloud',
-        path: `2026/10/${video_id}/v1`,
-        file_count: 42,
-        total_bytes: 123456789,
-        manifest_sha256: 'a'.repeat(64),
-        verified_at: '2026-10-26T10:00:00Z',
-      },
+      result: ARCHIVED(video_id),
     });
     const [done, ...rest] = await due(v);
 
@@ -207,12 +209,15 @@ describe('telegram_decide on metadata (A3)', () => {
       metadata: { title: 'Nếu bạn nghe được mèo nghĩ gì?' },
       report: {
         cost: { CRD: 2817 },
+        target: 'gdrive',
         path: `2026/10/${video_id}/v1`,
         file_count: 42,
         total_bytes: 123456789,
+        local_bytes: 987654321,
       },
     });
-    expect(await versionStatus(db.pool, v)).toBe('COMPLETED');
+    expect(done!.token).toMatch(/^[0-9a-f]{32}$/);
+    expect(await versionStatus(db.pool, v)).toBe('ARCHIVE_VERIFIED');
     const record = await db.pool.query(
       'SELECT path, file_count FROM archive_record WHERE video_version_id = $1',
       [v],
@@ -229,5 +234,64 @@ describe('telegram_decide on metadata (A3)', () => {
       [meta.id, 'b'.repeat(64)],
     );
     expect((await decide(a3.token!, 'APPROVE')).result).toBe('HASH_MISMATCH');
+  });
+});
+
+describe('cleanup of the Mac copy (D-063)', () => {
+  /** Through A3 and a verified archive to the CLEANUP request. */
+  async function archived(name: string) {
+    const episode = await episodeAwaitingMetadata(name);
+    await decide(episode.a3.token!, 'APPROVE');
+    await succeed((await jobOf(episode.version_id, 'archive')).id, {
+      outputs: [],
+      result: ARCHIVED(episode.video_id),
+    });
+    const [done] = await due(episode.version_id);
+    return { ...episode, cleanup: done!.token! };
+  }
+
+  test('only the owner approves; the cleanup job then completes the video', async () => {
+    const { version_id: v, video_id, cleanup } = await archived('cleanup-ok');
+    await db.pool.query(`INSERT INTO approver (telegram_user_id, name) VALUES (222, 'An')`);
+
+    expect((await decide(cleanup, 'APPROVE', null, 222)).result).toBe('NOT_OWNER');
+    expect((await decide(cleanup, 'APPROVE', null, STRANGER)).result).toBe('NOT_ALLOWED');
+    await db.pool.query(`UPDATE approver SET is_owner = true WHERE telegram_user_id = $1`, [OWNER]);
+    expect((await decide(cleanup, 'APPROVE')).result).toBe('OK');
+
+    const job = await jobOf(v, 'cleanup');
+    expect(job).toMatchObject({
+      stream: 'q:heavy',
+      input: {
+        video_id,
+        version: 1,
+        target: 'gdrive',
+        remote_dir: `2026/10/${video_id}/v1`,
+        manifest_sha256: 'a'.repeat(64),
+      },
+    });
+    expect(await due(v)).toEqual([]);
+    expect(await versionStatus(db.pool, v)).toBe('ARCHIVE_VERIFIED');
+
+    await succeed(job.id, { outputs: [], result: { freed_bytes: 987654321 } });
+    const [cleaned] = await due(v);
+    expect(cleaned).toMatchObject({ kind: 'CLEANED', report: { freed_bytes: 987654321 } });
+    expect(await versionStatus(db.pool, v)).toBe('COMPLETED');
+  });
+
+  test('Giữ lại, or no answer before expiry, keeps the copy and completes', async () => {
+    const kept = await archived('cleanup-keep');
+    expect((await decide(kept.cleanup, 'REJECT')).result).toBe('OK');
+    expect(await versionStatus(db.pool, kept.version_id)).toBe('COMPLETED');
+    expect((await jobs(kept.version_id)).some((j) => j.step === 'cleanup')).toBe(false);
+
+    const silent = await archived('cleanup-expire');
+    await db.pool.query(
+      `UPDATE approval SET expires_at = now() - interval '1 second' WHERE token = $1`,
+      [silent.cleanup],
+    );
+    await db.pool.query('SELECT approval_expire()');
+    await due(silent.version_id);
+    expect(await versionStatus(db.pool, silent.version_id)).toBe('COMPLETED');
   });
 });

@@ -8,12 +8,14 @@ import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
 import { createRulesSource } from './db/rules-store.js';
+import { createRcloneRunner, createRcloneTarget } from './archive/rclone-target.js';
 import { createWebdavTarget } from './archive/webdav-target.js';
 import { createGateRunner } from './episode/gates.js';
 import { chromeInstalled } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
 import { createArchiveVideoHandler } from './handlers/archive-video.js';
+import { createCleanupLocalHandler } from './handlers/cleanup-local.js';
 import { createMetadataHandler } from './handlers/metadata.js';
 import { createQaPreviewHandler } from './handlers/qa-preview.js';
 import {
@@ -56,6 +58,21 @@ const EPISODE_RENDER_PROFILE = fileURLToPath(
 );
 
 // Step name -> handler. Phase 2d adds qa, final render, archive.
+/** Google Drive through rclone when configured (D-063), else Nextcloud WebDAV, else none. */
+function archiveTarget(config: Config) {
+  const { rclone, webdav, blockSeconds } = config.archive;
+  if (rclone) {
+    const run = createRcloneRunner(rclone.bin, rclone.timeoutMs);
+    return {
+      target: createRcloneTarget({ run, root: rclone.remote }),
+      targetName: 'gdrive',
+      blockSeconds,
+    };
+  }
+  if (webdav) return { target: createWebdavTarget(webdav), targetName: 'nextcloud', blockSeconds };
+  return { target: null, targetName: 'none', blockSeconds };
+}
+
 function buildHandlers(
   config: Config,
   pool: pg.Pool,
@@ -72,6 +89,7 @@ function buildHandlers(
   const { itera } = config;
   const probe = createFfprobe(config.ffprobeBin);
   const rules = createRulesSource(pool, config.workerId);
+  const archive = archiveTarget(config);
   const qaHandler = createQaPreviewHandler({
     inspect: createMediaInspector(config.ffprobeBin),
     detectGaps: createGapDetector(config.ffmpegBin),
@@ -153,13 +171,8 @@ function buildHandlers(
         rules,
       }),
     ],
-    [
-      'archive',
-      createArchiveVideoHandler({
-        target: config.archive.webdav ? createWebdavTarget(config.archive.webdav) : null,
-        blockSeconds: config.archive.blockSeconds,
-      }),
-    ],
+    ['archive', createArchiveVideoHandler(archive)],
+    ['cleanup', createCleanupLocalHandler(archive)],
     ['qa_preview', qaHandler],
     [
       'render_preview',

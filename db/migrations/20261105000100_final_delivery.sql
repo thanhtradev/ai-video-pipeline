@@ -6,8 +6,10 @@
 --    worker grabs that frame);
 -- 2. both done -> AWAITING_METADATA_APPROVAL and an A3 request (type METADATA) on Telegram;
 --    Approve -> ARCHIVING and the archive job; Viết lại or a reply with notes -> a new metadata job;
--- 3. the archive job verified the copy on Nextcloud -> archive_record, ARCHIVE_VERIFIED, COMPLETED,
---    and a final message with the cost report. The Mac copy stays (30-day retention, never automatic).
+-- 3. the archive job verified the copy on Google Drive (D-063) -> archive_record, ARCHIVE_VERIFIED,
+--    a final message with the cost report and a CLEANUP request: only the owner can approve deleting
+--    the Mac copy, and the cleanup job re-verifies Drive first. Approved and done, rejected or
+--    expired -> COMPLETED. Nothing on the Mac is deleted without that approval.
 
 ALTER TABLE video_version DROP CONSTRAINT video_version_status_check;
 ALTER TABLE video_version ADD CONSTRAINT video_version_status_check CHECK (status IN (
@@ -21,7 +23,7 @@ ALTER TABLE video_version ADD CONSTRAINT video_version_status_check CHECK (statu
 ));
 ALTER TABLE approval DROP CONSTRAINT approval_type_check;
 ALTER TABLE approval ADD CONSTRAINT approval_type_check
-  CHECK (type IN ('SCRIPT', 'STORYBOARD', 'PREVIEW', 'METADATA', 'DECISION'));
+  CHECK (type IN ('SCRIPT', 'STORYBOARD', 'PREVIEW', 'METADATA', 'CLEANUP', 'DECISION'));
 
 INSERT INTO video_status_transition (from_status, to_status) VALUES
   ('RENDERING_FINAL', 'AWAITING_METADATA_APPROVAL'),
@@ -244,16 +246,44 @@ BEGIN
             v_archive.output->'result'->>'manifest_sha256',
             (v_archive.output->'result'->>'verified_at')::timestamptz);
     UPDATE video_version SET status = 'ARCHIVE_VERIFIED' WHERE id = v_row.id;
-    UPDATE video_version SET status = 'COMPLETED' WHERE id = v_row.id;
+    v_token := approval_request(v_row.id, 'CLEANUP', v_archive.output->'result'->>'manifest_sha256',
+                                interval '7 days');
     RETURN QUERY
-    SELECT 'DONE', v_row.video_id, v_row.version, v_row.id, NULL::text, NULL::timestamptz,
+    SELECT 'DONE', v_row.video_id, v_row.version, v_row.id, a.token, a.expires_at,
            NULL::integer, script_job_output(v_row.id)->'result'->>'title',
            (final_step(v_row.id, 'metadata')).output->'result'->'metadata',
            video_cost_report(v_row.id) || jsonb_build_object(
+             'target', v_archive.output->'result'->>'target',
              'path', v_archive.output->'result'->>'path',
              'file_count', (v_archive.output->'result'->>'file_count')::integer,
-             'total_bytes', (v_archive.output->'result'->>'total_bytes')::bigint);
+             'total_bytes', (v_archive.output->'result'->>'total_bytes')::bigint,
+             'local_bytes', (v_archive.output->'result'->>'local_bytes')::bigint)
+    FROM approval a WHERE a.token = v_token;
   END LOOP;
+
+  -- The Mac copy was deleted after the owner's approval: done.
+  FOR v_row IN
+    SELECT vv.id, vv.video_id, vv.version FROM video_version vv
+    WHERE vv.status = 'ARCHIVE_VERIFIED'
+      AND (job_latest(vv.id, 'cleanup')).status = 'SUCCEEDED'
+    ORDER BY vv.created_at
+    FOR UPDATE OF vv SKIP LOCKED
+  LOOP
+    UPDATE video_version SET status = 'COMPLETED' WHERE id = v_row.id;
+    RETURN QUERY
+    SELECT 'CLEANED', v_row.video_id, v_row.version, v_row.id, NULL::text, NULL::timestamptz,
+           NULL::integer, script_job_output(v_row.id)->'result'->>'title', NULL::jsonb,
+           (job_latest(v_row.id, 'cleanup')).output->'result';
+  END LOOP;
+
+  -- Kept: the owner chose Giữ lại, or the request expired unanswered. No message.
+  UPDATE video_version vv SET status = 'COMPLETED'
+  WHERE vv.status = 'ARCHIVE_VERIFIED'
+    AND (job_latest(vv.id, 'cleanup')).id IS NULL
+    AND NOT EXISTS (SELECT 1 FROM approval a
+                    WHERE a.video_version_id = vv.id AND a.type = 'CLEANUP'
+                      AND a.status IN ('PENDING', 'APPROVED')
+                      AND a.expires_at > now());
 
   RETURN QUERY
   WITH reminded AS (
@@ -324,7 +354,53 @@ BEGIN
 END;
 $$;
 
--- Same as 20261104000100 plus METADATA approvals (metadata_decide).
+-- The owner's answer to "delete the Mac copy?" (CLEANUP, D-063). APPROVE creates the cleanup job
+-- (it re-verifies the archive before deleting); REJECT keeps the copy. Only the owner decides.
+CREATE FUNCTION cleanup_decide(p_approval approval, p_user_id bigint, p_action text)
+RETURNS TABLE (result text, round integer)
+LANGUAGE plpgsql
+AS $$
+#variable_conflict use_column
+DECLARE
+  v_version_id uuid := p_approval.video_version_id;
+  v_record archive_record%ROWTYPE;
+  v_result text;
+  v_input jsonb;
+BEGIN
+  IF p_action NOT IN ('APPROVE', 'REJECT') THEN
+    RETURN QUERY SELECT 'NOT_SUPPORTED'::text, NULL::integer;
+    RETURN;
+  END IF;
+  IF EXISTS (SELECT 1 FROM approver WHERE telegram_user_id = p_user_id AND active)
+     AND NOT is_owner(p_user_id) THEN
+    RETURN QUERY SELECT 'NOT_OWNER'::text, NULL::integer;
+    RETURN;
+  END IF;
+  SELECT * INTO v_record FROM archive_record WHERE video_version_id = v_version_id;
+  v_result := approval_decide(
+    p_approval.token, p_user_id,
+    CASE p_action WHEN 'APPROVE' THEN 'APPROVED' ELSE 'REJECTED' END,
+    coalesce(v_record.manifest_sha256, ''));
+  IF v_result <> 'OK' THEN
+    RETURN QUERY SELECT v_result, NULL::integer;
+    RETURN;
+  END IF;
+
+  IF p_action = 'REJECT' THEN
+    UPDATE video_version SET status = 'COMPLETED' WHERE id = v_version_id;
+  ELSE
+    SELECT jsonb_build_object('video_id', vv.video_id::text, 'version', vv.version,
+                              'target', v_record.target, 'remote_dir', v_record.path,
+                              'manifest_sha256', v_record.manifest_sha256)
+    INTO v_input FROM video_version vv WHERE vv.id = v_version_id;
+    PERFORM job_create(v_version_id, 'cleanup', 'q:heavy', v_input, md5(v_input::text),
+                       '{}'::uuid[], 2);
+  END IF;
+  RETURN QUERY SELECT 'OK'::text, NULL::integer;
+END;
+$$;
+
+-- Same as 20261104000100 plus METADATA (metadata_decide) and CLEANUP (cleanup_decide) approvals.
 CREATE OR REPLACE FUNCTION telegram_decide(p_token text, p_user_id bigint, p_action text, p_note text DEFAULT NULL)
 RETURNS TABLE (result text, video_id uuid, version integer, round integer)
 LANGUAGE plpgsql
@@ -350,7 +426,7 @@ BEGIN
   END IF;
   SELECT * INTO v_approval FROM approval WHERE token = p_token;
 
-  IF NOT FOUND OR v_approval.type NOT IN ('STORYBOARD', 'PREVIEW', 'METADATA') THEN
+  IF NOT FOUND OR v_approval.type NOT IN ('STORYBOARD', 'PREVIEW', 'METADATA', 'CLEANUP') THEN
     IF p_action = 'FEEDBACK' THEN
       v_result := CASE
         WHEN NOT EXISTS (SELECT 1 FROM approver WHERE telegram_user_id = p_user_id AND active)
@@ -365,7 +441,10 @@ BEGIN
     RETURN;
   END IF;
 
-  IF v_approval.type = 'METADATA' THEN
+  IF v_approval.type = 'CLEANUP' THEN
+    SELECT d.result, d.round INTO v_result, v_round
+    FROM cleanup_decide(v_approval, p_user_id, p_action) d;
+  ELSIF v_approval.type = 'METADATA' THEN
     SELECT d.result, d.round INTO v_result, v_round
     FROM metadata_decide(v_approval, p_user_id, p_action, p_note) d;
   ELSIF v_approval.type = 'PREVIEW' THEN
@@ -388,7 +467,7 @@ $$;
 -- migrate:down
 
 -- Restores telegram_decide of 20261104000100; fails while a version is AWAITING_METADATA_APPROVAL
--- or an approval is of type METADATA (decide or cancel them first).
+-- or an approval is of type METADATA or CLEANUP (decide or cancel them first).
 CREATE OR REPLACE FUNCTION telegram_decide(p_token text, p_user_id bigint, p_action text, p_note text DEFAULT NULL)
 RETURNS TABLE (result text, video_id uuid, version integer, round integer)
 LANGUAGE plpgsql
@@ -445,6 +524,7 @@ BEGIN
   FROM video_version vv WHERE vv.id = v_approval.video_version_id;
 END;
 $$;
+DROP FUNCTION cleanup_decide(approval, bigint, text);
 DROP FUNCTION metadata_decide(approval, bigint, text, text);
 DROP FUNCTION final_due(interval);
 DROP FUNCTION video_cost_report(uuid);

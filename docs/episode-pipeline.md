@@ -35,7 +35,8 @@ New status `AWAITING_STORYBOARD_APPROVAL` and approval type `STORYBOARD`:
 | `AWAITING_PREVIEW_APPROVAL` | `RENDERING_FINAL` / `GENERATING_ASSETS` / `CANCELLED` | A2 approve / notes / reject |
 | `RENDERING_FINAL` | `AWAITING_METADATA_APPROVAL` | final QA and metadata done: A3 (§10) |
 | `AWAITING_METADATA_APPROVAL` | `ARCHIVING` / `RENDERING_FINAL` | A3 approve / Viết lại or notes |
-| `ARCHIVING` | `ARCHIVE_VERIFIED` → `COMPLETED` | the archive is verified on Nextcloud |
+| `ARCHIVING` | `ARCHIVE_VERIFIED` | the archive is verified on Google Drive: CLEANUP asked |
+| `ARCHIVE_VERIFIED` | `COMPLETED` | Mac copy deleted (owner's Xóa) or kept (Giữ lại, expiry) |
 
 A fourth feedback, an episode_code job that keeps failing its gates, or a 90-minute timeout →
 `NEEDS_DECISION` (the user can still open an interactive session on the job workspace).
@@ -208,7 +209,7 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 What follows the final render is §10. The final file is not sent to Telegram (a 1080p episode
 exceeds the 50 MB bot upload limit).
 
-## 10. Final QA, metadata (A3), archive (D-062)
+## 10. Final QA, metadata (A3), archive (D-062, D-063)
 
 Migration `20261105000100`, status `AWAITING_METADATA_APPROVAL`, approval type `METADATA`. WF-14
 polls `final_due()` every 30 s:
@@ -224,12 +225,13 @@ polls `final_due()` every 30 s:
 
 | Telegram | Effect |
 |---|---|
-| Duyệt | → `ARCHIVING`, `archive` job (q:heavy) |
+| Duyệt | → `ARCHIVING`, `archive` job (q:heavy) to Google Drive |
 | Viết lại | a new metadata version (`RENDERING_FINAL` until it is done) |
 | reply with notes | the same, with the notes; after 6 versions → `NEEDS_DECISION` |
 
-3. `archive` hard-links the deliverables into the version folder and archives it to Nextcloud
-   (`docs/storage-and-manifest.md` §3–§4):
+3. `archive` hard-links the deliverables into the version folder and archives it to Google Drive
+   through rclone (D-063; Nextcloud only as a fallback) with the verified procedure of
+   `docs/storage-and-manifest.md` §4:
 
 ```
 videos/<id>/v<n>/
@@ -240,9 +242,14 @@ videos/<id>/v<n>/
   manifest.json, checksums.sha256               (jobs/ stays on the Mac only)
 ```
 
-   Remote: `<yyyy>/<mm>/<video_id>/v<n>` under the `aivideo-archive` user. Missing WebDAV settings →
-   the job waits `BLOCKED`. Verified → `archive_record`, `ARCHIVE_VERIFIED` → `COMPLETED`, and WF-14
-   sends the final message: archive path, file count, size, cost by currency, agent minutes.
+   Remote: `<ARCHIVE_RCLONE_REMOTE>/<yyyy>/<mm>/<video_id>/v<n>`. No archive configured → the job
+   waits `BLOCKED`. Verified → `archive_record`, `ARCHIVE_VERIFIED`, and WF-14 sends the final message
+   (archive path, file count, size, cost by currency, agent minutes) with **Xóa bản trên Mac** /
+   **Giữ lại** (CLEANUP, 7 days).
+4. Only the **owner** can press Xóa. The `cleanup` job (q:heavy) re-verifies the remote copy against
+   the local `checksums.sha256` and the archive record, then deletes the version folder on the Mac
+   except its own job folder; WF-14 reports the space freed. Giữ lại or no answer keeps the copy.
+   Either way → `COMPLETED`.
 
 ## 11. Rollout slices
 
@@ -258,4 +265,4 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
 | C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |
 | D1 | ✅ preview QA, A2 on Telegram with the video, final 1080p render (D-057) | migration, WF-06/WF-13 import (`ops/preview-approval.md`) |
-| D2 | ✅ final QA, metadata + thumbnail (A3), archive to Nextcloud, COMPLETED with cost report (D-062) | migration, worker env + restart, WF-06/WF-14 import (`ops/final-delivery.md`) |
+| D2 | ✅ final QA, metadata + thumbnail (A3), archive to Google Drive, owner-approved Mac cleanup, COMPLETED with cost report (D-062, D-063) | rclone + Drive login, migration, worker env + restart, WF-06/WF-14 import (`ops/final-delivery.md`) |

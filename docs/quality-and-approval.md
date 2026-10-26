@@ -7,6 +7,7 @@
 | A1 — Script/storyboard | Script summary, scene list, cost estimate, assets with unclear license | Approve / Revise (with note) / Reject. **Implemented (2a):** Approve / Regenerate (new version, same brief) / Reject (cancel); the cost estimate is added with TTS pricing (2b); revise-with-note later |
 | A2 — Preview 720p | Preview link, thumbnail, metadata (title/description/tags), QA report, cost so far, estimate for the rest | Approve / Revise / Reject. **Implemented for episodes (D-057):** the preview video itself, QA warnings and cost so far; Approve / Reject / reply with notes; metadata later in 2d |
 | A3 — Metadata (episodes, D-062) | Thumbnail, title, description, tags, final QA warnings | Duyệt / Viết lại / reply with notes; approving archives the video |
+| Cleanup (episodes, D-063) | Archive path, size of the Mac copy | Xóa bản trên Mac / Giữ lại — owner only; the archive is re-verified before deleting |
 | Ad-hoc decision | Cost over threshold, provider/model change, QA failure, unclear license, file deletion request | Situation-specific choices |
 
 Never render final without A1 and A2 for the **same version**.

@@ -1175,22 +1175,23 @@ describe('WF-14 Final Delivery (D-062)', () => {
     expect(out!.json).toMatchObject({ approve: `a3:A:${token}`, regenerate: `a3:G:${token}` });
   });
 
-  test('reports a finished video with its archive and cost', () => {
+  test('reports a finished video with its archive, cost and the Mac cleanup question', () => {
     const [out] = runCode('wf-14-final-delivery.json', 'Build done', {
       input: [
         {
           json: {
             ...row,
             kind: 'DONE',
-            token: null,
             metadata: {
               title: 'Nếu bạn nghe được suy nghĩ của mèo?',
               hashtags: ['#nếubạn', '#mèo'],
             },
             report: {
+              target: 'gdrive',
               path: `2026/10/${row.video_id}/v1`,
               file_count: 18,
               total_bytes: 104857600,
+              local_bytes: 987654321,
               cost: { CRD: 2817 },
               agent_minutes: 42.5,
               jobs: 12,
@@ -1202,10 +1203,12 @@ describe('WF-14 Final Delivery (D-062)', () => {
     const text = out!.json.text as string;
     expect(text).toContain('Video hoàn tất ✓');
     expect(text).toContain(
-      `Lưu trữ trên Nextcloud (đã kiểm tra checksum): 2026/10/${row.video_id}/v1`,
+      `Đã lưu trên Google Drive (đã kiểm tra checksum): 2026/10/${row.video_id}/v1`,
     );
     expect(text).toContain('18 file, 100.0 MB');
     expect(text).toContain('Chi phí: 2817 CRD · agent 42.5 phút · 12 job');
+    expect(text).toContain('Xóa bản trên Mac (0.92 GB) để giải phóng chỗ?');
+    expect(out!.json).toMatchObject({ approve: `cl:A:${token}`, reject: `cl:R:${token}` });
     expect(
       runCode('wf-14-final-delivery.json', 'Build message', {
         input: [{ json: { ...row, kind: 'DONE' } }],
@@ -1257,8 +1260,30 @@ describe('WF-14 Final Delivery (D-062)', () => {
     expect(answer(regenerate).answer).toBe('Đang viết lại metadata (lần 2).');
     expect(answer(reply).answer).toBe('Đã nhận ghi chú: đang viết lại metadata (lần 2).');
     expect(answer(parse(callback(`a3:A:${token}`))).answer).toBe(
-      'Đã duyệt: đang lưu trữ lên Nextcloud để hoàn tất video.',
+      'Đã duyệt: đang lưu trữ lên Google Drive để hoàn tất video.',
     );
+    const cleanup = parse(callback(`cl:A:${token}`));
+    expect(cleanup[0]!.json).toMatchObject({ approval: 'cleanup', action: 'APPROVE' });
+    expect(parse(callback(`cl:G:${token}`))).toEqual([]);
+    expect(answer(cleanup, 'NOT_OWNER')).toMatchObject({
+      answer: 'Chỉ chủ sở hữu mới xóa được bản trên Mac.',
+      settled: false,
+    });
+    expect(answer(cleanup).answer).toBe(
+      'Đã duyệt: kiểm tra lại bản lưu trên Google Drive rồi xóa bản trên Mac.',
+    );
+    const [cleaned] = runCode('wf-14-final-delivery.json', 'Build cleaned', {
+      input: [
+        {
+          json: {
+            ...row,
+            kind: 'CLEANED',
+            report: { freed_bytes: 987654321, remote_dir: `2026/10/${row.video_id}/v1` },
+          },
+        },
+      ],
+    });
+    expect(cleaned!.json.text).toContain('Đã xóa bản trên Mac: 0.92 GB');
   });
 });
 

@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, readFile, realpath, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import pino from 'pino';
 import { beforeEach, describe, expect, test } from 'vitest';
 import type { ArchiveTarget } from '../../src/archive/webdav-target.js';
 import { createArchiveVideoHandler, srtToVtt } from '../../src/handlers/archive-video.js';
+import { createCleanupLocalHandler } from '../../src/handlers/cleanup-local.js';
 import { ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import { sha256File, writeCheckpoint } from '../../src/storage/checkpoint.js';
 
@@ -138,7 +139,11 @@ function context(input: unknown = INPUT): HandlerContext {
 describe('archive handler', () => {
   test('gathers the deliverables with a manifest and archives them verified', async () => {
     const { target, files } = memoryTarget();
-    const result = await createArchiveVideoHandler({ target, blockSeconds: 60 })(context());
+    const result = await createArchiveVideoHandler({
+      target,
+      targetName: 'gdrive',
+      blockSeconds: 60,
+    })(context());
 
     const remote = [...files.keys()].map((p) => p.replace(`${INPUT.remote_dir}/`, '')).sort();
     expect(remote).toEqual([
@@ -162,7 +167,7 @@ describe('archive handler', () => {
       'thumbnail/thumbnail.jpg',
     ]);
     expect(result.result).toMatchObject({
-      target: 'nextcloud',
+      target: 'gdrive',
       path: INPUT.remote_dir,
       file_count: 18,
     });
@@ -176,11 +181,12 @@ describe('archive handler', () => {
     expect(manifest).toMatchObject({ video_id: VIDEO, version: 1, frozen_at: INPUT.frozen_at });
     expect(JSON.stringify(manifest)).not.toMatch(/_token/);
     expect(files.get(`${INPUT.remote_dir}/subtitles/vi.vtt`)!.toString()).toBe(srtToVtt(SRT));
+    expect(result.result.local_bytes).toBeGreaterThan(0);
   });
 
   test('a retry finds the verified copy instead of uploading another', async () => {
     const { target, files } = memoryTarget();
-    const handler = createArchiveVideoHandler({ target, blockSeconds: 60 });
+    const handler = createArchiveVideoHandler({ target, targetName: 'gdrive', blockSeconds: 60 });
     const first = await handler(context());
     const count = files.size;
     const second = await handler({ ...context(), attemptNo: 2 });
@@ -191,12 +197,12 @@ describe('archive handler', () => {
 
   test('waits while no archive is configured; a changed job output is permanent', async () => {
     await expect(
-      createArchiveVideoHandler({ target: null, blockSeconds: 60 })(context()),
+      createArchiveVideoHandler({ target: null, targetName: 'none', blockSeconds: 60 })(context()),
     ).rejects.toBeInstanceOf(ProviderBlockedError);
     await writeFile(join(versionDir, 'jobs', JOBS.metadata_job_id, 'metadata.json'), 'changed');
     const { target } = memoryTarget();
     await expect(
-      createArchiveVideoHandler({ target, blockSeconds: 60 })(context()),
+      createArchiveVideoHandler({ target, targetName: 'gdrive', blockSeconds: 60 })(context()),
     ).rejects.toThrow(/metadata job .* is missing or changed/);
   });
 
@@ -204,5 +210,62 @@ describe('archive handler', () => {
     expect(srtToVtt(SRT)).toBe(
       'WEBVTT\n\n1\n00:00:00.100 --> 00:00:01.733\nNếu bạn nghe được suy nghĩ của mèo?\n',
     );
+  });
+});
+
+describe('cleanup handler (D-063)', () => {
+  const CLEANUP_JOB = id(0).replace(/^0{8}/, 'aaaaaaaa');
+  const cleanupContext = (input: unknown): HandlerContext => ({
+    ...context(input),
+    jobId: CLEANUP_JOB,
+    workDir: join(versionDir, 'jobs', CLEANUP_JOB),
+  });
+
+  async function archivedVersion() {
+    const memory = memoryTarget();
+    const archived = await createArchiveVideoHandler({
+      target: memory.target,
+      targetName: 'gdrive',
+      blockSeconds: 60,
+    })(context());
+    await mkdir(join(versionDir, 'jobs', CLEANUP_JOB), { recursive: true });
+    const input = {
+      video_id: VIDEO,
+      version: 1,
+      target: 'gdrive',
+      remote_dir: INPUT.remote_dir,
+      manifest_sha256: archived.result.manifest_sha256,
+    };
+    return { ...memory, input };
+  }
+
+  test('re-verifies the archive, then deletes the Mac copy except its own folder', async () => {
+    const { target, input } = await archivedVersion();
+    const result = await createCleanupLocalHandler({
+      target,
+      targetName: 'gdrive',
+      blockSeconds: 60,
+    })(cleanupContext(input));
+
+    expect(await readdir(versionDir)).toEqual(['jobs']);
+    expect(await readdir(join(versionDir, 'jobs'))).toEqual([CLEANUP_JOB]);
+    expect(result.result.freed_bytes).toBeGreaterThan(0);
+  });
+
+  test('deletes nothing when the remote copy is damaged or the record differs', async () => {
+    const { target, files, input } = await archivedVersion();
+    const handler = createCleanupLocalHandler({ target, targetName: 'gdrive', blockSeconds: 60 });
+
+    await expect(
+      handler(cleanupContext({ ...input, manifest_sha256: 'e'.repeat(64) })),
+    ).rejects.toThrow(/nothing deleted/);
+    files.set(`${INPUT.remote_dir}/renders/final_1080p.mp4`, Buffer.from('x'));
+    await expect(handler(cleanupContext(input))).rejects.toThrow(
+      /archive does not match; nothing deleted/,
+    );
+    await expect(handler(cleanupContext({ ...input, target: 'nextcloud' }))).rejects.toThrow(
+      /archived to nextcloud/,
+    );
+    expect((await stat(join(versionDir, 'renders/final_1080p.mp4'))).size).toBe(1);
   });
 });
