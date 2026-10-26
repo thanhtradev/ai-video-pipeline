@@ -11,6 +11,7 @@ import { createAgentCli } from '../../src/claude/agent-cli.js';
 import { claudeChildEnv } from '../../src/claude/claude-cli.js';
 import { createGateRunner } from '../../src/episode/gates.js';
 import { chromeInstalled } from '../../src/episode/workspace.js';
+import { NO_RULES } from '../../src/rules/channel-rules.js';
 import { createEpisodeCodeHandler } from '../../src/handlers/episode-code.js';
 import {
   createRenderEpisodeHandler,
@@ -130,6 +131,7 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
         gates: createGateRunner({ profile: PROFILE }),
         secrets: [],
         limitMs: 30 * 60 * 1000,
+        rules: async () => NO_RULES,
         browserReady: chromeInstalled,
         blockSeconds: 60,
       });

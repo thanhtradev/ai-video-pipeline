@@ -22,6 +22,7 @@ GRANT EXECUTE ON FUNCTION
   job_start(uuid, text, integer),
   job_heartbeat(uuid, text, integer),
   job_report_progress(uuid, text, jsonb),
+  rules_current(text),
   job_succeed(uuid, text, jsonb),
   job_fail(uuid, text, text, boolean),
   job_block(uuid, text, text, integer),

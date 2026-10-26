@@ -98,6 +98,16 @@ describe('worker role', () => {
     expect(result.rows[0]).toHaveProperty('ok');
   });
 
+  test('can read the channel rules (D-059)', async () => {
+    const result = await asRole('aivideo_worker', (client) =>
+      client.query<{ rules: { version: string } }>(`SELECT rules_current('mac-mini-m4') AS rules`),
+    );
+    expect(result.rows[0]!.rules.version).toMatch(/^[0-9a-f]{32}$/);
+    await expect(
+      asRole('aivideo_worker', (client) => client.query('SELECT count(*) FROM rule')),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   test('can hand a job back when a provider is blocked', async () => {
     const id = await queuedJob('q:block');
     const status = await asRole('aivideo_worker', async (client) => {
