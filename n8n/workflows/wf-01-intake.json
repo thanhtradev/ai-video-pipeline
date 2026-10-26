@@ -26,10 +26,7 @@
               "fieldType": "textarea",
               "placeholder": "Optional: VOICE, NHÂN VẬT, HIỆU ỨNG, DANH SÁCH SHOT"
             },
-            {
-              "fieldLabel": "Notes",
-              "fieldType": "textarea"
-            }
+            { "fieldLabel": "Notes", "fieldType": "textarea" }
           ]
         },
         "responseMode": "onReceived",
@@ -76,7 +73,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const row = $input.first().json;\nconst shortId = String(row.video_id).slice(0, 8);\nconst verb = row.created ? 'New video submitted' : 'Duplicate form submission ignored';\nreturn [{ json: { text: `[AI Video] ${verb}\\nVideo ${shortId} v1: scripting` } }];"
+        "jsCode": "const row = $input.first().json;\nconst shortId = String(row.video_id).slice(0, 8);\nconst verb = row.created ? 'Đã nhận video mới' : 'Bỏ qua form gửi trùng';\nreturn [{ json: { text: `[AI Video] ${verb}\\nVideo ${shortId} v1: đang viết kịch bản` } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000104",
       "name": "Build status",

@@ -54,4 +54,4 @@ Runs on the `q:light` stream (`qa` job; Mac mini M4 while MacBook Pro M1 is offl
 
 Every message includes a short `video_id` + version for cross-reference. No secrets or sensitive paths.
 Anti-spam: group repeated alerts (same cause) within a time window.
-System text is in English; quoted video content (script excerpts, titles) stays in Vietnamese.
+Telegram messages are in Vietnamese (D-061): requests, replies, alerts and button labels. Video ids, step and status names (`episode_code`, `NEEDS_DECISION`), commands and error details from the worker or SQL stay as they are.

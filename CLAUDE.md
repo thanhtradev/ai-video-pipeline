@@ -9,7 +9,8 @@ Overview: `README.md`. Architecture: `docs/architecture.md`. Decisions: `docs/de
 |---|---|
 | Code, identifiers, code comments, commit messages, PR descriptions | **English only** |
 | Documentation files (`*.md`, ADRs, runbooks, config comments, workflow notes) | **English only** |
-| Log messages, error messages, DB enum values, Telegram system/status text | **English only** |
+| Log messages, error messages, DB enum values | **English only** |
+| Telegram messages sent by the bot (requests, replies, alerts, button labels) | **Vietnamese** (D-061); ids, step/status names and command names stay as they are |
 | Video scripts, storyboards, voice-over text, subtitles, on-screen text, video titles/descriptions/tags, and other video resources | **Vietnamese** |
 
 - Vietnamese is allowed **only** for content that ends up in, or directly describes, a video (script, narration, subtitles, metadata for publishing).
