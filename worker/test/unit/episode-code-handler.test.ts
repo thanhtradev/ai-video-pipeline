@@ -8,6 +8,7 @@ import { agentArgs, type AgentRunner, type AgentTurn } from '../../src/claude/ag
 import { agentSettings, SFX_COMMAND, TYPECHECK_COMMAND } from '../../src/episode/agent-settings.js';
 import { describeFailures, type GateReport, type GateRunner } from '../../src/episode/gates.js';
 import { createEpisodeCodeHandler, type EpisodeCodeDeps } from '../../src/handlers/episode-code.js';
+import { NO_RULES } from '../../src/rules/channel-rules.js';
 import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import { writeCheckpoint } from '../../src/storage/checkpoint.js';
 
@@ -110,6 +111,7 @@ function deps(overrides: Partial<EpisodeCodeDeps> = {}): EpisodeCodeDeps {
     agent: agent(),
     gates: gates(PASS),
     secrets: [SECRET],
+    rules: async () => ({ ...NO_RULES, video: [{ id: 1, text: 'Không dùng nhạc nền.' }] }),
     browserReady: () => true,
     blockSeconds: 1800,
     ...overrides,
@@ -145,6 +147,7 @@ describe('episode_code handler', () => {
     );
     expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toMatch(/Episode workspace/);
     expect(await readFile(join(ws, 'brief.md'), 'utf8')).toContain('Nếu bạn dừng thời gian');
+    expect(await readFile(join(ws, 'rules.md'), 'utf8')).toContain('- Không dùng nhạc nền.');
     expect(existsSync(join(ws, 'kit/ep1/Character.tsx'))).toBe(true);
     expect(existsSync(join(ws, 'public/voice.wav'))).toBe(true);
     expect(result.outputs).toEqual(

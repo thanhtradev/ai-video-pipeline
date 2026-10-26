@@ -4,8 +4,8 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // The episode workspace (docs/episode-pipeline.md §6): what the episode agent sees and may change.
-// Layout: CLAUDE.md, brief.md, [feedback.md], FILES.md (index, since the agent has no search tool),
-// kit/ (the channel kit and the reference episodes, read-only), src/ (worker entry, compositions and
+// Layout: CLAUDE.md, brief.md, rules.md (owner's rules, D-059), [feedback.md], FILES.md (index,
+// since the agent has no search tool), kit/ (the channel kit and the reference episodes, read-only), src/ (worker entry, compositions and
 // time helpers; the agent writes src/episode/), sfx/generate-sfx.mjs (the agent writes), public/
 // (voice.wav; the SFX land in public/sfx), node_modules → the repo's packages, tmp/ (TMPDIR).
 
@@ -35,6 +35,8 @@ export interface WorkspaceSources {
   scriptMarkdown: string;
   /** timing job folder with timing.json, captions.json and voice.wav. */
   timingDir: string;
+  /** rules.md: the owner's channel rules (D-059). */
+  rulesMarkdown: string;
   /** Revision: the previous workspace (its episode code and SFX script are copied) and the notes. */
   revision?: { previousWorkspace: string; feedback: string } | undefined;
 }
@@ -78,6 +80,7 @@ export async function prepareWorkspace(ws: string, sources: WorkspaceSources): P
   }
   await cp(join(sources.timingDir, 'voice.wav'), join(ws, 'public', 'voice.wav'));
   await writeFile(join(ws, 'brief.md'), sources.scriptMarkdown);
+  await writeFile(join(ws, 'rules.md'), sources.rulesMarkdown);
   if (sources.revision) {
     const previous = sources.revision.previousWorkspace;
     for (const part of AGENT_WRITABLE) {

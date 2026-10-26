@@ -5,6 +5,7 @@ import pino from 'pino';
 import { beforeEach, describe, expect, test } from 'vitest';
 import type { CostStore, GuardDecision, GuardResult } from '../../src/db/cost-store.js';
 import { billedChars, createTtsHandler, type TtsHandlerDeps } from '../../src/handlers/tts.js';
+import { NO_RULES, type ChannelRules } from '../../src/rules/channel-rules.js';
 import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import type { IteraClient, IteraTask, SpeechRequest } from '../../src/tts/itera-client.js';
 
@@ -26,6 +27,7 @@ let recorded: { ref: string; units: number; amount: number }[];
 let decision: GuardDecision;
 let balance: number;
 let taskStatus: (id: string, polls: number) => IteraTask['status'];
+let rules: ChannelRules;
 
 beforeEach(async () => {
   workDir = await mkdtemp(join(tmpdir(), 'tts-'));
@@ -35,6 +37,7 @@ beforeEach(async () => {
   decision = 'ALLOW';
   balance = 1000;
   taskStatus = () => 'completed';
+  rules = NO_RULES;
 });
 
 function fakeItera(): IteraClient {
@@ -93,6 +96,7 @@ function deps(overrides: Partial<TtsHandlerDeps> = {}): TtsHandlerDeps {
     pollMs: 1,
     taskTimeoutMs: 200,
     blockSeconds: 3600,
+    rules: async () => rules,
     ...overrides,
   };
 }
@@ -242,6 +246,28 @@ describe('tts handler', () => {
     await expect(
       createTtsHandler(deps())(context({ ...INPUT, scenes: [tooLong] })),
     ).rejects.toBeInstanceOf(PermanentJobError);
+  });
+
+  test('reads the pronunciation table once per job and sends the spoken text (D-059)', async () => {
+    rules = {
+      ...NO_RULES,
+      version: 'v1',
+      pronunciation: [{ term: 'TikTok', spoken: 'tích tốc' }],
+    };
+    const input = { ...INPUT, scenes: [{ index: 1, text: '[punchy] TikTok, ai biết TikTok?' }] };
+    const result = await createTtsHandler(deps())(context(input));
+
+    expect(created[0]!.text).toBe('[punchy] tích tốc, ai biết tích tốc?');
+    expect(guardCalls.at(-1)).toBe(billedChars('[punchy] tích tốc, ai biết tích tốc?'));
+    expect(result.result.pronunciation).toEqual({
+      version: 'v1',
+      entries: [{ term: 'TikTok', spoken: 'tích tốc' }],
+    });
+
+    // An edit before a retry does not change this job's text (no new paid clip).
+    rules = { ...rules, version: 'v2', pronunciation: [{ term: 'TikTok', spoken: 'tic toc' }] };
+    await createTtsHandler(deps())(context(input));
+    expect(created).toHaveLength(1);
   });
 
   test('ignores a corrupt scene state file', async () => {

@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// /status, /retry and /new commands, well-formed A1 / storyboard / A2 / intake buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`This chat (${message.chat.id}) is not the approval chat; /new works only there.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Usage: /new [minutes] <topic>, notes on the next lines; attach the full brief as a .md or .txt file with this as its caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('The full brief must be a .md or .txt file of at most 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status, /retry, /new and rules commands, well-formed A1 / storyboard / A2 / intake buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Usage: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <text> · /rule del <number> · /say <term> = <how to say it> · /unsay <term> · send a .md/.txt file with the caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Attach the edited .md or .txt file with the caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'The rules must be a .md or .txt file of at most 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`This chat (${message.chat.id}) is not the approval chat; /new works only there.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Usage: /new [minutes] <topic>, notes on the next lines; attach the full brief as a .md or .txt file with this as its caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('The full brief must be a .md or .txt file of at most 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -409,6 +409,169 @@
       "typeVersion": 1.2,
       "position": [2310, -860],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "rules",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000626",
+      "name": "Rules?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [770, -1100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.fileId }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000627",
+      "name": "Rules file?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [990, -1100]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.fileId }}",
+        "download": true,
+        "additionalFields": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000628",
+      "name": "Get rules file",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1210, -1200],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A rules command -> the arguments of telegram_rules() (D-059); a usage error becomes the reply.\n// A /rules set file is read as UTF-8 (a byte order mark is dropped).\nconst input = $('Parse callback').first().json;\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (input.error) return [{ json: { ...reply, ok: false, text: input.error } }];\nconst text = input.fileId\n  ? (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8').replace(/^\\uFEFF/, '')\n  : input.text;\nreturn [{\n  json: {\n    ...reply,\n    ok: true,\n    userId: input.userId,\n    action: input.action,\n    scope: input.scope,\n    text,\n    extra: input.extra,\n  },\n}];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000629",
+      "name": "Build rules request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1430, -1100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000630",
+      "name": "Rules ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1650, -1100]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT result, detail, rules FROM telegram_rules($1::bigint, $2, $3, $4, $5);",
+        "options": {
+          "queryReplacement": "={{ [$json.userId, $json.action, $json.scope, $json.text, $json.extra] }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000631",
+      "name": "Rules",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1870, -1200],
+      "alwaysOutputData": true,
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// telegram_rules() -> the reply (D-059): the rules list, a confirmation, a refusal, or a Markdown\n// file to edit (/rules file). System text is English; rules are quoted as written.\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nconst say = (text) => [{ json: { ...reply, exportFile: false, text: text.slice(0, 4096) } }];\nif (row.result === 'NOT_APPROVER') return say('You are not an approver.');\nif (row.result === 'INVALID') return say(`[AI Video] Not changed: ${row.detail}`);\nif (row.result === 'NOT_FOUND') {\n  return say(input.action === 'DELETE' ? `[AI Video] No rule #${row.detail}.` : `[AI Video] No pronunciation for \"${row.detail}\".`);\n}\nif (row.result !== 'OK') return say(`[AI Video] Rules: ${row.result ?? 'no answer'}`);\nconst rules = typeof row.rules === 'string' ? JSON.parse(row.rules) : row.rules;\nconst names = { video: 'Video', tts: 'TTS', pronunciation: 'Pronunciation' };\nconst items = (scope) =>\n  scope === 'pronunciation'\n    ? rules.pronunciation.map((p) => `${p.term} = ${p.spoken}`)\n    : rules[scope].map((r) => `#${r.id} ${r.text}`);\nif (input.exportFile) {\n  const scope = input.scope;\n  const header = scope === 'pronunciation'\n    ? ['# Pronunciation', '', 'One \"term = how to say it\" per list item (case-sensitive, whole words); other lines are ignored.']\n    : [`# ${names[scope]} rules`, '', 'One rule per list item; other lines are ignored.'];\n  const list = scope === 'pronunciation' ? items(scope) : rules[scope].map((r) => r.text);\n  return [{\n    json: {\n      ...reply,\n      exportFile: true,\n      fileName: `${scope === 'pronunciation' ? 'say' : scope}-rules.md`,\n      markdown: [...header, '', ...list.map((item) => `- ${item}`), ''].join('\\n'),\n      caption: `Edit and send back with the caption /rules set ${scope === 'pronunciation' ? 'say' : scope}`,\n    },\n  }];\n}\nconst done = {\n  ADD: () => `[AI Video] Added rule #${row.detail} (${names[input.scope]}).`,\n  DELETE: () => `[AI Video] Removed rule #${input.text}.`,\n  SET: () => `[AI Video] ${names[input.scope]} rules replaced: ${rules[input.scope].length} now.`,\n  SAY: () => `[AI Video] \"${input.text}\" is now read as \"${input.extra}\".`,\n  UNSAY: () => `[AI Video] \"${input.text}\" is read as written again.`,\n}[input.action];\nif (done) return say(`${done()} Applies to steps that start from now on.`);\nconst scopes = input.scope ? [input.scope] : ['video', 'tts', 'pronunciation'];\nconst lines = scopes.flatMap((scope) => ['', `${names[scope]}:`, ...(items(scope).length ? items(scope) : ['(none)'])]);\nconst text = [`[AI Video] Channel rules (version ${String(rules.version).slice(0, 8)})`, ...lines, '', 'Edit: /rule add video|tts <text> · /rule del <number> · /say <term> = <how to say it> · /unsay <term> · /rules file video|tts|say'].join('\\n');\nreturn say(text.length > 4096 ? `${text.slice(0, 3900)}\\n…\\nToo long for one message: use /rules file video|tts|say.` : text);"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000632",
+      "name": "Build rules reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2090, -1200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.exportFile }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000633",
+      "name": "Export?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2310, -1200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The rules as a Markdown file for /rules file (D-059).\nconst row = $input.first().json;\nconst data = await this.helpers.prepareBinaryData(Buffer.from(row.markdown, 'utf8'), row.fileName, 'text/markdown');\nreturn [{ json: { chatId: row.chatId, messageId: row.messageId, caption: row.caption }, binary: { data } }];"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000634",
+      "name": "Rules document",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2530, -1300]
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $json.chatId }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+          "reply_to_message_id": "={{ $json.messageId }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000635",
+      "name": "Send rules file",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2750, -1300],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
@@ -443,7 +606,7 @@
     "Intake?": {
       "main": [
         [{ "node": "File?", "type": "main", "index": 0 }],
-        [{ "node": "Decide", "type": "main", "index": 0 }]
+        [{ "node": "Rules?", "type": "main", "index": 0 }]
       ]
     },
     "File?": {
@@ -467,7 +630,36 @@
         [{ "node": "Send confirmation", "type": "main", "index": 0 }],
         [{ "node": "Send status", "type": "main", "index": 0 }]
       ]
-    }
+    },
+    "Rules?": {
+      "main": [
+        [{ "node": "Rules file?", "type": "main", "index": 0 }],
+        [{ "node": "Decide", "type": "main", "index": 0 }]
+      ]
+    },
+    "Rules file?": {
+      "main": [
+        [{ "node": "Get rules file", "type": "main", "index": 0 }],
+        [{ "node": "Build rules request", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get rules file": { "main": [[{ "node": "Build rules request", "type": "main", "index": 0 }]] },
+    "Build rules request": { "main": [[{ "node": "Rules ok?", "type": "main", "index": 0 }]] },
+    "Rules ok?": {
+      "main": [
+        [{ "node": "Rules", "type": "main", "index": 0 }],
+        [{ "node": "Send status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Rules": { "main": [[{ "node": "Build rules reply", "type": "main", "index": 0 }]] },
+    "Build rules reply": { "main": [[{ "node": "Export?", "type": "main", "index": 0 }]] },
+    "Export?": {
+      "main": [
+        [{ "node": "Rules document", "type": "main", "index": 0 }],
+        [{ "node": "Send status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Rules document": { "main": [[{ "node": "Send rules file", "type": "main", "index": 0 }]] }
   },
   "settings": {
     "executionOrder": "v1",

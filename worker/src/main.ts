@@ -7,6 +7,7 @@ import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createJobStore } from './db/job-store.js';
+import { createRulesSource } from './db/rules-store.js';
 import { createGateRunner } from './episode/gates.js';
 import { chromeInstalled } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
@@ -66,6 +67,7 @@ function buildHandlers(
   });
   const { itera } = config;
   const probe = createFfprobe(config.ffprobeBin);
+  const rules = createRulesSource(pool, config.workerId);
   const renderEpisode = createRenderEpisodeHandler({
     render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
     loudness: createLoudnessNormalizer(config.ffmpegBin),
@@ -86,6 +88,7 @@ function buildHandlers(
     probe,
     workerId: config.workerId,
     pollMs: itera.pollMs,
+    rules,
     taskTimeoutMs: itera.taskTimeoutSeconds * 1000,
     blockSeconds: itera.blockSeconds,
   });
@@ -93,7 +96,10 @@ function buildHandlers(
     ['simulate', simulateHandler],
     [
       'script',
-      routeScriptJobs(createScriptHandler({ claude }), createEpisodeScriptHandler({ claude })),
+      routeScriptJobs(
+        createScriptHandler({ claude }),
+        createEpisodeScriptHandler({ claude, rules }),
+      ),
     ],
     ['tts', tts],
     [
@@ -112,6 +118,7 @@ function buildHandlers(
           config.itera.apiKey ?? '',
           ...Object.values(config.apiClientKeys),
         ],
+        rules,
         browserReady: chromeInstalled,
         blockSeconds: CHROME_BLOCK_SECONDS,
       }),

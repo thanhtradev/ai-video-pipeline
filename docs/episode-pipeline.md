@@ -66,6 +66,12 @@ model by `ops/postgres/itera-tts.sql`. One request
 per act: an act's lines joined with newlines, tags included. `eleven_v4` honours the audio tags
 (`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The A1 estimate counts the same text.
 
+The owner's pronunciation table (D-059) replaces each term (case-sensitive, whole word, never inside
+an audio tag) by how it is said, in the TTS text only: `TikTok = tích tốc` makes the voice say
+"tích tốc" while captions keep "TikTok". The job saves the table it used (`pronunciation.json`, and
+in its result) so a retry reads the same text; the timing step matches whisper's words against the
+same spoken forms. A replacement can make a few more characters than the A1 estimate counted.
+
 ## 5. Timing
 
 `timing` job (q:heavy, free), created with the TTS job when A1 is approved and run after it. A port of
@@ -102,6 +108,7 @@ after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `rem
 ```
 CLAUDE.md               channel rules + contract (remotion/episode/AGENT.md in the repo)
 brief.md, feedback.md   the approved script.md; the owner's notes on a revision
+rules.md                the owner's channel rules from Telegram (D-059), read-only
 FILES.md                every file with its size (the CLI has no Glob/Grep tools)
 kit/                    remotion/src/tiktok2/{ep1,ep2,ep3,ep5,qa,sfx}: shared kit, reference episodes, SFX synthesis
 src/index.ts, Root.tsx  compositions Episode, EpisodeBoard (storyboard), EpisodeQA (text bounds)

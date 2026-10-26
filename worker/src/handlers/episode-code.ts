@@ -12,6 +12,7 @@ import {
   type GateRunner,
 } from '../episode/gates.js';
 import { agentFiles, containsSecret, prepareWorkspace } from '../episode/workspace.js';
+import { rulesMarkdown, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import {
@@ -51,6 +52,8 @@ export interface EpisodeCodeDeps {
   gates: GateRunner;
   /** Secret values the agent's files must never contain (e.g. the Claude token). */
   secrets: readonly string[];
+  /** The owner's channel rules (D-059): rules.md of a new workspace. */
+  rules: RulesSource;
   /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of running. */
   browserReady: () => boolean;
   blockSeconds: number;
@@ -219,8 +222,11 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
     if (saved) {
       context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');
     } else {
+      const rules = await deps.rules();
+      context.logger.info({ rulesVersion: rules.version }, 'episode workspace');
       await prepareWorkspace(await freshWorkspacePath(workDir, context.attemptNo), {
         scriptMarkdown: await readFile(join(scriptDir, 'script.md'), 'utf8'),
+        rulesMarkdown: rulesMarkdown(rules),
         timingDir,
         revision:
           input.revision && previous
