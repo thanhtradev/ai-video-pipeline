@@ -148,7 +148,9 @@ describe('episode_code handler', () => {
     expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toMatch(/Episode workspace/);
     expect(await readFile(join(ws, 'brief.md'), 'utf8')).toContain('Nếu bạn dừng thời gian');
     expect(await readFile(join(ws, 'rules.md'), 'utf8')).toContain('- Không dùng nhạc nền.');
-    expect(existsSync(join(ws, 'kit/ep1/Character.tsx'))).toBe(true);
+    expect(existsSync(join(ws, 'kit/rig/Character.tsx'))).toBe(true);
+    expect(existsSync(join(ws, 'kit/active/theme.ts'))).toBe(true);
+    expect(turns[0]!.prompt).toContain('kit/episodes/ep5/');
     expect(existsSync(join(ws, 'public/voice.wav'))).toBe(true);
     expect(result.outputs).toEqual(
       expect.arrayContaining([

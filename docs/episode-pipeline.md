@@ -107,14 +107,20 @@ no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 
 ## 6. Episode code (Claude Code headless)
 
 `episode_code` job (q:render), created with the TTS and timing jobs when A1 is approved and run
-after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/`:
+after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/` and
+the kit catalog (`remotion/catalog.json`, D-064): a clip has one **kit** (visual style:
+`remotion/src/kits/<kit>/`) and one **character set** (a cast on the shared rig:
+`remotion/src/characters/<set>/`); until the brief carries a selection (PR B) the catalog defaults
+`whatif` + `chip` apply. Unknown slugs fail the job; there is no fallback.
 
 ```
-CLAUDE.md               channel rules + contract (remotion/episode/AGENT.md in the repo)
+CLAUDE.md               contract (remotion/episode/AGENT.md) with the selected kit's and character set's AGENT.md spliced in
 brief.md, feedback.md   the approved script.md; the owner's notes on a revision
 rules.md                the owner's channel rules from Telegram (D-059), read-only
 FILES.md                every file with its size (the CLI has no Glob/Grep tools)
-kit/                    remotion/src/tiktok2/{ep1,ep2,ep3,ep5,qa,sfx}: shared kit, reference episodes, SFX synthesis
+kit/                    read-only copy of remotion/src parts at the same paths: rig/ (Character), kits/<kit>/ (style,
+                        QA, SFX synthesis), characters/<set>/ (cast), episodes/<ref>/ (the kit's reference episode);
+                        kit/active/<name>.ts re-exports the selected modules (theme, ui, sets, cast, rig, …)
 src/index.ts, Root.tsx  compositions Episode, EpisodeBoard (storyboard), EpisodeQA (text bounds)
 src/time.ts, data/      timeline queries over timing.json / captions.json from the timing job
 src/episode/            the agent writes here; Episode.tsx exports `Episode`

@@ -1,0 +1,67 @@
+{
+  "$comment": "Kits (visual style), character sets (named casts on the shared rig) and the rig itself, as the worker copies them into an episode workspace (worker/src/episode/catalog.ts). Paths are relative to remotion/src. `episodeDeps` are the dirs the reference episode imports besides the kit and the rig. `modules` become kit/active/<name>.ts re-exports in the workspace. Labels are what Telegram shows (Vietnamese).",
+  "defaults": { "kit": "whatif", "characterSet": "chip" },
+  "rig": {
+    "dir": "rig",
+    "modules": {
+      "rig": "rig/Character",
+      "accessories": "rig/accessories-extra",
+      "palette": "rig/palette"
+    }
+  },
+  "kits": {
+    "whatif": {
+      "label": "Nếu bạn…",
+      "dir": "kits/whatif",
+      "referenceEpisode": "episodes/ep5",
+      "episodeDeps": ["characters/chip"],
+      "modules": {
+        "theme": "kits/whatif/theme",
+        "lang": "kits/whatif/lang",
+        "ui": "kits/whatif/ui",
+        "stage": "kits/whatif/Stage",
+        "set-stage": "kits/whatif/SetStage",
+        "sets": "kits/whatif/sets",
+        "sets-home": "kits/whatif/sets-home",
+        "sets-school": "kits/whatif/sets-school",
+        "props": "kits/whatif/props",
+        "grade": "kits/whatif/grade",
+        "qa": "kits/whatif/qa/TextBoundsQA"
+      }
+    },
+    "science": {
+      "label": "Khoa học",
+      "dir": "kits/science",
+      "extends": "whatif",
+      "referenceEpisode": "episodes/ep5",
+      "episodeDeps": ["characters/chip"],
+      "modules": {
+        "theme": "kits/science/theme",
+        "lang": "kits/whatif/lang",
+        "ui": "kits/whatif/ui",
+        "stage": "kits/whatif/Stage",
+        "set-stage": "kits/whatif/SetStage",
+        "sets": "kits/whatif/sets",
+        "sets-home": "kits/whatif/sets-home",
+        "sets-school": "kits/whatif/sets-school",
+        "props": "kits/whatif/props",
+        "grade": "kits/whatif/grade",
+        "qa": "kits/whatif/qa/TextBoundsQA"
+      }
+    }
+  },
+  "characterSets": {
+    "chip": {
+      "label": "Chíp (BẠN)",
+      "dir": "characters/chip",
+      "hero": "BẠN",
+      "modules": { "cast": "characters/chip/cast" }
+    },
+    "bip": {
+      "label": "Bíp",
+      "dir": "characters/bip",
+      "hero": "BÍP",
+      "modules": { "cast": "characters/bip/cast" }
+    }
+  }
+}

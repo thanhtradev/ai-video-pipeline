@@ -5,8 +5,8 @@
 // their first pages / samples are rendered (frame i = board page i, or QA sample i × QA_EVERY).
 import React from 'react';
 import { AbsoluteFill, Composition, Freeze, useCurrentFrame } from 'remotion';
-import { FONT } from '../kit/ep1/theme';
-import { TextBoundsQA } from '../kit/qa/TextBoundsQA';
+import { FONT } from '../kit/active/theme';
+import { TextBoundsQA } from '../kit/active/qa';
 import { Episode } from './episode/Episode';
 import { SHOTS, TOTAL } from './time';
 
