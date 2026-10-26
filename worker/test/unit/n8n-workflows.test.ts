@@ -962,6 +962,104 @@ describe('WF-06 channel rules (D-059)', () => {
   });
 });
 
+describe('WF-06 members (D-060)', () => {
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const message = (text: string, from: object = {}, chat: string | number = CHAT): Item => ({
+    json: {
+      message: {
+        message_id: 31,
+        from: { id: 333, is_bot: false, first_name: 'Bình', last_name: 'Trần', ...from },
+        chat: { id: chat },
+        text,
+      },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] })[0]?.json;
+
+  test('parses /join with the Telegram name, only in the approval chat', () => {
+    expect(parse(message('/join', { username: 'binh' }))).toMatchObject({
+      kind: 'member',
+      action: 'JOIN',
+      name: '@binh',
+      userId: '333',
+      error: '',
+    });
+    expect(parse(message('/join@aivideo_bot'))).toMatchObject({ name: 'Bình Trần' });
+    expect(parse(message('/join', {}, -5))!.error).toBe(
+      'This chat (-5) is not the approval chat; /join works only there.',
+    );
+  });
+
+  test('parses /members and /revoke', () => {
+    expect(parse(message('/members'))).toMatchObject({ action: 'LIST' });
+    expect(parse(message('/revoke 222'))).toMatchObject({ action: 'REVOKE', target: '222' });
+    expect(parse(message('/revoke @binh'))!.error).toMatch(/^Usage: \/revoke <user id>/);
+  });
+
+  const answer = (row: Record<string, unknown>, parsed: Record<string, unknown> = {}) =>
+    runCode('wf-06-telegram-callback.json', 'Build members reply', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { chatId: CHAT, messageId: '31', name: '@binh', userId: '333', ...parsed } },
+        ],
+      },
+    })[0]!.json;
+
+  test('asks the owner with Approve / Reject', () => {
+    const token = 'e'.repeat(32);
+    const out = answer({ result: 'REQUESTED', token }, { action: 'JOIN' });
+    expect(out.text).toContain('@binh (id 333) asks to become an approver.');
+    expect(out).toMatchObject({ approve: `mb:A:${token}`, reject: `mb:R:${token}` });
+  });
+
+  test('lists approvers with the owner first and answers refusals', () => {
+    const members = [
+      { user_id: '111', name: 'owner', owner: true },
+      { user_id: '222', name: 'An', owner: false },
+    ];
+    const out = answer({ result: 'OK', members }, { action: 'LIST' });
+    expect(out.text).toBe(
+      '[AI Video] Approvers (2)\n★ owner (id 111) · owner\n- An (id 222)\n\nThe owner can remove one with /revoke <user id>.',
+    );
+    expect(answer({ result: 'NOT_OWNER' }).text).toBe('Only the owner can do that.');
+    expect(answer({ result: 'ALREADY_REQUESTED' }).text).toMatch(/already waiting/);
+    expect(answer({ result: 'OK', detail: '222', members }, { action: 'REVOKE' }).text).toMatch(
+      /^\[AI Video\] 222 is no longer an approver\./,
+    );
+  });
+
+  test("parses the owner's buttons and keeps them for anyone else", () => {
+    const token = 'e'.repeat(32);
+    const callback: Item = {
+      json: {
+        callback_query: {
+          id: 'q',
+          data: `mb:A:${token}`,
+          from: { id: 222 },
+          message: { message_id: 32, chat: { id: CHAT }, text: 'asks' },
+        },
+      },
+    };
+    const parsed = runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback] });
+    expect(parsed[0]!.json).toMatchObject({ approval: 'member', action: 'APPROVE', token });
+    const reply = (result: string) =>
+      runCode('wf-06-telegram-callback.json', 'Build reply', {
+        input: [{ json: { result, version: null, round: null } }],
+        nodeOutputs: { 'Parse callback': parsed },
+      })[0]!.json;
+    expect(reply('NOT_OWNER')).toMatchObject({
+      answer: 'Only the owner can approve new members.',
+      settled: false,
+    });
+    expect(reply('OK')).toMatchObject({
+      answer: 'Approved: they are now an approver.',
+      settled: true,
+    });
+  });
+});
+
 describe('WF-13 Preview Approval Request (D-057)', () => {
   const token = 'b'.repeat(32);
   const row = {

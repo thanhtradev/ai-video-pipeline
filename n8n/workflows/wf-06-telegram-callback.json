@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// /status, /retry, /new and rules commands, well-formed A1 / storyboard / A2 / intake buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Usage: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <text> · /rule del <number> · /say <term> = <how to say it> · /unsay <term> · send a .md/.txt file with the caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Attach the edited .md or .txt file with the caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'The rules must be a .md or .txt file of at most 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`This chat (${message.chat.id}) is not the approval chat; /new works only there.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Usage: /new [minutes] <topic>, notes on the next lines; attach the full brief as a .md or .txt file with this as its caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('The full brief must be a .md or .txt file of at most 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status, /retry, /new, rules and member commands, well-formed A1 / storyboard / A2 / intake buttons, and replies with notes to a storyboard request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Usage: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <text> · /rule del <number> · /say <term> = <how to say it> · /unsay <term> · send a .md/.txt file with the caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Attach the edited .md or .txt file with the caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'The rules must be a .md or .txt file of at most 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\n// Members (D-060): /join asks the owner (in the approval chat only), /members lists approvers,\n// /revoke <user id> is the owner's. telegram_members() checks who may do what.\nconst memberCommand = /^\\/(join|members|revoke)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? '');\nif (update.message && memberCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const from = message.from;\n  const base = {\n    kind: 'member',\n    userId: String(from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    name: '',\n    target: '',\n    error: '',\n    text: '',\n  };\n  const fail = (error) => [{ json: { ...base, error, text: error } }];\n  const [, command, rest] = memberCommand;\n  if (command === 'join') {\n    if (String(message.chat.id) !== APPROVAL_CHAT) {\n      return fail(`This chat (${message.chat.id}) is not the approval chat; /join works only there.`);\n    }\n    const name = from.username ? `@${from.username}` : [from.first_name, from.last_name].filter(Boolean).join(' ');\n    return [{ json: { ...base, action: 'JOIN', name } }];\n  }\n  if (command === 'members') return [{ json: { ...base, action: 'LIST' } }];\n  const target = rest.trim();\n  if (!/^\\d{1,18}$/.test(target)) return fail('Usage: /revoke <user id> (ids are shown by /members)');\n  return [{ json: { ...base, action: 'REVOKE', target } }];\n}\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`This chat (${message.chat.id}) is not the approval chat; /new works only there.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Usage: /new [minutes] <topic>, notes on the next lines; attach the full brief as a .md or .txt file with this as its caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('The full brief must be a .md or .txt file of at most 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in|mb):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (match[1] !== 'a1' && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake', mb: 'member' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\nconst ref = /ref:([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[1],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -40,7 +40,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// telegram_decide() result codes -> short replies. Buttons are removed once the request is\n// settled (decided, superseded, expired); a refused stranger leaves the message untouched. Replies\n// with notes (storyboard or A2) are answered in the chat; both revise the storyboard.\nconst input = $('Parse callback').first().json;\nconst { result, version, round, video_id: videoId } = $input.first().json;\nconst storyboard = input.approval === 'storyboard';\nconst preview = input.approval === 'preview';\nconst intake = input.approval === 'intake';\nconst notes = `Notes received: revising the storyboard (round ${round} of 4).`;\nconst done = intake\n  ? {\n      APPROVE: `Created video ${String(videoId).slice(0, 8)}: writing the script; the A1 request follows.`,\n      REJECT: 'Cancelled; nothing was created.',\n    }\n  : storyboard\n  ? { APPROVE: 'Approved: rendering the preview', REJECT: 'Rejected (video cancelled)', FEEDBACK: notes }\n  : preview\n    ? { APPROVE: 'Approved: rendering the final 1080p', REJECT: 'Rejected (video cancelled)' }\n    : { APPROVE: 'Approved', REJECT: 'Rejected (video cancelled)', REGENERATE: `Regenerating as v${version}` };\nconst replies = {\n  OK: done[input.action],\n  NOT_ALLOWED: 'You are not an approver.',\n  NOT_FOUND: 'Unknown approval.',\n  NOT_PENDING: 'Already decided.',\n  EXPIRED: 'This request expired.',\n  SUPERSEDED: 'A newer version exists; this request is no longer valid.',\n  HASH_MISMATCH: `The ${storyboard ? 'storyboard' : preview ? 'preview' : 'script'} changed after this request; wait for the new request.`,\n  EMPTY_NOTE: 'Write your notes in the reply text.',\n  NOT_SUPPORTED: 'Not available for this request.',\n  NEEDS_DECISION: 'That was the last round of notes; the video needs a decision.',\n};\nconst settled = ['OK', 'NOT_PENDING', 'EXPIRED', 'SUPERSEDED', 'NEEDS_DECISION'].includes(result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nconst answer = replies[result] ?? `Not applied (${result}).`;\nreturn [{\n  json: {\n    answer,\n    settled,\n    isButton: input.kind !== 'reply',\n    chatId: input.chatId,\n    messageId: input.messageId,\n    queryId: input.queryId,\n    editedText: `${input.originalText}\\n\\n${result === 'OK' ? 'Decision' : 'Closed'}: ${answer} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
+        "jsCode": "// telegram_decide() result codes -> short replies. Buttons are removed once the request is\n// settled (decided, superseded, expired); a refused stranger leaves the message untouched. Replies\n// with notes (storyboard or A2) are answered in the chat; both revise the storyboard.\nconst input = $('Parse callback').first().json;\nconst { result, version, round, video_id: videoId } = $input.first().json;\nconst storyboard = input.approval === 'storyboard';\nconst preview = input.approval === 'preview';\nconst intake = input.approval === 'intake';\nconst member = input.approval === 'member';\nconst notes = `Notes received: revising the storyboard (round ${round} of 4).`;\nconst done = member\n  ? { APPROVE: 'Approved: they are now an approver.', REJECT: 'Rejected: they were not added.' }\n  : intake\n  ? {\n      APPROVE: `Created video ${String(videoId).slice(0, 8)}: writing the script; the A1 request follows.`,\n      REJECT: 'Cancelled; nothing was created.',\n    }\n  : storyboard\n  ? { APPROVE: 'Approved: rendering the preview', REJECT: 'Rejected (video cancelled)', FEEDBACK: notes }\n  : preview\n    ? { APPROVE: 'Approved: rendering the final 1080p', REJECT: 'Rejected (video cancelled)' }\n    : { APPROVE: 'Approved', REJECT: 'Rejected (video cancelled)', REGENERATE: `Regenerating as v${version}` };\nconst replies = {\n  OK: done[input.action],\n  NOT_ALLOWED: 'You are not an approver.',\n  NOT_OWNER: 'Only the owner can approve new members.',\n  NOT_FOUND: 'Unknown approval.',\n  NOT_PENDING: 'Already decided.',\n  EXPIRED: 'This request expired.',\n  SUPERSEDED: 'A newer version exists; this request is no longer valid.',\n  HASH_MISMATCH: `The ${storyboard ? 'storyboard' : preview ? 'preview' : 'script'} changed after this request; wait for the new request.`,\n  EMPTY_NOTE: 'Write your notes in the reply text.',\n  NOT_SUPPORTED: 'Not available for this request.',\n  NEEDS_DECISION: 'That was the last round of notes; the video needs a decision.',\n};\nconst settled = ['OK', 'NOT_PENDING', 'EXPIRED', 'SUPERSEDED', 'NEEDS_DECISION'].includes(result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nconst answer = replies[result] ?? `Not applied (${result}).`;\nreturn [{\n  json: {\n    answer,\n    settled,\n    isButton: input.kind !== 'reply',\n    chatId: input.chatId,\n    messageId: input.messageId,\n    queryId: input.queryId,\n    editedText: `${input.originalText}\\n\\n${result === 'OK' ? 'Decision' : 'Closed'}: ${answer} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000604",
       "name": "Build reply",
@@ -572,6 +572,131 @@
       "typeVersion": 1.2,
       "position": [2750, -1300],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "member",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000636",
+      "name": "Members?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [990, -1540]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000637",
+      "name": "Member error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1210, -1540]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT result, token, detail, members FROM telegram_members($1::bigint, $2, $3, $4, $5);",
+        "options": {
+          "queryReplacement": "={{ [$json.userId, $json.action, $json.name, $json.chatId, $json.target] }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000638",
+      "name": "Members",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1430, -1640],
+      "alwaysOutputData": true,
+      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// telegram_members() -> the reply (D-060): a join request for the owner with Approve / Reject\n// (callback mb:<A|R>:<token>), the approver list, or why nothing changed. Names are quoted as written.\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nconst say = (text) => [{ json: { ...reply, text } }];\nconst list = (members) => {\n  const rows = typeof members === 'string' ? JSON.parse(members) : members ?? [];\n  return [\n    `[AI Video] Approvers (${rows.length})`,\n    ...rows.map((m) => `${m.owner ? '★' : '-'} ${m.name} (id ${m.user_id})${m.owner ? ' · owner' : ''}`),\n    '',\n    'The owner can remove one with /revoke <user id>.',\n  ].join('\\n');\n};\nswitch (row.result) {\n  case 'REQUESTED':\n    return [{\n      json: {\n        ...reply,\n        text: [\n          `[AI Video] ${input.name} (id ${input.userId}) asks to become an approver.`,\n          'Only the owner can approve. The request expires in 72 hours.',\n        ].join('\\n'),\n        approve: `mb:A:${row.token}`,\n        reject: `mb:R:${row.token}`,\n      },\n    }];\n  case 'ALREADY_MEMBER': return say('You are already an approver.');\n  case 'ALREADY_REQUESTED': return say('Your request is already waiting for the owner.');\n  case 'NO_OWNER': return say('[AI Video] No owner is set, so nobody can approve new members yet.');\n  case 'NOT_APPROVER': return say('You are not an approver.');\n  case 'NOT_OWNER': return say('Only the owner can do that.');\n  case 'NOT_FOUND': return say(`[AI Video] ${row.detail} is not an approver.`);\n  case 'INVALID': return say(`[AI Video] Not changed: ${row.detail}`);\n  case 'OK':\n    return say(input.action === 'REVOKE' ? `[AI Video] ${row.detail} is no longer an approver.\\n\\n${list(row.members)}` : list(row.members));\n  default: return say(`[AI Video] Members: ${row.result ?? 'no answer'}`);\n}"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000639",
+      "name": "Build members reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, -1640]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.approve }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000640",
+      "name": "Join request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1870, -1640]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Approve",
+                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Reject",
+                    "additionalFields": { "callback_data": "={{ $json.reject }}" }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.messageId }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000641",
+      "name": "Send join request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2090, -1740],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
@@ -634,7 +759,7 @@
     "Rules?": {
       "main": [
         [{ "node": "Rules file?", "type": "main", "index": 0 }],
-        [{ "node": "Decide", "type": "main", "index": 0 }]
+        [{ "node": "Members?", "type": "main", "index": 0 }]
       ]
     },
     "Rules file?": {
@@ -659,7 +784,27 @@
         [{ "node": "Send status", "type": "main", "index": 0 }]
       ]
     },
-    "Rules document": { "main": [[{ "node": "Send rules file", "type": "main", "index": 0 }]] }
+    "Rules document": { "main": [[{ "node": "Send rules file", "type": "main", "index": 0 }]] },
+    "Members?": {
+      "main": [
+        [{ "node": "Member error?", "type": "main", "index": 0 }],
+        [{ "node": "Decide", "type": "main", "index": 0 }]
+      ]
+    },
+    "Member error?": {
+      "main": [
+        [{ "node": "Send status", "type": "main", "index": 0 }],
+        [{ "node": "Members", "type": "main", "index": 0 }]
+      ]
+    },
+    "Members": { "main": [[{ "node": "Build members reply", "type": "main", "index": 0 }]] },
+    "Build members reply": { "main": [[{ "node": "Join request?", "type": "main", "index": 0 }]] },
+    "Join request?": {
+      "main": [
+        [{ "node": "Send join request", "type": "main", "index": 0 }],
+        [{ "node": "Send status", "type": "main", "index": 0 }]
+      ]
+    }
   },
   "settings": {
     "executionOrder": "v1",

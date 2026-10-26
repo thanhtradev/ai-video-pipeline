@@ -68,6 +68,7 @@ Claude Code login of the macOS user running the worker (D-039); no `--fallback-m
 
 - Accept callbacks only from an allow-list of Telegram user ids (configured outside Git). Currently only the owner; more can be added (D-029).
 - The approval chat may be a group (D-058): reading is open to its members, but every button, reply with notes and command (`/new`, `/retry`, `/status`) is checked against the same allow-list by user id. `/new` is also refused outside the configured chat.
+- New approvers (D-060): `/join` in the approval chat, approved only by the single owner (`approver.is_owner`); the owner can `/revoke` an approver. Changing the owner is a manual SQL step, never possible from Telegram.
 - `callback_data` (64-byte limit) holds only a short random token referencing an `approval` record; no sensitive data.
 - Messages contain no secrets or sensitive internal paths.
 
