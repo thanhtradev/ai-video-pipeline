@@ -33,6 +33,10 @@ New status `AWAITING_STORYBOARD_APPROVAL` and approval type `STORYBOARD`:
 | `RENDERING_PREVIEW` | `QA_RUNNING` | the preview rendered: WF-13 creates `qa_preview` (§9) |
 | `QA_RUNNING` | `AWAITING_PREVIEW_APPROVAL` | QA passed (or only warned): A2 is requested |
 | `AWAITING_PREVIEW_APPROVAL` | `RENDERING_FINAL` / `GENERATING_ASSETS` / `CANCELLED` | A2 approve / notes / reject |
+| `RENDERING_FINAL` | `AWAITING_METADATA_APPROVAL` | final QA and metadata done: A3 (§10) |
+| `AWAITING_METADATA_APPROVAL` | `ARCHIVING` / `RENDERING_FINAL` | A3 approve / Viết lại or notes |
+| `ARCHIVING` | `ARCHIVE_VERIFIED` | the archive is verified on Google Drive: CLEANUP asked |
+| `ARCHIVE_VERIFIED` | `COMPLETED` | Mac copy deleted (owner's Xóa) or kept (Giữ lại, expiry) |
 
 A fourth feedback, an episode_code job that keeps failing its gates, or a 90-minute timeout →
 `NEEDS_DECISION` (the user can still open an interactive session on the job workspace).
@@ -202,11 +206,52 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a revision of the code as for storyboard notes, sharing its rounds; storyboard, preview, QA and A2 follow again |
 
-The version stays in `RENDERING_FINAL` after the final render: final QA, metadata, archive and the
-cost report are the rest of 2d. The final file is not sent to Telegram (a 1080p episode exceeds the
-50 MB bot upload limit).
+What follows the final render is §10. The final file is not sent to Telegram (a 1080p episode
+exceeds the 50 MB bot upload limit).
 
-## 10. Rollout slices
+## 10. Final QA, metadata (A3), archive (D-062, D-063)
+
+Migration `20261105000100`, status `AWAITING_METADATA_APPROVAL`, approval type `METADATA`. WF-14
+polls `final_due()` every 30 s:
+
+1. A finished `render_final` gets `qa_final` (§9's checks on `final.mp4` at 1920×1080) and
+   `metadata` (q:light): Claude writes the title (≤ 100 characters), description, 5–15 tags (under
+   450 characters together), 1–3 hashtags and picks `thumbnail_shot`. Captions are burned in, so the
+   prompt lists the shots with a caption-free pause and the worker grabs the middle of that pause
+   (else 60 % into the shot). A failed QA or metadata job → `NEEDS_DECISION` as usual.
+2. Both done → `AWAITING_METADATA_APPROVAL`; A3 is bound to the SHA-256 of the metadata, the
+   thumbnail and the final render. WF-14 sends the thumbnail (`GET /media/…/thumbnail.jpg` with the
+   metadata job's media token) and the message ending in `meta:<token>`.
+
+| Telegram | Effect |
+|---|---|
+| Duyệt | → `ARCHIVING`, `archive` job (q:heavy) to Google Drive |
+| Viết lại | a new metadata version (`RENDERING_FINAL` until it is done) |
+| reply with notes | the same, with the notes; after 6 versions → `NEEDS_DECISION` |
+
+3. `archive` hard-links the deliverables into the version folder and archives it to Google Drive
+   through rclone (D-063; Nextcloud only as a fallback) with the verified procedure of
+   `docs/storage-and-manifest.md` §4:
+
+```
+videos/<id>/v<n>/
+  renders/final_1080p.mp4, preview_720p.mp4     subtitles/vi.srt, vi.vtt, captions.json
+  script/script.md, script.json, timing.json   audio/voice.wav
+  remotion/src/episode/…, sfx/…, board/…        thumbnail/thumbnail.jpg   metadata/metadata.json
+  qa/qa-preview.json, qa-final.json             logs/agent-turns.json
+  manifest.json, checksums.sha256               (jobs/ stays on the Mac only)
+```
+
+   Remote: `<ARCHIVE_RCLONE_REMOTE>/<yyyy>/<mm>/<video_id>/v<n>`. No archive configured → the job
+   waits `BLOCKED`. Verified → `archive_record`, `ARCHIVE_VERIFIED`, and WF-14 sends the final message
+   (archive path, file count, size, cost by currency, agent minutes) with **Xóa bản trên Mac** /
+   **Giữ lại** (CLEANUP, 7 days).
+4. Only the **owner** can press Xóa. The `cleanup` job (q:heavy) re-verifies the remote copy against
+   the local `checksums.sha256` and the archive record, then deletes the version folder on the Mac
+   except its own job folder; WF-14 reports the space freed. Giữ lại or no answer keeps the copy.
+   Either way → `COMPLETED`.
+
+## 11. Rollout slices
 
 Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 
@@ -220,3 +265,4 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
 | C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |
 | D1 | ✅ preview QA, A2 on Telegram with the video, final 1080p render (D-057) | migration, WF-06/WF-13 import (`ops/preview-approval.md`) |
+| D2 | ✅ final QA, metadata + thumbnail (A3), archive to Google Drive, owner-approved Mac cleanup, COMPLETED with cost report (D-062, D-063) | rclone + Drive login, migration, worker env + restart, WF-06/WF-14 import (`ops/final-delivery.md`) |

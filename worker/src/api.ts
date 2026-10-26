@@ -7,7 +7,7 @@ import Fastify, {
 import { createReadStream } from 'node:fs';
 import pino, { type Logger } from 'pino';
 import { readBoardPage } from './episode/boards.js';
-import { findPreviewMedia } from './episode/media.js';
+import { findEpisodeMedia } from './episode/media.js';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
 
 // Worker API (docs/architecture.md §5). Bind to the Tailscale interface only.
@@ -97,7 +97,7 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
     Querystring: { t?: string };
   }>('/media/:videoId/:version/:jobId/:file', async (request, reply) => {
     const media = options.workRoot
-      ? await findPreviewMedia(options.workRoot, {
+      ? await findEpisodeMedia(options.workRoot, {
           ...request.params,
           token: request.query.t ?? '',
         })

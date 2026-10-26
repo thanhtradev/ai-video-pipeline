@@ -8,6 +8,10 @@
 #   aivideo-redis-password    password of the worker's Redis ACL user
 #   aivideo-api-key-n8n       HMAC key shared with n8n for the worker API
 #   aivideo-itera-api-key     ITERA TTS API key (optional: without it tts jobs wait as BLOCKED)
+#   aivideo-rclone-config-pass  password of the encrypted rclone config holding the Google Drive
+#                             OAuth token (D-063; optional if the config is not encrypted)
+#   aivideo-archive-password  app password of the Nextcloud user aivideo-archive (only for the
+#                             Nextcloud archive, D-062)
 #   aivideo-claude-oauth-token  long-lived Claude Code token from `claude setup-token` (D-046;
 #                             optional, but without it the CLI must refresh its login in a
 #                             possibly locked Keychain and script jobs block)
@@ -32,6 +36,12 @@ API_CLIENT_KEYS="{\"n8n\":\"$(keychain aivideo-api-key-n8n)\"}"
 export DATABASE_URL REDIS_URL API_CLIENT_KEYS
 if ITERA_API_KEY="$(keychain aivideo-itera-api-key 2>/dev/null)"; then
   export ITERA_API_KEY
+fi
+if RCLONE_CONFIG_PASS="$(keychain aivideo-rclone-config-pass 2>/dev/null)"; then
+  export RCLONE_CONFIG_PASS
+fi
+if ARCHIVE_WEBDAV_PASSWORD="$(keychain aivideo-archive-password 2>/dev/null)"; then
+  export ARCHIVE_WEBDAV_PASSWORD
 fi
 if CLAUDE_CODE_OAUTH_TOKEN="$(keychain aivideo-claude-oauth-token 2>/dev/null)"; then
   export CLAUDE_CODE_OAUTH_TOKEN

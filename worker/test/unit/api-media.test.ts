@@ -13,6 +13,9 @@ const QA = '5b0c7a8e-2222-4c2d-9e3f-000000000002';
 const RENDER = '5b0c7a8e-3333-4c2d-9e3f-000000000003';
 const TOKEN = 'b'.repeat(32);
 const MP4 = Buffer.from('fake mp4 bytes');
+const META = '5b0c7a8e-4444-4c2d-9e3f-000000000004';
+const META_TOKEN = 'd'.repeat(32);
+const JPG = Buffer.from([0xff, 0xd8, 0xff]);
 
 let root: string;
 let app: Awaited<ReturnType<typeof buildApi>>;
@@ -38,6 +41,11 @@ beforeEach(async () => {
   await writeFile(join(jobs, RENDER, 'vi.srt'), '1\n');
   await writeFile(join(jobs, RENDER, 'final.mp4'), MP4);
   await checkpoint(join(jobs, RENDER), ['preview.mp4'], {});
+  await mkdir(join(jobs, META), { recursive: true });
+  await writeFile(join(jobs, META, 'thumbnail.jpg'), JPG);
+  await checkpoint(join(jobs, META), ['metadata.json', 'thumbnail.jpg'], {
+    media_token: META_TOKEN,
+  });
   await checkpoint(join(jobs, QA), ['qa-report.json'], {
     media_token: TOKEN,
     render_job_id: RENDER,
@@ -79,5 +87,15 @@ describe('preview media', () => {
     const response = await app.inject({ method: 'GET', url: path });
     expect(response.statusCode).toBe(404);
     expect(response.json()).toEqual({ success: false, error: 'not found' });
+  });
+
+  test('serves the thumbnail of a metadata job for its own token (D-062)', async () => {
+    const thumb = (token: string) => `/media/${VIDEO}/1/${META}/thumbnail.jpg?t=${token}`;
+    const response = await app.inject({ method: 'GET', url: thumb(META_TOKEN) });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toBe('image/jpeg');
+    expect(response.rawPayload).toEqual(JPG);
+    expect((await app.inject({ method: 'GET', url: thumb(TOKEN) })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: url('thumbnail.jpg') })).statusCode).toBe(404);
   });
 });

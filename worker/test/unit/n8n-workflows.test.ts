@@ -1129,6 +1129,164 @@ describe('WF-13 Preview Approval Request (D-057)', () => {
   });
 });
 
+describe('WF-14 Final Delivery (D-062)', () => {
+  const token = 'f'.repeat(32);
+  const row = {
+    kind: 'REQUEST',
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 1,
+    token,
+    expires_at: '2026-10-29T10:00:00.000Z',
+    round: 1,
+    title: 'Mèo nghĩ gì?',
+    metadata: {
+      job_id: '87654321-aaaa-bbbb-cccc-000000000000',
+      token: 'c'.repeat(32),
+      title: 'Nếu bạn nghe được suy nghĩ của mèo?',
+      description: 'Con mèo nhà bạn đang nghĩ gì?',
+      tags: ['mèo', 'nếu bạn'],
+      thumbnail_shot: '1.2',
+      qa_level: 'WARN',
+      qa: [
+        { name: 'format', level: 'PASS', detail: 'MP4' },
+        { name: 'silence', level: 'WARN', detail: '2:50.0–2:58.6' },
+      ],
+    },
+    report: null,
+  };
+
+  test('fetches the thumbnail with the metadata media token', () => {
+    const [out] = runCode('wf-14-final-delivery.json', 'Build thumbnail', {
+      input: [{ json: row }],
+    });
+    expect(out!.json.url).toBe(
+      `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${row.metadata.job_id}/thumbnail.jpg?t=${'c'.repeat(32)}`,
+    );
+  });
+
+  test('asks for A3 with the metadata, QA warnings, Duyệt and Viết lại', () => {
+    const [out] = runCode('wf-14-final-delivery.json', 'Build message', { input: [{ json: row }] });
+    const text = out!.json.text as string;
+    expect(text).toContain('Metadata sẵn sàng để duyệt (A3, lần 1)');
+    expect(text).toContain('Tiêu đề: Nếu bạn nghe được suy nghĩ của mèo?');
+    expect(text).toContain('Tag: mèo, nếu bạn');
+    expect(text).toContain('- im lặng: 2:50.0–2:58.6');
+    expect(text.endsWith(`meta:${token}`)).toBe(true);
+    expect(out!.json).toMatchObject({ approve: `a3:A:${token}`, regenerate: `a3:G:${token}` });
+  });
+
+  test('reports a finished video with its archive, cost and the Mac cleanup question', () => {
+    const [out] = runCode('wf-14-final-delivery.json', 'Build done', {
+      input: [
+        {
+          json: {
+            ...row,
+            kind: 'DONE',
+            metadata: {
+              title: 'Nếu bạn nghe được suy nghĩ của mèo?',
+              hashtags: ['#nếubạn', '#mèo'],
+            },
+            report: {
+              target: 'gdrive',
+              path: `2026/10/${row.video_id}/v1`,
+              file_count: 18,
+              total_bytes: 104857600,
+              local_bytes: 987654321,
+              cost: { CRD: 2817 },
+              agent_minutes: 42.5,
+              jobs: 12,
+            },
+          },
+        },
+      ],
+    });
+    const text = out!.json.text as string;
+    expect(text).toContain('Video hoàn tất ✓');
+    expect(text).toContain(
+      `Đã lưu trên Google Drive (đã kiểm tra checksum): 2026/10/${row.video_id}/v1`,
+    );
+    expect(text).toContain('18 file, 100.0 MB');
+    expect(text).toContain('Chi phí: 2817 CRD · agent 42.5 phút · 12 job');
+    expect(text).toContain('Xóa bản trên Mac (0.92 GB) để giải phóng chỗ?');
+    expect(out!.json).toMatchObject({ approve: `cl:A:${token}`, reject: `cl:R:${token}` });
+    expect(
+      runCode('wf-14-final-delivery.json', 'Build message', {
+        input: [{ json: { ...row, kind: 'DONE' } }],
+      }),
+    ).toEqual([]);
+  });
+
+  test('WF-06 takes A3 buttons (Viết lại allowed) and notes replied to an A3 message', () => {
+    const callback = (data: string): Item => ({
+      json: {
+        callback_query: {
+          id: 'q',
+          data,
+          from: { id: 111 },
+          message: { message_id: 40, chat: { id: -100 }, text: 'A3' },
+        },
+      },
+    });
+    const parse = (item: Item) =>
+      runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+    const regenerate = parse(callback(`a3:G:${token}`));
+    expect(regenerate[0]!.json).toMatchObject({
+      approval: 'metadata',
+      action: 'REGENERATE',
+      token,
+    });
+    const reply = parse({
+      json: {
+        message: {
+          message_id: 41,
+          from: { id: 111, is_bot: false },
+          chat: { id: -100 },
+          text: 'Tiêu đề ngắn hơn.',
+          reply_to_message: { message_id: 40, from: { is_bot: true }, text: `A3\nmeta:${token}` },
+        },
+      },
+    });
+    expect(reply[0]!.json).toMatchObject({
+      kind: 'reply',
+      approval: 'metadata',
+      action: 'FEEDBACK',
+      token,
+    });
+    const answer = (parsed: Item[], result = 'OK') =>
+      runCode('wf-06-telegram-callback.json', 'Build reply', {
+        input: [{ json: { result, version: 1, round: 2 } }],
+        nodeOutputs: { 'Parse callback': parsed },
+      })[0]!.json;
+    expect(answer(regenerate).answer).toBe('Đang viết lại metadata (lần 2).');
+    expect(answer(reply).answer).toBe('Đã nhận ghi chú: đang viết lại metadata (lần 2).');
+    expect(answer(parse(callback(`a3:A:${token}`))).answer).toBe(
+      'Đã duyệt: đang lưu trữ lên Google Drive để hoàn tất video.',
+    );
+    const cleanup = parse(callback(`cl:A:${token}`));
+    expect(cleanup[0]!.json).toMatchObject({ approval: 'cleanup', action: 'APPROVE' });
+    expect(parse(callback(`cl:G:${token}`))).toEqual([]);
+    expect(answer(cleanup, 'NOT_OWNER')).toMatchObject({
+      answer: 'Chỉ chủ sở hữu mới xóa được bản trên Mac.',
+      settled: false,
+    });
+    expect(answer(cleanup).answer).toBe(
+      'Đã duyệt: kiểm tra lại bản lưu trên Google Drive rồi xóa bản trên Mac.',
+    );
+    const [cleaned] = runCode('wf-14-final-delivery.json', 'Build cleaned', {
+      input: [
+        {
+          json: {
+            ...row,
+            kind: 'CLEANED',
+            report: { freed_bytes: 987654321, remote_dir: `2026/10/${row.video_id}/v1` },
+          },
+        },
+      ],
+    });
+    expect(cleaned!.json.text).toContain('Đã xóa bản trên Mac: 0.92 GB');
+  });
+});
+
 describe('WF-08 Watchdog', () => {
   const summary = (blocked: string[]) => ({
     json: {

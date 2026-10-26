@@ -184,6 +184,24 @@ describe('qa_preview handler', () => {
     expect(JSON.parse(await readFile(join(workDir, 'qa-report.json'), 'utf8')).level).toBe('FAIL');
   });
 
+  test('checks the 1080p final.mp4 for qa_final (D-062)', async () => {
+    const renderDir = join(jobsDir, RENDER_JOB);
+    await writeFile(join(renderDir, 'final.mp4'), 'final');
+    await writeCheckpoint(renderDir, ['final.mp4', 'vi.srt'], { loudness: FACTS.loudness });
+    const inspected: string[] = [];
+    const final = { ...INFO, video: { ...INFO.video!, width: 1920, height: 1080 } };
+    const result = await createQaPreviewHandler({
+      inspect: async (path) => {
+        inspected.push(path);
+        return final;
+      },
+      detectGaps: async () => ({ black: [], silence: [] }),
+    })(context({ ...INPUT, quality: 'final' }));
+
+    expect(inspected).toEqual([join(renderDir, 'final.mp4')]);
+    expect(result.result).toMatchObject({ level: 'PASS' });
+  });
+
   test('rejects invalid input or a changed render', async () => {
     const handler = createQaPreviewHandler(deps());
     await expect(handler(context({ render_job_id: 'x' }))).rejects.toBeInstanceOf(

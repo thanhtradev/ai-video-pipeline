@@ -12,14 +12,23 @@ import { EPISODE_PREVIEW_SCALE } from './render-episode.js';
 // Episode `qa_preview` step (q:light, D-057, docs/quality-and-approval.md §3): checks the 720p
 // preview of a render_episode job before A2. Any FAIL is permanent (the video needs a decision;
 // QA is never retried until it passes); WARN goes into the A2 message. The result carries the
-// media token that lets WF-13 fetch the preview from the worker API (D-055). Free (local).
+// media token that lets WF-13 fetch the preview from the worker API (D-055). `qa_final` (D-062) runs
+// the same checks on the 1080p final.mp4 before A3. Free (local).
 
 const REPORT = 'qa-report.json';
-const VIDEO = 'preview.mp4';
 const SRT = 'vi.srt';
 const FPS = 30;
 
-const inputSchema = z.object({ render_job_id: z.uuid(), timing_job_id: z.uuid() });
+const QUALITIES = {
+  preview: { video: 'preview.mp4', scale: EPISODE_PREVIEW_SCALE },
+  final: { video: 'final.mp4', scale: 1 },
+} as const;
+
+const inputSchema = z.object({
+  render_job_id: z.uuid(),
+  timing_job_id: z.uuid(),
+  quality: z.enum(['preview', 'final']).default('preview'),
+});
 const renderSchema = z.object({
   loudness: z.object({ output_lufs: z.number(), output_true_peak: z.number() }),
 });
@@ -51,14 +60,15 @@ export function createQaPreviewHandler(deps: QaPreviewDeps): JobHandler {
     );
 
     await progress({ stage: 'qa' });
-    const video = join(render.dir, VIDEO);
+    const { video: file, scale } = QUALITIES[parsed.data.quality];
+    const video = join(render.dir, file);
     const info = await deps.inspect(video);
     const checks = previewChecks({
       info,
       gaps: await deps.detectGaps(video, signal),
       expected: {
-        width: Math.round(1920 * EPISODE_PREVIEW_SCALE),
-        height: Math.round(1080 * EPISODE_PREVIEW_SCALE),
+        width: Math.round(1920 * scale),
+        height: Math.round(1080 * scale),
         fps: FPS,
         seconds: totalFrames / FPS,
       },

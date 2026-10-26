@@ -6,6 +6,8 @@
 |---|---|---|
 | A1 — Script/storyboard | Script summary, scene list, cost estimate, assets with unclear license | Approve / Revise (with note) / Reject. **Implemented (2a):** Approve / Regenerate (new version, same brief) / Reject (cancel); the cost estimate is added with TTS pricing (2b); revise-with-note later |
 | A2 — Preview 720p | Preview link, thumbnail, metadata (title/description/tags), QA report, cost so far, estimate for the rest | Approve / Revise / Reject. **Implemented for episodes (D-057):** the preview video itself, QA warnings and cost so far; Approve / Reject / reply with notes; metadata later in 2d |
+| A3 — Metadata (episodes, D-062) | Thumbnail, title, description, tags, final QA warnings | Duyệt / Viết lại / reply with notes; approving archives the video |
+| Cleanup (episodes, D-063) | Archive path, size of the Mac copy | Xóa bản trên Mac / Giữ lại — owner only; the archive is re-verified before deleting |
 | Ad-hoc decision | Cost over threshold, provider/model change, QA failure, unclear license, file deletion request | Situation-specific choices |
 
 Never render final without A1 and A2 for the **same version**.
@@ -37,7 +39,7 @@ Runs on the `q:light` stream (`qa` job; Mac mini M4 while MacBook Pro M1 is offl
 | Content | Every asset used in the render has a checksum in the manifest; `UNVERIFIED` license assets are listed |
 | Metadata | Title/description/tags (Vietnamese) present, lengths within limits |
 
-**Implemented for episodes (D-057):** `qa_preview` checks the 720p preview: format, size, duration against the timeline, loudness, SRT validity (FAIL); black and silent stretches (WARN). Not yet: VTT, line length and reading speed, script diff, asset manifest, metadata, final 1080p QA.
+**Implemented for episodes (D-057):** `qa_preview` checks the 720p preview: format, size, duration against the timeline, loudness, SRT validity (FAIL); black and silent stretches (WARN). `qa_final` runs the same checks on the 1080p file before A3 (D-062); the archive adds a VTT next to the SRT. Not yet: line length and reading speed, script diff, asset licences.
 
 - `FAIL` → video `NEEDS_DECISION`; user chooses: fix (new version or re-run a specific step), accept the risk, or cancel. **Never** auto-retry QA until it "passes".
 - `WARN` → shown in A2.

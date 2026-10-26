@@ -1,4 +1,4 @@
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { Logger } from 'pino';
 import { sha256File, writeFileAtomic, type FileDigest } from '../storage/checkpoint.js';
@@ -115,6 +115,33 @@ function summarize(remoteDir: string, expected: Expected): ArchiveResult {
     fileCount: expected.size,
     totalBytes,
     manifestSha256: expected.get(CHECKSUMS_FILE)!.sha256,
+  };
+}
+
+/**
+ * Problems with an existing archive, against the checksums.sha256 written when it was made (local
+ * sizes, remote sizes and SHA-256). Empty means the remote copy is complete and intact. Used right
+ * before deleting the local copy (D-063).
+ */
+export async function verifyArchive(
+  target: ArchiveTarget,
+  localDir: string,
+  remoteDir: string,
+): Promise<{ problems: string[]; checksumsSha256: string }> {
+  const dir = resolve(localDir);
+  const lines = (await readFile(join(dir, CHECKSUMS_FILE), 'utf8')).split('\n').filter(Boolean);
+  const expected: Expected = new Map();
+  for (const line of lines) {
+    const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
+    if (!match) throw new ArchiveSourceError(`malformed ${CHECKSUMS_FILE} line: ${line}`);
+    const bytes = (await stat(join(dir, match[2]!))).size;
+    expected.set(match[2]!, { sha256: match[1]!, bytes });
+  }
+  const checksums = await sha256File(join(dir, CHECKSUMS_FILE));
+  expected.set(CHECKSUMS_FILE, checksums);
+  return {
+    problems: await findProblems(target, remoteDir, expected),
+    checksumsSha256: checksums.sha256,
   };
 }
 
