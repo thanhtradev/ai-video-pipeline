@@ -87,8 +87,8 @@
         "operation": "editMessageText",
         "chatId": "={{ $('Build reply').first().json.chatId }}",
         "messageId": "={{ $('Build reply').first().json.messageId }}",
-        "text": "={{ $('Build reply').first().json.editedText }}",
-        "additionalFields": {}
+        "text": "={{ String($('Build reply').first().json.editedText).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": { "parse_mode": "HTML" }
       },
       "id": "6f1d6a10-0000-4000-8000-000000000607",
       "name": "Remove buttons",
@@ -121,8 +121,9 @@
     {
       "parameters": {
         "chatId": "={{ $json.chatId }}",
-        "text": "={{ $json.answer }}",
+        "text": "={{ String($json.answer).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
         "additionalFields": {
+          "parse_mode": "HTML",
           "appendAttribution": false,
           "reply_to_message_id": "={{ $json.messageId }}"
         }
@@ -182,8 +183,9 @@
     {
       "parameters": {
         "chatId": "={{ $json.chatId }}",
-        "text": "={{ $json.text }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
         "additionalFields": {
+          "parse_mode": "HTML",
           "appendAttribution": false,
           "reply_to_message_id": "={{ $json.messageId }}"
         }

@@ -9,6 +9,7 @@ Claude Code never imports/activates production workflows.
 - No Wait nodes for approvals/workers. Waiting = state in the DB; a new event triggers a new workflow.
 - All DB writes use a transaction + state condition (`UPDATE ... WHERE status = <expected>`) to prevent races/duplicate handling.
 - Every workflow error → Error Workflow (WF-99) → Telegram + audit log.
+- Telegram messages are plain text sent as escaped HTML (`parse_mode: HTML`): the Telegram node otherwise parses Markdown, and a step name like `episode_code` breaks the message.
 
 ## List
 

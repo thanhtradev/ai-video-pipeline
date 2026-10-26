@@ -51,8 +51,9 @@
     {
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
-        "text": "={{ $json.text }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
         "additionalFields": {
+          "parse_mode": "HTML",
           "appendAttribution": false
         }
       },
