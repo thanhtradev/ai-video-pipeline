@@ -46,10 +46,15 @@ interface CodeGlobals {
   executionId?: string;
   nodeOutputs?: Record<string, Item[]>;
   staticData?: Record<string, unknown>;
+  helpers?: Record<string, (...args: never[]) => unknown>;
 }
 
-/** Runs a Code node body the way n8n does (top-level return) with stubbed globals. */
-function runCode(file: string, nodeName: string, globals: CodeGlobals): Item[] {
+// n8n runs Code nodes as async functions, so `await` works at the top level.
+const AsyncFunction = Object.getPrototypeOf(async () => undefined).constructor as new (
+  ...args: string[]
+) => (...args: unknown[]) => Promise<unknown>;
+
+function codeBody(file: string, nodeName: string, globals: CodeGlobals) {
   const node = workflow(file).nodes.find((n) => n.name === nodeName)!;
   const input = globals.input ?? [];
   const $input = { all: () => input, first: () => input[0] };
@@ -58,14 +63,23 @@ function runCode(file: string, nodeName: string, globals: CodeGlobals): Item[] {
     return { first: () => items[0], all: () => items };
   };
   const staticData = globals.staticData ?? {};
-  const body = new Function(
-    '$input',
-    '$execution',
-    '$',
-    '$getWorkflowStaticData',
-    node.parameters.jsCode as string,
-  );
-  return body($input, { id: globals.executionId ?? '1' }, $, () => staticData) as Item[];
+  const code = node.parameters.jsCode as string;
+  const args = [$input, { id: globals.executionId ?? '1' }, $, () => staticData];
+  const names = ['$input', '$execution', '$', '$getWorkflowStaticData'];
+  const self = { helpers: globals.helpers ?? {} };
+  return { code, args, names, self };
+}
+
+/** Runs a Code node body the way n8n does (top-level return) with stubbed globals. */
+function runCode(file: string, nodeName: string, globals: CodeGlobals): Item[] {
+  const { code, args, names, self } = codeBody(file, nodeName, globals);
+  return new Function(...names, code).apply(self, args) as Item[];
+}
+
+/** The same for a Code node that awaits (e.g. reads binary data). */
+async function runAsyncCode(file: string, nodeName: string, globals: CodeGlobals): Promise<Item[]> {
+  const { code, args, names, self } = codeBody(file, nodeName, globals);
+  return (await new AsyncFunction(...names, code).apply(self, args)) as Item[];
 }
 
 describe.each(files)('%s', (file) => {
@@ -118,7 +132,7 @@ describe.each(files)('%s', (file) => {
 
   test('code nodes compile', () => {
     for (const node of wf.nodes.filter((n) => n.type === 'n8n-nodes-base.code')) {
-      expect(() => new Function(node.parameters.jsCode as string)).not.toThrow();
+      expect(() => new AsyncFunction(node.parameters.jsCode as string)).not.toThrow();
     }
   });
 });
@@ -659,6 +673,173 @@ describe('WF-12 Storyboard Approval Request', () => {
     for (const key of ['approve', 'reject']) {
       expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
     }
+  });
+});
+
+describe('WF-06 /new (D-058)', () => {
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const message = (text: string, extra: object = {}, chat: string | number = CHAT): Item => ({
+    json: {
+      message: {
+        message_id: 12,
+        from: { id: 111, is_bot: false },
+        chat: { id: chat },
+        ...(Object.keys(extra).length ? { caption: text, ...extra } : { text }),
+      },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] })[0]?.json;
+
+  test('parses minutes, topic and notes', () => {
+    expect(
+      parse(message('/new@aivideo_bot 8 Nếu bạn dừng được thời gian?\nGiọng vui.\nKết buồn.')),
+    ).toEqual({
+      kind: 'intake',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '12',
+      topic: 'Nếu bạn dừng được thời gian?',
+      minutes: 8,
+      notes: 'Giọng vui.\nKết buồn.',
+      fileId: '',
+      error: '',
+    });
+    expect(parse(message('/new Mèo nghĩ gì?'))).toMatchObject({
+      topic: 'Mèo nghĩ gì?',
+      minutes: null,
+    });
+  });
+
+  test('takes the full brief from an attached .md or .txt file', () => {
+    const file = { document: { file_id: 'F1', file_name: 'tap-1.md', file_size: 30_000 } };
+    expect(parse(message('/new Mèo nghĩ gì?', file))).toMatchObject({ fileId: 'F1', error: '' });
+    expect(
+      parse(
+        message('/new Mèo', { document: { file_id: 'F2', file_name: 'brief.pdf', file_size: 10 } }),
+      ),
+    ).toMatchObject({ error: 'The full brief must be a .md or .txt file of at most 200 KB.' });
+  });
+
+  test('refuses other chats (showing their id) and an empty topic', () => {
+    expect(parse(message('/new Mèo', {}, -100999))!.error).toBe(
+      'This chat (-100999) is not the approval chat; /new works only there.',
+    );
+    expect(parse(message('/new  '))!.error).toMatch(/^Usage: \/new \[minutes\] <topic>/);
+    expect(parse(message('/newx Mèo'))).toBeUndefined();
+  });
+
+  test('builds the brief, reading the file as UTF-8 without a byte order mark', async () => {
+    const parsed = parse(
+      message('/new 6 Mèo nghĩ gì?\nGhi chú', {
+        document: { file_id: 'F1', file_name: 'a.md', file_size: 9 },
+      }),
+    )!;
+    const [out] = await runAsyncCode('wf-06-telegram-callback.json', 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+      helpers: { getBinaryDataBuffer: async () => Buffer.from('﻿VOICE\n[punchy] Một.', 'utf8') },
+    });
+    expect(out!.json).toEqual({
+      chatId: CHAT,
+      messageId: '12',
+      ok: true,
+      userId: '111',
+      brief: JSON.stringify({
+        topic: 'Mèo nghĩ gì?',
+        duration_minutes: 6,
+        full_brief: 'VOICE\n[punchy] Một.',
+        notes: 'Ghi chú',
+      }),
+    });
+    const [failed] = await runAsyncCode('wf-06-telegram-callback.json', 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: { ...parsed, error: 'Usage: x' } }] },
+    });
+    expect(failed!.json).toMatchObject({ ok: false, text: 'Usage: x' });
+  });
+
+  const confirm = (row: Record<string, unknown>) =>
+    runCode('wf-06-telegram-callback.json', 'Build confirmation', {
+      input: [{ json: row }],
+      nodeOutputs: { 'Parse callback': [{ json: { chatId: CHAT, messageId: '12' } }] },
+    })[0]!.json;
+
+  test('asks to confirm with Create / Cancel, warning when a full brief has no VOICE', () => {
+    const token = 'd'.repeat(32);
+    const out = confirm({
+      result: 'DRAFT',
+      token,
+      expires_at: '2026-10-26T06:00:00.000Z',
+      brief: { topic: 'Mèo nghĩ gì?', duration_minutes: 8, full_brief: 'Dàn ý' },
+      has_voice: false,
+    });
+    expect(out.text).toContain('Topic: Mèo nghĩ gì?');
+    expect(out.text).toContain('Length: about 8 min');
+    expect(out.text).toContain('Full brief: 5 characters');
+    expect(out.text).toMatch(/no VOICE section/);
+    expect(out).toMatchObject({ approve: `in:A:${token}`, reject: `in:R:${token}` });
+
+    const plain = confirm({
+      result: 'DRAFT',
+      token,
+      expires_at: '2026-10-26T06:00:00Z',
+      brief: { topic: 'Mèo' },
+      has_voice: null,
+    });
+    expect(plain.text).toContain('Full brief: none (Claude writes the episode)');
+    expect(plain.text).not.toMatch(/VOICE/);
+  });
+
+  test('explains a refused draft without buttons', () => {
+    expect(confirm({ result: 'NOT_APPROVER' })).toEqual({
+      chatId: CHAT,
+      messageId: '12',
+      text: 'You are not an approver.',
+    });
+    expect(
+      confirm({ result: 'INVALID', error: 'invalid brief: topic must be 3-500 characters' }).text,
+    ).toBe('[AI Video] Not created: invalid brief: topic must be 3-500 characters');
+  });
+
+  test('parses Create / Cancel buttons and answers them', () => {
+    const token = 'd'.repeat(32);
+    const callback = (data: string): Item => ({
+      json: {
+        callback_query: {
+          id: 'q',
+          data,
+          from: { id: 111 },
+          message: { message_id: 13, chat: { id: CHAT }, text: 'confirm' },
+        },
+      },
+    });
+    const parsed = runCode('wf-06-telegram-callback.json', 'Parse callback', {
+      input: [callback(`in:A:${token}`)],
+    });
+    expect(parsed[0]!.json).toMatchObject({ approval: 'intake', action: 'APPROVE', token });
+    const answer = runCode('wf-06-telegram-callback.json', 'Build reply', {
+      input: [
+        {
+          json: {
+            result: 'OK',
+            video_id: '302209bf-1d55-40e1-afbe-8278d7224add',
+            version: 1,
+            round: null,
+          },
+        },
+      ],
+      nodeOutputs: { 'Parse callback': parsed },
+    })[0]!.json;
+    expect(answer).toMatchObject({
+      answer: 'Created video 302209bf: writing the script; the A1 request follows.',
+      settled: true,
+    });
+    expect(
+      runCode('wf-06-telegram-callback.json', 'Parse callback', {
+        input: [callback(`in:G:${token}`)],
+      }),
+    ).toEqual([]);
   });
 });
 
