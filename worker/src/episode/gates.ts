@@ -66,10 +66,13 @@ export function createGateRunner(options: GateRunnerOptions): GateRunner {
 /** Remotion's errors when Chrome itself dies (e.g. a V8 fatal check), not the episode code. */
 const BROWSER_CRASH = /Page crashed!|Target closed|browser crashed|Session closed/i;
 
+/** True when the text (a gate error, or a prompt quoting one) shows Chrome itself crashing. */
+export const isBrowserCrash = (text: string): boolean => BROWSER_CRASH.test(text);
+
 /** The Chrome crash of a gate run, or null. The agent cannot fix it: the worker retries. */
 export function browserCrash(report: GateReport): string | null {
   const errors = [report.board?.error, report.textBounds?.error];
-  return errors.find((e): e is string => e !== undefined && BROWSER_CRASH.test(e)) ?? null;
+  return errors.find((e): e is string => e !== undefined && isBrowserCrash(e)) ?? null;
 }
 
 const frames = (from: number, to: number) => `episode frames ${from}–${to}`;
