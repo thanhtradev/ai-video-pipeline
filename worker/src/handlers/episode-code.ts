@@ -172,8 +172,10 @@ async function runTurns(
     context.logger.info({ turn: n, gatesOk: report.ok }, 'episode gates');
   };
 
-  // The last attempt stopped after an agent turn but before its gates finished.
-  if (state.turns.at(-1)?.gates === null) await gate();
+  // The last attempt stopped after an agent turn but before its gates finished, or an older worker
+  // recorded a Chrome crash as that turn's gates.
+  const crashed = state.report !== null && browserCrash(state.report) !== null;
+  if (state.turns.at(-1)?.gates === null || crashed) await gate();
   for (let n = state.turns.length; n <= MAX_FOLLOW_UPS; n++) {
     if (n === 2 && state.report?.ok) break;
     const timeoutMs = deadline - Date.now();

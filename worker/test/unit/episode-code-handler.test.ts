@@ -301,6 +301,24 @@ describe('episode_code handler', () => {
     expect(turns[1]!.prompt).not.toMatch(/Page crashed/);
   });
 
+  test('a Chrome crash recorded by an older worker is gated again on retry', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
+    ).rejects.toThrow(PermanentJobError);
+    expect(turns).toHaveLength(3);
+    // Before the crash check, the crash was recorded as the last turn's gates.
+    const path = join(workDir, 'agent-turns.json');
+    const log = JSON.parse(await readFile(path, 'utf8'));
+    log.report = CHROME_CRASH;
+    log.turns[2].gates = { ok: false, failures: describeFailures(CHROME_CRASH) };
+    await writeFile(path, JSON.stringify(log));
+
+    const result = await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(3);
+    expect(result.result).toMatchObject({ turns: 3 });
+  });
+
   test('a render error thrown by the episode code still goes to the agent', async () => {
     const RENDER_ERROR: GateReport = {
       ...PASS,
