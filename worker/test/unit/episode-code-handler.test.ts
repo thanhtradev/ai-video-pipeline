@@ -319,6 +319,25 @@ describe('episode_code handler', () => {
     expect(result.result).toMatchObject({ turns: 3 });
   });
 
+  test('follow-up turns an older worker spent on a Chrome crash are given back', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
+    ).rejects.toThrow(PermanentJobError);
+    // Before the crash check, both follow-up prompts showed the agent a Chrome crash.
+    const path = join(workDir, 'agent-turns.json');
+    const log = JSON.parse(await readFile(path, 'utf8'));
+    const crashPrompt = `The worker's checks failed:\n\n${describeFailures(CHROME_CRASH).join('\n\n')}`;
+    log.turns[1].prompt = crashPrompt;
+    log.turns[2].prompt = crashPrompt;
+    await writeFile(path, JSON.stringify(log));
+
+    const result = await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(4);
+    expect(turns[3]!.prompt).toMatch(/1 sharp texts are partly outside[\s\S]*NHỚ CHI TIẾT NÀY/);
+    expect(result.result).toMatchObject({ turns: 4 });
+  });
+
   test('a render error thrown by the episode code still goes to the agent', async () => {
     const RENDER_ERROR: GateReport = {
       ...PASS,
