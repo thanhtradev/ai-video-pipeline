@@ -43,6 +43,14 @@ const TEXT_FAIL: GateReport = {
     rows: [{ kind: 'html', side: 't16', text: 'NHỚ CHI TIẾT NÀY', from: 2310, to: 2380 }],
   },
 };
+const CHROME_CRASH: GateReport = {
+  ...PASS,
+  ok: false,
+  textBounds: {
+    ok: false,
+    error: 'Error: Page crashed!\n    at #onTargetCrashed (index.mjs:3562:24)',
+  },
+};
 
 let jobsDir: string;
 let workDir: string;
@@ -279,6 +287,69 @@ describe('episode_code handler', () => {
       { stage: 'agent', turn: 2, of: 3 },
       { stage: 'gates', turn: 2, of: 3 },
     ]);
+  });
+
+  test('a Chrome crash in the gates is retried, not handed to the agent', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(CHROME_CRASH) }))(context()),
+    ).rejects.toThrow(/the gates' Chrome crashed[\s\S]*Page crashed!/);
+    expect(turns).toHaveLength(1);
+    const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
+    expect(log.turns[0].gates).toBeNull();
+
+    await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).not.toMatch(/Page crashed/);
+  });
+
+  test('a Chrome crash recorded by an older worker is gated again on retry', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
+    ).rejects.toThrow(PermanentJobError);
+    expect(turns).toHaveLength(3);
+    // Before the crash check, the crash was recorded as the last turn's gates.
+    const path = join(workDir, 'agent-turns.json');
+    const log = JSON.parse(await readFile(path, 'utf8'));
+    log.report = CHROME_CRASH;
+    log.turns[2].gates = { ok: false, failures: describeFailures(CHROME_CRASH) };
+    await writeFile(path, JSON.stringify(log));
+
+    const result = await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(3);
+    expect(result.result).toMatchObject({ turns: 3 });
+  });
+
+  test('follow-up turns an older worker spent on a Chrome crash are given back', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
+    ).rejects.toThrow(PermanentJobError);
+    // Before the crash check, both follow-up prompts showed the agent a Chrome crash.
+    const path = join(workDir, 'agent-turns.json');
+    const log = JSON.parse(await readFile(path, 'utf8'));
+    const crashPrompt = `The worker's checks failed:\n\n${describeFailures(CHROME_CRASH).join('\n\n')}`;
+    log.turns[1].prompt = crashPrompt;
+    log.turns[2].prompt = crashPrompt;
+    await writeFile(path, JSON.stringify(log));
+
+    const result = await createEpisodeCodeHandler(deps())(context(INPUT, 2));
+
+    expect(turns).toHaveLength(4);
+    expect(turns[3]!.prompt).toMatch(/1 sharp texts are partly outside[\s\S]*NHỚ CHI TIẾT NÀY/);
+    expect(result.result).toMatchObject({ turns: 4 });
+  });
+
+  test('a render error thrown by the episode code still goes to the agent', async () => {
+    const RENDER_ERROR: GateReport = {
+      ...PASS,
+      ok: false,
+      board: { ok: false, error: "TypeError: Cannot read properties of undefined (reading 'x')" },
+    };
+    await createEpisodeCodeHandler(deps({ gates: gates(RENDER_ERROR, PASS) }))(context());
+
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).toMatch(/storyboard render failed:[\s\S]*reading 'x'/);
   });
 
   test('a retry after a failed review continues with the fix turn', async () => {

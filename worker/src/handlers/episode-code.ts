@@ -7,6 +7,8 @@ import type { AgentRunner } from '../claude/agent-cli.js';
 import { agentSettings } from '../episode/agent-settings.js';
 import { resolveSelection, type ResolvedSelection } from '../episode/catalog.js';
 import {
+  browserCrash,
+  isBrowserCrash,
   describeFailures,
   gateReportSchema,
   type GateReport,
@@ -153,13 +155,19 @@ async function runTurns(
   const settingsPath = join(context.workDir, SETTINGS);
   const deadline = Date.now() + (deps.limitMs ?? AGENT_LIMIT_MS) - saved.agentMs;
   let state = saved;
+  // An older worker showed the agent Chrome crashes it could not fix: those turns are given back.
+  const wasted = saved.turns.filter((turn, i) => i > 0 && isBrowserCrash(turn.prompt)).length;
+  const maxTurns = MAX_FOLLOW_UPS + 1 + wasted;
   const save = () =>
     writeFileAtomic(join(context.workDir, TURNS_LOG), `${JSON.stringify(state, null, 1)}\n`);
 
   const gate = async () => {
     const n = state.turns.length;
-    await context.progress({ stage: 'gates', turn: n, of: MAX_FOLLOW_UPS + 1 });
+    await context.progress({ stage: 'gates', turn: n, of: maxTurns });
     const report = await deps.gates(ws, context.signal);
+    // Not recorded as this turn's gates, so the retry runs the gates again before any agent turn.
+    const crash = browserCrash(report);
+    if (crash) throw new Error(`the gates' Chrome crashed: ${crash.slice(0, 1000)}`);
     const gates = { ok: report.ok, failures: describeFailures(report) };
     state = {
       ...state,
@@ -170,10 +178,12 @@ async function runTurns(
     context.logger.info({ turn: n, gatesOk: report.ok }, 'episode gates');
   };
 
-  // The last attempt stopped after an agent turn but before its gates finished.
-  if (state.turns.at(-1)?.gates === null) await gate();
-  for (let n = state.turns.length; n <= MAX_FOLLOW_UPS; n++) {
-    if (n === 2 && state.report?.ok) break;
+  // The last attempt stopped after an agent turn but before its gates finished, or an older worker
+  // recorded a Chrome crash as that turn's gates.
+  const crashed = state.report !== null && browserCrash(state.report) !== null;
+  if (state.turns.at(-1)?.gates === null || crashed) await gate();
+  for (let n = state.turns.length; n < maxTurns; n++) {
+    if (n >= 2 && state.report?.ok) break;
     const timeoutMs = deadline - Date.now();
     if (timeoutMs <= 0) break;
     const prompt =
@@ -182,7 +192,7 @@ async function runTurns(
           ? REVISION_PROMPT
           : firstPrompt(selection.referenceEpisode)
         : followUpPrompt(state.report!, n === 1);
-    await context.progress({ stage: 'agent', turn: n + 1, of: MAX_FOLLOW_UPS + 1 });
+    await context.progress({ stage: 'agent', turn: n + 1, of: maxTurns });
     const started = Date.now();
     const result = await deps.agent({
       prompt,

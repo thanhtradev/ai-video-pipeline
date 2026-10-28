@@ -24,7 +24,11 @@ const require = createRequire(import.meta.url);
 const TSC = join(dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
 const STEP_TIMEOUT_MS = 10 * 60 * 1000;
 const OUTPUT_TAIL = 6000;
-const QA_CHUNK = 100;
+/**
+ * QA samples per fresh browser. 100 crashed Chrome deterministically on one episode (a V8 fatal
+ * check in the tab, 2026-10-27) while 20 passed; a fresh browser costs under a second.
+ */
+const QA_CHUNK = 20;
 /** Must match src/Root.tsx: board shots per page, QA sampling step. */
 const BOARD_PER = 12;
 const QA_EVERY = 10;
