@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.tiktok2.json",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.kit.json",
     "test": "vitest run",
     "studio": "remotion studio src/index.ts"
   },

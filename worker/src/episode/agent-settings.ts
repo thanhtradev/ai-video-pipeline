@@ -38,6 +38,10 @@ const DENY_READ = [
   '/Volumes',
 ];
 
+/** Folders of the worker's runtime root (D-065) next to the workspaces: never readable by the agent. */
+export const privateDirs = (runtimeRoot: string): string[] =>
+  ['config', 'media', 'models', 'logs'].map((dir) => join(runtimeRoot, dir));
+
 /** Workspace files the worker provides; the agent must not change them. */
 const PROTECTED = [
   'CLAUDE.md',
@@ -58,8 +62,9 @@ const PROTECTED = [
   'node_modules',
 ];
 
-/** Settings for a workspace at the absolute (real) path `ws`. */
-export function agentSettings(ws: string) {
+/** Settings for a workspace at the absolute (real) path `ws`; `runtimeRoot` holds the worker's private folders. */
+export function agentSettings(ws: string, runtimeRoot: string) {
+  const denyRead = [...DENY_READ, ...privateDirs(runtimeRoot)];
   // "//" marks an absolute path in permission rules.
   const abs = (path: string) => `/${join(ws, path)}`;
   return {
@@ -69,7 +74,7 @@ export function agentSettings(ws: string) {
       allowUnsandboxedCommands: false,
       failIfUnavailable: true,
       network: { allowedDomains: [], strictAllowlist: true },
-      filesystem: { denyRead: DENY_READ, denyWrite: PROTECTED.map((p) => join(ws, p)) },
+      filesystem: { denyRead, denyWrite: PROTECTED.map((p) => join(ws, p)) },
     },
     permissions: {
       allow: [
@@ -85,6 +90,7 @@ export function agentSettings(ws: string) {
         'Read(~/.ssh/**)',
         'Read(~/.config/**)',
         'Read(~/.claude/**)',
+        ...privateDirs(runtimeRoot).map((dir) => `Read(/${dir}/**)`),
       ],
     },
   };

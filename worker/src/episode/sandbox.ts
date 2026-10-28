@@ -15,6 +15,8 @@ export interface SandboxedNode {
   profile: string;
   /** Real path of the workspace (Seatbelt matches resolved paths, e.g. /private/tmp). */
   ws: string;
+  /** The worker's runtime root (D-065): its config/ is denied to the sandboxed process. */
+  runtimeRoot: string;
   script: string;
   args: readonly string[];
   timeoutMs: number;
@@ -30,6 +32,7 @@ export async function runSandboxedNode(run: SandboxedNode): Promise<void> {
     run.sandboxExec ?? '/usr/bin/sandbox-exec',
     [
       ...['-f', run.profile, '-D', `WS=${run.ws}`, '-D', `TMP=${tmp}`, '-D', `HOME=${home}`],
+      ...['-D', `ROOT=${run.runtimeRoot}`],
       run.nodeBin ?? process.execPath,
       run.script,
       ...run.args,

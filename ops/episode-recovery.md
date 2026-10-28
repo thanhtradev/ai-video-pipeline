@@ -16,7 +16,7 @@ What it adds:
 The worker runs from this checkout, so Chrome must be downloaded here (not in another worktree):
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline/remotion
+cd ~/aivideo/repo/remotion
 npx remotion browser ensure
 ls node_modules/.remotion/chrome-headless-shell    # VERSION, mac-arm64
 ```
@@ -24,7 +24,7 @@ ls node_modules/.remotion/chrome-headless-shell    # VERSION, mac-arm64
 ## 2. Code, backup, migrate
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline
+cd ~/aivideo/repo
 git checkout main
 git pull
 npm ci

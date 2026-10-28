@@ -33,6 +33,8 @@ import { writeCheckpoint } from '../../src/storage/checkpoint.js';
 const execFileAsync = promisify(execFile);
 const MODEL = process.env.WHISPER_MODEL;
 const PROFILE = fileURLToPath(new URL('../../../ops/claude/episode-render.sb', import.meta.url));
+/** A runtime root without private folders: the sandbox only denies paths that need not exist. */
+const ROOT = join(tmpdir(), 'aivideo-test-root');
 const SCRIPT_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334401';
 const TTS_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334402';
 const TIMING_JOB = '0d1e2f3a-4b5c-4d6e-8f70-001122334403';
@@ -128,12 +130,13 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
           blockSeconds: 3600,
           env: claudeChildEnv(process.env),
         }),
-        gates: createGateRunner({ profile: PROFILE }),
+        gates: createGateRunner({ profile: PROFILE, runtimeRoot: ROOT }),
         secrets: [],
         limitMs: 30 * 60 * 1000,
         rules: async () => NO_RULES,
         browserReady: chromeInstalled,
         blockSeconds: 60,
+        runtimeRoot: ROOT,
       });
       const result = await code(
         ctx(CODE_JOB, { script_job_id: SCRIPT_JOB, timing_job_id: TIMING_JOB }, dir(CODE_JOB)),
@@ -148,7 +151,7 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
       // The approved storyboard renders (C4).
       await writeCheckpoint(dir(CODE_JOB), result.outputs, result.result);
       const render = createRenderEpisodeHandler({
-        render: createSandboxedEpisodeRenderer(PROFILE),
+        render: createSandboxedEpisodeRenderer(PROFILE, ROOT),
         loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         probe: createFfprobe(process.env.FFPROBE_BIN ?? 'ffprobe'),
         browserReady: chromeInstalled,

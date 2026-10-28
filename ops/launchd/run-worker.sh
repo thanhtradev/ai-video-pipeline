@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# launchd entry point for the worker on a Mac. Non-secret settings come from
-# ~/.config/aivideo/worker.env; secrets are read from the login Keychain at start-up and only
-# live in this process's environment (docs/security.md §1). Nothing secret is written to disk.
+# launchd entry point for the worker on a Mac. Everything of the worker lives under one runtime
+# root (D-065, default ~/aivideo): repo/ (a clone on main), work/ (WORK_ROOT), config/worker.env
+# (non-secret settings), logs/, models/, media/. Secrets are read from the login Keychain at
+# start-up and only live in this process's environment (docs/security.md §1). Nothing secret is
+# written to disk.
 #
 # Keychain items (service names), all with account "aivideo":
 #   aivideo-db-password       password of the worker's PostgreSQL login role
@@ -17,8 +19,10 @@
 #                             possibly locked Keychain and script jobs block)
 set -euo pipefail
 
-CONFIG_FILE="${AIVIDEO_CONFIG:-$HOME/.config/aivideo/worker.env}"
-REPO_DIR="${AIVIDEO_REPO:-$HOME/ai-video-pipeline}"
+AIVIDEO_ROOT="${AIVIDEO_ROOT:-$HOME/aivideo}"
+CONFIG_FILE="${AIVIDEO_CONFIG:-$AIVIDEO_ROOT/config/worker.env}"
+REPO_DIR="${AIVIDEO_REPO:-$AIVIDEO_ROOT/repo}"
+export AIVIDEO_ROOT
 
 keychain() {
   security find-generic-password -a aivideo -s "$1" -w

@@ -1,3 +1,5 @@
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { loadConfig } from '../../src/config.js';
 
@@ -96,6 +98,14 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...VALID_ENV, ITERA_BASE_URL: 'http://api.genmax.io' })).toThrow(
       /ITERA_BASE_URL/,
     );
+  });
+
+  test('the runtime root defaults to ~/aivideo and must be absolute', () => {
+    expect(loadConfig(VALID_ENV).runtimeRoot).toBe(join(homedir(), 'aivideo'));
+    expect(loadConfig({ ...VALID_ENV, AIVIDEO_ROOT: '/srv/aivideo' }).runtimeRoot).toBe(
+      '/srv/aivideo',
+    );
+    expect(() => loadConfig({ ...VALID_ENV, AIVIDEO_ROOT: 'aivideo' })).toThrow(/AIVIDEO_ROOT/);
   });
 
   test('lists invalid variables without echoing their values', () => {

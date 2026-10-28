@@ -1,0 +1,1 @@
+16:9 episodes in a code-drawn 2D cartoon: glossy black round-headed characters with only two white oval eyes, cool-toned science settings (labs, classrooms, space, diagrams drawn on screen), parallax camera, burned-in captions, synthesized SFX, no music.

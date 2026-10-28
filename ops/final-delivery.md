@@ -10,7 +10,7 @@ hashtags, thumbnail), A3 on Telegram, the `archive` job to **Google Drive**, the
 ## 1. Code, backup, migrate (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline
+cd ~/aivideo/repo
 git checkout main
 git pull
 npm ci
@@ -65,7 +65,7 @@ Backup as in `phase-2b.md` §3, then migrate and re-run grants as in `preview-ap
 
 ## 3. Worker: settings and restart
 
-Add to `~/.config/aivideo/worker.env` (the rclone path from step 2.1):
+Add to `~/aivideo/config/worker.env` (the rclone path from step 2.1):
 
 ```bash
 ARCHIVE_RCLONE_REMOTE="aivideo-drive:AI Video Archive"
@@ -92,7 +92,7 @@ message arrive. Duyệt → `/status` shows `archive`, then "Video hoàn tất �
 `renders/`, `manifest.json`, `checksums.sha256` …
 
 Xóa (from the owner's account) → `cleanup` re-checks every file on Drive, deletes
-`~/work/videos/<id>/v1/` except the cleanup job's folder, and reports the space freed. Pressing it
+`~/aivideo/work/videos/<id>/v1/` except the cleanup job's folder, and reports the space freed. Pressing it
 from another account is refused.
 
 ## Rollback

@@ -14,5 +14,13 @@
     "types": []
   },
   "include": ["src", "test"],
-  "exclude": ["src/tiktok2"]
+  "exclude": [
+    "src/rig",
+    "src/kits",
+    "src/characters",
+    "src/episodes",
+    "src/channels.ts",
+    "src/ChannelsRoot.tsx",
+    "test/catalog.test.ts"
+  ]
 }

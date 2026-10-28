@@ -95,7 +95,7 @@ function buildHandlers(
     detectGaps: createGapDetector(config.ffmpegBin),
   });
   const renderEpisode = createRenderEpisodeHandler({
-    render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE),
+    render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE, config.runtimeRoot),
     loudness: createLoudnessNormalizer(config.ffmpegBin),
     probe,
     browserReady: chromeInstalled,
@@ -137,7 +137,10 @@ function buildHandlers(
           blockSeconds: config.claude.blockSeconds,
           env: claudeChildEnv(process.env),
         }),
-        gates: createGateRunner({ profile: EPISODE_RENDER_PROFILE }),
+        gates: createGateRunner({
+          profile: EPISODE_RENDER_PROFILE,
+          runtimeRoot: config.runtimeRoot,
+        }),
         // Values the agent's files must never contain.
         secrets: [
           process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
@@ -147,6 +150,7 @@ function buildHandlers(
         rules,
         browserReady: chromeInstalled,
         blockSeconds: CHROME_BLOCK_SECONDS,
+        runtimeRoot: config.runtimeRoot,
       }),
     ],
     [

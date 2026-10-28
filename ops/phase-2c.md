@@ -18,8 +18,8 @@ No n8n change: the A1 buttons call the same SQL function.
 ## 1. Code and music library (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
-ls ~/MediaLibrary/music/catalog.json && python3 -c "import json;print(len(json.load(open('$HOME/MediaLibrary/music/catalog.json'))['tracks']), 'tracks')"
+cd ~/aivideo/repo && git checkout main && git pull && npm ci
+ls ~/MediaLibrary/music/catalog.json && python3 -c "import json;print(len(json.load(open('$HOME/aivideo/media/music/catalog.json'))['tracks']), 'tracks')"
 ```
 
 **Check**: `30 tracks`. Read `~/MediaLibrary/music/README.md` before you publish anything. Every
@@ -58,10 +58,10 @@ Keep this shell open for step 5.
 ## 4. Worker (Mac mini)
 
 ```bash
-grep '^WORKER_STREAMS=' ~/.config/aivideo/worker.env      # must include q:render
-printf 'FFMPEG_BIN=%s\nMUSIC_LIBRARY_DIR=%s\n' "$(which ffmpeg)" "$HOME/MediaLibrary/music" >> ~/.config/aivideo/worker.env
+grep '^WORKER_STREAMS=' ~/aivideo/config/worker.env      # must include q:render
+printf 'FFMPEG_BIN=%s\nMUSIC_LIBRARY_DIR=%s\n' "$(which ffmpeg)" "$HOME/aivideo/media/music" >> ~/aivideo/config/worker.env
 launchctl kickstart -k gui/$(id -u)/com.aivideo.worker
-tail -n 5 ~/Library/Logs/aivideo-worker.log      # "worker ready"
+tail -n 5 ~/aivideo/logs/worker.log      # "worker ready"
 ```
 
 ## 5. Smoke test (free)
@@ -91,7 +91,7 @@ SELECT status FROM video_version WHERE video_id = '<video id>';
 
 ```bash
 unset PGPASSWORD DATABASE_URL
-WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/aivideo/config/worker.env | cut -d= -f2-)
 open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/preview.mp4 | head -1)"
 open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/thumbnail.png | head -1)"
 cat "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/vi.srt | head -1)"

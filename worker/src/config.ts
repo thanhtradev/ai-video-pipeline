@@ -1,4 +1,5 @@
-import { isAbsolute } from 'node:path';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import { z } from 'zod';
 
 const MIN_CLIENT_KEY_LENGTH = 32;
@@ -28,6 +29,9 @@ const envSchema = z
     DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
     REDIS_URL: z.url({ protocol: /^rediss?$/ }),
     WORK_ROOT: z.string().refine(isAbsolute, 'must be an absolute path'),
+    // The worker Mac's runtime root (D-065): repo/, work/, config/, logs/, models/, media/. The
+    // agent sandboxes deny its private folders; set by run-worker.sh.
+    AIVIDEO_ROOT: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
     API_HOST: z.string().default('127.0.0.1'),
     API_PORT: z.coerce.number().int().min(1).max(65535).default(8787),
     API_CLIENT_KEYS: clientKeys,
@@ -84,6 +88,8 @@ export interface Config {
   databaseUrl: string;
   redisUrl: string;
   workRoot: string;
+  /** Runtime root of this worker Mac (D-065). */
+  runtimeRoot: string;
   apiHost: string;
   apiPort: number;
   apiClientKeys: Record<string, string>;
@@ -134,6 +140,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     databaseUrl: e.DATABASE_URL,
     redisUrl: e.REDIS_URL,
     workRoot: e.WORK_ROOT,
+    runtimeRoot: e.AIVIDEO_ROOT ?? join(homedir(), 'aivideo'),
     apiHost: e.API_HOST,
     apiPort: e.API_PORT,
     apiClientKeys: e.API_CLIENT_KEYS,

@@ -112,18 +112,37 @@ Follow [redis/README.md](redis/README.md): check other users, enable AOF + `maxm
 
 ## 4. Worker (Mac mini)
 
-The worker runs from the development checkout `~/remote-dev/AIVIdeo/ai-video-pipeline` (D-039). It
-loads code once at start, so **restart it only when that checkout is on an up-to-date `main`**:
-`git checkout main && git pull && npm ci && launchctl kickstart -k gui/$(id -u)/com.aivideo.worker`.
+Every worker Mac has one runtime root, `~/aivideo` (D-065); nothing of the worker lives anywhere
+else, so a new worker is these steps and nothing more:
 
-1. Config (no secrets):
+```
+~/aivideo/
+  repo/      plain clone of this repository, always on main   (AIVIDEO_ROOT/repo)
+  work/      WORK_ROOT: videos/<video_id>/v<n>/…
+  config/    worker.env (no secrets; the Keychain holds them)
+  logs/      worker.log (launchd stdout + stderr)
+  models/    whisper/ggml-large-v3-turbo.bin
+  media/     music/ (catalog.json + files, D-047)
+```
+
+The worker loads code once at start, so **restart it only from an up-to-date `main`**:
+`~/aivideo/repo/ops/launchd/update-worker.sh` (fetch, `git pull --ff-only`, `npm ci`, Chrome,
+`launchctl kickstart`, `/health`). Development happens in another checkout
+(`~/remote-dev/AIVIdeo/ai-video-pipeline`), never in `~/aivideo/repo`.
+
+1. Clone and build (the `gh` CLI is logged in to the private repo):
    ```bash
-   cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
-   mkdir -p ~/.config/aivideo ~/work
-   cp ops/launchd/worker.env.example ~/.config/aivideo/worker.env && chmod 600 ~/.config/aivideo/worker.env
-   sed -i '' "s#^WORK_ROOT=.*#WORK_ROOT=$HOME/work#" ~/.config/aivideo/worker.env
+   mkdir -p ~/aivideo/config ~/aivideo/logs ~/aivideo/models ~/aivideo/media
+   gh repo clone thanhtradev/ai-video-pipeline ~/aivideo/repo -- --branch main
+   cd ~/aivideo/repo && npm ci && cd remotion && npx remotion browser ensure && cd ..
    ```
-2. Keychain items (prompts for each value, nothing in history). **Over SSH the login Keychain is
+2. Config (no secrets). Set `WORKER_ID`, the DB/Redis hosts and users, and this Mac's Tailscale
+   address; the paths in the example already point into `~/aivideo`:
+   ```bash
+   cp ops/launchd/worker.env.example ~/aivideo/config/worker.env && chmod 600 ~/aivideo/config/worker.env
+   sed -i '' "s#/Users/aivideo#$HOME#g" ~/aivideo/config/worker.env
+   ```
+3. Keychain items (prompts for each value, nothing in history). **Over SSH the login Keychain is
    locked** and `security` fails with "User interaction is not allowed" — unlock it first:
    ```bash
    security unlock-keychain ~/Library/Keychains/login.keychain-db
@@ -133,26 +152,46 @@ loads code once at start, so **restart it only when that checkout is on an up-to
    ```
    Use `-U` to replace an existing item. To compare a stored Redis password with the server without
    printing it: `sha256` of the Keychain value must equal the `#<hash>` on the `user` line in
-   `/etc/redis/redis.conf`.
-3. LaunchAgent. launchd does not load the shell profile, so the plist PATH must contain the Node
+   `/etc/redis/redis.conf`. The other items (ITERA, rclone, Claude token) are listed in
+   `ops/launchd/run-worker.sh`.
+4. Models and music: whisper's model into `~/aivideo/models/whisper/`, the music library into
+   `~/aivideo/media/music/` (`ops/episode-pipeline.md`, `ops/phase-2c.md`).
+5. LaunchAgent. launchd does not load the shell profile, so the plist PATH must contain the Node
    binary directory (nvm here) — update it after changing Node versions:
    ```bash
-   REPO=~/remote-dev/AIVIdeo/ai-video-pipeline
    PLIST=~/Library/LaunchAgents/com.aivideo.worker.plist
    NODE_BIN=$(dirname "$(which node)")
-   sed -e "s#/Users/aivideo/ai-video-pipeline#$REPO#g" -e "s#/Users/aivideo#$HOME#g" \
+   sed -e "s#/Users/aivideo#$HOME#g" \
        -e "s#<string>/opt/homebrew/bin:#<string>$NODE_BIN:/opt/homebrew/bin:#" \
-       "$REPO/ops/launchd/com.aivideo.worker.plist" > "$PLIST"
+       ~/aivideo/repo/ops/launchd/com.aivideo.worker.plist > "$PLIST"
    plutil -lint "$PLIST" && launchctl bootstrap gui/$(id -u) "$PLIST"
    ```
-4. Keep the Mac awake without `caffeinate`: `sudo pmset -a sleep 0 disksleep 0 autorestart 1` (U-09).
+6. Keep the Mac awake without `caffeinate`: `sudo pmset -a sleep 0 disksleep 0 autorestart 1` (U-09).
 
-**Check**: `curl http://100.71.214.125:8787/health` returns `{"status":"ok","workerId":"mac-mini-m4"}`;
-`tail ~/Library/Logs/aivideo-worker.log` shows `worker ready`.
+**Check**: `curl http://<tailscale ip>:8787/health` returns `{"status":"ok","workerId":"<WORKER_ID>"}`;
+`tail ~/aivideo/logs/worker.log` shows `worker ready`.
 
 **Known limitation (R-13)**: a LaunchAgent and the login Keychain need a console login. After a
 reboot (including `autorestart` after a power cut) the worker starts only once someone logs in at
 the Mac.
+
+### 4b. Moving an existing worker to `~/aivideo` [PROPOSED: Mac mini still on the D-039 layout]
+
+The Mac mini still runs from the development checkout with `WORK_ROOT=~/work`,
+`~/.config/aivideo/worker.env`, `~/Models/whisper`, `~/MediaLibrary/music` and
+`~/Library/Logs/aivideo-worker.log` until the current batch of videos has rendered. Then, with no
+job running (`tail` the log, `curl /health`):
+
+1. Steps 1 and 5's `sed` above, into `~/aivideo/repo` and a plist in the scratch folder (not yet
+   installed); `~/aivideo/config/worker.env` = the old file with `WORK_ROOT`, `MUSIC_LIBRARY_DIR`,
+   `WHISPER_MODEL` rewritten to the new paths (`diff` the two files).
+2. `launchctl bootout gui/$(id -u)/com.aivideo.worker`.
+3. `mv ~/work ~/aivideo/work`, `mv ~/Models/whisper ~/aivideo/models/whisper`,
+   `mv ~/MediaLibrary/music ~/aivideo/media/music`,
+   `mv ~/Library/Logs/aivideo-worker.log ~/aivideo/logs/worker.log` (renames on the same volume;
+   nothing is deleted, the old `worker.env` stays until the new worker is verified).
+4. Install the new plist, `launchctl bootstrap`, then the **Check** above and
+   `ops/progress-check.md`. Record the result in `docs/infrastructure.md` S-18.
 
 ## 5. n8n (LXC 104)
 

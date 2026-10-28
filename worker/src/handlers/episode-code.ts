@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import type { AgentRunner } from '../claude/agent-cli.js';
 import { agentSettings } from '../episode/agent-settings.js';
+import { resolveSelection, type ResolvedSelection } from '../episode/catalog.js';
 import {
   browserCrash,
   isBrowserCrash,
@@ -59,6 +60,8 @@ export interface EpisodeCodeDeps {
   /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of running. */
   browserReady: () => boolean;
   blockSeconds: number;
+  /** The worker's runtime root (D-065): its private folders are denied to the agent. */
+  runtimeRoot: string;
   /** Overridable for tests. */
   limitMs?: number;
 }
@@ -119,9 +122,9 @@ async function savedState(context: HandlerContext): Promise<AgentState | null> {
   return parsed.data.turns.length > 0 ? parsed.data : null;
 }
 
-const FIRST_PROMPT =
+const firstPrompt = (referenceEpisode: string) =>
   'Write the episode described in brief.md, following CLAUDE.md. Start by reading CLAUDE.md, ' +
-  'brief.md, FILES.md and the reference episode in kit/ep5/.';
+  `brief.md, FILES.md and the reference episode in kit/${referenceEpisode}/.`;
 const REVISION_PROMPT =
   'Revise the episode in src/episode/ and sfx/ (your previous version) following feedback.md, ' +
   'brief.md and CLAUDE.md. Start by reading CLAUDE.md, feedback.md and brief.md.';
@@ -148,6 +151,7 @@ async function runTurns(
   deps: EpisodeCodeDeps,
   ws: string,
   input: Input,
+  selection: ResolvedSelection,
   saved: AgentState,
 ): Promise<AgentState> {
   const settingsPath = join(context.workDir, SETTINGS);
@@ -188,7 +192,7 @@ async function runTurns(
       n === 0
         ? input.revision
           ? REVISION_PROMPT
-          : FIRST_PROMPT
+          : firstPrompt(selection.referenceEpisode)
         : followUpPrompt(state.report!, n === 1);
     await context.progress({ stage: 'agent', turn: n + 1, of: maxTurns });
     const started = Date.now();
@@ -228,6 +232,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       : null;
     if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
 
+    // The clip's kit and character set: the catalog defaults until the brief carries a selection.
+    const selection = resolveSelection({});
     const saved = await savedState(context);
     if (saved) {
       context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');
@@ -235,6 +241,7 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       const rules = await deps.rules();
       context.logger.info({ rulesVersion: rules.version }, 'episode workspace');
       await prepareWorkspace(await freshWorkspacePath(workDir, context.attemptNo), {
+        selection,
         scriptMarkdown: await readFile(join(scriptDir, 'script.md'), 'utf8'),
         rulesMarkdown: rulesMarkdown(rules),
         timingDir,
@@ -245,13 +252,17 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       });
     }
     const realWs = await realpath(join(workDir, WORKSPACE));
-    await writeFile(join(workDir, SETTINGS), `${JSON.stringify(agentSettings(realWs), null, 1)}\n`);
+    await writeFile(
+      join(workDir, SETTINGS),
+      `${JSON.stringify(agentSettings(realWs, deps.runtimeRoot), null, 1)}\n`,
+    );
 
     const { turns, report, sessionId, agentMs } = await runTurns(
       context,
       deps,
       realWs,
       input,
+      selection,
       saved ?? EMPTY_STATE,
     );
     if (!report) throw new Error('the episode agent had no time for a first turn');

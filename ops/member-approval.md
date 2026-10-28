@@ -18,7 +18,7 @@ What it adds:
 ## 1. Migrate (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline
+cd ~/aivideo/repo
 git checkout main
 git pull
 ```

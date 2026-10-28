@@ -2,8 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   LaunchAgent for the pipeline worker (P-009). Install with the sed command in ops/README.md §4,
-  which replaces /Users/aivideo with the real home and repo paths and prepends the Node binary
-  directory to PATH (launchd does not load the shell profile, so nvm's node is otherwise missing).
+  which replaces /Users/aivideo with the real home and prepends the Node binary directory to PATH
+  (launchd does not load the shell profile, so nvm's node is otherwise missing). Everything runs
+  from the runtime root /Users/aivideo/aivideo (D-065): repo/, work/, config/, logs/.
   A LaunchAgent runs in the user's login session, which it needs to read the login Keychain;
   after a reboot it starts only once the user logs in at the console (R-13).
 -->
@@ -14,15 +15,15 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/aivideo/ai-video-pipeline/ops/launchd/run-worker.sh</string>
+    <string>/Users/aivideo/aivideo/repo/ops/launchd/run-worker.sh</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
-    <!-- Checkout run-worker.sh starts the worker from (default ~/ai-video-pipeline). -->
-    <key>AIVIDEO_REPO</key>
-    <string>/Users/aivideo/ai-video-pipeline</string>
+    <!-- Runtime root (default ~/aivideo): run-worker.sh starts the worker from its repo/. -->
+    <key>AIVIDEO_ROOT</key>
+    <string>/Users/aivideo/aivideo</string>
   </dict>
   <key>RunAtLoad</key>
   <true/>
@@ -37,8 +38,8 @@
   <key>ExitTimeOut</key>
   <integer>300</integer>
   <key>StandardOutPath</key>
-  <string>/Users/aivideo/Library/Logs/aivideo-worker.log</string>
+  <string>/Users/aivideo/aivideo/logs/worker.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/aivideo/Library/Logs/aivideo-worker.log</string>
+  <string>/Users/aivideo/aivideo/logs/worker.log</string>
 </dict>
 </plist>

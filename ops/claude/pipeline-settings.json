@@ -24,6 +24,7 @@
       "Read(**/.env.*)",
       "Read(~/.ssh/**)",
       "Read(~/.config/aivideo/**)",
+      "Read(~/aivideo/config/**)",
       "Read(~/Library/Keychains/**)",
       "WebFetch",
       "WebSearch"

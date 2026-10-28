@@ -24,7 +24,7 @@ exit
 ```
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
+cd ~/aivideo/repo && git checkout main && git pull && npm ci
 read -rs PGPASSWORD && export PGPASSWORD                       # owner password
 export DATABASE_URL="postgres://aivideo_owner@192.168.1.102:5432/aivideo?sslmode=disable"
 npx dbmate --migrations-dir db/migrations --no-dump-schema up
@@ -35,10 +35,10 @@ unset PGPASSWORD DATABASE_URL
 
 ## 2. Worker (Mac mini)
 
-1. Add the Claude Code settings to `~/.config/aivideo/worker.env` (see
+1. Add the Claude Code settings to `~/aivideo/config/worker.env` (see
    `ops/launchd/worker.env.example`):
    ```bash
-   printf 'CLAUDE_BIN=%s\nCLAUDE_TIMEOUT_SECONDS=600\nCLAUDE_BLOCK_SECONDS=3600\n' "$(which claude)" >> ~/.config/aivideo/worker.env
+   printf 'CLAUDE_BIN=%s\nCLAUDE_TIMEOUT_SECONDS=600\nCLAUDE_BLOCK_SECONDS=3600\n' "$(which claude)" >> ~/aivideo/config/worker.env
    ```
 2. Give the worker its own long-lived Claude Code token (D-046). The interactive login cannot be
    refreshed by the worker while the login Keychain is locked. On the Mac (a browser opens, or a URL
