@@ -21,3 +21,6 @@ node_modules/
 *.log
 dist/
 coverage/
+
+# n8n deploy values (ops/n8n/README.md)
+ops/n8n/deploy.env
