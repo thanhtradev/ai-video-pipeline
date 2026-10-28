@@ -17,6 +17,18 @@
               "placeholder": "Nếu bạn dừng được thời gian 30 giây?"
             },
             {
+              "fieldLabel": "Kit",
+              "fieldType": "dropdown",
+              "fieldOptions": {"values": [{"option": "whatif"}, {"option": "science"}]},
+              "placeholder": "whatif = Nếu bạn…, science = Khoa học; empty = whatif"
+            },
+            {
+              "fieldLabel": "Character set",
+              "fieldType": "dropdown",
+              "fieldOptions": {"values": [{"option": "chip"}, {"option": "bip"}]},
+              "placeholder": "chip = BẠN, bip = Bíp; empty = chip"
+            },
+            {
               "fieldLabel": "Duration (minutes)",
               "fieldType": "number",
               "placeholder": "2-12; empty = about 6"
@@ -26,7 +38,7 @@
               "fieldType": "textarea",
               "placeholder": "Optional: VOICE, NHÂN VẬT, HIỆU ỨNG, DANH SÁCH SHOT"
             },
-            { "fieldLabel": "Notes", "fieldType": "textarea" }
+            {"fieldLabel": "Notes", "fieldType": "textarea"}
           ]
         },
         "responseMode": "onReceived",
@@ -45,12 +57,12 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.2,
       "position": [0, 0],
-      "credentials": { "httpBasicAuth": { "id": "aivideoFormAuth1", "name": "aivideo-form-auth" } },
+      "credentials": {"httpBasicAuth": {"id": "aivideoFormAuth1", "name": "aivideo-form-auth"}},
       "webhookId": "6f1d6a10-0000-4000-8000-0000000001ff"
     },
     {
       "parameters": {
-        "jsCode": "// Map the form fields to the episode brief stored in Postgres (D-050). Validation lives in SQL\n// (brief_normalize), so an invalid brief fails the execution and WF-99 reports it. The full brief\n// is passed as typed: its narration must stay verbatim.\nconst form = $input.first().json;\nconst text = (label) => {\n  const value = form[label];\n  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;\n};\nconst minutes = form['Duration (minutes)'];\nconst brief = {\n  format: 'episode',\n  topic: text('Topic'),\n  duration_minutes: minutes === '' || minutes == null ? undefined : Number(minutes),\n  full_brief: typeof form['Full brief'] === 'string' && form['Full brief'].trim() !== '' ? form['Full brief'] : undefined,\n  notes: text('Notes'),\n};\nreturn [{ json: { submissionId: `n8n-form-${$execution.id}`, brief: JSON.stringify(brief) } }];"
+        "jsCode": "// Map the form fields to the episode brief stored in Postgres (D-050). Validation lives in SQL\n// (brief_normalize), so an invalid brief fails the execution and WF-99 reports it. The full brief\n// is passed as typed: its narration must stay verbatim.\nconst form = $input.first().json;\nconst text = (label) => {\n  const value = form[label];\n  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;\n};\nconst minutes = form['Duration (minutes)'];\nconst brief = {\n  format: 'episode',\n  topic: text('Topic'),\n  duration_minutes: minutes === '' || minutes == null ? undefined : Number(minutes),\n  full_brief: typeof form['Full brief'] === 'string' && form['Full brief'].trim() !== '' ? form['Full brief'] : undefined,\n  notes: text('Notes'),\n  // Kit and character set (D-066); empty = the catalog defaults, validated in SQL.\n  kit: text('Kit'),\n  character_set: text('Character set'),\n};\nreturn [{ json: { submissionId: `n8n-form-${$execution.id}`, brief: JSON.stringify(brief) } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000102",
       "name": "Build brief",
@@ -62,14 +74,14 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "SELECT video_id::text AS video_id, version_id::text AS version_id, job_id::text AS job_id, created FROM video_submit($1, $2::jsonb);",
-        "options": { "queryReplacement": "={{ [$json.submissionId, $json.brief] }}" }
+        "options": {"queryReplacement": "={{ [$json.submissionId, $json.brief] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000103",
       "name": "Create video",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [440, 0],
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -85,26 +97,22 @@
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
         "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
-        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+        "additionalFields": {"parse_mode": "HTML", "appendAttribution": false}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000105",
       "name": "Notify Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [880, 0],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     }
   ],
   "connections": {
-    "Brief form": { "main": [[{ "node": "Build brief", "type": "main", "index": 0 }]] },
-    "Build brief": { "main": [[{ "node": "Create video", "type": "main", "index": 0 }]] },
-    "Create video": { "main": [[{ "node": "Build status", "type": "main", "index": 0 }]] },
-    "Build status": { "main": [[{ "node": "Notify Telegram", "type": "main", "index": 0 }]] }
+    "Brief form": {"main": [[{"node": "Build brief", "type": "main", "index": 0}]]},
+    "Build brief": {"main": [[{"node": "Create video", "type": "main", "index": 0}]]},
+    "Create video": {"main": [[{"node": "Build status", "type": "main", "index": 0}]]},
+    "Build status": {"main": [[{"node": "Notify Telegram", "type": "main", "index": 0}]]}
   },
-  "settings": {
-    "executionOrder": "v1",
-    "errorWorkflow": "aivideoWf99Error",
-    "saveDataSuccessExecution": "none"
-  },
+  "settings": {"executionOrder": "v1", "errorWorkflow": "aivideoWf99Error", "saveDataSuccessExecution": "none"},
   "pinData": {}
 }

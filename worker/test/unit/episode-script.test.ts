@@ -241,6 +241,8 @@ describe('episode script handler', () => {
     const request = requests[0]!;
     expect(request.cwd).toBe(workDir);
     expect(request.systemPrompt).toMatch(/Vietnamese/);
+    expect(request.systemPrompt).toContain('Nếu bạn…?');
+    expect(request.systemPrompt).toContain('Một chữ nếu… một cuộc đời khác.');
     expect(request.prompt).toMatch(/Write one episode/);
     expect(request.prompt).toMatch(/about 6 minutes/);
     expect(request.prompt).toContain(TOPIC_BRIEF.topic);
@@ -249,6 +251,26 @@ describe('episode script handler', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       required: ['title', 'logline', 'characters', 'effects', 'notes', 'acts'],
     });
+  });
+
+  test('writes for the selected channel: science kit + Bíp', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    const brief = { ...TOPIC_BRIEF, kit: 'science', character_set: 'bip' };
+    await handler(context({ brief, language: 'vi' }));
+
+    const request = requests[0]!;
+    expect(request.systemPrompt).toContain('BÍP');
+    expect(request.systemPrompt).toContain('Bíp ơi, tại sao…?');
+    expect(request.systemPrompt).not.toContain('Nếu bạn…?');
+    expect(request.systemPrompt).toContain('science settings');
+    expect(request.prompt).toContain('"character_set": "bip"');
+  });
+
+  test('refuses an unknown kit instead of falling back', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    await expect(
+      handler(context({ brief: { ...TOPIC_BRIEF, kit: 'anime' }, language: 'vi' })),
+    ).rejects.toThrow(/unknown kit/);
   });
 
   test('asks to restructure a full brief verbatim', async () => {

@@ -8,6 +8,7 @@ import { rulesPrompt, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
+import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
 
 // Episode `metadata` step (q:light, D-062): after the 1080p render, Claude writes the publishing
 // metadata in Vietnamese (title, description, tags, hashtags) and picks the thumbnail shot; the
@@ -23,11 +24,15 @@ const CAPTION_MARGIN = 4;
 const MIN_PAUSE = 6;
 const MAX_TAG_CHARS = 450;
 
+const slug = z.string().regex(/^[a-z0-9-]{2,40}$/);
 const inputSchema = z.object({
   script_job_id: z.uuid(),
   timing_job_id: z.uuid(),
   render_job_id: z.uuid(),
   round: z.number().int().min(1),
+  /** Kit and character set of the clip (D-066); the catalog defaults when absent. */
+  kit: slug.optional(),
+  character_set: slug.optional(),
   revision: z.object({ previous_job_id: z.uuid(), feedback: z.string().max(4000) }).optional(),
 });
 
@@ -85,11 +90,14 @@ export function thumbnailFrame(
 }
 const previousSchema = z.object({ metadata: METADATA_SCHEMA });
 
-const SYSTEM_PROMPT = [
-  'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel',
-  '("Kênh TikTok 2": "Nếu bạn…?" what-if stories, code-drawn 2D cartoon). The metadata is in',
-  'Vietnamese. Reply only with the JSON object required by the schema.',
-].join(' ');
+/** The channel is described by its kit and character set (D-066). */
+function systemPrompt(channel: string): string {
+  return [
+    'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel.',
+    channel,
+    'The metadata is in Vietnamese. Reply only with the JSON object required by the schema.',
+  ].join(' ');
+}
 
 export interface MetadataHandlerDeps {
   claude: ClaudeRunner;
@@ -205,7 +213,7 @@ export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
     await progress({ stage: 'metadata', round: data.round });
     const reply = await deps.claude({
       prompt: buildPrompt(script, await deps.rules(), revision, captionFreeShots(timing)),
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: systemPrompt(await channelDescription(selectionOf(data))),
       jsonSchema: METADATA_JSON_SCHEMA,
       cwd: workDir,
       signal,
