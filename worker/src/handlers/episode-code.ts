@@ -5,7 +5,8 @@ import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import type { AgentRunner } from '../claude/agent-cli.js';
 import { agentSettings } from '../episode/agent-settings.js';
-import { resolveSelection, type ResolvedSelection } from '../episode/catalog.js';
+import type { ResolvedSelection } from '../episode/catalog.js';
+import { selectionOf } from '../episode/channel-prompt.js';
 import {
   browserCrash,
   isBrowserCrash,
@@ -41,9 +42,13 @@ const TURNS_LOG = 'agent-turns.json';
 export const NO_CHROME =
   "Remotion's Chrome is not installed: run `npx remotion browser ensure` in remotion/ (ops/episode-pipeline.md)";
 
+const slug = z.string().regex(/^[a-z0-9-]{2,40}$/);
 const inputSchema = z.object({
   script_job_id: z.uuid(),
   timing_job_id: z.uuid(),
+  /** Kit and character set of the clip (D-066); the catalog defaults when absent. */
+  kit: slug.optional(),
+  character_set: slug.optional(),
   revision: z
     .object({ previous_job_id: z.uuid(), feedback: z.string().min(1).max(4000) })
     .optional(),
@@ -232,8 +237,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       : null;
     if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
 
-    // The clip's kit and character set: the catalog defaults until the brief carries a selection.
-    const selection = resolveSelection({});
+    // The clip's kit and character set (D-066); an unknown slug fails the job, never falls back.
+    const selection = selectionOf(input);
     const saved = await savedState(context);
     if (saved) {
       context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');

@@ -159,6 +159,9 @@ describe('episode_code handler', () => {
     expect(await readFile(join(ws, 'rules.md'), 'utf8')).toContain('- Không dùng nhạc nền.');
     expect(existsSync(join(ws, 'kit/rig/Character.tsx'))).toBe(true);
     expect(existsSync(join(ws, 'kit/active/theme.ts'))).toBe(true);
+    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain(
+      'characters/chip/cast',
+    );
     expect(turns[0]!.prompt).toContain('kit/episodes/ep5/');
     expect(existsSync(join(ws, 'public/voice.wav'))).toBe(true);
     expect(result.outputs).toEqual(
@@ -400,6 +403,24 @@ describe('episode_code handler', () => {
     await expect(handler(context({ ...INPUT, timing_job_id: PREVIOUS_JOB }))).rejects.toThrow(
       /timing job .* is missing or changed/,
     );
+  });
+});
+
+describe('kit and character selection', () => {
+  test('the job input picks the kit and cast of the workspace', async () => {
+    await createEpisodeCodeHandler(deps())(
+      context({ ...INPUT, kit: 'science', character_set: 'bip' }),
+    );
+    const ws = join(workDir, 'ws');
+    expect(existsSync(join(ws, 'kit/kits/science/theme.ts'))).toBe(true);
+    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain('characters/bip/cast');
+    expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toContain('BÍP');
+  });
+
+  test('an unknown kit is a permanent failure, not a fallback', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps())(context({ ...INPUT, kit: 'anime' })),
+    ).rejects.toThrow(/unknown kit/);
   });
 });
 

@@ -43,9 +43,19 @@ A fourth feedback, an episode_code job that keeps failing its gates, or a 90-min
 
 ## 3. Script (A1)
 
-Intake (WF-01): `Topic` (required), `Duration (minutes)` (2–12, optional), `Full brief`
-(optional, ≤ 30000 characters, kept verbatim), `Notes`. The brief gets `format: "episode"`, which
-`brief_normalize` validates and `video_submit` turns into a 16:9 video; Shorts briefs still work.
+Intake (WF-01): `Topic` (required), `Kit` and `Character set` (dropdowns, D-066), `Duration
+(minutes)` (2–12, optional), `Full brief` (optional, ≤ 30000 characters, kept verbatim), `Notes`.
+The brief gets `format: "episode"`, which `brief_normalize` validates and `video_submit` turns into
+a 16:9 video; Shorts briefs still work. `kit` and `character_set` are slugs of enabled rows of
+`catalog_option` (seeded from `remotion/catalog.json`: kits `whatif`, `science`; character sets
+`chip`, `bip`), filled with the defaults when absent and refused when unknown. On Telegram,
+`/new` takes `kit=<slug>` / `nhanvat=<slug>` on its first line, and the confirmation shows
+`Kit: … · Nhân vật: …` with two buttons that switch to the next option
+(`telegram_intake_cycle()`) before **Tạo**. The selection reaches the script job in the brief and
+the `episode_code`, revision and `metadata` jobs as `kit` / `character_set` in their input
+(`version_selection()`); the script and metadata prompts describe the channel from the kit's and
+character set's `prompt.md` (the hero, the fixed hook and ending: Chíp = "Nếu bạn…?" / "Một chữ
+nếu… một cuộc đời khác.", Bíp = "Bíp ơi, tại sao…?" / "Bíp đã hiểu. Còn bạn?").
 
 The script step returns one JSON document (schema in `worker/src/handlers/episode-script.ts`):
 
@@ -110,8 +120,9 @@ no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 
 after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/` and
 the kit catalog (`remotion/catalog.json`, D-064): a clip has one **kit** (visual style:
 `remotion/src/kits/<kit>/`) and one **character set** (a cast on the shared rig:
-`remotion/src/characters/<set>/`); until the brief carries a selection (PR B) the catalog defaults
-`whatif` + `chip` apply. Unknown slugs fail the job; there is no fallback.
+`remotion/src/characters/<set>/`), chosen per clip in the brief (§3, D-066) and passed in the job
+input; absent fields mean the catalog defaults `whatif` + `chip`. Unknown slugs fail the job;
+there is no fallback.
 
 ```
 CLAUDE.md               contract (remotion/episode/AGENT.md) with the selected kit's and character set's AGENT.md spliced in

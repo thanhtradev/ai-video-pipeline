@@ -71,6 +71,8 @@ describe('video_submit with an episode brief', () => {
       format: 'episode',
       topic: 'Nếu bạn dừng được thời gian 30 giây?',
       duration_minutes: 6,
+      kit: 'whatif',
+      character_set: 'chip',
     });
   });
 
@@ -85,6 +87,8 @@ describe('video_submit with an episode brief', () => {
       format: 'episode',
       topic: 'EP5 dừng thời gian',
       full_brief: FULL_BRIEF,
+      kit: 'whatif',
+      character_set: 'chip',
     });
   });
 

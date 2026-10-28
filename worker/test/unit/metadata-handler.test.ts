@@ -159,6 +159,16 @@ describe('metadata handler', () => {
     expect(requests[0]!.prompt).toContain('"title": "Nếu bạn nghe được suy nghĩ của mèo?"');
   });
 
+  test('describes the selected channel in the system prompt', async () => {
+    await createMetadataHandler(deps())(context());
+    expect(requests[0]!.systemPrompt).toContain('Nếu bạn…?');
+    await createMetadataHandler(deps())(
+      context({ ...INPUT, kit: 'science', character_set: 'bip' }),
+    );
+    expect(requests[1]!.systemPrompt).toContain('BÍP');
+    expect(requests[1]!.systemPrompt).not.toContain('Nếu bạn…?');
+  });
+
   test('retries (plain error) on an unknown shot, < in the title or a bad schema', async () => {
     for (const bad of [
       { ...GOOD, thumbnail_shot: '9.9' },

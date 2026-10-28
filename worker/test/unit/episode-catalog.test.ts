@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { CatalogError, loadCatalog, resolveSelection } from '../../src/episode/catalog.js';
+import { channelDescription, selectionOf } from '../../src/episode/channel-prompt.js';
 
 describe('kit / character catalog', () => {
   test('loads remotion/catalog.json with defaults that exist', () => {
@@ -27,7 +28,25 @@ describe('kit / character catalog', () => {
     );
     expect(sel.modules.theme).toBe('kits/science/theme');
     expect(sel.kitDocs).toEqual(['kits/whatif/AGENT.md', 'kits/science/AGENT.md']);
+    expect(sel.kitPrompts).toEqual(['kits/whatif/prompt.md', 'kits/science/prompt.md']);
+    expect(sel.characterPrompts).toEqual(['characters/bip/prompt.md']);
+    expect(sel.labels).toEqual({ kit: 'Khoa học', characterSet: 'Bíp' });
     expect(sel.hero).toBe('BÍP');
+  });
+
+  test('a job input selects by the brief field names; the channel description follows', async () => {
+    const bip = selectionOf({ kit: 'science', character_set: 'bip' });
+    expect(bip).toMatchObject({ kit: 'science', characterSet: 'bip' });
+    const text = await channelDescription(bip);
+    expect(text).toContain('BÍP');
+    expect(text).toContain('Bíp ơi, tại sao…?');
+    expect(text).toContain('Bíp đã hiểu. Còn bạn?');
+    expect(text).not.toContain('"BẠN"');
+
+    const chip = await channelDescription(selectionOf({}));
+    expect(chip).toContain('Nếu bạn…?');
+    expect(chip).toContain('Một chữ nếu… một cuộc đời khác.');
+    expect(() => selectionOf({ character_set: 'nope' })).toThrow(CatalogError);
   });
 
   test('refuses an unknown kit or character set instead of falling back', () => {
