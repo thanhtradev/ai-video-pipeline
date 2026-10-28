@@ -627,6 +627,93 @@ describe('WF-06 /retry (D-056)', () => {
   });
 });
 
+describe('WF-06 /stop (D-067)', () => {
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+  const reply = (row: Record<string, unknown>, prefix = '679cd22f') =>
+    runCode('wf-06-telegram-callback.json', 'Build stop', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'stop', prefix, chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test('parses /stop with or without a video id prefix', () => {
+    expect(parse(command('/stop@aivideo_bot 679CD22F'))[0]!.json).toEqual({
+      kind: 'stop',
+      prefix: '679cd22f',
+      userId: '111',
+      chatId: '-100',
+      messageId: '7',
+    });
+    expect(parse(command('/stop'))[0]!.json).toMatchObject({ kind: 'stop', prefix: '' });
+  });
+
+  test.each(['/stop 679', '/stop zzzz', '/stop 679cd22f now', '/stopped'])('ignores %j', (text) => {
+    expect(parse(command(text))).toEqual([]);
+  });
+
+  test('answers each result of telegram_stop()', () => {
+    const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+    expect(
+      reply({ result: 'STOPPED', video_id: id, cancelled_jobs: 2, running_step: 'episode_code' }),
+    ).toEqual({
+      text: '[AI Video] Đã dừng video 679cd22f: hủy 2 job, không chạy tiếp. Bước episode_code đang chạy sẽ dừng trong vòng một phút. Không hoàn lại được; muốn làm lại thì /new.',
+      chatId: '-100',
+      messageId: '7',
+    });
+    expect(
+      reply({ result: 'STOPPED', video_id: id, cancelled_jobs: 0, running_step: null }).text,
+    ).toBe(
+      '[AI Video] Đã dừng video 679cd22f: hủy 0 job, không chạy tiếp. Không hoàn lại được; muốn làm lại thì /new.',
+    );
+    expect(reply({ result: 'NOT_APPROVER' }).text).toBe('Bạn không phải approver.');
+    expect(reply({ result: 'NOT_FOUND' }, 'abcd').text).toBe(
+      '[AI Video] Không có video nào có id bắt đầu bằng abcd.',
+    );
+    expect(reply({ result: 'NOT_FOUND' }, '').text).toBe(
+      '[AI Video] Không có video nào đang chạy để dừng.',
+    );
+    expect(reply({ result: 'AMBIGUOUS' }, 'abcd').text).toMatch(/gõ thêm ký tự/);
+    expect(reply({ result: 'AMBIGUOUS' }, '').text).toMatch(/\/stop <8 ký tự đầu của id>/);
+    expect(reply({ result: 'ALREADY_OVER', video_id: id }).text).toMatch(/679cd22f đã kết thúc/);
+  });
+
+  test('/status of a running video shows the stop command, a finished one does not', () => {
+    const status = (state: string) =>
+      runCode('wf-06-telegram-callback.json', 'Build status', {
+        input: [
+          {
+            json: {
+              allowed: true,
+              video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+              version: 1,
+              title: 'x',
+              status: state,
+              status_since: new Date().toISOString(),
+              jobs: [],
+              cost: {},
+            },
+          },
+        ],
+        nodeOutputs: {
+          'Parse callback': [
+            { json: { kind: 'status', prefix: '679cd22f', chatId: '-100', messageId: '5' } },
+          ],
+        },
+      })[0]!.json as { text: string };
+    expect(status('GENERATING_ASSETS').text).toContain('Dừng video: /stop 679cd22f');
+    expect(status('NEEDS_DECISION').text).toContain('Dừng video: /stop 679cd22f');
+    expect(status('COMPLETED').text).not.toContain('/stop');
+    expect(status('CANCELLED').text).not.toContain('/stop');
+  });
+});
+
 describe('WF-12 Storyboard Approval Request', () => {
   const token = 'b'.repeat(32);
   const row = {
