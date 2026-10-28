@@ -28,7 +28,8 @@ restart is needed.
 ## 2. Re-import WF-06
 
 WF-06 now has the placeholder `REPLACE_WITH_APPROVAL_CHAT_ID` in **Parse callback**: `/new` works
-only in that chat. Replace it on import (the `sed` loop of the CLI import does), then activate.
+only in that chat. `ops/n8n/deploy-workflows.sh wf-06` fills it in, imports and publishes
+([n8n/README.md](n8n/README.md)).
 
 **Check**: `/new Mèo nghĩ gì?` in the approval chat → a summary with Create / Cancel; Cancel → "Cancelled;
 nothing was created."

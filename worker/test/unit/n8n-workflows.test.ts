@@ -1451,3 +1451,34 @@ describe('WF-08 Watchdog', () => {
     expect(run([])[0]!.json.text).toContain('Không còn video nào bị');
   });
 });
+
+describe('deploy script (ops/n8n/deploy-workflows.sh)', () => {
+  const script = readFileSync(
+    fileURLToPath(new URL('../../../ops/n8n/deploy-workflows.sh', import.meta.url)),
+    'utf8',
+  );
+  const start = script.indexOf('PUBLISH_ORDER=(');
+  const publishOrder = script
+    .slice(start, script.indexOf(')', start))
+    .split('\n')
+    .slice(1)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  test('every workflow id is in PUBLISH_ORDER and WF-99 is published first', () => {
+    const ids = [...workflows.values()].map((wf) => wf.id);
+
+    expect(publishOrder[0]).toBe('aivideoWf99Error');
+    expect(new Set(publishOrder)).toEqual(new Set(ids));
+  });
+
+  test('the only placeholders are the two the script fills in', () => {
+    const KNOWN = new Set(['REPLACE_WITH_APPROVAL_CHAT_ID', 'REPLACE_WITH_WORKER_URL']);
+
+    for (const file of files) {
+      const found = readFileSync(`${DIR}${file}`, 'utf8').match(/REPLACE_WITH_[A-Z_]+/g) ?? [];
+      const unknown = [...new Set(found)].filter((placeholder) => !KNOWN.has(placeholder));
+      expect(unknown, file).toEqual([]);
+    }
+  });
+});

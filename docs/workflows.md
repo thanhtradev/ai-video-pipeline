@@ -1,7 +1,8 @@
 # n8n workflows
 
-All `[PROPOSED]`. Workflows are stored as JSON exports in the repo (`n8n/workflows/`) and imported manually by the user.
-Claude Code never imports/activates production workflows.
+All `[PROPOSED]`. Workflows are stored as JSON exports in the repo (`n8n/workflows/`); the user imports and publishes
+them with `ops/n8n/deploy-workflows.sh` (n8n CLI inside the container, D-068; runbook `ops/n8n/README.md`).
+Claude Code never imports/publishes production workflows.
 
 ## General principles
 

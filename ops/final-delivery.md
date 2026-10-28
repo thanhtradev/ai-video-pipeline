@@ -80,8 +80,8 @@ and cleanup jobs wait `BLOCKED` (WF-08 alerts) instead of failing.
 
 Re-import **WF-06** and import the new **WF-14** (`wf-14-final-delivery.json`) with the approval
 chat id (Send thumbnail, Send buttons, Send done, Send cleaned) and, in **Build thumbnail**, the
-worker URL — the CLI loop handles both: add `wf-14-final-delivery` to its list. Activate WF-14 (and
-WF-06 again).
+worker URL — `ops/n8n/deploy-workflows.sh wf-06 wf-14` does both and publishes them
+([n8n/README.md](n8n/README.md)).
 
 ## 5. Check
 

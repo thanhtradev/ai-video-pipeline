@@ -54,8 +54,8 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 |---|---|
 | `db/migrations/` | dbmate SQL migrations: schema, state machines, job/approval/orchestration functions |
 | `worker/` | TypeScript worker service (queue consumer, runner, checkpoints, archive, API) and all tests |
-| `n8n/workflows/` | n8n workflow exports (WF-01, WF-02, WF-05, WF-06, WF-08, WF-99), imported manually |
-| `ops/` | Production runbook, DB roles/grants, Redis ACL, backups, launchd, Tailscale, monitoring |
+| `n8n/workflows/` | n8n workflow exports (WF-01, 02, 05, 06, 08, 12, 13, 14, 99), deployed by the user with `ops/n8n/deploy-workflows.sh` |
+| `ops/` | Production runbook, DB roles/grants, Redis ACL, backups, launchd, n8n deploy script, Tailscale, monitoring |
 | `docs/` | Design documents |
 
 ## Development
