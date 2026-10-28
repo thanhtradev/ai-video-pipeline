@@ -13,7 +13,7 @@ What it adds:
 ## 1. Code, backup, migrate (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
+cd ~/aivideo/repo && git checkout main && git pull && npm ci
 ```
 
 Backup as in `phase-2b.md` §3, then:

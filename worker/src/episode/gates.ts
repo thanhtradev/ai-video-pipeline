@@ -46,6 +46,8 @@ export type GateRunner = (ws: string, signal: AbortSignal) => Promise<GateReport
 export interface GateRunnerOptions {
   /** ops/claude/episode-render.sb */
   profile: string;
+  /** The worker's runtime root (D-065). */
+  runtimeRoot: string;
 }
 
 /** `ws` must be the real path (Seatbelt matches resolved paths, e.g. /private/tmp). */
@@ -54,6 +56,7 @@ export function createGateRunner(options: GateRunnerOptions): GateRunner {
     await runSandboxedNode({
       profile: options.profile,
       ws,
+      runtimeRoot: options.runtimeRoot,
       script: GATES_SCRIPT,
       args: [ws],
       timeoutMs: GATES_TIMEOUT_MS,

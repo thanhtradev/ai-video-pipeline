@@ -17,7 +17,7 @@ everything below is done: QA runs, then the preview arrives on Telegram.
 ## 1. Code, backup, migrate (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline
+cd ~/aivideo/repo
 git checkout main
 git pull
 npm ci

@@ -3,6 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveSelection, type ResolvedSelection, type Selection } from './catalog.js';
+import { isLegacyWorkspace, LEGACY_EPISODE_DIRS, writeLegacyShims } from './legacy-kit.js';
 
 // The episode workspace (docs/episode-pipeline.md §6): what the episode agent sees and may change.
 // Layout: CLAUDE.md (the base AGENT.md with the selected kit's and character set's AGENT.md spliced
@@ -115,14 +116,18 @@ export async function prepareWorkspace(
   sources: WorkspaceSources,
 ): Promise<ResolvedSelection> {
   const selection = resolveSelection(sources.selection ?? {});
+  const legacy =
+    sources.revision !== undefined && isLegacyWorkspace(sources.revision.previousWorkspace);
+  const dirs = legacy ? [...selection.dirs, ...LEGACY_EPISODE_DIRS] : selection.dirs;
   await mkdir(ws, { recursive: true });
   await cp(TEMPLATE_DIR, ws, { recursive: true });
   await assembleClaudeMd(ws, selection);
-  for (const dir of selection.dirs) {
+  for (const dir of new Set(dirs)) {
     await mkdir(dirname(join(ws, 'kit', dir)), { recursive: true });
     await cp(join(KIT_SRC, dir), join(ws, 'kit', dir), { recursive: true, filter: isKitSource });
   }
   await writeActiveModules(ws, selection.modules);
+  if (legacy) await writeLegacyShims(ws);
   await mkdir(join(ws, 'src', 'data'), { recursive: true });
   await mkdir(join(ws, 'public', 'sfx'), { recursive: true });
   await mkdir(join(ws, 'tmp'), { recursive: true });

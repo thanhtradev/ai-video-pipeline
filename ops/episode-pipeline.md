@@ -24,7 +24,7 @@ below are in the order to follow.
 ### 1. Code (Mac mini)
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
+cd ~/aivideo/repo && git checkout main && git pull && npm ci
 ```
 
 ### 2. Backup, migrate, switch TTS to eleven_v4
@@ -70,7 +70,7 @@ unset PGPASSWORD DATABASE_URL
 2. Open the full storyboard on the Mac mini:
 
    ```bash
-   WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+   WORK_ROOT=$(grep '^WORK_ROOT=' ~/aivideo/config/worker.env | cut -d= -f2-)
    open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/script.md | head -1)"
    ```
 
@@ -104,8 +104,8 @@ shasum -a 256 ~/Models/whisper/ggml-large-v3-turbo.bin   # note it in docs/infra
 Uses the macOS voice Linh instead of a paid TTS call:
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline/worker
-WHISPER_MODEL=$HOME/Models/whisper/ggml-large-v3-turbo.bin npx vitest run test/integration/timing.test.ts
+cd ~/aivideo/repo/worker
+WHISPER_MODEL=$HOME/aivideo/models/whisper/ggml-large-v3-turbo.bin npx vitest run test/integration/timing.test.ts
 cd ..
 ```
 
@@ -114,10 +114,10 @@ cd ..
 ### 3. Worker
 
 ```bash
-grep '^WORKER_STREAMS=' ~/.config/aivideo/worker.env      # must include q:heavy
-printf 'WHISPER_BIN=%s\nWHISPER_MODEL=%s\n' "$(which whisper-cli)" "$HOME/Models/whisper/ggml-large-v3-turbo.bin" >> ~/.config/aivideo/worker.env
+grep '^WORKER_STREAMS=' ~/aivideo/config/worker.env      # must include q:heavy
+printf 'WHISPER_BIN=%s\nWHISPER_MODEL=%s\n' "$(which whisper-cli)" "$HOME/aivideo/models/whisper/ggml-large-v3-turbo.bin" >> ~/aivideo/config/worker.env
 launchctl kickstart -k gui/$(id -u)/com.aivideo.worker
-tail -n 5 ~/Library/Logs/aivideo-worker.log      # "worker ready"
+tail -n 5 ~/aivideo/logs/worker.log      # "worker ready"
 ```
 
 Without `WHISPER_MODEL`, timing jobs wait as `BLOCKED` and resume within an hour once it is set.
@@ -127,7 +127,7 @@ Without `WHISPER_MODEL`, timing jobs wait as `BLOCKED` and resume within an hour
 Within about a minute of the narration finishing:
 
 ```bash
-WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/aivideo/config/worker.env | cut -d= -f2-)
 open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/timeline.md | head -1)"
 open "$(ls -t "$WORK_ROOT"/videos/*/v1/jobs/*/voice.wav | head -1)"
 ```
@@ -149,7 +149,7 @@ revisions); no paid API. Migration: none beyond B1–B3 (`20261028000300` create
 The gates render with no network, so Remotion's Chrome must already be downloaded:
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline/remotion && npx remotion browser ensure && cd ..
+cd ~/aivideo/repo/remotion && npx remotion browser ensure && cd ..
 ls remotion/node_modules/.remotion       # chrome-headless-shell
 ```
 
@@ -158,8 +158,8 @@ ls remotion/node_modules/.remotion       # chrome-headless-shell
 Runs the whole step on a 3-shot mini episode with the macOS voice Linh and a small Claude model:
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline/worker
-RUN_AGENT_TESTS=1 WHISPER_MODEL=$HOME/Models/whisper/ggml-large-v3-turbo.bin \
+cd ~/aivideo/repo/worker
+RUN_AGENT_TESTS=1 WHISPER_MODEL=$HOME/aivideo/models/whisper/ggml-large-v3-turbo.bin \
   npx vitest run test/integration/episode-code.test.ts
 cd ..
 ```
@@ -168,14 +168,14 @@ cd ..
 
 ### 3. Worker
 
-`grep '^WORKER_STREAMS=' ~/.config/aivideo/worker.env` must include `q:render`. Optional:
+`grep '^WORKER_STREAMS=' ~/aivideo/config/worker.env` must include `q:render`. Optional:
 `CLAUDE_AGENT_MODEL` (default `claude-opus-5-5`). Restart:
 `launchctl kickstart -k gui/$(id -u)/com.aivideo.worker`.
 
 ### 4. Check after an approved episode
 
 ```bash
-WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/aivideo/config/worker.env | cut -d= -f2-)
 J=$(ls -td "$WORK_ROOT"/videos/*/v1/jobs/*/ws | head -1); echo "$J"
 open "$J"/board/page-*.jpg
 ```
@@ -217,7 +217,7 @@ revising the storyboard (round 2 of 4)`, and the revised storyboard arrives when
 Approve: `Approved: rendering the preview`, then:
 
 ```bash
-WORK_ROOT=$(grep '^WORK_ROOT=' ~/.config/aivideo/worker.env | cut -d= -f2-)
+WORK_ROOT=$(grep '^WORK_ROOT=' ~/aivideo/config/worker.env | cut -d= -f2-)
 open "$(ls -t "$WORK_ROOT"/videos/*/v*/jobs/*/preview.mp4 | head -1)"
 ```
 

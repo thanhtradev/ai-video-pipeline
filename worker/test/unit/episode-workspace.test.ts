@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { CatalogError } from '../../src/episode/catalog.js';
+import { LEGACY_SHIMS } from '../../src/episode/legacy-kit.js';
 import { prepareWorkspace, type WorkspaceSources } from '../../src/episode/workspace.js';
 
 let root: string;
@@ -75,6 +76,53 @@ describe('prepareWorkspace', () => {
     const claude = await readFile(join(ws, 'CLAUDE.md'), 'utf8');
     expect(claude).toContain('BÍP');
     expect(claude).not.toContain('"BẠN" ALWAYS');
+  });
+
+  test('a revision of a pre-catalog workspace gets kit/ep*/ shims for its old imports', async () => {
+    // Episodes coded before the kit split import ../../kit/ep1/theme, ../../kit/ep2/kit, ...
+    const previous = join(root, 'previous');
+    await mkdir(join(previous, 'kit', 'ep1'), { recursive: true });
+    await mkdir(join(previous, 'src', 'episode'), { recursive: true });
+    await mkdir(join(previous, 'sfx'), { recursive: true });
+    await writeFile(
+      join(previous, 'src/episode/Episode.tsx'),
+      "import { C } from '../../kit/ep1/theme';\n",
+    );
+    await writeFile(join(previous, 'sfx/generate-sfx.mjs'), '// sfx\n');
+    const ws = join(root, 'ws');
+    await prepareWorkspace(ws, {
+      ...sources,
+      revision: { previousWorkspace: previous, feedback: 'again' },
+    });
+    expect(await readFile(join(ws, 'kit/ep1/theme.ts'), 'utf8')).toBe(
+      "export * from '../kits/whatif/theme';\n",
+    );
+    expect(await readFile(join(ws, 'kit/ep1/Character.ts'), 'utf8')).toBe(
+      "export * from '../rig/Character';\n",
+    );
+    expect(await readFile(join(ws, 'kit/ep2/kit.ts'), 'utf8')).toBe(
+      "export * from '../episodes/ep2/kit';\n",
+    );
+    // the modules the shims point at are in the workspace
+    for (const target of Object.values(LEGACY_SHIMS)) {
+      const base = join(ws, 'kit', target);
+      expect(existsSync(`${base}.ts`) || existsSync(`${base}.tsx`), target).toBe(true);
+    }
+    expect(await readFile(join(ws, 'FILES.md'), 'utf8')).toContain('kit/ep1/theme.ts');
+  });
+
+  test('a revision of a catalog workspace gets no legacy shims', async () => {
+    const previous = join(root, 'previous');
+    await mkdir(join(previous, 'kit', 'active'), { recursive: true });
+    await mkdir(join(previous, 'src', 'episode'), { recursive: true });
+    await mkdir(join(previous, 'sfx'), { recursive: true });
+    const ws = join(root, 'ws');
+    await prepareWorkspace(ws, {
+      ...sources,
+      revision: { previousWorkspace: previous, feedback: 'again' },
+    });
+    expect(existsSync(join(ws, 'kit/ep1'))).toBe(false);
+    expect(existsSync(join(ws, 'kit/episodes/ep2'))).toBe(false);
   });
 
   test('an unknown selection fails before anything is copied', async () => {

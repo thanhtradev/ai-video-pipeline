@@ -56,7 +56,7 @@ exit
 ```
 
 ```bash
-cd ~/remote-dev/AIVIdeo/ai-video-pipeline && git checkout main && git pull && npm ci
+cd ~/aivideo/repo && git checkout main && git pull && npm ci
 read -rs PGPASSWORD && export PGPASSWORD                       # owner password
 export DATABASE_URL="postgres://aivideo_owner@192.168.1.102:5432/aivideo?sslmode=disable"
 npx dbmate --migrations-dir db/migrations --no-dump-schema up
@@ -82,9 +82,9 @@ unset PGPASSWORD DATABASE_URL
 ## 5. Worker (Mac mini)
 
 ```bash
-printf 'ITERA_BASE_URL=https://api.genmax.io\nFFPROBE_BIN=%s\n' "$(which ffprobe)" >> ~/.config/aivideo/worker.env
+printf 'ITERA_BASE_URL=https://api.genmax.io\nFFPROBE_BIN=%s\n' "$(which ffprobe)" >> ~/aivideo/config/worker.env
 launchctl kickstart -k gui/$(id -u)/com.aivideo.worker
-tail -n 5 ~/Library/Logs/aivideo-worker.log      # "worker ready"
+tail -n 5 ~/aivideo/logs/worker.log      # "worker ready"
 ```
 
 ## 6. n8n: update WF-05 (LXC 104)

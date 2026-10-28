@@ -169,6 +169,11 @@ texts partly outside the frame (e.g. `NHỚ CHI TIẾT NÀY`, wall-calendar numb
 Measured: the gates take about 1.5 min on EP5 (7 pages, 1200 samples). A 3-shot mini episode went
 through the whole step (macOS `say` voice → whisper timing → real agent → gates) in under 6 min.
 
+**Episodes coded before the kit split (D-064).** Their code imports `kit/ep1/theme`,
+`kit/ep2/kit`, … A revision of such a workspace gets `kit/ep1/*.ts`, `kit/ep2/*.ts`, `kit/ep3/sets.ts`
+and `kit/ep5/*.ts` shims that re-export the moved modules (`worker/src/episode/legacy-kit.ts`), plus
+`kit/episodes/ep2/`, so the old code still typechecks and renders; new workspaces get no shims.
+
 ## 7. Storyboard approval
 
 Migration `20261029000100`: status `AWAITING_STORYBOARD_APPROVAL`, approval type `STORYBOARD`.

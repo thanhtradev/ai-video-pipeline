@@ -1,5 +1,6 @@
 ;; Seatbelt profile for worker-run renders of agent-written episode code (D-054).
-;; Usage: sandbox-exec -f episode-render.sb -D WS=<job workspace> -D TMP=<WS/tmp> -D HOME=$HOME <cmd>
+;; Usage: sandbox-exec -f episode-render.sb -D WS=<job workspace> -D TMP=<WS/tmp> -D HOME=$HOME
+;;        -D ROOT=<runtime root, D-065> <cmd>
 ;; with TMPDIR=<WS/tmp>. Chrome needs Mach bootstrap ports, so this profile starts from
 ;; "allow default" and denies what matters: the network (except loopback for Remotion's
 ;; bundle server), writes outside the workspace, and reads of secret paths.
@@ -21,4 +22,5 @@
 (deny file-read*
   (subpath (string-append (param "HOME") "/.ssh"))
   (subpath (string-append (param "HOME") "/.config/aivideo"))
+  (subpath (string-append (param "ROOT") "/config"))
   (subpath (string-append (param "HOME") "/Library/Keychains")))

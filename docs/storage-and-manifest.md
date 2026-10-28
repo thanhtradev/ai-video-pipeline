@@ -20,7 +20,7 @@
 
 ## 3. Directory layout [PROPOSED; episodes implemented by D-062, see docs/episode-pipeline.md §10]
 
-`WORK_ROOT` on Mac and `ARCHIVE_ROOT` on NAS: `[UNKNOWN]` (U-04, U-05; Mac mini has ~31 GiB free, R-06).
+`WORK_ROOT` on a worker Mac: `~/aivideo/work` (D-065; the Mac mini still uses `~/work` until it is migrated, [CONFIRMED 2026-10-27]). `ARCHIVE_ROOT`: Google Drive through rclone (D-063).
 
 ```
 <WORK_ROOT>/videos/{video_id}/v{n}/

@@ -47,11 +47,15 @@ export type EpisodeRenderer = (
   signal: AbortSignal,
 ) => Promise<void>;
 
-export function createSandboxedEpisodeRenderer(profile: string): EpisodeRenderer {
+export function createSandboxedEpisodeRenderer(
+  profile: string,
+  runtimeRoot: string,
+): EpisodeRenderer {
   return (ws, output, scale, signal) =>
     runSandboxedNode({
       profile,
       ws,
+      runtimeRoot,
       script: RENDER_SCRIPT,
       args: [ws, output, String(scale)],
       timeoutMs: RENDER_TIMEOUT_MS,

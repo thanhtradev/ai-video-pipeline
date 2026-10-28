@@ -60,6 +60,8 @@ export interface EpisodeCodeDeps {
   /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of running. */
   browserReady: () => boolean;
   blockSeconds: number;
+  /** The worker's runtime root (D-065): its private folders are denied to the agent. */
+  runtimeRoot: string;
   /** Overridable for tests. */
   limitMs?: number;
 }
@@ -250,7 +252,10 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       });
     }
     const realWs = await realpath(join(workDir, WORKSPACE));
-    await writeFile(join(workDir, SETTINGS), `${JSON.stringify(agentSettings(realWs), null, 1)}\n`);
+    await writeFile(
+      join(workDir, SETTINGS),
+      `${JSON.stringify(agentSettings(realWs, deps.runtimeRoot), null, 1)}\n`,
+    );
 
     const { turns, report, sessionId, agentMs } = await runTurns(
       context,

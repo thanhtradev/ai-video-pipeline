@@ -122,6 +122,7 @@ function deps(overrides: Partial<EpisodeCodeDeps> = {}): EpisodeCodeDeps {
     rules: async () => ({ ...NO_RULES, video: [{ id: 1, text: 'Không dùng nhạc nền.' }] }),
     browserReady: () => true,
     blockSeconds: 1800,
+    runtimeRoot: '/Users/aivideo/aivideo',
     ...overrides,
   };
 }
@@ -406,7 +407,7 @@ describe('agent settings and arguments', () => {
   const ws = '/Users/aivideo/work/jobs/j1/ws';
 
   test('allow only workspace reads, edits in src/episode and sfx, and two commands', () => {
-    const settings = agentSettings(ws);
+    const settings = agentSettings(ws, '/Users/aivideo/aivideo');
     expect(settings.permissions.allow).toEqual([
       `Read(/${ws}/**)`,
       `Edit(/${ws}/src/episode/**)`,
@@ -424,7 +425,15 @@ describe('agent settings and arguments', () => {
       network: { allowedDomains: [], strictAllowlist: true },
     });
     expect(settings.sandbox.filesystem.denyRead).toEqual(
-      expect.arrayContaining(['~/.ssh', '~/.config', '~/.claude', '~/Library', '/Volumes']),
+      expect.arrayContaining([
+        '~/.ssh',
+        '~/.config',
+        '~/.claude',
+        '~/Library',
+        '/Volumes',
+        '/Users/aivideo/aivideo/config',
+        '/Users/aivideo/aivideo/media',
+      ]),
     );
     expect(settings.sandbox.filesystem.denyWrite).toEqual(
       expect.arrayContaining([`${ws}/kit`, `${ws}/CLAUDE.md`, `${ws}/.claude`, `${ws}/src/data`]),
