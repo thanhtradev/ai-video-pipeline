@@ -175,12 +175,11 @@ The worker loads code once at start, so **restart it only from an up-to-date `ma
 reboot (including `autorestart` after a power cut) the worker starts only once someone logs in at
 the Mac.
 
-### 4b. Moving an existing worker to `~/aivideo` [PROPOSED: Mac mini still on the D-039 layout]
+### 4b. Moving an existing worker to `~/aivideo` (done on the Mac mini 2026-10-28)
 
-The Mac mini still runs from the development checkout with `WORK_ROOT=~/work`,
-`~/.config/aivideo/worker.env`, `~/Models/whisper`, `~/MediaLibrary/music` and
-`~/Library/Logs/aivideo-worker.log` until the current batch of videos has rendered. Then, with no
-job running (`tail` the log, `curl /health`):
+For a worker still on the D-039 layout (`WORK_ROOT=~/work`, `~/.config/aivideo/worker.env`,
+`~/Models/whisper`, `~/MediaLibrary/music`, `~/Library/Logs/aivideo-worker.log`), with no job
+running (`tail` the log, `curl /health`):
 
 1. Steps 1 and 5's `sed` above, into `~/aivideo/repo` and a plist in the scratch folder (not yet
    installed); `~/aivideo/config/worker.env` = the old file with `WORK_ROOT`, `MUSIC_LIBRARY_DIR`,
@@ -191,7 +190,8 @@ job running (`tail` the log, `curl /health`):
    `mv ~/Library/Logs/aivideo-worker.log ~/aivideo/logs/worker.log` (renames on the same volume;
    nothing is deleted, the old `worker.env` stays until the new worker is verified).
 4. Install the new plist, `launchctl bootstrap`, then the **Check** above and
-   `ops/progress-check.md`. Record the result in `docs/infrastructure.md` S-18.
+   `ops/progress-check.md`. Record the result in `docs/infrastructure.md` S-18. The old
+   `~/.config/aivideo/worker.env` can be removed once the new worker has run a job.
 
 ## 5. n8n (LXC 104)
 
