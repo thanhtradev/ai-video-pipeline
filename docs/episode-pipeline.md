@@ -111,7 +111,9 @@ after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `rem
 the kit catalog (`remotion/catalog.json`, D-064): a clip has one **kit** (visual style:
 `remotion/src/kits/<kit>/`) and one **character set** (a cast on the shared rig:
 `remotion/src/characters/<set>/`); until the brief carries a selection (PR B) the catalog defaults
-`whatif` + `chip` apply. Unknown slugs fail the job; there is no fallback.
+`whatif` + `chip` apply. Unknown slugs fail the job; there is no fallback. The reference episodes
+play their original voice and SFX from `remotion/public/reference-audio/{voice,sfx}/ep<n>/`
+(ASCII names, not in Git; copy them from the reference project to render those compositions).
 
 ```
 CLAUDE.md               contract (remotion/episode/AGENT.md) with the selected kit's and character set's AGENT.md spliced in

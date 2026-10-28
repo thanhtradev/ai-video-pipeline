@@ -10,7 +10,7 @@ import { at, L, LINES, onLang, shot, SHOTS, TOTAL, VOICE } from './time';
  * Voice: each sentence is its own <Html5Audio>, cut from the source file with trimBefore/trimAfter (= startFrom/endAt), NO speed/pitch change.
  * Mix: voice first (gain 1.0); SFX/foley −7 dB, beds −5 dB versus the first cut; under voice, beds duck a further −12 dB and foley −15 dB (5-frame ramp); during holds beds/foley play at full level.
  */
-export const SFX = (n: string) => `kênh tiktok 2/sfx/ep1/${n}.wav`;
+export const SFX = (n: string) => `reference-audio/sfx/ep1/${n}.wav`;
 const VOICE_GAIN = 1.0;
 /** Global gains (user: SFX too loud, voice louder) – SFX/foley −7 dB, beds −5 dB. */
 const FX_GAIN = 0.45;
