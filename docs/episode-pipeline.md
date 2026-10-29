@@ -72,6 +72,16 @@ and writes `script.json` (the hashed A1 content) and `script.md`. From a full br
 format (VOICE / NHÂN VẬT / VISUAL STYLE / HIỆU ỨNG / DANH SÁCH SHOT), Claude only restructures it;
 from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with holds).
 
+A1 (D-070, migration `20261107000100`): WF-05 sends the summary, then `script.md` as a file
+(`GET /media/<video>/<version>/<script job>/script.md?t=<media token>`, the token from the script
+checkpoint; scripts written before have none and get no file). The message ends with `kb:<token>`:
+a **reply in plain Vietnamese** is the owner's notes (`script_feedback()`). The request is rejected
+with the note and a new version gets a script job with `revision` (`previous_job_id`,
+`previous_version`, `feedback`, `round`); the worker reads the previous `script.json` and asks
+Claude to change only what the notes ask. Same schema and checks, except that a revision of a full
+brief may change its narration. The new script comes back to A1 with a new TTS estimate.
+After 3 rounds of notes, the next notes → `NEEDS_DECISION`. Shorts scripts take no notes.
+
 ## 4. TTS
 
 Model `eleven_v4` (1 credit/char, ≤ 10000 chars per request), Vietnamese voice

@@ -242,6 +242,35 @@ describe('WF-05 Script Approval Request', () => {
     expect(out!.json.text).not.toContain('cảnh');
   });
 
+  test('invites notes as a plain reply and ends with the kb: reference (D-070)', () => {
+    const [out] = runCode('wf-05-script-approval.json', 'Build message', {
+      input: [{ json: row }],
+    });
+    const text = out!.json.text as string;
+    expect(text).toContain('Trả lời tin nhắn này bằng lời bình thường để sửa kịch bản');
+    expect(text.endsWith(`kb:${token}`)).toBe(true);
+  });
+
+  test('fetches script.md from the worker for new requests that have one', () => {
+    const file = { job_id: '87654321-aaaa-bbbb-cccc-000000000000', token: 'c'.repeat(32) };
+    const [out] = runCode('wf-05-script-approval.json', 'Build file', {
+      input: [{ json: { ...row, script: { ...row.script, file } } }],
+    });
+    expect(out!.json).toEqual({
+      url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/2/${file.job_id}/script.md?t=${file.token}`,
+      fileName: 'script-12345678-v2.md',
+      caption: 'Kịch bản đầy đủ · Video 12345678 v2 · Bầu trời xanh',
+    });
+    expect(
+      runCode('wf-05-script-approval.json', 'Build file', {
+        input: [
+          { json: { ...row, script: { ...row.script, file: null } } },
+          { json: { ...row, kind: 'REMINDER', script: { ...row.script, file } } },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
   test('labels reminders and skips empty results', () => {
     const outputs = runCode('wf-05-script-approval.json', 'Build message', {
       input: [{ json: { ...row, kind: 'REMINDER' } }, { json: {} }],
@@ -343,6 +372,33 @@ describe('WF-06 Telegram Callback', () => {
       chatId: '111',
       messageId: '9',
     });
+  });
+
+  test('turns a reply to an A1 request into notes for a script revision (D-070)', () => {
+    const [out] = runCode('wf-06-telegram-callback.json', 'Parse callback', {
+      input: [message('Hồi 3 dài quá.', `Kịch bản sẵn sàng\nkb:${token}`)],
+    });
+    expect(out!.json).toMatchObject({
+      kind: 'reply',
+      approval: 'script',
+      action: 'FEEDBACK',
+      token,
+      note: 'Hồi 3 dài quá.',
+    });
+  });
+
+  test('answers notes on a script with the new version and round', () => {
+    const parsed = {
+      json: { kind: 'reply', approval: 'script', action: 'FEEDBACK', token, chatId: '111' },
+    };
+    const answer = (result: string, version: number | null, round: number | null) =>
+      runCode('wf-06-telegram-callback.json', 'Build reply', {
+        input: [{ json: { result, version, round } }],
+        nodeOutputs: { 'Parse callback': [parsed] },
+      })[0]!.json.answer;
+    expect(answer('OK', 3, 2)).toBe('Đã nhận ghi chú: đang sửa kịch bản thành v3 (lần 2/3).');
+    expect(answer('NEEDS_DECISION', 4, 3)).toMatch(/vòng ghi chú cuối.*quyết định/);
+    expect(answer('NOT_SUPPORTED', null, null)).toBe('Không áp dụng được cho yêu cầu này.');
   });
 
   test.each([

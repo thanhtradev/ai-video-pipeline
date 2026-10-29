@@ -16,6 +16,9 @@ const MP4 = Buffer.from('fake mp4 bytes');
 const META = '5b0c7a8e-4444-4c2d-9e3f-000000000004';
 const META_TOKEN = 'd'.repeat(32);
 const JPG = Buffer.from([0xff, 0xd8, 0xff]);
+const SCRIPT = '5b0c7a8e-5555-4c2d-9e3f-000000000005';
+const SCRIPT_TOKEN = 'e'.repeat(32);
+const SCRIPT_MD = '# Bíp ơi, tại sao nước sôi?\n';
 
 let root: string;
 let app: Awaited<ReturnType<typeof buildApi>>;
@@ -45,6 +48,11 @@ beforeEach(async () => {
   await writeFile(join(jobs, META, 'thumbnail.jpg'), JPG);
   await checkpoint(join(jobs, META), ['metadata.json', 'thumbnail.jpg'], {
     media_token: META_TOKEN,
+  });
+  await mkdir(join(jobs, SCRIPT), { recursive: true });
+  await writeFile(join(jobs, SCRIPT, 'script.md'), SCRIPT_MD);
+  await checkpoint(join(jobs, SCRIPT), ['script.json', 'script.md'], {
+    media_token: SCRIPT_TOKEN,
   });
   await checkpoint(join(jobs, QA), ['qa-report.json'], {
     media_token: TOKEN,
@@ -97,5 +105,14 @@ describe('preview media', () => {
     expect(response.rawPayload).toEqual(JPG);
     expect((await app.inject({ method: 'GET', url: thumb(TOKEN) })).statusCode).toBe(404);
     expect((await app.inject({ method: 'GET', url: url('thumbnail.jpg') })).statusCode).toBe(404);
+  });
+
+  test('serves script.md of a script job for its own token (D-070)', async () => {
+    const md = (token: string) => `/media/${VIDEO}/1/${SCRIPT}/script.md?t=${token}`;
+    const response = await app.inject({ method: 'GET', url: md(SCRIPT_TOKEN) });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toBe('text/markdown; charset=utf-8');
+    expect(response.payload).toBe(SCRIPT_MD);
+    expect((await app.inject({ method: 'GET', url: md(META_TOKEN) })).statusCode).toBe(404);
   });
 });
