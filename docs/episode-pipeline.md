@@ -158,7 +158,7 @@ Chrome cannot start inside that sandbox, so the agent never renders (D-054). The
 render of agent-written code under its own profile `ops/claude/episode-render.sb` (loopback only,
 writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
 
-1. typecheck; 2. the SFX script; 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
+1. typecheck; 2. the SFX script (fails on any ambience bed or room tone, `amb_*` / `*room_tone*`, D-069); 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
 55 % of each shot; a missing audio file fails here); 4. text-out-of-frame scan of the whole episode
 (every 10th frame, 0 sharp hits allowed); then a scan of the agent's files for secret values.
 

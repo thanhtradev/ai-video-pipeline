@@ -373,21 +373,8 @@ export const clapFreeze = (at: number, vol = 0.8): Cue[] => [
   hit('day_tick', at + 8, vol * 0.6),
 ];
 
-export type Amb =
-  | 'class'
-  | 'home'
-  | 'yard'
-  | 'alley'
-  | 'dinner'
-  | 'street'
-  | 'er'
-  | 'ward'
-  | 'rules'
-  | 'quiet'
-  | 'none';
 export type ShotDef = {
   readonly C: React.FC;
   readonly fx?: (h: ShotH) => Cue[];
-  readonly amb: Amb;
 };
 export { clamp };

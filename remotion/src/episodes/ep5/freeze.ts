@@ -5,7 +5,7 @@ import { at, L, shot } from './time';
 /**
  * TIME STOPS (ABSOLUTE frames, anchored to spoken words). from = the clap, to = when time runs again.
  * clock = [frame, seconds left] (30-second clock; interpolated between keys; `cycle` = the clock restarts on every clap).
- * days = [frame, number of days] ("+N NGÀY" counter). Audio: from…to mutes the ambience, leaving a low hum + ticks (audio.tsx).
+ * days = [frame, number of days] ("+N NGÀY" counter). Audio: from…to plays a low hum + ticks (audio.tsx).
  */
 export type Freeze = {
   readonly from: number;

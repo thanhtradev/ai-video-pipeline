@@ -874,16 +874,15 @@ const S38: React.FC = () => {
 };
 
 export const ACT123: Record<string, ShotDef> = {
-  '1.1': { C: S11, amb: 'alley' },
-  '2.1': { C: S21, amb: 'class', fx: (h) => [loopFor('steps_tile_loop', 0, h.dur, 0.4, 6)] },
-  '2.2': { C: S22, amb: 'class' },
-  '2.3': { C: S23, amb: 'class' },
-  '2.4': { C: S24, amb: 'class' },
-  '2.5': { C: S25, amb: 'class' },
-  '2.6': { C: S26, amb: 'class' },
+  '1.1': { C: S11 },
+  '2.1': { C: S21, fx: (h) => [loopFor('steps_tile_loop', 0, h.dur, 0.4, 6)] },
+  '2.2': { C: S22 },
+  '2.3': { C: S23 },
+  '2.4': { C: S24 },
+  '2.5': { C: S25 },
+  '2.6': { C: S26 },
   '2.7': {
     C: S27,
-    amb: 'class',
     fx: (h) => [
       loopFor('steps_run_loop', 0, h.L('L025'), 0.6, 4),
       hit('page_flip', h.L('L025'), 0.7),
@@ -893,23 +892,20 @@ export const ACT123: Record<string, ShotDef> = {
   },
   '2.8': {
     C: S28,
-    amb: 'class',
     fx: (h) => [loopFor('steps_run_loop', 0, h.L('L031') - 4, 0.5, 4)],
   },
-  '2.9': { C: S29, amb: 'class', fx: () => [hit('chalk', 2, 0.8), hit('chalk', 22, 0.7)] },
-  '2.10': { C: S210, amb: 'class' },
-  '2.11': { C: S211, amb: 'class', fx: (h) => [hit('whoosh_ui', h.L('L040'), 0.5)] },
-  '3.1': { C: S31, amb: 'rules', fx: () => [2, 6, 10, 14].map((t) => hit('whoosh_ui', t, 0.5)) },
-  '3.2': { C: S32, amb: 'rules' },
+  '2.9': { C: S29, fx: () => [hit('chalk', 2, 0.8), hit('chalk', 22, 0.7)] },
+  '2.10': { C: S210 },
+  '2.11': { C: S211, fx: (h) => [hit('whoosh_ui', h.L('L040'), 0.5)] },
+  '3.1': { C: S31, fx: () => [2, 6, 10, 14].map((t) => hit('whoosh_ui', t, 0.5)) },
+  '3.2': { C: S32 },
   '3.3': {
     C: S33,
-    amb: 'rules',
     fx: (h) => [hit('chair_lift', h.L('L047'), 0.5), hit('breath', h.L('L048') + 10, 0.5)],
   },
-  '3.4': { C: S34, amb: 'rules', fx: () => [hit('day_tick', 20, 0.7)] },
+  '3.4': { C: S34, fx: () => [hit('day_tick', 20, 0.7)] },
   '3.5': {
     C: S35,
-    amb: 'rules',
     fx: (h) => [
       hit('paper_flutter', 6, 0.6),
       hit('buzz', 40, 0.6),
@@ -918,9 +914,8 @@ export const ACT123: Record<string, ShotDef> = {
   },
   '3.6': {
     C: S36,
-    amb: 'rules',
     fx: (h) => [hit('whoosh_ui', 0, 0.5), loopFor('heartbeat_loop', h.L('L056'), h.dur, 0.35, 10)],
   },
-  '3.7': { C: S37, amb: 'home', fx: (h) => [hit('calendar_tear', h.L('L060') + 20, 0.9)] },
-  '3.8': { C: S38, amb: 'home' },
+  '3.7': { C: S37, fx: (h) => [hit('calendar_tear', h.L('L060') + 20, 0.9)] },
+  '3.8': { C: S38 },
 };

@@ -568,31 +568,27 @@ const S58: React.FC = () => {
 export const ACT45: Record<string, ShotDef> = {
   '4.1': {
     C: S41,
-    amb: 'rules',
     fx: (h) =>
       Array.from({ length: Math.floor(h.dur / 6) }, (_, i) => hit('clock_tick', i * 6, 0.35)),
   },
   '4.2': {
     C: S42,
-    amb: 'class',
     fx: (h) => [hit('page_flip', 4, 0.5), hit('whoosh_ui', h.L('L066'), 0.4)],
   },
-  '4.3': { C: S43, amb: 'quiet', fx: (h) => [loopFor('steps_run_loop', 0, h.dur, 0.6, 4)] },
-  '4.4': { C: S44, amb: 'class' },
-  '4.5': { C: S45, amb: 'class' },
-  '4.6': { C: S46, amb: 'class', fx: (h) => [hit('whoosh_ui', h.L('L079'), 0.5)] },
+  '4.3': { C: S43, fx: (h) => [loopFor('steps_run_loop', 0, h.dur, 0.6, 4)] },
+  '4.4': { C: S44 },
+  '4.5': { C: S45 },
+  '4.6': { C: S46, fx: (h) => [hit('whoosh_ui', h.L('L079'), 0.5)] },
   '5.1': {
     C: S51,
-    amb: 'home',
     fx: (h) => [
       hit('basket_drop', h.L('L081') + 6, 0.6),
       ...Array.from({ length: 10 }, (_, i) => hit('egg_place', h.L('L083') + 6 + i * 11, 0.5)),
     ],
   },
-  '5.2': { C: S52, amb: 'home' },
+  '5.2': { C: S52 },
   '5.3': {
     C: S53,
-    amb: 'yard',
     fx: (h) => [
       hit('ball_kick', h.L('L089'), 0.8),
       hit('ball_hug', h.L('L091') + 50, 0.6),
@@ -601,15 +597,13 @@ export const ACT45: Record<string, ShotDef> = {
   },
   '5.4': {
     C: S54,
-    amb: 'alley',
     fx: (h) => [hit('camera_shutter', h.L('L095'), 0.8), hit('camera_shutter', h.L('L096'), 0.8)],
   },
-  '5.5': { C: S55, amb: 'home' },
+  '5.5': { C: S55 },
   '5.6': {
     C: S56,
-    amb: 'rules',
     fx: (h) => [hit('whoosh_ui', 0, 0.5), hit('whoosh_ui', h.L('L102'), 0.5)],
   },
-  '5.7': { C: S57, amb: 'class' },
-  '5.8': { C: S58, amb: 'home', fx: (h) => [hit('grandpa_chuckle', h.L('L108'), 0.5)] },
+  '5.7': { C: S57 },
+  '5.8': { C: S58, fx: (h) => [hit('grandpa_chuckle', h.L('L108'), 0.5)] },
 };

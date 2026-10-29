@@ -2,7 +2,7 @@
 // The worker runs this under ops/claude/episode-render.sb (loopback only, writes only in the
 // workspace), since it executes agent-written code: the SFX script and the episode in Chrome.
 // Usage: node remotion/scripts/episode-gates.mjs <workspace>   → <workspace>/gates.json
-// Steps: typecheck → SFX synthesis → storyboard pages → text-out-of-frame QA (reference
+// Steps: typecheck → SFX synthesis (no ambience beds, sfx-rules.mjs) → storyboard pages → text-out-of-frame QA (reference
 // scripts/tiktok2/check-text-bounds.mjs). Later steps run only when the typecheck passes.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundle } from '@remotion/bundler';
 import { openBrowser, renderFrames, renderStill, selectComposition } from '@remotion/renderer';
+import { ambienceBeds } from './sfx-rules.mjs';
 
 const ws = process.argv[2];
 if (!ws || !existsSync(join(ws, 'src', 'index.ts'))) {
@@ -50,7 +51,16 @@ function sfx() {
   const files = readdirSync(out)
     .filter((f) => f.endsWith('.wav'))
     .sort();
-  return { ok: r.status === 0, files, output: tail(`${r.stdout}${r.stderr}`) };
+  const output = tail(`${r.stdout}${r.stderr}`);
+  const beds = ambienceBeds(files);
+  if (beds.length === 0) return { ok: r.status === 0, files, output };
+  return {
+    ok: false,
+    files,
+    output:
+      `Ambience beds and room tone are not allowed (heard as constant hiss): ${beds.join(', ')}. ` +
+      `Remove them from sfx/generate-sfx.mjs and the episode audio.\n${output}`,
+  };
 }
 
 async function board(serveUrl, browser) {
