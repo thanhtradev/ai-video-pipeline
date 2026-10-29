@@ -101,13 +101,14 @@ async function episodeAwaitingMetadata(name: string) {
   const episode = await episodeWithFinal(name);
   const v = episode.version_id;
   expect(await due(v)).toEqual([]);
-  await succeed((await jobOf(v, 'qa_final')).id, {
+  const qa = await jobOf(v, 'qa_final');
+  await succeed(qa.id, {
     outputs: [out('qa-report.json', '9')],
-    result: { level: 'PASS', checks: [] },
+    result: { level: 'PASS', checks: [], media_token: '1'.repeat(32) },
   });
   await succeed((await jobOf(v, 'metadata')).id, METADATA('Nếu bạn nghe được mèo nghĩ gì?'));
   const [request] = await due(v);
-  return { ...episode, a3: request! };
+  return { ...episode, a3: request!, qaFinalId: qa.id };
 }
 
 describe('final_due', () => {
@@ -172,7 +173,14 @@ describe('telegram_decide on metadata (A3)', () => {
   });
 
   test('approve archives; the verified archive asks the owner about the Mac copy', async () => {
-    const { version_id: v, video_id, a3, codeId, finalId } = await episodeAwaitingMetadata('a3-ok');
+    const {
+      version_id: v,
+      video_id,
+      a3,
+      codeId,
+      finalId,
+      qaFinalId,
+    } = await episodeAwaitingMetadata('a3-ok');
     expect((await decide(a3.token!, 'REJECT')).result).toBe('NOT_SUPPORTED');
     expect((await decide(a3.token!, 'APPROVE', null, STRANGER)).result).toBe('NOT_ALLOWED');
 
@@ -215,6 +223,8 @@ describe('telegram_decide on metadata (A3)', () => {
         file_count: 42,
         total_bytes: 123456789,
         local_bytes: 987654321,
+        // WF-14 fetches final.mp4 with the qa_final media token (D-073).
+        final: { job_id: qaFinalId, token: '1'.repeat(32) },
       },
     });
     expect(done!.token).toMatch(/^[0-9a-f]{32}$/);

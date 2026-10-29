@@ -1574,6 +1574,39 @@ describe('WF-14 Final Delivery (D-062)', () => {
     ).toEqual([]);
   });
 
+  test('sends final.mp4 before the done message, and a failed upload never stops it (D-073)', () => {
+    const file = 'wf-14-final-delivery.json';
+    const wf = workflow(file);
+    expect(wf.connections['Due finals']!.main[0]!.map((c) => c.node)).toContain('Build final');
+    expect(wf.connections['Build final']!.main[0]!.map((c) => c.node)).toEqual(['Fetch final']);
+    expect(wf.connections['Fetch final']!.main[0]!.map((c) => c.node)).toEqual(['Send final']);
+    const node = (name: string) =>
+      wf.nodes.find((n) => n.name === name)! as WorkflowNode & {
+        position: [number, number];
+        onError?: string;
+      };
+    expect(node('Send final').parameters).toMatchObject({
+      operation: 'sendVideo',
+      binaryData: true,
+    });
+    // executionOrder v1 runs sibling branches top to bottom: the video lands above its message.
+    expect(node('Build final').position[1]).toBeLessThan(node('Build done').position[1]);
+    // The DONE row comes back once; an upload error must not lose the cleanup question.
+    expect(node('Fetch final').onError).toBe('continueRegularOutput');
+    expect(node('Send final').onError).toBe('continueRegularOutput');
+
+    const final = { job_id: '11111111-aaaa-bbbb-cccc-000000000000', token: 'd'.repeat(32) };
+    const done = { ...row, kind: 'DONE', report: { path: 'x', final } };
+    const [out, ...rest] = runCode(file, 'Build final', {
+      input: [{ json: done }, { json: row }, { json: { ...done, report: { path: 'x' } } }],
+    });
+    expect(rest).toEqual([]);
+    expect(out!.json).toEqual({
+      url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${final.job_id}/final.mp4?t=${final.token}`,
+      caption: '🎬 #679cd22f v1 · final 1080p',
+    });
+  });
+
   test('WF-06 takes A3 buttons (Viết lại allowed) and notes replied to an A3 message', () => {
     const callback = (data: string): Item => ({
       json: {

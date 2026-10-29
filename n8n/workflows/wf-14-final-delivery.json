@@ -68,6 +68,50 @@
     },
     {
       "parameters": {
+        "jsCode": "// The finished video with each DONE row (D-073), sent before the done message. The bot talks to a\n// self-hosted Bot API server (uploads up to 2000 MB); the worker serves final.mp4 against the\n// qa_final job's media token. Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn $input\n  .all()\n  .filter((item) => item.json.kind === 'DONE' && parse(item.json.report)?.final)\n  .map(({ json: row }) => {\n    const { final } = parse(row.report);\n    return {\n      json: {\n        url: `${WORKER}/media/${row.video_id}/${row.version}/${final.job_id}/final.mp4?t=${final.token}`,\n        caption: `🎬 #${String(row.video_id).slice(0, 8)} v${row.version} · final 1080p`,\n      },\n    };\n  });"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001412",
+      "name": "Build final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 110]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 600000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001413",
+      "name": "Fetch final",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 110],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build final').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001414",
+      "name": "Send final",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, 110],
+      "onError": "continueRegularOutput",
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
         "jsCode": "// A3 (D-062): one message per REQUEST/REMINDER row of final_due(), after its thumbnail (Vietnamese,\n// D-061); the metadata is quoted as written, the description collapsed. Notes come back as a reply\n// to this message (WF-06 finds the request by the hidden meta link). Callback data: a3:<A|G>:<token>.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst CHECKS = {\n  format: 'định dạng',\n  size: 'kích thước',\n  duration: 'thời lượng',\n  loudness: 'âm lượng',\n  subtitles: 'phụ đề',\n  'black frames': 'khung hình đen',\n  silence: 'im lặng',\n};\nconst DESCRIPTION_CHARS = 1500;\nconst rows = $input.all().filter((item) => ['REQUEST', 'REMINDER'].includes(item.json.kind) && typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  const meta = parse(row.metadata);\n  const description = String(meta?.description ?? '').slice(0, DESCRIPTION_CHARS);\n  const body = meta\n    ? [\n        ...(description ? [`<blockquote expandable>${esc(description)}</blockquote>`] : []),\n        `Tag: ${esc((meta.tags ?? []).join(', '))}`,\n        `QA 1080p ${esc(meta.qa_level ?? '?')}`,\n        ...(meta.qa ?? [])\n          .filter((check) => check.level !== 'PASS')\n          .map((check) => `⚠️ ${esc(CHECKS[check.name] ?? check.name)}: ${esc(check.detail)}`),\n      ]\n    : [];\n  const html = [\n    `${hiddenRef('meta', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}🏷 Duyệt metadata</b> · bước 5/5 · A3 lần ${row.round}`,\n    `«${esc(meta?.title ?? row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · Duyệt → lưu lên Google Drive, hoàn tất`,\n    ...(reminder ? [] : body),\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply để góp ý, hoặc bấm Viết lại`,\n  ].join('\\n');\n  return { json: { html, approve: `a3:A:${row.token}`, regenerate: `a3:G:${row.token}` } };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001406",
@@ -181,6 +225,7 @@
         [
           { "node": "Build thumbnail", "type": "main", "index": 0 },
           { "node": "Build message", "type": "main", "index": 0 },
+          { "node": "Build final", "type": "main", "index": 0 },
           { "node": "Build done", "type": "main", "index": 0 },
           { "node": "Build cleaned", "type": "main", "index": 0 }
         ]
@@ -188,6 +233,8 @@
     },
     "Build thumbnail": { "main": [[{ "node": "Fetch thumbnail", "type": "main", "index": 0 }]] },
     "Fetch thumbnail": { "main": [[{ "node": "Send thumbnail", "type": "main", "index": 0 }]] },
+    "Build final": { "main": [[{ "node": "Fetch final", "type": "main", "index": 0 }]] },
+    "Fetch final": { "main": [[{ "node": "Send final", "type": "main", "index": 0 }]] },
     "Build message": { "main": [[{ "node": "Send buttons", "type": "main", "index": 0 }]] },
     "Build done": { "main": [[{ "node": "Send done", "type": "main", "index": 0 }]] },
     "Build cleaned": { "main": [[{ "node": "Send cleaned", "type": "main", "index": 0 }]] }

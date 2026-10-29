@@ -4,16 +4,17 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import { resolveInside } from '../storage/workspace.js';
 
-// Episode media for Telegram (D-057, D-062, D-070, D-071). Like storyboard pages (D-055), the
-// capability is a token in a job's checkpoint: a qa_preview job serves the preview of the render it
-// checked, a metadata job its own thumbnail, a script job its script.md, a timing job its
-// voice.m4a, an episode_code job its mix.m4a. A file is served only when a checkpoint lists it.
-// Every failure looks the same to the caller.
+// Episode media for Telegram (D-057, D-062, D-070, D-071, D-073). Like storyboard pages (D-055),
+// the capability is a token in a job's checkpoint: a qa_preview / qa_final job serves the preview /
+// final of the render it checked, a metadata job its own thumbnail, a script job its script.md, a
+// timing job its voice.m4a, an episode_code job its mix.m4a. A file is served only when a
+// checkpoint lists it. Every failure looks the same to the caller.
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const TOKEN = /^[0-9a-f]{32}$/;
 const TYPES: Readonly<Record<string, string>> = {
   'preview.mp4': 'video/mp4',
+  'final.mp4': 'video/mp4',
   'vi.srt': 'application/x-subrip',
   'thumbnail.jpg': 'image/jpeg',
   'script.md': 'text/markdown; charset=utf-8',
