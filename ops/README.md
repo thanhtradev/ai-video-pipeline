@@ -203,11 +203,16 @@ running (`tail` the log, `curl /health`):
      **Database Number `1`** — the default `0` silently sends jobs where the worker never looks
      (R-14).
    - `aivideo-telegram` (Telegram API): bot token.
-3. Import each file of `n8n/workflows/` into its **own new workflow** (Create Workflow → ⋯ →
-   Import from File → Save); importing into an open workflow replaces it. Reconnect nodes to the
-   credentials above if shown as missing, and replace `REPLACE_WITH_APPROVAL_CHAT_ID` in WF-99.
-4. Activate in this order: **WF-99 Error Handler first** (n8n 2.x only runs an error workflow
-   that is active), then WF-08 Watchdog, then WF-02 Dispatcher.
+3. Import and publish every workflow with the deploy script ([n8n/README.md](n8n/README.md)):
+   `cp ops/n8n/deploy.env.example ops/n8n/deploy.env`, set `APPROVAL_CHAT_ID`, then
+   `ops/n8n/deploy-workflows.sh` (D-068). It fills the placeholders, backs up, imports with the
+   n8n CLI, publishes in the right order (**WF-99 Error Handler first**: n8n 2.x only runs a
+   published error workflow) and restarts the container. On the first run confirm the two
+   `[UNKNOWN]` items listed in that runbook (project ownership, credential mapping by name).
+4. Manual fallback: import each file into its **own new workflow** (Create Workflow → ⋯ → Import
+   from File → Save; importing into an open workflow replaces it), reconnect credentials if shown
+   as missing, replace `REPLACE_WITH_APPROVAL_CHAT_ID` / `REPLACE_WITH_WORKER_URL`, then publish
+   WF-99, WF-08, WF-02, WF-06 and the rest.
 5. Register yourself as approver (from the Mac, as owner):
    `psql "postgres://aivideo_owner@192.168.1.102:5432/aivideo" -c "INSERT INTO approver (telegram_user_id, name) VALUES (<user-id>, 'owner')"`.
 

@@ -4,8 +4,8 @@ Run by the user after this PR (and #19, which it builds on) is merged. **Free.**
 worker restart.
 
 Re-import every workflow that sends messages, with the approval chat id (and the worker URL for
-WF-12/WF-13): WF-01, WF-05, WF-06, WF-08, WF-12, WF-13, WF-99. The CLI import loop with `sed` does
-all of them at once. Activate them again afterwards (WF-99 first).
+WF-12/WF-13): WF-01, WF-05, WF-06, WF-08, WF-12, WF-13, WF-99. `ops/n8n/deploy-workflows.sh`
+does all of them at once and publishes them in the right order ([n8n/README.md](n8n/README.md)).
 
 Requests that are already in the chat keep their English buttons and text; they still work.
 

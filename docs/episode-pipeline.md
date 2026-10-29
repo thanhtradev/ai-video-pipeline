@@ -122,7 +122,9 @@ the kit catalog (`remotion/catalog.json`, D-064): a clip has one **kit** (visual
 `remotion/src/kits/<kit>/`) and one **character set** (a cast on the shared rig:
 `remotion/src/characters/<set>/`), chosen per clip in the brief (§3, D-066) and passed in the job
 input; absent fields mean the catalog defaults `whatif` + `chip`. Unknown slugs fail the job;
-there is no fallback.
+there is no fallback. The reference episodes play their original voice and SFX from
+`remotion/public/reference-audio/{voice,sfx}/ep<n>/` (ASCII names, not in Git; copy them from the
+reference project to render those compositions).
 
 ```
 CLAUDE.md               contract (remotion/episode/AGENT.md) with the selected kit's and character set's AGENT.md spliced in

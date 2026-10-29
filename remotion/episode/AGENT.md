@@ -19,7 +19,7 @@ Work alone until the episode is complete; nobody answers questions during the ru
 | `<!-- REFERENCE -->` | the finished reference episode: the model of the whole structure | read, copy patterns, import components |
 | `kit/kits/whatif/sfx/` | sound synthesis: `sfx-lib.mjs`, `ep1-sfx.mjs` (synth functions + EP1 sounds), `ep5-sfx.mjs` (an episode script) | import from your SFX script |
 | `src/episode/` | **your code**; `Episode.tsx` must export `Episode: React.FC` | write |
-| `sfx/generate-sfx.mjs` | **your SFX script**: `node sfx/generate-sfx.mjs public/sfx` writes every WAV the episode plays into the folder given as its first argument | write |
+| `sfx/generate-sfx.mjs` | **your SFX script**: `node sfx/generate-sfx.mjs public/sfx` writes every WAV the episode plays into the folder given as its first argument; file names are ASCII (`a-z0-9_-`) | write |
 | `public/voice.wav` | the narration; `public/sfx/` gets your SFX | — |
 | `FILES.md` | every file with its size; read files by these paths (there is no search tool) | read |
 

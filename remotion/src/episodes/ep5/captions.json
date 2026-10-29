@@ -1,6 +1,6 @@
 {
 "_doc": "Mốc từng từ (ms theo file giọng gốc), whisper large-v3-turbo căn với lời SRT.",
-"voice": "kênh tiktok 2/Voice/ep5/ep5 tiktok2.mp3",
+"voice": "reference-audio/voice/ep5/ep5-tiktok2.mp3",
 "captions": [
 {
 "line": "L001",

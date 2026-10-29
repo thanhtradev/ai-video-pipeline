@@ -9,7 +9,7 @@ import { at, L, line, LINES, SHOTS, TOTAL, VOICE } from './time';
  * (= startFrom/endAt), no speed/pitch change. Same mix as the user-approved EP1: voice 1.0, SFX ×0.45, beds ×0.56;
  * under voice beds duck a further −12 dB, foley −15 dB; during holds beds/foley play at full level.
  */
-export const SFX = (n: string) => `kênh tiktok 2/sfx/ep2/${n}.wav`;
+export const SFX = (n: string) => `reference-audio/sfx/ep2/${n}.wav`;
 const VOICE_GAIN = 1.0;
 const FX_GAIN = 0.45;
 const BED_GAIN = 0.56;
