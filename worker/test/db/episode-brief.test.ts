@@ -139,7 +139,7 @@ async function completeEpisodeScript(jobId: string, acts: string[]): Promise<voi
 }
 
 describe('A1 approval of an episode', () => {
-  test('creates one TTS request per act, the timeline, the episode code, and no typography preview', async () => {
+  test('creates one TTS request per act and the timeline, and no typography preview', async () => {
     const acts = ['[punchy] Nếu bạn dừng được thời gian…', '[explaining] Luật thế này.\nVỗ tay.'];
     const submitted = await submit('ep-approve', { format: 'episode', topic: 'Dừng thời gian' });
     await completeEpisodeScript(submitted.job_id, acts);
@@ -166,8 +166,9 @@ describe('A1 approval of an episode', () => {
        WHERE video_version_id = $1 AND step <> 'script' ORDER BY created_at`,
       [submitted.version_id],
     );
-    expect(jobs.rows.map((job) => job.step)).toEqual(['tts', 'timing', 'episode_code']);
-    const [tts, timing, code] = jobs.rows;
+    // The episode code waits for the voice approval (A1b, D-071).
+    expect(jobs.rows.map((job) => job.step)).toEqual(['tts', 'timing']);
+    const [tts, timing] = jobs.rows;
     expect(tts!.input.scenes).toEqual([
       { index: 1, text: acts[0] },
       { index: 2, text: acts[1] },
@@ -183,16 +184,5 @@ describe('A1 approval of an episode', () => {
       [timing!.id],
     );
     expect(deps.rows.map((row) => row.depends_on_job_id)).toEqual([tts!.id]);
-    // The agent writes the episode code once the timeline exists (docs/episode-pipeline.md §6).
-    expect(code).toMatchObject({
-      stream: 'q:render',
-      status: 'PENDING',
-      input: { script_job_id: submitted.job_id, timing_job_id: timing!.id },
-    });
-    const codeDeps = await db.pool.query<{ depends_on_job_id: string }>(
-      'SELECT depends_on_job_id FROM job_dependency WHERE job_id = $1',
-      [code!.id],
-    );
-    expect(codeDeps.rows.map((row) => row.depends_on_job_id)).toEqual([timing!.id]);
   });
 });

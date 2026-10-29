@@ -16,6 +16,7 @@ import {
   type GateRunner,
 } from '../episode/gates.js';
 import { agentFiles, containsSecret, prepareWorkspace } from '../episode/workspace.js';
+import type { LoudnessNormalizer } from '../media/loudness.js';
 import { rulesMarkdown, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
@@ -33,12 +34,15 @@ import {
 // turn is permanent: a person decides (the workspace stays for an interactive session).
 // agent-turns.json checkpoints every agent turn and gate run: a retry (a crash, the gates' Chrome,
 // /retry on Telegram) resumes the same session where it stopped instead of writing it again.
+// The gates also render the episode's audio (voice + SFX); mix.m4a, at the delivery loudness, goes
+// to the storyboard request with the pages (D-071).
 
 const AGENT_LIMIT_MS = 90 * 60 * 1000;
 const MAX_FOLLOW_UPS = 2;
 const WORKSPACE = 'ws';
 const SETTINGS = 'agent-settings.json';
 const TURNS_LOG = 'agent-turns.json';
+const MIX = 'mix.m4a';
 export const NO_CHROME =
   "Remotion's Chrome is not installed: run `npx remotion browser ensure` in remotion/ (ops/episode-pipeline.md)";
 
@@ -65,6 +69,8 @@ export interface EpisodeCodeDeps {
   /** False while Remotion's Chrome is missing: the job waits (BLOCKED) instead of running. */
   browserReady: () => boolean;
   blockSeconds: number;
+  /** Encodes mix.m4a (-14 LUFS, as the delivered video). */
+  loudness: LoudnessNormalizer;
   /** The worker's runtime root (D-065): its private folders are denied to the agent. */
   runtimeRoot: string;
   /** Overridable for tests. */
@@ -282,12 +288,22 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
 
     const files = await agentFiles(realWs);
     const pages = report.board?.pages ?? [];
+    // A gate report from before the mix step has none: the storyboard then goes without audio.
+    const mixFile = report.mix?.ok ? report.mix.file : undefined;
+    const mixLoudness = mixFile
+      ? await deps.loudness(
+          await resolveInside(realWs, mixFile),
+          join(workDir, MIX),
+          context.signal,
+        )
+      : null;
     return {
       outputs: [
         ...files.map((f) => `${WORKSPACE}/${f}`),
         ...pages.map((p) => `${WORKSPACE}/${p}`),
         `${WORKSPACE}/gates.json`,
         TURNS_LOG,
+        ...(mixLoudness ? [MIX] : []),
       ],
       result: {
         turns: turns.length,
@@ -296,6 +312,9 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
         board_pages: pages.map((p) => `${WORKSPACE}/${p}`),
         // Capability for GET /boards/… (D-055): only Postgres readers (n8n) learn it.
         board_token: randomBytes(16).toString('hex'),
+        // The same for GET /media/…/mix.m4a (D-057, D-071).
+        media_token: randomBytes(16).toString('hex'),
+        mix_loudness: mixLoudness,
         sfx_files: report.sfx?.files?.length ?? 0,
         text_bounds_blur: report.textBounds?.blur ?? 0,
         revision: Boolean(input.revision),

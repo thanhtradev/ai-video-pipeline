@@ -68,6 +68,48 @@
     },
     {
       "parameters": {
+        "jsCode": "// The episode's audio mix (voice + SFX, D-071) of each new request, after its pages; episode code\n// written before the mix has none. Served against the episode_code job's media token.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.board)?.mix_token);\nreturn rows.map(({ json: row }) => {\n  const board = parse(row.board);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${board.job_id}/mix.m4a?t=${board.mix_token}`,\n      caption: `Video ${shortId} v${row.version} · âm thanh đầy đủ (giọng + SFX) · storyboard vòng ${row.round}/4`,\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001208",
+      "name": "Build mix",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, -220]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 120000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001209",
+      "name": "Fetch mix",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, -220]
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build mix').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001210",
+      "name": "Send mix",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, -220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
         "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages. Telegram text is\n// Vietnamese (D-061). Notes come back as a reply to this message\n// (WF-06 finds the request by the trailing ref). Callback data: sb:<A|R>:<32-hex token>.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? `[AI Video] Nhắc: storyboard đang chờ duyệt (vòng ${row.round}/4)`\n    : `[AI Video] Storyboard sẵn sàng để duyệt (vòng ${row.round}/4)`;\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Tiêu đề: ${row.title ?? '?'}`,\n    '',\n    'Bấm Duyệt để render preview. Muốn sửa thì trả lời (reply) tin này kèm ghi chú.',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    `ref:${row.token}`,\n  ].join('\\n');\n  return { json: { text, approve: `sb:A:${row.token}`, reject: `sb:R:${row.token}` } };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001206",
@@ -115,12 +157,15 @@
       "main": [
         [
           { "node": "Build pages", "type": "main", "index": 0 },
+          { "node": "Build mix", "type": "main", "index": 0 },
           { "node": "Build message", "type": "main", "index": 0 }
         ]
       ]
     },
     "Build pages": { "main": [[{ "node": "Fetch page", "type": "main", "index": 0 }]] },
     "Fetch page": { "main": [[{ "node": "Send page", "type": "main", "index": 0 }]] },
+    "Build mix": { "main": [[{ "node": "Fetch mix", "type": "main", "index": 0 }]] },
+    "Fetch mix": { "main": [[{ "node": "Send mix", "type": "main", "index": 0 }]] },
     "Build message": { "main": [[{ "node": "Send buttons", "type": "main", "index": 0 }]] }
   },
   "settings": {

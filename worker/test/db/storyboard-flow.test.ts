@@ -44,11 +44,29 @@ describe('storyboard_approvals_due', () => {
       version: 1,
       round: 1,
       title: 'Mèo nghĩ gì?',
-      board: { job_id: codeId, token: 'e'.repeat(32), pages: ['ws/board/page-01.jpg'] },
+      board: {
+        job_id: codeId,
+        token: 'e'.repeat(32),
+        pages: ['ws/board/page-01.jpg'],
+        mix_token: '6'.repeat(32),
+      },
     });
     expect(request.token).toMatch(/^[0-9a-f]{32}$/);
     expect(await versionStatus(db.pool, version_id)).toBe('AWAITING_STORYBOARD_APPROVAL');
     expect((await due()).filter((row) => row.video_version_id === version_id)).toEqual([]);
+  });
+
+  test('has no mix for episode code written before the mix (D-071)', async () => {
+    const { version_id, codeId } = await episodeAwaitingStoryboard('sb-no-mix');
+    await db.pool.query(
+      `UPDATE job SET output = jsonb_set(output, '{outputs}', (output->'outputs') - 2) WHERE id = $1`,
+      [codeId],
+    );
+    const board = await db.pool.query<{ board: { mix_token: string | null } }>(
+      'SELECT storyboard_board($1) AS board',
+      [version_id],
+    );
+    expect(board.rows[0]!.board.mix_token).toBeNull();
   });
 });
 

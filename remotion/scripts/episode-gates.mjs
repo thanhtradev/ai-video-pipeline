@@ -2,15 +2,22 @@
 // The worker runs this under ops/claude/episode-render.sb (loopback only, writes only in the
 // workspace), since it executes agent-written code: the SFX script and the episode in Chrome.
 // Usage: node remotion/scripts/episode-gates.mjs <workspace>   → <workspace>/gates.json
-// Steps: typecheck → SFX synthesis (no ambience beds, sfx-rules.mjs) → storyboard pages → text-out-of-frame QA (reference
-// scripts/tiktok2/check-text-bounds.mjs). Later steps run only when the typecheck passes.
+// Steps: typecheck → SFX synthesis (no ambience beds, sfx-rules.mjs) → storyboard pages → audio mix
+// (voice + SFX as the Episode plays them, no frames: board/mix.wav, D-071) → text-out-of-frame QA
+// (reference scripts/tiktok2/check-text-bounds.mjs). Later steps run only when the typecheck passes.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundle } from '@remotion/bundler';
-import { openBrowser, renderFrames, renderStill, selectComposition } from '@remotion/renderer';
+import {
+  openBrowser,
+  renderFrames,
+  renderMedia,
+  renderStill,
+  selectComposition,
+} from '@remotion/renderer';
 import { ambienceBeds } from './sfx-rules.mjs';
 
 const ws = process.argv[2];
@@ -90,6 +97,26 @@ async function board(serveUrl, browser) {
     pages.push(`board/${name}`);
   }
   return { ok: true, pages };
+}
+
+/** The Episode's audio only: with an audio codec Remotion takes no screenshots. */
+async function mix(serveUrl, browser) {
+  const composition = await selectComposition({
+    serveUrl,
+    id: 'Episode',
+    puppeteerInstance: browser,
+  });
+  const file = 'board/mix.wav';
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: 'wav',
+    outputLocation: join(ws, file),
+    puppeteerInstance: browser,
+    chromiumOptions: CHROMIUM,
+    timeoutInMilliseconds: 240_000,
+  });
+  return { ok: true, file };
 }
 
 /** Groups out-of-frame text hits by text and kind into runs of consecutive samples. */
@@ -172,6 +199,7 @@ if (report.typecheck.ok) {
     const browser = await openBrowser('chrome', { chromiumOptions: CHROMIUM });
     try {
       report.board = await guarded(() => board(serveUrl, browser));
+      report.mix = await guarded(() => mix(serveUrl, browser));
     } finally {
       await browser.close({ silent: true });
     }
@@ -180,7 +208,7 @@ if (report.typecheck.ok) {
     report.bundle = serveUrl;
   }
 }
-report.ok = ['typecheck', 'sfx', 'board', 'textBounds'].every((k) => report[k]?.ok === true);
+report.ok = ['typecheck', 'sfx', 'board', 'mix', 'textBounds'].every((k) => report[k]?.ok === true);
 writeFileSync(join(ws, 'gates.json'), `${JSON.stringify(report, null, 1)}\n`);
 console.log(`gates ${report.ok ? 'passed' : 'failed'}`);
 process.exit(0);

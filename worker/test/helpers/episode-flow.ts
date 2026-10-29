@@ -1,7 +1,7 @@
 import type pg from 'pg';
 
 // An episode driven through the pipeline the way the dispatcher, the worker and Telegram would,
-// for the storyboard (C3) and preview (A2) flow tests.
+// for the voice (A1b), storyboard (C3) and preview (A2) flow tests.
 
 export const OWNER = 111;
 export const STRANGER = 999;
@@ -38,16 +38,55 @@ export async function succeed(pool: pg.Pool, jobId: string, output: object): Pro
   ]);
 }
 
+let timingRun = 0;
+/** timing output as the worker writes it: hashed files, the voice preview and its media token. */
+export function timingOutput() {
+  timingRun++;
+  return {
+    outputs: [
+      { path: 'timing.json', bytes: 10, sha256: String(timingRun).padStart(64, '7') },
+      { path: 'voice.m4a', bytes: 10, sha256: '8'.repeat(64) },
+    ],
+    result: { total_seconds: 125.4, media_token: String(timingRun).padStart(32, '9') },
+  };
+}
+
+export interface VoiceDueRow {
+  kind: string;
+  video_id: string;
+  version: number;
+  video_version_id: string;
+  token: string;
+  take: number;
+  title: string;
+  voice: {
+    file: { job_id: string; token: string } | null;
+    seconds: number | null;
+    max_takes: number;
+    retake_cost: { amount: number; currency: string } | null;
+  };
+}
+
+export async function voiceDue(pool: pg.Pool): Promise<VoiceDueRow[]> {
+  return (await pool.query<VoiceDueRow>('SELECT * FROM voice_approvals_due()')).rows;
+}
+
 let codeRun = 0;
-/** episode_code output as the worker writes it: hashed files, board pages and a board token. */
+/** episode_code output as the worker writes it: hashed files, board pages, the mix and tokens. */
 export function codeOutput() {
   codeRun++;
   return {
     outputs: [
       { path: 'ws/src/episode/Episode.tsx', bytes: 10, sha256: String(codeRun).padStart(64, 'c') },
       { path: 'ws/board/page-01.jpg', bytes: 10, sha256: 'd'.repeat(64) },
+      { path: 'mix.m4a', bytes: 10, sha256: '5'.repeat(64) },
     ],
-    result: { board_pages: ['ws/board/page-01.jpg'], board_token: 'e'.repeat(32), turns: 2 },
+    result: {
+      board_pages: ['ws/board/page-01.jpg'],
+      board_token: 'e'.repeat(32),
+      media_token: '6'.repeat(32),
+      turns: 2,
+    },
   };
 }
 
@@ -73,14 +112,14 @@ export interface StoryboardDueRow {
   token: string;
   round: number;
   title: string;
-  board: { job_id: string; token: string; pages: string[] };
+  board: { job_id: string; token: string; pages: string[]; mix_token: string | null };
 }
 
 export async function storyboardDue(pool: pg.Pool): Promise<StoryboardDueRow[]> {
   return (await pool.query<StoryboardDueRow>('SELECT * FROM storyboard_approvals_due()')).rows;
 }
 
-/** A new episode through A1 approval, narration, timeline and episode code. */
+/** A new episode through A1 approval, narration, timeline, voice approval and episode code. */
 export async function episodeAwaitingStoryboard(pool: pg.Pool, name: string) {
   const submitted = (
     await pool.query<{ video_id: string; version_id: string; job_id: string }>(
@@ -99,9 +138,14 @@ export async function episodeAwaitingStoryboard(pool: pg.Pool, name: string) {
   ).rows.find((row) => row.video_version_id === submitted.version_id)!;
   if ((await decide(pool, a1.token, 'APPROVE')).result !== 'OK') throw new Error('A1 refused');
 
-  const [, tts, timing, code] = await jobs(pool, submitted.version_id);
+  const [, tts, timing] = await jobs(pool, submitted.version_id);
   await succeed(pool, tts!.id, { outputs: [], result: { scenes: [] } });
-  await succeed(pool, timing!.id, { outputs: [], result: {} });
+  await succeed(pool, timing!.id, timingOutput());
+  const voice = (await voiceDue(pool)).find(
+    (row) => row.video_version_id === submitted.version_id,
+  )!;
+  if ((await decide(pool, voice.token, 'APPROVE')).result !== 'OK') throw new Error('A1b refused');
+  const [, , , code] = await jobs(pool, submitted.version_id);
   await succeed(pool, code!.id, codeOutput());
   const request = (await storyboardDue(pool)).find(
     (row) => row.video_version_id === submitted.version_id,

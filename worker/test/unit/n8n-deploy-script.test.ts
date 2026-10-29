@@ -29,6 +29,7 @@ const PUBLISH_ORDER = [
   'qXD7V4t9Bd9v47UZ',
   'aivideoWf06TgCbk',
   'aivideoWf05Apprv',
+  'aivideoWf15Voice',
   'aivideoWf01Intak',
   'aivideoWf12Story',
   'aivideoWf13Prev',
@@ -251,7 +252,7 @@ describe('full deploy', () => {
     const result = run([], { SHIM_HIDE_COPY: '1' });
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('sees 0 of 9 staged files');
+    expect(result.stderr).toContain('sees 0 of 10 staged files');
     expect(result.stderr).toContain('N8N_DATA_DIR');
     const commands = remoteCommands();
     expect(commands.some((c) => c.includes('import:workflow'))).toBe(false);
