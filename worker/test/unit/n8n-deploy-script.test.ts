@@ -278,6 +278,20 @@ describe('full deploy', () => {
     expect(result.stdout).toMatch(/backups\/workflows\/pre-deploy-\d{8}T\d{6}Z/);
   });
 
+  test('reports the state when the n8n CLI prints warnings before the JSON', () => {
+    const exportFile = join(h.root, 'export.json');
+    writeFileSync(
+      exportFile,
+      'Deprecation warning: The storage directory "/home/node/.n8n/binaryData" will be renamed.\n' +
+        JSON.stringify([{ id: 'aivideoWf99Error', name: 'WF-99 Error Handler', active: true }]),
+    );
+
+    const result = run(['wf-99'], { SHIM_EXPORT_FILE: exportFile });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toMatch(/aivideoWf99Error\s+published\s+WF-99 Error Handler/);
+  });
+
   test('uses the hosts and paths from the env file', () => {
     writeFileSync(
       h.envFile,
