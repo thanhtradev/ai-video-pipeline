@@ -9,9 +9,10 @@ import {
   type VideoFixture,
 } from '../helpers/fixtures.js';
 
-// /stop on Telegram (D-067): an approver cancels a video started or approved by mistake. Every
-// unfinished job of the current version is cancelled (a running worker aborts at its next
-// heartbeat), pending approvals lose their buttons, and the version ends CANCELLED.
+// /stop on Telegram (D-067): an approver cancels a video started or approved by mistake, after a
+// confirmation. telegram_stop_preview() stores a request with a token; Dừng (telegram_stop_decide
+// APPROVE) cancels every unfinished job of the current version (a running worker aborts at its
+// next heartbeat), pending approvals lose their buttons, and the version ends CANCELLED.
 
 const OWNER = 111;
 const STRANGER = 999;
@@ -30,6 +31,16 @@ afterAll(async () => {
   await db.drop();
 });
 
+interface PreviewRow {
+  result: string;
+  token: string | null;
+  video_id: string | null;
+  topic: string | null;
+  status: string | null;
+  running_step: string | null;
+  pending_jobs: number | null;
+}
+
 interface StopRow {
   result: string;
   video_id: string | null;
@@ -37,12 +48,28 @@ interface StopRow {
   running_step: string | null;
 }
 
-async function stop(prefix: string, user = OWNER): Promise<StopRow> {
-  const result = await db.pool.query<StopRow>('SELECT * FROM telegram_stop($1, $2)', [
+async function preview(prefix: string, user = OWNER): Promise<PreviewRow> {
+  const result = await db.pool.query<PreviewRow>('SELECT * FROM telegram_stop_preview($1, $2)', [
     user,
     prefix,
   ]);
   return result.rows[0]!;
+}
+
+async function decide(token: string, action: string, user = OWNER): Promise<StopRow> {
+  const result = await db.pool.query<StopRow>('SELECT * FROM telegram_stop_decide($1, $2, $3)', [
+    token,
+    user,
+    action,
+  ]);
+  return result.rows[0]!;
+}
+
+/** Preview then confirm, as the two Telegram steps do. */
+async function stop(prefix: string, user = OWNER): Promise<StopRow> {
+  const shown = await preview(prefix, user);
+  if (shown.result !== 'PREVIEW') return { ...shown, cancelled_jobs: null, running_step: null };
+  return decide(shown.token!, 'APPROVE', user);
 }
 
 async function startJob(jobId: string): Promise<void> {
@@ -63,8 +90,43 @@ async function runningVideo(
   return { ...video, running, next };
 }
 
-describe('telegram_stop', () => {
-  test('cancels every unfinished job and ends the version', async () => {
+describe('telegram_stop_preview + telegram_stop_decide', () => {
+  test('the preview shows what Dừng would cancel and changes nothing', async () => {
+    const video = await runningVideo('stop-preview');
+    const shown = await preview(video.videoId.slice(0, 8).toUpperCase());
+    expect(shown).toMatchObject({
+      result: 'PREVIEW',
+      video_id: video.videoId,
+      running_step: 'episode_code',
+      pending_jobs: 2,
+    });
+    expect(shown.token).toMatch(/^[0-9a-f]{32}$/);
+    expect(await jobStatus(db.pool, video.running)).toBe('RUNNING');
+
+    // Giữ keeps the video; the token is spent.
+    expect(await decide(shown.token!, 'REJECT')).toMatchObject({
+      result: 'KEPT',
+      video_id: video.videoId,
+    });
+    expect(await jobStatus(db.pool, video.running)).toBe('RUNNING');
+    expect((await decide(shown.token!, 'APPROVE')).result).toBe('NOT_PENDING');
+    expect((await decide('0'.repeat(32), 'APPROVE')).result).toBe('NOT_FOUND');
+    await expect(decide(shown.token!, 'FEEDBACK')).rejects.toThrow(/invalid action/);
+
+    // An expired request cannot stop anything.
+    const again = await preview(video.videoId);
+    await db.pool.query(
+      `UPDATE stop_request SET expires_at = now() - interval '1 second' WHERE token = $1`,
+      [again.token],
+    );
+    expect((await decide(again.token!, 'APPROVE')).result).toBe('EXPIRED');
+    expect(await jobStatus(db.pool, video.running)).toBe('RUNNING');
+
+    // Leave no active video behind for the no-prefix test.
+    expect((await stop(video.videoId)).result).toBe('STOPPED');
+  });
+
+  test('Dừng cancels every unfinished job and ends the version', async () => {
     const video = await runningVideo('stop-ok');
     expect(await jobStatus(db.pool, video.running)).toBe('RUNNING');
     expect(await jobStatus(db.pool, video.next)).toBe('PENDING');
@@ -96,6 +158,14 @@ describe('telegram_stop', () => {
       result: 'ALREADY_OVER',
       video_id: video.videoId,
     });
+  });
+
+  test('a request whose video ended meanwhile answers ALREADY_OVER on Dừng', async () => {
+    const video = await runningVideo('stop-raced');
+    const first = await preview(video.videoId);
+    const second = await preview(video.videoId);
+    expect((await decide(first.token!, 'APPROVE')).result).toBe('STOPPED');
+    expect((await decide(second.token!, 'APPROVE')).result).toBe('ALREADY_OVER');
   });
 
   test('settles pending approvals so their buttons stop working', async () => {
@@ -150,6 +220,8 @@ describe('telegram_stop', () => {
   test('refuses strangers, unknown or ambiguous prefixes', async () => {
     const video = await runningVideo('stop-refusals');
     expect((await stop(video.videoId, STRANGER)).result).toBe('NOT_APPROVER');
+    const shown = await preview(video.videoId);
+    expect((await decide(shown.token!, 'APPROVE', STRANGER)).result).toBe('NOT_APPROVER');
     expect((await stop('ffffffff-ffff')).result).toBe('NOT_FOUND');
     expect((await stop('abc')).result).toBe('NOT_FOUND');
     expect((await stop("'; drop table job; --")).result).toBe('NOT_FOUND');

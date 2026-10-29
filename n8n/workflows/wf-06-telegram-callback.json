@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// /status, /retry, /stop, /new, rules and member commands, well-formed A1 / storyboard / A2 / intake /\n// member / A3 / cleanup buttons, and replies with notes to a storyboard, A2 or A3 request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /stop [video id prefix] (D-067) cancels a video started or approved by mistake; approvers only.\n// Without a prefix it stops the only active video.\nconst stopCommand = /^\\/stop(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{4,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && stopCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'stop',\n      prefix: (stopCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Cách dùng: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <nội dung> · /rule del <số> · /say <từ> = <cách đọc> · /unsay <từ> · gửi file .md/.txt kèm caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Hãy đính kèm file .md hoặc .txt đã sửa, với caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'Quy tắc phải là file .md hoặc .txt, tối đa 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\n// Members (D-060): /join asks the owner (in the approval chat only), /members lists approvers,\n// /revoke <user id> is the owner's. telegram_members() checks who may do what.\nconst memberCommand = /^\\/(join|members|revoke)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? '');\nif (update.message && memberCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const from = message.from;\n  const base = {\n    kind: 'member',\n    userId: String(from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    name: '',\n    target: '',\n    error: '',\n    text: '',\n  };\n  const fail = (error) => [{ json: { ...base, error, text: error } }];\n  const [, command, rest] = memberCommand;\n  if (command === 'join') {\n    if (String(message.chat.id) !== APPROVAL_CHAT) {\n      return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /join chỉ dùng được ở đó.`);\n    }\n    const name = from.username ? `@${from.username}` : [from.first_name, from.last_name].filter(Boolean).join(' ');\n    return [{ json: { ...base, action: 'JOIN', name } }];\n  }\n  if (command === 'members') return [{ json: { ...base, action: 'LIST' } }];\n  const target = rest.trim();\n  if (!/^\\d{1,18}$/.test(target)) return fail('Cách dùng: /revoke <user id> (xem id bằng /members)');\n  return [{ json: { ...base, action: 'REVOKE', target } }];\n}\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /new chỉ dùng được ở đó.`);\n  }\n  const [firstRaw = '', ...rest] = newCommand[1].trim().split('\\n');\n  // kit=<slug> / nhanvat=<slug> anywhere on the first line pick the kit and character set (D-066);\n  // without them the draft gets the defaults and the confirmation's buttons switch them.\n  const selection = {};\n  const first = firstRaw.replace(/(?:^|\\s)(kit|nhanvat)=([a-z0-9-]{2,40})(?=\\s|$)/g, (_, key, slug) => {\n    selection[key === 'kit' ? 'kit' : 'character_set'] = slug;\n    return ' ';\n  });\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Cách dùng: /new [số phút] <chủ đề> [kit=<kit>] [nhanvat=<nhân vật>], ghi chú ở các dòng sau; full brief thì gửi file .md hoặc .txt với lệnh này làm caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('Full brief phải là file .md hoặc .txt, tối đa 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      selection,\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in|mb|a3|cl):([AGRKC]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (!['a1', 'a3'].includes(match[1]) && match[2] === 'G')) return [];\n  // Kit / Nhân vật buttons of an intake draft (D-066): telegram_intake_cycle() switches the choice.\n  if (match[2] === 'K' || match[2] === 'C') {\n    if (match[1] !== 'in') return [];\n    return [{\n      json: {\n        kind: 'intake-set',\n        setKind: match[2] === 'K' ? 'kit' : 'character_set',\n        queryId: query.id,\n        userId: String(query.from.id),\n        chatId: String(query.message?.chat?.id ?? ''),\n        messageId: String(query.message?.message_id ?? ''),\n        token: match[3],\n      },\n    }];\n  }\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake', mb: 'member', a3: 'metadata', cl: 'cleanup' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\n// A3 messages (D-062) end with meta:<token> instead, so notes there rewrite the metadata.\nconst ref = /(ref|meta):([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: ref[1] === 'meta' ? 'metadata' : 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[2],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status, /retry, /stop, /new, rules and member commands, well-formed A1 / storyboard / A2 / intake /\n// member / A3 / cleanup buttons, and replies with notes to a storyboard, A2 or A3 request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /stop [video id prefix] (D-067) previews what stopping a video would cancel and asks for Dừng /\n// Giữ; approvers only. Without a prefix it targets the only active video.\nconst stopCommand = /^\\/stop(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{4,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && stopCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'stop',\n      prefix: (stopCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Cách dùng: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <nội dung> · /rule del <số> · /say <từ> = <cách đọc> · /unsay <từ> · gửi file .md/.txt kèm caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Hãy đính kèm file .md hoặc .txt đã sửa, với caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'Quy tắc phải là file .md hoặc .txt, tối đa 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\n// Members (D-060): /join asks the owner (in the approval chat only), /members lists approvers,\n// /revoke <user id> is the owner's. telegram_members() checks who may do what.\nconst memberCommand = /^\\/(join|members|revoke)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? '');\nif (update.message && memberCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const from = message.from;\n  const base = {\n    kind: 'member',\n    userId: String(from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    name: '',\n    target: '',\n    error: '',\n    text: '',\n  };\n  const fail = (error) => [{ json: { ...base, error, text: error } }];\n  const [, command, rest] = memberCommand;\n  if (command === 'join') {\n    if (String(message.chat.id) !== APPROVAL_CHAT) {\n      return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /join chỉ dùng được ở đó.`);\n    }\n    const name = from.username ? `@${from.username}` : [from.first_name, from.last_name].filter(Boolean).join(' ');\n    return [{ json: { ...base, action: 'JOIN', name } }];\n  }\n  if (command === 'members') return [{ json: { ...base, action: 'LIST' } }];\n  const target = rest.trim();\n  if (!/^\\d{1,18}$/.test(target)) return fail('Cách dùng: /revoke <user id> (xem id bằng /members)');\n  return [{ json: { ...base, action: 'REVOKE', target } }];\n}\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /new chỉ dùng được ở đó.`);\n  }\n  const [firstRaw = '', ...rest] = newCommand[1].trim().split('\\n');\n  // kit=<slug> / nhanvat=<slug> anywhere on the first line pick the kit and character set (D-066);\n  // without them the draft gets the defaults and the confirmation's buttons switch them.\n  const selection = {};\n  const first = firstRaw.replace(/(?:^|\\s)(kit|nhanvat)=([a-z0-9-]{2,40})(?=\\s|$)/g, (_, key, slug) => {\n    selection[key === 'kit' ? 'kit' : 'character_set'] = slug;\n    return ' ';\n  });\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Cách dùng: /new [số phút] <chủ đề> [kit=<kit>] [nhanvat=<nhân vật>], ghi chú ở các dòng sau; full brief thì gửi file .md hoặc .txt với lệnh này làm caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('Full brief phải là file .md hoặc .txt, tối đa 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      selection,\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  // Dừng / Giữ of a stop request (D-067): telegram_stop_decide() answers it.\n  const stopButton = /^st:([AR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (stopButton) {\n    return [{\n      json: {\n        kind: 'stop-decide',\n        action: stopButton[1] === 'A' ? 'APPROVE' : 'REJECT',\n        token: stopButton[2],\n        queryId: query.id,\n        userId: String(query.from.id),\n        chatId: String(query.message?.chat?.id ?? ''),\n        messageId: String(query.message?.message_id ?? ''),\n        originalText: String(query.message?.text ?? ''),\n      },\n    }];\n  }\n  const match = /^(a1|sb|a2|in|mb|a3|cl):([AGRKC]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (!['a1', 'a3'].includes(match[1]) && match[2] === 'G')) return [];\n  // Kit / Nhân vật buttons of an intake draft (D-066): telegram_intake_cycle() switches the choice.\n  if (match[2] === 'K' || match[2] === 'C') {\n    if (match[1] !== 'in') return [];\n    return [{\n      json: {\n        kind: 'intake-set',\n        setKind: match[2] === 'K' ? 'kit' : 'character_set',\n        queryId: query.id,\n        userId: String(query.from.id),\n        chatId: String(query.message?.chat?.id ?? ''),\n        messageId: String(query.message?.message_id ?? ''),\n        token: match[3],\n      },\n    }];\n  }\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake', mb: 'member', a3: 'metadata', cl: 'cleanup' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\n// A3 messages (D-062) end with meta:<token> instead, so notes there rewrite the metadata.\nconst ref = /(ref|meta):([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: ref[1] === 'meta' ? 'metadata' : 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[2],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -264,11 +264,11 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT * FROM telegram_stop($1::bigint, $2);",
+        "query": "SELECT * FROM telegram_stop_preview($1::bigint, $2);",
         "options": {"queryReplacement": "={{ [$json.userId, $json.prefix] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000671",
-      "name": "Stop",
+      "name": "Stop preview",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [660, -300],
@@ -277,7 +277,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// telegram_stop() result -> one reply (D-067). Telegram text is Vietnamese (D-061).\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst id = row.video_id ? String(row.video_id).slice(0, 8) : input.prefix;\nconst running = row.running_step ? ` Bước ${row.running_step} đang chạy sẽ dừng trong vòng một phút.` : '';\nconst texts = {\n  STOPPED: `[AI Video] Đã dừng video ${id}: hủy ${row.cancelled_jobs ?? 0} job, không chạy tiếp.${running} Không hoàn lại được; muốn làm lại thì /new.`,\n  NOT_APPROVER: 'Bạn không phải approver.',\n  NOT_FOUND: input.prefix ? `[AI Video] Không có video nào có id bắt đầu bằng ${input.prefix}.` : '[AI Video] Không có video nào đang chạy để dừng.',\n  AMBIGUOUS: input.prefix ? `[AI Video] Có nhiều video có id bắt đầu bằng ${input.prefix}; hãy gõ thêm ký tự.` : '[AI Video] Có nhiều video đang chạy; gõ /stop <8 ký tự đầu của id> (xem /status).',\n  ALREADY_OVER: `[AI Video] Video ${id} đã kết thúc từ trước; không có gì để dừng.`,\n};\nconst text = texts[row.result] ?? `[AI Video] Không dừng được: ${row.result ?? 'không có phản hồi'}.`;\nreturn [{ json: { text, chatId: input.chatId, messageId: input.messageId } }];"
+        "jsCode": "// telegram_stop_preview() -> the confirmation with Dừng / Giữ (callback st:<A|R>:<token>), or\n// telegram_stop_decide() -> the outcome (the bot's message is edited, the button answered).\n// Telegram text is Vietnamese (D-061).\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst decided = input.kind === 'stop-decide';\nconst id = row.video_id ? String(row.video_id).slice(0, 8) : input.prefix;\nconst reply = { chatId: input.chatId, messageId: input.messageId, queryId: input.queryId ?? '', decided };\nif (!decided) {\n  if (row.result === 'PREVIEW') {\n    const text = [\n      `[AI Video] Dừng video ${id}?`,\n      ...(row.topic ? [`Chủ đề: ${row.topic}`] : []),\n      `Trạng thái: ${row.status}`,\n      ...(row.running_step ? [`Bước đang chạy: ${row.running_step} (sẽ dừng trong vòng một phút)`] : []),\n      `Job sẽ hủy: ${row.pending_jobs ?? 0}`,\n      '',\n      'Không hoàn lại được; muốn làm lại thì /new. Không xóa gì trên Mac.',\n      `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    ].join('\\n');\n    return [{ json: { ...reply, text, approve: `st:A:${row.token}`, reject: `st:R:${row.token}` } }];\n  }\n  const texts = {\n    NOT_APPROVER: 'Bạn không phải approver.',\n    NOT_FOUND: input.prefix ? `[AI Video] Không có video nào có id bắt đầu bằng ${input.prefix}.` : '[AI Video] Không có video nào đang chạy để dừng.',\n    AMBIGUOUS: input.prefix ? `[AI Video] Có nhiều video có id bắt đầu bằng ${input.prefix}; hãy gõ thêm ký tự.` : '[AI Video] Có nhiều video đang chạy; gõ /stop <8 ký tự đầu của id> (xem /status).',\n    ALREADY_OVER: `[AI Video] Video ${id} đã kết thúc từ trước; không có gì để dừng.`,\n  };\n  return [{ json: { ...reply, text: texts[row.result] ?? `[AI Video] Không dừng được: ${row.result ?? 'không có phản hồi'}.` } }];\n}\nconst running = row.running_step ? ` Bước ${row.running_step} đang chạy sẽ dừng trong vòng một phút.` : '';\nconst answers = {\n  STOPPED: `Đã dừng video ${id}: hủy ${row.cancelled_jobs ?? 0} job, không chạy tiếp.${running} Không hoàn lại được; muốn làm lại thì /new.`,\n  KEPT: `Giữ lại: video ${id} chạy tiếp.`,\n  NOT_APPROVER: 'Bạn không phải approver.',\n  NOT_FOUND: 'Không tìm thấy yêu cầu dừng này.',\n  NOT_PENDING: 'Yêu cầu dừng này đã được trả lời rồi.',\n  EXPIRED: 'Yêu cầu dừng đã hết hạn; gõ /stop lại nếu vẫn muốn dừng.',\n  ALREADY_OVER: `Video ${id} đã kết thúc từ trước; không có gì để dừng.`,\n};\nconst answer = answers[row.result] ?? `Không dừng được (${row.result ?? 'không có phản hồi'}).`;\nconst settled = ['STOPPED', 'KEPT', 'NOT_PENDING', 'EXPIRED', 'ALREADY_OVER'].includes(row.result);\nconst decidedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);\nreturn [{\n  json: {\n    ...reply,\n    answer,\n    settled,\n    text: answer,\n    editedText: `${input.originalText}\\n\\n${row.result === 'STOPPED' || row.result === 'KEPT' ? 'Quyết định' : 'Đã đóng'}: ${answer} (${decidedAt} UTC)`.slice(0, 4096),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000672",
       "name": "Build stop",
@@ -887,6 +887,162 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [2090, -940]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.approve }}",
+              "rightValue": "",
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "19692e4d-23ee-44e4-80a4-2da11b256c90",
+      "name": "Stop buttons?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, -300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {"text": "Dừng", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+                  {"text": "Giữ", "additionalFields": {"callback_data": "={{ $json.reject }}"}}
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.messageId }}"
+        }
+      },
+      "id": "52003100-c8f7-4876-8a47-6f7482dd3d19",
+      "name": "Send stop request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, -400],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "stop-decide",
+              "operator": {"type": "string", "operation": "equals"}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f9ee51e4-577e-42c4-bf99-6cc303b9226e",
+      "name": "Stop decide?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [0, 120]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM telegram_stop_decide($1, $2::bigint, $3);",
+        "options": {"queryReplacement": "={{ [$json.token, $json.userId, $json.action] }}"}
+      },
+      "id": "7857c6f3-0517-4145-a9ec-1304d58cfaaf",
+      "name": "Stop decide",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [220, 240],
+      "alwaysOutputData": true,
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.decided }}",
+              "rightValue": "",
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7d14c48b-779b-4aee-97f2-21e21d44d96a",
+      "name": "Stop decided?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, -180]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.queryId }}",
+        "additionalFields": {"text": "={{ $json.answer }}", "show_alert": false}
+      },
+      "id": "0d35f335-5471-409f-9b83-0b57dd9d5898",
+      "name": "Answer stop",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, -180],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $('Build stop').first().json.settled }}",
+              "rightValue": "",
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d83b3b2f-cfc7-42ba-9b4f-b455f4a9dbae",
+      "name": "Stop settled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1540, -180]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Build stop').first().json.chatId }}",
+        "messageId": "={{ $('Build stop').first().json.messageId }}",
+        "text": "={{ String($('Build stop').first().json.editedText).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": {"parse_mode": "HTML"}
+      },
+      "id": "d751129d-1a58-4b98-99f4-64e1462e3f9b",
+      "name": "Close stop request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, -180],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     }
   ],
   "connections": {
@@ -920,12 +1076,11 @@
     "Build retry": {"main": [[{"node": "Send status", "type": "main", "index": 0}]]},
     "Stop?": {
       "main": [
-        [{"node": "Stop", "type": "main", "index": 0}],
+        [{"node": "Stop preview", "type": "main", "index": 0}],
         [{"node": "Intake?", "type": "main", "index": 0}]
       ]
     },
-    "Stop": {"main": [[{"node": "Build stop", "type": "main", "index": 0}]]},
-    "Build stop": {"main": [[{"node": "Send status", "type": "main", "index": 0}]]},
+    "Build stop": {"main": [[{"node": "Stop decided?", "type": "main", "index": 0}]]},
     "Intake?": {
       "main": [
         [{"node": "File?", "type": "main", "index": 0}],
@@ -986,7 +1141,7 @@
     "Members?": {
       "main": [
         [{"node": "Member error?", "type": "main", "index": 0}],
-        [{"node": "Selection?", "type": "main", "index": 0}]
+        [{"node": "Stop decide?", "type": "main", "index": 0}]
       ]
     },
     "Member error?": {
@@ -1022,7 +1177,29 @@
         [{"node": "Answer closed draft", "type": "main", "index": 0}],
         [{"node": "Send status", "type": "main", "index": 0}]
       ]
-    }
+    },
+    "Stop preview": {"main": [[{"node": "Build stop", "type": "main", "index": 0}]]},
+    "Stop decided?": {
+      "main": [
+        [{"node": "Answer stop", "type": "main", "index": 0}],
+        [{"node": "Stop buttons?", "type": "main", "index": 0}]
+      ]
+    },
+    "Stop buttons?": {
+      "main": [
+        [{"node": "Send stop request", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
+      ]
+    },
+    "Answer stop": {"main": [[{"node": "Stop settled?", "type": "main", "index": 0}]]},
+    "Stop settled?": {"main": [[{"node": "Close stop request", "type": "main", "index": 0}], []]},
+    "Stop decide?": {
+      "main": [
+        [{"node": "Stop decide", "type": "main", "index": 0}],
+        [{"node": "Selection?", "type": "main", "index": 0}]
+      ]
+    },
+    "Stop decide": {"main": [[{"node": "Build stop", "type": "main", "index": 0}]]}
   },
   "settings": {"executionOrder": "v1", "errorWorkflow": "aivideoWf99Error", "saveDataSuccessExecution": "none"},
   "pinData": {}
