@@ -39,10 +39,10 @@ reaching this one.
   returns a path on the Bot API server's disk. Test one `.md` upload. If WF-06 "Get file" fails,
   the server is not serving `/file/…` over HTTP, and that has to be fixed on the server side (for
   example nginx over its data directory). Not verified.
-- **n8n memory**: LXC 104 has little free RAM, and n8n keeps binary data in memory by default. A
-  1080p episode is a few hundred MB. Set `N8N_DEFAULT_BINARY_DATA_MODE=filesystem` on the `n8n`
-  container and recreate it before the first final is sent. How the container is defined is
-  `[UNKNOWN]`.
+- **n8n memory**: LXC 104 now has 2 GiB RAM with ~1.4 GiB available (S-04, 2026-10-29). n8n keeps
+  binary data in memory by default, and a 1080p episode is a few hundred MB, so two finals in one
+  run would take most of that. Recommended: set `N8N_DEFAULT_BINARY_DATA_MODE=filesystem` on the
+  `n8n` container and recreate it. How the container is defined is `[UNKNOWN]`.
 
 ## 3. Final video rollout (this PR)
 
