@@ -115,7 +115,7 @@ describe('telegram_decide on a storyboard', () => {
     expect(await versionStatus(db.pool, version_id)).toBe('CANCELLED');
   });
 
-  test('refuses strangers, empty notes, and storyboard-only actions on a script', async () => {
+  test('refuses strangers, empty notes, and notes on an already approved script', async () => {
     const { version_id, request } = await episodeAwaitingStoryboard('sb-refuse');
 
     expect((await decide(request.token, 'APPROVE', null, STRANGER)).result).toBe('NOT_ALLOWED');
@@ -129,7 +129,7 @@ describe('telegram_decide on a storyboard', () => {
         [version_id],
       )
     ).rows[0]!;
-    expect((await decide(script.token, 'FEEDBACK', 'x')).result).toBe('NOT_SUPPORTED');
+    expect((await decide(script.token, 'FEEDBACK', 'x')).result).toBe('NOT_PENDING');
   });
 
   test('rejects unknown actions', async () => {

@@ -1,5 +1,5 @@
 import { NO_RULES } from '../../src/rules/channel-rules.js';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import pino from 'pino';
@@ -13,6 +13,7 @@ import {
   type EpisodeScript,
 } from '../../src/handlers/episode-script.js';
 import { PermanentJobError, type HandlerContext } from '../../src/runner.js';
+import { writeCheckpoint } from '../../src/storage/checkpoint.js';
 
 const TOPIC_BRIEF = {
   format: 'episode',
@@ -301,6 +302,13 @@ describe('episode script handler', () => {
     expect(result.result.rules_version).toBe('abc');
   });
 
+  test('returns a media token so WF-05 can attach script.md', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    const result = await handler(context({ brief: TOPIC_BRIEF }));
+    expect(result.result.media_token).toMatch(/^[0-9a-f]{32}$/);
+    expect(String(result.result.preview)).toContain('(3 câu, 3 shot)');
+  });
+
   test('rejects an invalid input permanently', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     await expect(
@@ -321,5 +329,67 @@ describe('episode script handler', () => {
     const checkError = await inconsistent(context({ brief: TOPIC_BRIEF })).catch((e: unknown) => e);
     expect(checkError).not.toBeInstanceOf(PermanentJobError);
     expect((checkError as Error).message).toMatch(/episode script failed its checks/);
+  });
+});
+
+describe('episode script revision (A1 notes)', () => {
+  const VIDEO = '11111111-1111-4111-8111-111111111111';
+  const PREVIOUS = '22222222-2222-4222-8222-222222222222';
+  const NOTES = 'Hồi 2 thêm một câu đùa.';
+  const revisionInput = (brief: object = TOPIC_BRIEF) => ({
+    brief,
+    revision: { previous_job_id: PREVIOUS, previous_version: 1, feedback: NOTES, round: 1 },
+  });
+
+  /** The job layout of the worker: <root>/videos/<video>/v<n>/jobs/<job>. */
+  async function layout(withPrevious = true) {
+    const root = await mkdtemp(join(tmpdir(), 'episode-revision-'));
+    const previousDir = join(root, 'videos', VIDEO, 'v1', 'jobs', PREVIOUS);
+    workDir = join(root, 'videos', VIDEO, 'v2', 'jobs', 'job-2');
+    await mkdir(workDir, { recursive: true });
+    if (!withPrevious) return;
+    await mkdir(previousDir, { recursive: true });
+    const numbered = {
+      ...SCRIPT,
+      acts: SCRIPT.acts.map((act) => ({
+        ...act,
+        lines: act.lines.map((text, i) => ({ id: `L00${i + 1}`, text })),
+      })),
+    };
+    await writeFile(join(previousDir, 'script.json'), JSON.stringify(numbered));
+    await writeCheckpoint(previousDir, ['script.json'], {});
+  }
+
+  test('revises the previous script with the notes, keeping what they do not touch', async () => {
+    await layout();
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+
+    const result = await handler(context(revisionInput()));
+
+    const prompt = requests[0]!.prompt;
+    expect(prompt).toMatch(/Revise the episode script below/);
+    expect(prompt).toMatch(/Change only what the notes ask/);
+    expect(prompt).toContain(NOTES);
+    // The previous script as the model wrote it: plain line strings, no worker line ids.
+    expect(prompt).toContain(JSON.stringify(SCRIPT.acts[1]!.lines[0]));
+    expect(prompt).not.toContain('"L001"');
+    expect(result.result.revision).toEqual({ previous_job_id: PREVIOUS, round: 1 });
+  });
+
+  test('accepts narration the notes changed even from a full brief', async () => {
+    await layout();
+    const changed = withAct(1, {
+      lines: ['[explaining] Luật thế này.', 'Vỗ tay một cái — cả thế giới dừng lại. Hết.'],
+    });
+    const handler = createEpisodeScriptHandler({ claude: stub(changed), rules: noRules });
+    const brief = { ...TOPIC_BRIEF, full_brief: FULL_BRIEF_TEXT };
+    await expect(handler(context(revisionInput(brief)))).resolves.toBeDefined();
+  });
+
+  test('fails permanently when the previous script is missing', async () => {
+    await layout(false);
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    await expect(handler(context(revisionInput()))).rejects.toBeInstanceOf(PermanentJobError);
+    expect(requests).toHaveLength(0);
   });
 });

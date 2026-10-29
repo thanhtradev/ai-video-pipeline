@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One Telegram message per row from script_approvals_due(). Telegram text is Vietnamese (D-061). Callback data stays under Telegram's\n// 64-byte limit: a1:<A|G|R>:<32-hex token>.\n// Episodes (D-050) are counted in acts and shots; Shorts in scenes.\nconst size = (script) => script.format === 'episode'\n  ? `Tập ~${((script.total_seconds ?? 0) / 60).toFixed(1)} phút, ${script.act_count ?? '?'} hồi, ${script.shot_count ?? '?'} shot, ${script.line_count ?? '?'} câu thoại, ${script.narration_chars ?? '?'} ký tự lời đọc`\n  : `${script.total_seconds ?? '?'} giây, ${script.scene_count ?? '?'} cảnh, ${script.narration_chars ?? '?'} ký tự lời đọc`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Nhắc: kịch bản đang chờ duyệt (A1)'\n    : '[AI Video] Kịch bản sẵn sàng để duyệt (A1)';\n  // tts_estimate is what approving accepts as the TTS budget (D-023); null means no price is set.\n  const estimate = script.tts_estimate;\n  const budget = estimate\n    ? `Ngân sách TTS: tối đa ${estimate.amount} ${estimate.currency === 'CRD' ? 'credit ITERA' : estimate.currency} (${estimate.units} ký tự)`\n    : 'Ngân sách TTS: không có (chưa cấu hình giá TTS); duyệt sẽ không cho chi tiền TTS';\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Tiêu đề: ${script.title ?? '?'}`,\n    size(script),\n    budget,\n    '',\n    String(script.preview ?? '').slice(0, 3000),\n    '',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n  ].join('\\n');\n  return { json: { text, approve: `a1:A:${row.token}`, regenerate: `a1:G:${row.token}`, reject: `a1:R:${row.token}` } };\n});"
+        "jsCode": "// One Telegram message per row from script_approvals_due(). Telegram text is Vietnamese (D-061). Callback data stays under Telegram's\n// 64-byte limit: a1:<A|G|R>:<32-hex token>.\n// Episodes (D-050) are counted in acts and shots; Shorts in scenes.\nconst size = (script) => script.format === 'episode'\n  ? `Tập ~${((script.total_seconds ?? 0) / 60).toFixed(1)} phút, ${script.act_count ?? '?'} hồi, ${script.shot_count ?? '?'} shot, ${script.line_count ?? '?'} câu thoại, ${script.narration_chars ?? '?'} ký tự lời đọc`\n  : `${script.total_seconds ?? '?'} giây, ${script.scene_count ?? '?'} cảnh, ${script.narration_chars ?? '?'} ký tự lời đọc`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const shortId = String(row.video_id).slice(0, 8);\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Nhắc: kịch bản đang chờ duyệt (A1)'\n    : '[AI Video] Kịch bản sẵn sàng để duyệt (A1)';\n  // tts_estimate is what approving accepts as the TTS budget (D-023); null means no price is set.\n  const estimate = script.tts_estimate;\n  const budget = estimate\n    ? `Ngân sách TTS: tối đa ${estimate.amount} ${estimate.currency === 'CRD' ? 'credit ITERA' : estimate.currency} (${estimate.units} ký tự)`\n    : 'Ngân sách TTS: không có (chưa cấu hình giá TTS); duyệt sẽ không cho chi tiền TTS';\n  const text = [\n    header,\n    `Video ${shortId} v${row.version}`,\n    `Tiêu đề: ${script.title ?? '?'}`,\n    size(script),\n    budget,\n    '',\n    String(script.preview ?? '').slice(0, 3000),\n    '',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n    '',\n    // Notes (D-070): WF-06 takes a reply to this message as notes for the request ending in kb:<token>.\n    'Trả lời tin nhắn này bằng lời bình thường để sửa kịch bản.',\n    `kb:${row.token}`,\n  ].join('\\n');\n  return { json: { text, approve: `a1:A:${row.token}`, regenerate: `a1:G:${row.token}`, reject: `a1:R:${row.token}` } };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000503",
       "name": "Build message",
@@ -69,12 +69,64 @@
       "typeVersion": 1.2,
       "position": [660, 0],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per new A1 request with a script file (reminders send none): the worker serves script.md\n// against the script job's media token (D-070). Replace the base URL on import. ASCII file name.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST');\nreturn rows.flatMap(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const file = script.file;\n  if (!file || typeof file.job_id !== 'string' || typeof file.token !== 'string') return [];\n  const shortId = String(row.video_id).slice(0, 8);\n  return [{\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${file.job_id}/script.md?t=${file.token}`,\n      fileName: `script-${shortId}-v${row.version}.md`,\n      caption: `Kịch bản đầy đủ · Video ${shortId} v${row.version} · ${script.title ?? '?'}`.slice(0, 1024),\n    },\n  }];\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000505",
+      "name": "Build file",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 60000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000506",
+      "name": "Fetch file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 220]
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "fileName": "={{ $('Build file').item.json.fileName }}",
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build file').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000507",
+      "name": "Send file",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, 220],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
     "Every 30 seconds": { "main": [[{ "node": "Due approvals", "type": "main", "index": 0 }]] },
-    "Due approvals": { "main": [[{ "node": "Build message", "type": "main", "index": 0 }]] },
-    "Build message": { "main": [[{ "node": "Send to Telegram", "type": "main", "index": 0 }]] }
+    "Due approvals": {
+      "main": [
+        [
+          { "node": "Build message", "type": "main", "index": 0 },
+          { "node": "Build file", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build message": { "main": [[{ "node": "Send to Telegram", "type": "main", "index": 0 }]] },
+    "Build file": { "main": [[{ "node": "Fetch file", "type": "main", "index": 0 }]] },
+    "Fetch file": { "main": [[{ "node": "Send file", "type": "main", "index": 0 }]] }
   },
   "settings": {
     "executionOrder": "v1",
