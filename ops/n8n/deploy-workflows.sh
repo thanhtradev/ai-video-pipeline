@@ -5,7 +5,8 @@
 #   ops/n8n/deploy-workflows.sh [--dry-run] [--no-publish] [wf-06 wf-13 ...]
 #
 # Steps: fill the placeholders from ops/n8n/deploy.env, back up every workflow, copy the files
-# into the n8n data mount, `n8n import:workflow` (keeps ids, overwrites, deactivates), then
+# into a fresh per-run folder of the n8n data mount, check the container sees all of them,
+# `n8n import:workflow` (keeps ids, overwrites, deactivates), then
 # `n8n publish:workflow` per id in PUBLISH_ORDER, restart the container (CLI changes only reach
 # the database) and wait for /healthz. Runbook: ops/n8n/README.md.
 set -euo pipefail
@@ -20,16 +21,18 @@ HEALTH_SLEEP_SECONDS=2
 
 # WF-99 first (n8n 2.x skips an unpublished error workflow), WF-06 before the workflows whose
 # buttons it answers (ops/phase-2a.md, ops/preview-approval.md). Every workflow id must be here.
+# WF-02 and WF-14 keep the ids n8n gave them when they were first imported in the UI, so the
+# import overwrites them instead of adding a second dispatcher.
 PUBLISH_ORDER=(
   aivideoWf99Error
   aivideoWf08Watch
-  aivideoWf02Disp0
+  qXD7V4t9Bd9v47UZ
   aivideoWf06TgCbk
   aivideoWf05Apprv
   aivideoWf01Intak
   aivideoWf12Story
   aivideoWf13Prev
-  aivideoWf14Final
+  yh8qoZvAF2jYsfyp
 )
 
 DRY_RUN=0
@@ -38,6 +41,7 @@ SELECTED=()
 STAGE_DIR=""
 STAGED_IDS=()
 BACKUP_DIR=""
+RUN_STAMP=""
 
 fail() {
   echo "deploy-workflows: $*" >&2
@@ -71,7 +75,8 @@ load_env() {
   PVE_HOST="${PVE_HOST:-pve}"
   LXC_ID="${LXC_ID:-104}"
   N8N_CONTAINER="${N8N_CONTAINER:-n8n}"
-  N8N_DATA_DIR="${N8N_DATA_DIR:-/mnt/data/docker-utils/n8n_data}"
+  # Host side of the bind mount at /home/node/.n8n, as seen inside the LXC (docker inspect n8n).
+  N8N_DATA_DIR="${N8N_DATA_DIR:-/opt/docker/n8n_data}"
   N8N_HEALTH_URL="${N8N_HEALTH_URL:-http://127.0.0.1:5678/healthz}"
 }
 
@@ -105,6 +110,8 @@ workflow_id() {
 
 stage_workflows() {
   STAGE_DIR="$(mktemp -d)"
+  # mktemp makes a 0700 folder; the container user (node) must be able to read the copy.
+  chmod 755 "$STAGE_DIR"
   local file
   while IFS= read -r file; do
     sed -e "s|REPLACE_WITH_APPROVAL_CHAT_ID|$APPROVAL_CHAT_ID|g" \
@@ -147,23 +154,41 @@ n8n_cli() {
 }
 
 backup_workflows() {
-  BACKUP_DIR="$CONTAINER_DATA_DIR/backups/workflows/pre-deploy-$(date -u +%Y%m%dT%H%M%SZ)"
+  BACKUP_DIR="$CONTAINER_DATA_DIR/backups/workflows/pre-deploy-$RUN_STAMP"
   echo "backing up all workflows to $BACKUP_DIR"
   n8n_cli export:workflow --backup --output="$BACKUP_DIR/"
 }
 
+# A fresh folder per run, so files left by an earlier run are never imported again.
+deploy_subdir() {
+  echo "deploy/workflows/$RUN_STAMP"
+}
+
 copy_staged() {
-  local dest="$N8N_DATA_DIR/deploy/workflows"
+  local dest="$N8N_DATA_DIR/$(deploy_subdir)"
   remote mkdir -p "$dest"
   if [ "$DRY_RUN" -eq 1 ]; then
-    echo "DRY: tar -C $STAGE_DIR -cf - . | ssh $PVE_HOST pct exec $LXC_ID -- tar -xf - -C $dest"
+    echo "DRY: tar -C $STAGE_DIR -cf - . | ssh $PVE_HOST pct exec $LXC_ID -- tar --no-same-owner -xf - -C $dest"
     return
   fi
-  tar -C "$STAGE_DIR" -cf - . | ssh "$PVE_HOST" "pct exec $LXC_ID -- tar -xf - -C $dest"
+  tar -C "$STAGE_DIR" -cf - . | ssh "$PVE_HOST" "pct exec $LXC_ID -- tar --no-same-owner -xf - -C $dest"
+}
+
+# Stops before import and publish when the container cannot see every staged file (wrong
+# N8N_DATA_DIR or unreadable folder); otherwise n8n imports 0 workflows without an error.
+verify_copy() {
+  local dir="$CONTAINER_DATA_DIR/$(deploy_subdir)" visible
+  if [ "$DRY_RUN" -eq 1 ]; then
+    remote docker exec "$N8N_CONTAINER" ls -1 "$dir"
+    return
+  fi
+  visible="$(remote docker exec "$N8N_CONTAINER" ls -1 "$dir" 2> /dev/null | grep -c '\.json$' || true)"
+  [ "$visible" -eq "${#STAGED_IDS[@]}" ] \
+    || fail "the n8n container sees $visible of ${#STAGED_IDS[@]} staged files in $dir; check N8N_DATA_DIR ($N8N_DATA_DIR) against 'docker inspect $N8N_CONTAINER' on LXC $LXC_ID"
 }
 
 import_workflows() {
-  n8n_cli import:workflow --separate --input="$CONTAINER_DATA_DIR/deploy/workflows"
+  n8n_cli import:workflow --separate --input="$CONTAINER_DATA_DIR/$(deploy_subdir)"
 }
 
 publish_workflows() {
@@ -214,9 +239,11 @@ main() {
   parse_args "$@"
   load_env
   check_clean_tree
+  RUN_STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   stage_workflows
   backup_workflows
   copy_staged
+  verify_copy
   import_workflows
   if [ "$PUBLISH" -eq 1 ]; then
     publish_workflows

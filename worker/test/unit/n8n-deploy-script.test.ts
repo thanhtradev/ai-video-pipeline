@@ -26,17 +26,18 @@ const WORKER_URL = 'http://100.71.214.125:8787';
 const PUBLISH_ORDER = [
   'aivideoWf99Error',
   'aivideoWf08Watch',
-  'aivideoWf02Disp0',
+  'qXD7V4t9Bd9v47UZ',
   'aivideoWf06TgCbk',
   'aivideoWf05Apprv',
   'aivideoWf01Intak',
   'aivideoWf12Story',
   'aivideoWf13Prev',
-  'aivideoWf14Final',
+  'yh8qoZvAF2jYsfyp',
 ];
 
 const SSH_SHIM = `#!/usr/bin/env bash
-# Logs its arguments; saves piped stdin; answers export:workflow --all with SHIM_EXPORT_FILE.
+# Logs its arguments; saves piped stdin; answers export:workflow --all with SHIM_EXPORT_FILE and
+# ls with the files of the copied tarball (none when SHIM_HIDE_COPY is set).
 printf '%s\\n' "$*" >> "$SHIM_LOG"
 if [ ! -t 0 ]; then
   stdin_file="$SHIM_DIR/stdin-$(date +%s%N)-$RANDOM.bin"
@@ -45,6 +46,9 @@ if [ ! -t 0 ]; then
 fi
 case "$*" in
   *"export:workflow --all"*) [ -n "\${SHIM_EXPORT_FILE:-}" ] && cat "$SHIM_EXPORT_FILE" ;;
+  *" ls -1 "*)
+    [ -n "\${SHIM_HIDE_COPY:-}" ] && exit 2
+    for f in "$SHIM_DIR"/stdin-*; do tar -tf "$f"; done ;;
 esac
 exit 0
 `;
@@ -224,6 +228,36 @@ describe('full deploy', () => {
     expect(staged.get('wf-14-final-delivery.json')).toContain(WORKER_URL);
   });
 
+  test('copies into a per-run folder named like the backup, readable by the container user', () => {
+    const result = run([]);
+    expect(result.status, result.stderr).toBe(0);
+
+    const commands = remoteCommands();
+    const stamp = /pre-deploy-(\d{8}T\d{6}Z)/.exec(commands.join('\n'))?.[1];
+    expect(stamp).toBeDefined();
+    expect(
+      commands.some((c) => c.endsWith(`-C /opt/docker/n8n_data/deploy/workflows/${stamp}`)),
+    ).toBe(true);
+    expect(
+      commands.some((c) => c.endsWith(`--input=/home/node/.n8n/deploy/workflows/${stamp}`)),
+    ).toBe(true);
+    const root = execFileSync('tar', ['-tvf', capturedTarball()], { encoding: 'utf8' })
+      .split('\n')
+      .find((line) => / \.\/?$/.test(line));
+    expect(root).toMatch(/^drwxr-xr-x/);
+  });
+
+  test('stops before import and publish when the container does not see the copied files', () => {
+    const result = run([], { SHIM_HIDE_COPY: '1' });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('sees 0 of 9 staged files');
+    expect(result.stderr).toContain('N8N_DATA_DIR');
+    const commands = remoteCommands();
+    expect(commands.some((c) => c.includes('import:workflow'))).toBe(false);
+    expect(commands.some((c) => c.includes('publish:workflow'))).toBe(false);
+  });
+
   test('backs up, copies, imports, publishes in order, restarts and checks health', () => {
     const result = run([]);
     expect(result.status, result.stderr).toBe(0);
@@ -235,9 +269,10 @@ describe('full deploy', () => {
     const backup = find(
       'n8n export:workflow --backup --output=/home/node/.n8n/backups/workflows/pre-deploy-',
     );
-    const copy = find('tar -xf - -C /mnt/data/docker-utils/n8n_data/deploy/workflows');
+    const copy = find('tar --no-same-owner -xf - -C /opt/docker/n8n_data/deploy/workflows/');
+    const verify = find('docker exec n8n ls -1 /home/node/.n8n/deploy/workflows/');
     const imported = find(
-      'n8n import:workflow --separate --input=/home/node/.n8n/deploy/workflows',
+      'n8n import:workflow --separate --input=/home/node/.n8n/deploy/workflows/',
     );
     const publishes = commands.filter((c) => c.includes('n8n publish:workflow --id='));
     const restart = find('docker restart n8n');
@@ -246,14 +281,15 @@ describe('full deploy', () => {
 
     expect(backup).toBeGreaterThanOrEqual(0);
     expect(copy).toBeGreaterThan(backup);
-    expect(imported).toBeGreaterThan(copy);
+    expect(verify).toBeGreaterThan(copy);
+    expect(imported).toBeGreaterThan(verify);
     expect(publishes).toEqual(
       PUBLISH_ORDER.map(
         (id) => `pve pct exec 104 -- docker exec n8n n8n publish:workflow --id=${id}`,
       ),
     );
     expect(find('n8n publish:workflow --id=aivideoWf99Error')).toBeGreaterThan(imported);
-    expect(restart).toBeGreaterThan(find('n8n publish:workflow --id=aivideoWf14Final'));
+    expect(restart).toBeGreaterThan(find('n8n publish:workflow --id=yh8qoZvAF2jYsfyp'));
     expect(health).toBeGreaterThan(restart);
     expect(report).toBeGreaterThan(health);
   });
@@ -303,7 +339,7 @@ describe('full deploy', () => {
     expect(result.status, result.stderr).toBe(0);
     const commands = remoteCommands();
     expect(commands.every((c) => c.startsWith('pve2 pct exec 204 -- '))).toBe(true);
-    expect(commands.some((c) => c.includes('tar -xf - -C /srv/n8n/deploy/workflows'))).toBe(true);
+    expect(commands.some((c) => c.includes('-xf - -C /srv/n8n/deploy/workflows/'))).toBe(true);
     expect(commands.some((c) => c.includes('docker exec n8n-test n8n import:workflow'))).toBe(true);
     expect(commands.some((c) => c.includes('docker restart n8n-test'))).toBe(true);
   });
