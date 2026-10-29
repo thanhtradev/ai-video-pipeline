@@ -23,7 +23,10 @@ describe('rclone target', () => {
   test('maps the archive operations to rclone commands under the root', async () => {
     const { calls, target } = fake((args) => {
       if (args[0] === 'lsjson' && args[1] === '-R')
-        return JSON.stringify([{ Path: 'renders/final.mp4', Size: 10 }]);
+        return JSON.stringify([
+          { Path: 'renders/final.mp4', Size: 10, Hashes: { sha256: HASH } },
+          { Path: 'logs/a.json', Size: 2, Hashes: { sha256: '' } },
+        ]);
       if (args[0] === 'lsjson') throw new RcloneError('not found', 3);
       return '';
     });
@@ -31,7 +34,8 @@ describe('rclone target', () => {
     await target.upload('/tmp/final.mp4', '2026/10/v.partial/renders/final.mp4');
     await target.putContent('2026/10/x.txt', 'hello');
     expect(await target.list('2026/10/v.partial')).toEqual([
-      { path: 'renders/final.mp4', bytes: 10 },
+      { path: 'renders/final.mp4', bytes: 10, sha256: HASH },
+      { path: 'logs/a.json', bytes: 2 },
     ]);
     expect(await target.exists('2026/10/v')).toBe(false);
     await target.move('2026/10/v.partial', '2026/10/v');
@@ -40,12 +44,25 @@ describe('rclone target', () => {
       ['mkdir', `${ROOT}/2026/10/v.partial`],
       ['copyto', '/tmp/final.mp4', `${ROOT}/2026/10/v.partial/renders/final.mp4`],
       ['rcat', `${ROOT}/2026/10/x.txt`],
-      ['lsjson', '-R', '--files-only', `${ROOT}/2026/10/v.partial`],
+      ['lsjson', '-R', '--files-only', '--hash-type', 'sha256', `${ROOT}/2026/10/v.partial`],
       ['lsjson', '--stat', `${ROOT}/2026/10/v`],
       ['lsjson', '--stat', `${ROOT}/2026/10/v`],
       ['moveto', `${ROOT}/2026/10/v.partial`, `${ROOT}/2026/10/v`],
     ]);
     expect(calls[2]!.input).toBe('hello');
+  });
+
+  test('uploads many files with one copy, the paths on stdin', async () => {
+    const { calls, target } = fake(() => '');
+
+    await target.uploadFiles!('/w/v1', '2026/10/v.partial', ['manifest.json', 'renders/final.mp4']);
+
+    expect(calls).toEqual([
+      {
+        args: ['copy', '--files-from-raw', '-', '/w/v1', `${ROOT}/2026/10/v.partial`],
+        input: 'manifest.json\nrenders/final.mp4\n',
+      },
+    ]);
   });
 
   test("uses Drive's SHA-256, and downloads to hash when Drive has none", async () => {

@@ -5,7 +5,8 @@ import { sha256File, writeFileAtomic, type FileDigest } from '../storage/checkpo
 import type { ArchiveTarget } from './webdav-target.js';
 
 // Archive procedure from docs/storage-and-manifest.md §4:
-// checksums -> upload to <dir>.partial -> verify count, size, SHA-256 (download and hash) -> rename.
+// checksums -> upload to <dir>.partial -> verify count, size, SHA-256 (listed by the target, or
+// downloaded and hashed) -> rename.
 // Never deletes anything, locally or remotely.
 
 export const CHECKSUMS_FILE = 'checksums.sha256';
@@ -86,23 +87,23 @@ async function findProblems(
   expected: Expected,
 ): Promise<string[]> {
   const problems: string[] = [];
-  const remote = new Map((await target.list(remoteDir)).map((entry) => [entry.path, entry.bytes]));
+  const remote = new Map((await target.list(remoteDir)).map((entry) => [entry.path, entry]));
 
   for (const path of remote.keys()) {
     if (!expected.has(path)) problems.push(`unexpected remote file ${path}`);
   }
   for (const [path, digest] of expected) {
-    const remoteBytes = remote.get(path);
-    if (remoteBytes === undefined) {
+    const entry = remote.get(path);
+    if (entry === undefined) {
       problems.push(`missing ${path}`);
       continue;
     }
-    if (remoteBytes !== digest.bytes) {
-      problems.push(`size mismatch ${path}: ${remoteBytes} != ${digest.bytes}`);
+    if (entry.bytes !== digest.bytes) {
+      problems.push(`size mismatch ${path}: ${entry.bytes} != ${digest.bytes}`);
       continue;
     }
-    const remoteDigest = await target.hash(`${remoteDir}/${path}`);
-    if (remoteDigest.sha256 !== digest.sha256) problems.push(`checksum mismatch ${path}`);
+    const remoteSha256 = entry.sha256 ?? (await target.hash(`${remoteDir}/${path}`)).sha256;
+    if (remoteSha256 !== digest.sha256) problems.push(`checksum mismatch ${path}`);
   }
   return problems;
 }
@@ -145,6 +146,18 @@ export async function verifyArchive(
   };
 }
 
+async function uploadAll(
+  target: ArchiveTarget,
+  localDir: string,
+  remoteDir: string,
+  paths: string[],
+): Promise<void> {
+  if (target.uploadFiles) return target.uploadFiles(localDir, remoteDir, paths);
+  const dirs = new Set(paths.map((path) => dirname(path)).filter((d) => d !== '.'));
+  for (const dir of [...dirs].sort()) await target.ensureDir(`${remoteDir}/${dir}`);
+  for (const path of paths) await target.upload(join(localDir, path), `${remoteDir}/${path}`);
+}
+
 export async function archiveDirectory(input: ArchiveInput): Promise<ArchiveResult> {
   const { target, remoteDir, logger } = input;
   const localDir = resolve(input.localDir);
@@ -163,11 +176,7 @@ export async function archiveDirectory(input: ArchiveInput): Promise<ArchiveResu
 
   const partial = `${remoteDir}.partial`;
   await target.ensureDir(partial);
-  const dirs = new Set([...expected.keys()].map((path) => dirname(path)).filter((d) => d !== '.'));
-  for (const dir of [...dirs].sort()) await target.ensureDir(`${partial}/${dir}`);
-  for (const path of expected.keys()) {
-    await target.upload(join(localDir, path), `${partial}/${path}`);
-  }
+  await uploadAll(target, localDir, partial, [...expected.keys()]);
 
   const problems = await findProblems(target, partial, expected);
   if (problems.length > 0) {

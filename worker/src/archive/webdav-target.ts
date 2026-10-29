@@ -13,12 +13,16 @@ export interface RemoteEntry {
   /** Path relative to the listed directory. */
   path: string;
   bytes: number;
+  /** Set when the target lists SHA-256 itself, so verification needs no per-file hash call. */
+  sha256?: string;
 }
 
 export interface ArchiveTarget {
   exists: (remotePath: string) => Promise<boolean>;
   ensureDir: (remotePath: string) => Promise<void>;
   upload: (localPath: string, remotePath: string) => Promise<void>;
+  /** Optional: uploads files (relative to localDir) in one call, creating their folders. */
+  uploadFiles?: (localDir: string, remoteDir: string, paths: readonly string[]) => Promise<void>;
   putContent: (remotePath: string, content: string) => Promise<void>;
   /** Recursively lists files (not directories) under remoteDir. */
   list: (remoteDir: string) => Promise<RemoteEntry[]>;
