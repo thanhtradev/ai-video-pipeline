@@ -1,0 +1,243 @@
+{
+  "id": "aivideoWf15Voice",
+  "name": "WF-15 Voice Approval Request",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001501",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, take, title, voice FROM voice_approvals_due();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001502",
+      "name": "Due voices",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aivideoPgCred001",
+          "name": "aivideo-postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per new A1b request (reminders send no audio). The worker serves voice.m4a against the\n// timing job's media token (D-071). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.voice)?.file);\nreturn rows.map(({ json: row }) => {\n  const voice = parse(row.voice);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${voice.file.job_id}/voice.m4a?t=${voice.file.token}`,\n      caption: `Video ${shortId} v${row.version} · giọng đọc lần ${row.take}/${voice.max_takes} · ${row.title ?? '?'}`.slice(0, 1024),\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001503",
+      "name": "Build audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001504",
+      "name": "Fetch audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "caption": "={{ String($('Build audio').item.json.caption).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}"
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001505",
+      "name": "Send audio",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One message with buttons per row from voice_approvals_due(), after its audio. Telegram text is\n// Vietnamese (D-061). Callback data: a1b:<A|G|R>:<32-hex token>. Đọc lại pays for one more TTS\n// take; its label shows the estimate (none after the last take: the video then needs a decision).\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const voice = parse(row.voice) ?? {};\n  const cost = voice.retake_cost ? `${voice.retake_cost.amount} ${voice.retake_cost.currency}` : null;\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Nhắc: giọng đọc đang chờ duyệt (A1b)'\n    : '[AI Video] Giọng đọc sẵn sàng để nghe (A1b)';\n  const length = typeof voice.seconds === 'number' ? ` · ${clock(voice.seconds)}` : '';\n  const text = [\n    header,\n    `Video ${shortId} v${row.version} · lần đọc ${row.take}/${voice.max_takes ?? '?'}${length}`,\n    `Tiêu đề: ${row.title ?? '?'}`,\n    '',\n    'Nghe file giọng đọc ở trên. Bấm Duyệt để Claude viết code tập (storyboard đến sau).',\n    cost\n      ? `Đọc lại: TTS đọc lại toàn bộ, tốn thêm khoảng ${cost}.`\n      : 'Đã hết lượt đọc lại; bấm Đọc lại thì video chuyển sang chờ bạn quyết định.',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n  ].join('\\n');\n  return {\n    json: {\n      text,\n      retakeLabel: cost ? `Đọc lại (~${cost})` : 'Đọc lại (hết lượt)',\n      approve: `a1b:A:${row.token}`,\n      retake: `a1b:G:${row.token}`,\n      reject: `a1b:R:${row.token}`,\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001506",
+      "name": "Build message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Duyệt",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.approve }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $json.retakeLabel }}",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.retake }}"
+                    }
+                  },
+                  {
+                    "text": "Từ chối",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.reject }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001507",
+      "name": "Send buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        220
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 30 seconds": {
+      "main": [
+        [
+          {
+            "node": "Due voices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due voices": {
+      "main": [
+        [
+          {
+            "node": "Build audio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build audio": {
+      "main": [
+        [
+          {
+            "node": "Fetch audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch audio": {
+      "main": [
+        [
+          {
+            "node": "Send audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build message": {
+      "main": [
+        [
+          {
+            "node": "Send buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {}
+}

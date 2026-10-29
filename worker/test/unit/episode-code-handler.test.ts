@@ -6,8 +6,14 @@ import pino from 'pino';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { agentArgs, type AgentRunner, type AgentTurn } from '../../src/claude/agent-cli.js';
 import { agentSettings, SFX_COMMAND, TYPECHECK_COMMAND } from '../../src/episode/agent-settings.js';
-import { describeFailures, type GateReport, type GateRunner } from '../../src/episode/gates.js';
+import {
+  browserCrash,
+  describeFailures,
+  type GateReport,
+  type GateRunner,
+} from '../../src/episode/gates.js';
 import { createEpisodeCodeHandler, type EpisodeCodeDeps } from '../../src/handlers/episode-code.js';
+import type { LoudnessNormalizer } from '../../src/media/loudness.js';
 import { NO_RULES } from '../../src/rules/channel-rules.js';
 import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
 import { writeCheckpoint } from '../../src/storage/checkpoint.js';
@@ -24,6 +30,7 @@ const PASS: GateReport = {
   typecheck: { ok: true, output: '' },
   sfx: { ok: true, files: ['clap.wav'] },
   board: { ok: true, pages: ['board/page-01.jpg'] },
+  mix: { ok: true, file: 'board/mix.wav' },
   textBounds: { ok: true, sharp: 0, blur: 1, rows: [] },
 };
 const FAIL: GateReport = {
@@ -56,6 +63,7 @@ let jobsDir: string;
 let workDir: string;
 let turns: AgentTurn[];
 let reported: Record<string, unknown>[];
+let mixed: [string, string][];
 
 async function writeJob(id: string, files: Record<string, string>): Promise<void> {
   const dir = join(jobsDir, id);
@@ -73,6 +81,7 @@ beforeEach(async () => {
   await mkdir(workDir);
   turns = [];
   reported = [];
+  mixed = [];
   await writeJob(SCRIPT_JOB, { 'script.json': '{}', 'script.md': '# Nếu bạn dừng thời gian\n' });
   await writeJob(TIMING_JOB, {
     'timing.json': '{"shots":[]}',
@@ -109,13 +118,27 @@ function gates(...reports: GateReport[]): GateRunner {
     const report = reports[Math.min(n++, reports.length - 1)]!;
     await mkdir(join(ws, 'board'), { recursive: true });
     for (const page of report.board?.pages ?? []) await writeFile(join(ws, page), 'jpg');
+    if (report.mix?.file) await writeFile(join(ws, report.mix.file), 'RIFF');
     await writeFile(join(ws, 'gates.json'), JSON.stringify(report));
     return report;
   };
 }
 
+const MIX_LOUDNESS = {
+  input_lufs: -18,
+  input_true_peak: -2,
+  output_lufs: -14,
+  output_true_peak: -1.5,
+};
+const loudness: LoudnessNormalizer = async (input, output) => {
+  mixed.push([input, output]);
+  await writeFile(output, 'm4a');
+  return MIX_LOUDNESS;
+};
+
 function deps(overrides: Partial<EpisodeCodeDeps> = {}): EpisodeCodeDeps {
   return {
+    loudness,
     agent: agent(),
     gates: gates(PASS),
     secrets: [SECRET],
@@ -142,6 +165,32 @@ function context(input: unknown = INPUT, attemptNo = 1): HandlerContext {
 }
 
 describe('episode_code handler', () => {
+  test('encodes the audio mix for the storyboard request, with a media token (D-071)', async () => {
+    const result = await createEpisodeCodeHandler(deps())(context());
+
+    const ws = await realpath(join(workDir, 'ws'));
+    expect(mixed).toEqual([[join(ws, 'board/mix.wav'), join(workDir, 'mix.m4a')]]);
+    expect(result.outputs).toContain('mix.m4a');
+    expect(result.outputs).not.toContain('ws/board/mix.wav');
+    expect(result.result).toMatchObject({ mix_loudness: MIX_LOUDNESS });
+    expect(result.result.media_token).toMatch(/^[0-9a-f]{32}$/);
+  });
+
+  test('has no mix when the gate report predates it', async () => {
+    const { mix: _mix, ...old } = PASS;
+    const result = await createEpisodeCodeHandler(deps({ gates: gates(old) }))(context());
+    expect(mixed).toEqual([]);
+    expect(result.outputs).not.toContain('mix.m4a');
+    expect(result.result).toMatchObject({ mix_loudness: null });
+  });
+
+  test('a failed mix is reported to the agent, and a Chrome crash there is retried', () => {
+    const broken: GateReport = { ...PASS, ok: false, mix: { ok: false, error: 'staticFile x' } };
+    expect(describeFailures(broken)).toEqual(['The audio mix render failed:\nstaticFile x']);
+    const crash: GateReport = { ...PASS, ok: false, mix: { ok: false, error: 'Target closed' } };
+    expect(browserCrash(crash)).toBe('Target closed');
+  });
+
   test('writes, then reviews the storyboard in the same session, and returns the code', async () => {
     const result = await createEpisodeCodeHandler(deps())(context());
 

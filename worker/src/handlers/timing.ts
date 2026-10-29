@@ -1,9 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import { alignWords, parseWhisperJson } from '../episode/align.js';
 import { episodeSentences } from '../episode/sentences.js';
 import { buildTiming, checkCuts, envelope, FPS, type EpisodeTiming } from '../episode/timing.js';
+import type { LoudnessNormalizer } from '../media/loudness.js';
 import { readPcm16, type VoiceBuilder } from '../media/voice.js';
 import { rulesSchema } from '../rules/channel-rules.js';
 import type { Transcriber } from '../media/whisper.js';
@@ -20,8 +22,11 @@ import {
 // into voice.wav, transcribes it with whisper.cpp, and builds timing.json + captions.json for the
 // kit from the approved script. Free (local). Deterministic failures (a MỐC that is not spoken, a
 // cut in speech) are permanent: re-running cannot change them, a person decides.
+// voice.m4a is the same voice at the delivery loudness for the voice approval (A1b, D-071): WF-15
+// fetches it through GET /media with the media token.
 
 const VOICE = 'voice.wav';
+const VOICE_PREVIEW = 'voice.m4a';
 const ANALYSIS = 'voice-16k.wav';
 const TRANSCRIPT_PREFIX = 'transcript';
 const TIMING = 'timing.json';
@@ -64,6 +69,8 @@ export interface TimingHandlerDeps {
   buildVoice: VoiceBuilder;
   /** Null when no whisper model is configured: jobs wait as BLOCKED until it is. */
   transcribe: Transcriber | null;
+  /** Encodes voice.m4a (-14 LUFS, as the delivered video). */
+  loudness: LoudnessNormalizer;
   blockSeconds: number;
 }
 
@@ -185,7 +192,13 @@ export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
       );
     }
 
-    const { workDir, logger } = context;
+    const { workDir, logger, signal } = context;
+    await context.progress({ stage: 'voice preview' });
+    const voiceLoudness = await deps.loudness(
+      join(workDir, VOICE),
+      join(workDir, VOICE_PREVIEW),
+      signal,
+    );
     await writeFileAtomic(join(workDir, TIMING), `${JSON.stringify(built.timing, null, 1)}\n`);
     await writeFileAtomic(join(workDir, CAPTIONS), `${JSON.stringify(built.captions, null, 0)}\n`);
     await writeFileAtomic(join(workDir, TIMELINE), toTimelineMarkdown(built.timing));
@@ -199,11 +212,13 @@ export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
       words_total: words.flat().length,
       joins: built.timing.lines.filter((line) => line.joinNext).length,
       noise_floor_db: Math.round(built.floor * 10) / 10,
+      voice_loudness: voiceLoudness,
     };
     logger.info(result, 'episode timeline built');
     return {
-      outputs: [VOICE, TIMING, CAPTIONS, TIMELINE, `${TRANSCRIPT_PREFIX}.json`],
-      result,
+      outputs: [VOICE, TIMING, CAPTIONS, TIMELINE, `${TRANSCRIPT_PREFIX}.json`, VOICE_PREVIEW],
+      // Capability for GET /media/…/voice.m4a (D-057): only Postgres readers (n8n) learn it.
+      result: { ...result, media_token: randomBytes(16).toString('hex') },
     };
   };
 }

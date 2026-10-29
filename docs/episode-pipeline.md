@@ -11,9 +11,10 @@ form (topic | full brief)
   → script        q:light   Claude text-only → episode script JSON            → A1 (Telegram, + TTS estimate)
   → tts           q:light   ITERA eleven_v4, one request per act (audio tags kept)
   → timing        q:heavy   concat → whisper.cpp word times → line/shot timeline → cut check
+  → VOICE approval (A1b)    Telegram: voice.m4a + Duyệt / Đọc lại (one more paid take, ≤ 3) / Từ chối
   → episode_code  q:render  Claude Code headless in a sandboxed workspace → code + SFX
                             → worker gates (typecheck, cut check, text bounds, storyboard)
-  → STORYBOARD approval     Telegram: storyboard pages + Approve / Feedback (≤ 3 feedback rounds)
+  → STORYBOARD approval     Telegram: storyboard pages + audio mix + Approve / Feedback (≤ 3 rounds)
        └─ feedback → new episode_code job with the feedback and the previous code
   → render_preview q:render 720p MP4 + SRT, loudness -14 LUFS (then 2d: QA, A2, final 1080p, archive)
 ```
@@ -23,10 +24,13 @@ step never repeats a paid call (only `tts` is paid).
 
 ## 2. Video status
 
-New status `AWAITING_STORYBOARD_APPROVAL` and approval type `STORYBOARD`:
+New statuses `AWAITING_VOICE_APPROVAL`, `AWAITING_STORYBOARD_APPROVAL` and approval types `VOICE`,
+`STORYBOARD`:
 
 | From | To | When |
 |---|---|---|
+| `GENERATING_ASSETS` | `AWAITING_VOICE_APPROVAL` | the newest timing job succeeded (§5b) |
+| `AWAITING_VOICE_APPROVAL` | `GENERATING_ASSETS` / `CANCELLED` | Duyệt or Đọc lại / Từ chối |
 | `GENERATING_ASSETS` | `AWAITING_STORYBOARD_APPROVAL` | episode_code succeeded and its gates passed |
 | `AWAITING_STORYBOARD_APPROVAL` | `GENERATING_ASSETS` | feedback: a revision job is created |
 | `AWAITING_STORYBOARD_APPROVAL` | `RENDERING_PREVIEW` | approved: render_preview becomes READY |
@@ -98,7 +102,8 @@ same spoken forms. A replacement can make a few more characters than the A1 esti
 
 ## 5. Timing
 
-`timing` job (q:heavy, free), created with the TTS job when A1 is approved and run after it. A port of
+`timing` job (q:heavy, free), created with the TTS job when A1 is approved (and again for every
+Đọc lại take, §5b) and run after it. A port of
 the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
 
 1. The act clips are joined in order with 0.6 s of silence between acts → `voice.wav` (48 kHz mono,
@@ -119,15 +124,37 @@ the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
 6. `timing.json` and `captions.json` in the reference shapes (the kit's `time.ts` reads them),
    `timeline.md` for people. A cut louder than floor + 20 dB, or a MỐC never spoken, fails the
    job permanently (re-running cannot change it).
+7. `voice.m4a`: the voice at -14 LUFS (`worker/src/media/loudness.ts`, as the delivered video) for
+   the voice approval, with a `media_token` in the checkpoint.
 
 Measured on EP5 (reference episode, real ffmpeg + whisper.cpp 1.9.5, 2026-10-26): 261/261
 sentences as in the reference, 242 of them cut within 3 frames of the hand-checked reference,
 no cut in speech (the reference had one), 401.6 s against 400.0 s; whisper took 43 s.
 
+## 5b. Voice approval (A1b, D-071)
+
+Migration `20261108000100`: status `AWAITING_VOICE_APPROVAL`, approval type `VOICE`. When the newest
+timing job of an episode succeeds and the version has no episode code yet,
+`voice_approvals_due()` (WF-15) issues a token bound to `video_id` + version + the SHA-256 of the
+timing job's outputs (that exact take). WF-15 sends `voice.m4a` as audio (worker
+`GET /media/…/voice.m4a` with the timing job's media token), then a message with three buttons:
+
+| Telegram | Effect |
+|---|---|
+| Duyệt | → `GENERATING_ASSETS`, `episode_code` job from this timeline (§6) |
+| Đọc lại (~cost) | → `GENERATING_ASSETS`: one more `ESTIMATE` cost entry (the TTS budget grows by one narration, so `cost_guard` allows exactly that take), a new `tts` job with the same frozen texts and `take: n` in its input (new idempotency key), a new `timing` job; the new take comes back as the next request |
+| Đọc lại after take 3 | → `NEEDS_DECISION` |
+| Từ chối | → `CANCELLED` |
+
+The button shows the take's estimate (`tts_estimate`, current price + 10 %). Notes cannot steer a
+take (reply → `NOT_SUPPORTED`): change the text with notes at A1 or `/say` pronunciations (D-059),
+then Đọc lại. Versions approved at A1 before this migration already have their episode code and
+skip A1b.
+
 ## 6. Episode code (Claude Code headless)
 
-`episode_code` job (q:render), created with the TTS and timing jobs when A1 is approved and run
-after the timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/` and
+`episode_code` job (q:render), created when the voice is approved (A1b, §5b) and run after the
+timeline. Workspace `jobs/<job>/ws/`, prepared by the worker from `remotion/episode/` and
 the kit catalog (`remotion/catalog.json`, D-064): a clip has one **kit** (visual style:
 `remotion/src/kits/<kit>/`) and one **character set** (a cast on the shared rig:
 `remotion/src/characters/<set>/`), chosen per clip in the brief (§3, D-066) and passed in the job
@@ -169,7 +196,10 @@ render of agent-written code under its own profile `ops/claude/episode-render.sb
 writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
 
 1. typecheck; 2. the SFX script (fails on any ambience bed or room tone, `amb_*` / `*room_tone*`, D-069); 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
-55 % of each shot; a missing audio file fails here); 4. text-out-of-frame scan of the whole episode
+55 % of each shot; a missing audio file fails here); 4. the audio mix: the `Episode` composition
+rendered with the `wav` codec (no screenshots, about 1.5 min for a 6-minute episode) into
+`board/mix.wav`, which the worker encodes to `mix.m4a` at -14 LUFS for the storyboard request
+(D-071); 5. text-out-of-frame scan of the whole episode
 (every 10th frame, 0 sharp hits allowed); then a scan of the agent's files for secret values.
 
 Turns (one session, resumed): turn 1 writes; turn 2 always reviews the storyboard pages (the Read
@@ -202,8 +232,9 @@ and `kit/ep5/*.ts` shims that re-export the moved modules (`worker/src/episode/l
 Migration `20261029000100`: status `AWAITING_STORYBOARD_APPROVAL`, approval type `STORYBOARD`.
 When the newest `episode_code` job of an episode succeeds, `storyboard_approvals_due()` (WF-12)
 issues a token bound to `video_id` + version + the SHA-256 of every file the job produced (code,
-SFX script, pages). WF-12 sends each page as a photo, fetched from the worker with the job's board
-token (D-055), then a message with **Approve** / **Reject** that asks for notes as a reply.
+SFX script, pages, mix). WF-12 sends each page as a photo, fetched from the worker with the job's board
+token (D-055), then `mix.m4a` as audio (voice + SFX as the episode plays them; `GET /media` with the
+job's media token, none for code written before D-071), then a message with **Approve** / **Reject** that asks for notes as a reply.
 
 WF-06 handles both through `telegram_decide()`:
 
@@ -301,6 +332,7 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | C1 | ✅ sandbox spike (D-054), fonts bundled via `@fontsource` | — |
 | C2 | ✅ episode_code job, workspace, gates | Chrome download, migration |
 | C3 | ✅ STORYBOARD approval, pages on Telegram, notes by reply (≤ 3 rounds) | migration, WF-06/WF-12 import |
+| C3b | ✅ voice approval (A1b) and the storyboard audio mix (D-071) | migration, worker restart, WF-06/WF-12/WF-15 import (`ops/voice-approval.md`) |
 | C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |
 | D1 | ✅ preview QA, A2 on Telegram with the video, final 1080p render (D-057) | migration, WF-06/WF-13 import (`ops/preview-approval.md`) |
 | D2 | ✅ final QA, metadata + thumbnail (A3), archive to Google Drive, owner-approved Mac cleanup, COMPLETED with cost report (D-062, D-063) | rclone + Drive login, migration, worker env + restart, WF-06/WF-14 import (`ops/final-delivery.md`) |

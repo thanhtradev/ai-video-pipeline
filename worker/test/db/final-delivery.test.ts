@@ -187,6 +187,7 @@ describe('telegram_decide on metadata (A3)', () => {
     expect(archive.input.frozen_at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
     expect((archive.input.approvals as { type: string }[]).map((a) => a.type)).toEqual([
       'SCRIPT',
+      'VOICE',
       'STORYBOARD',
       'PREVIEW',
       'METADATA',

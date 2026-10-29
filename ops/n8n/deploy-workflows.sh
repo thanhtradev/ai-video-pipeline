@@ -29,6 +29,7 @@ PUBLISH_ORDER=(
   qXD7V4t9Bd9v47UZ
   aivideoWf06TgCbk
   aivideoWf05Apprv
+  aivideoWf15Voice
   aivideoWf01Intak
   aivideoWf12Story
   aivideoWf13Prev

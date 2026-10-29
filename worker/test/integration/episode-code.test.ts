@@ -112,6 +112,7 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
       const timing = createTimingHandler({
         buildVoice: createVoiceBuilder(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         transcribe: createWhisper({ bin: process.env.WHISPER_BIN ?? 'whisper-cli', model: MODEL! }),
+        loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         blockSeconds: 3600,
       });
       const timed = await timing(
@@ -136,6 +137,7 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
         rules: async () => NO_RULES,
         browserReady: chromeInstalled,
         blockSeconds: 60,
+        loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         runtimeRoot: ROOT,
       });
       const result = await code(

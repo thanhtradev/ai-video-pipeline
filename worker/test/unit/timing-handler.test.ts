@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import pino from 'pino';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { createTimingHandler, type TimingHandlerDeps } from '../../src/handlers/timing.js';
+import type { LoudnessNormalizer } from '../../src/media/loudness.js';
 import { concatFilter, readPcm16, type VoiceBuilder } from '../../src/media/voice.js';
 import { whisperArgs, type Transcriber } from '../../src/media/whisper.js';
 import { PermanentJobError, ProviderBlockedError, type HandlerContext } from '../../src/runner.js';
@@ -49,6 +50,7 @@ const HEARD: [string, number, number][] = [
 let jobsDir: string;
 let workDir: string;
 let voiceCalls: string[][];
+let loudnessCalls: [string, string][];
 
 function whisperJson(words: [string, number, number][]): Uint8Array {
   const transcription = words.map(([text, from, to]) => ({
@@ -72,8 +74,15 @@ const transcribe =
     return bytes;
   };
 
+const LOUDNESS = { input_lufs: -20, input_true_peak: -3, output_lufs: -14, output_true_peak: -1.6 };
+const loudness: LoudnessNormalizer = async (input, output) => {
+  loudnessCalls.push([input, output]);
+  await writeFile(output, 'm4a');
+  return LOUDNESS;
+};
+
 function deps(overrides: Partial<TimingHandlerDeps> = {}): TimingHandlerDeps {
-  return { buildVoice, transcribe: transcribe(), blockSeconds: 3600, ...overrides };
+  return { buildVoice, transcribe: transcribe(), loudness, blockSeconds: 3600, ...overrides };
 }
 
 function context(input: unknown = INPUT): HandlerContext {
@@ -107,6 +116,7 @@ beforeEach(async () => {
   workDir = join(jobsDir, TIMING_JOB);
   await mkdir(workDir);
   voiceCalls = [];
+  loudnessCalls = [];
 });
 
 describe('timing handler', () => {
@@ -124,6 +134,7 @@ describe('timing handler', () => {
       'captions.json',
       'timeline.md',
       'transcript.json',
+      'voice.m4a',
     ]);
     const timing = JSON.parse(await readFile(join(workDir, 'timing.json'), 'utf8'));
     expect(timing.voice).toBe('voice.wav');
@@ -151,6 +162,16 @@ describe('timing handler', () => {
       words_total: 6,
       joins: 0,
     });
+  });
+
+  test('encodes the voice for the A1b request at the delivery loudness, with a media token', async () => {
+    await writeJobs();
+
+    const result = await createTimingHandler(deps())(context());
+
+    expect(loudnessCalls).toEqual([[join(workDir, 'voice.wav'), join(workDir, 'voice.m4a')]]);
+    expect(result.result).toMatchObject({ voice_loudness: LOUDNESS });
+    expect((result.result as { media_token: string }).media_token).toMatch(/^[0-9a-f]{32}$/);
   });
 
   test('waits (blocked) while no whisper model is configured', async () => {

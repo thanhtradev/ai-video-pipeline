@@ -20,6 +20,8 @@ export const gateReportSchema = z
       .optional(),
     bundle: stepSchema.optional(),
     board: stepSchema.extend({ pages: z.array(z.string()).optional() }).optional(),
+    /** The episode's audio, rendered without frames (D-071); absent in older reports. */
+    mix: stepSchema.extend({ file: z.string().optional() }).optional(),
     textBounds: stepSchema
       .extend({
         sharp: z.number().optional(),
@@ -74,7 +76,7 @@ export const isBrowserCrash = (text: string): boolean => BROWSER_CRASH.test(text
 
 /** The Chrome crash of a gate run, or null. The agent cannot fix it: the worker retries. */
 export function browserCrash(report: GateReport): string | null {
-  const errors = [report.board?.error, report.textBounds?.error];
+  const errors = [report.board?.error, report.mix?.error, report.textBounds?.error];
   return errors.find((e): e is string => e !== undefined && isBrowserCrash(e)) ?? null;
 }
 
@@ -90,6 +92,8 @@ export function describeFailures(report: GateReport): string[] {
     out.push(`Bundling failed:\n${report.bundle.error ?? ''}`);
   if (report.board && !report.board.ok)
     out.push(`The storyboard render failed:\n${report.board.error ?? ''}`);
+  if (report.mix && !report.mix.ok)
+    out.push(`The audio mix render failed:\n${report.mix.error ?? ''}`);
   const tb = report.textBounds;
   if (tb && !tb.ok) {
     const rows = (tb.rows ?? []).filter((r) => r.kind !== 'blur').slice(0, REPORT_ROWS);

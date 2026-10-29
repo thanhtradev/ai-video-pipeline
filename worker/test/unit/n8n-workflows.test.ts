@@ -344,6 +344,42 @@ describe('WF-06 Telegram Callback', () => {
     expect(parse(`sb:G:${token}`)).toEqual([]);
   });
 
+  test('parses voice buttons, Đọc lại included (A1b, D-071)', () => {
+    const parse = (data: string) =>
+      runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback(data)] });
+    for (const [code, action] of [
+      ['A', 'APPROVE'],
+      ['G', 'REGENERATE'],
+      ['R', 'REJECT'],
+    ]) {
+      expect(parse(`a1b:${code}:${token}`)[0]!.json).toMatchObject({
+        kind: 'button',
+        approval: 'voice',
+        action,
+        token,
+      });
+    }
+  });
+
+  test('answers voice buttons with the take', () => {
+    const answer = (result: string, action: string, round: number | null) =>
+      runCode('wf-06-telegram-callback.json', 'Build reply', {
+        input: [{ json: { result, version: 1, round } }],
+        nodeOutputs: {
+          'Parse callback': [
+            { json: { kind: 'button', approval: 'voice', action, token, originalText: 'x' } },
+          ],
+        },
+      })[0]!.json.answer;
+    expect(answer('OK', 'APPROVE', 1)).toBe('Đã duyệt giọng: Claude đang viết code tập');
+    expect(answer('OK', 'REGENERATE', 2)).toBe('Đang đọc lại giọng (lần 2/3)');
+    expect(answer('OK', 'REJECT', 1)).toBe('Đã từ chối (hủy video)');
+    expect(answer('NEEDS_DECISION', 'REGENERATE', 3)).toBe(
+      'Đã đọc 3/3 lần; video cần bạn quyết định.',
+    );
+    expect(answer('HASH_MISMATCH', 'APPROVE', null)).toMatch(/^Giọng đọc đã thay đổi/);
+  });
+
   const message = (text: string, repliedTo: string | null, isBot = false): Item => ({
     json: {
       message: {
@@ -710,6 +746,24 @@ describe('WF-12 Storyboard Approval Request', () => {
       `REPLACE_WITH_WORKER_URL/boards/${row.video_id}/1/${row.board.job_id}/page-02.jpg?t=${'c'.repeat(32)}`,
     ]);
     expect(pages[1]!.json.caption).toBe('Video 12345678 v1 · storyboard vòng 2/4 · trang 2/2');
+  });
+
+  test('sends the audio mix of a new request with the media token (D-071)', () => {
+    const [mix, ...rest] = runCode('wf-12-storyboard-approval.json', 'Build mix', {
+      input: [
+        { json: { ...row, board: { ...row.board, mix_token: 'f'.repeat(32) } } },
+        { json: { ...row, video_id: '22345678-aaaa-bbbb-cccc-000000000000' } },
+        { json: { ...row, kind: 'REMINDER', board: null } },
+      ],
+    });
+    expect(rest).toEqual([]);
+    expect(mix!.json).toEqual({
+      url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${row.board.job_id}/mix.m4a?t=${'f'.repeat(32)}`,
+      caption: 'Video 12345678 v1 · âm thanh đầy đủ (giọng + SFX) · storyboard vòng 2/4',
+    });
+    const wf = workflow('wf-12-storyboard-approval.json');
+    expect(wf.connections['Due storyboards']!.main[0]!.map((c) => c.node)).toContain('Build mix');
+    expect(wf.nodes.find((n) => n.name === 'Send mix')!.parameters.operation).toBe('sendAudio');
   });
 
   test('sends no pages for reminders', () => {
@@ -1233,6 +1287,83 @@ describe('WF-06 members (D-060)', () => {
       answer: 'Đã duyệt: người này giờ là approver.',
       settled: true,
     });
+  });
+});
+
+describe('WF-15 Voice Approval Request (A1b, D-071)', () => {
+  const token = 'b'.repeat(32);
+  const row = {
+    kind: 'REQUEST',
+    video_id: '12345678-aaaa-bbbb-cccc-000000000000',
+    version: 2,
+    token,
+    expires_at: '2026-10-29T10:00:00.000Z',
+    take: 1,
+    title: 'Bíp ơi, tại sao nước sôi?',
+    voice: {
+      file: { job_id: '87654321-aaaa-bbbb-cccc-000000000000', token: 'c'.repeat(32) },
+      seconds: 125.4,
+      max_takes: 3,
+      retake_cost: { amount: 2817, currency: 'CRD' },
+    },
+  };
+  const file = 'wf-15-voice-approval.json';
+
+  test('polls voice_approvals_due() and sends the voice, then the buttons', () => {
+    const wf = workflow(file);
+    const due = wf.nodes.find((n) => n.name === 'Due voices')!;
+    expect(due.parameters.query).toContain('FROM voice_approvals_due()');
+    expect(wf.connections['Due voices']!.main[0]!.map((c) => c.node)).toEqual([
+      'Build audio',
+      'Build message',
+    ]);
+    expect(wf.nodes.find((n) => n.name === 'Send audio')!.parameters.operation).toBe('sendAudio');
+    const buttons = JSON.stringify(wf.nodes.find((n) => n.name === 'Send buttons')!.parameters);
+    expect(buttons).toContain('Duyệt');
+    expect(buttons).toContain('Từ chối');
+    expect(buttons).toContain('$json.retakeLabel');
+  });
+
+  test('fetches voice.m4a of a new request with the media token', () => {
+    const out = runCode(file, 'Build audio', {
+      input: [
+        { json: row },
+        { json: { ...row, kind: 'REMINDER', voice: { ...row.voice, file: null } } },
+      ],
+    });
+    expect(out.map((item) => item.json)).toEqual([
+      {
+        url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/2/${row.voice.file.job_id}/voice.m4a?t=${'c'.repeat(32)}`,
+        caption: 'Video 12345678 v2 · giọng đọc lần 1/3 · Bíp ơi, tại sao nước sôi?',
+      },
+    ]);
+  });
+
+  test('asks to approve the voice, with the cost of one more take and buttons under 64 bytes', () => {
+    const [out] = runCode(file, 'Build message', { input: [{ json: row }] });
+    const text = out!.json.text as string;
+
+    expect(text).toContain('[AI Video] Giọng đọc sẵn sàng để nghe (A1b)');
+    expect(text).toContain('Video 12345678 v2 · lần đọc 1/3 · 2:05');
+    expect(text).toContain('Tiêu đề: Bíp ơi, tại sao nước sôi?');
+    expect(text).toMatch(/Đọc lại.*2817 CRD/);
+    expect(out!.json.retakeLabel).toBe('Đọc lại (~2817 CRD)');
+    expect(out!.json).toMatchObject({
+      approve: `a1b:A:${token}`,
+      retake: `a1b:G:${token}`,
+      reject: `a1b:R:${token}`,
+    });
+    for (const key of ['approve', 'retake', 'reject']) {
+      expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
+    }
+  });
+
+  test('says when no take is left, and reminds', () => {
+    const last = { ...row, kind: 'REMINDER', take: 3, voice: { ...row.voice, retake_cost: null } };
+    const [out] = runCode(file, 'Build message', { input: [{ json: last }] });
+    expect(out!.json.text).toContain('Nhắc: giọng đọc đang chờ duyệt (A1b)');
+    expect(out!.json.text).toContain('lần đọc 3/3');
+    expect(out!.json.retakeLabel).toBe('Đọc lại (hết lượt)');
   });
 });
 

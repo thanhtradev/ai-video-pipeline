@@ -150,6 +150,7 @@ function buildHandlers(
         rules,
         browserReady: chromeInstalled,
         blockSeconds: CHROME_BLOCK_SECONDS,
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
         runtimeRoot: config.runtimeRoot,
       }),
     ],
@@ -160,6 +161,7 @@ function buildHandlers(
         transcribe: config.whisper.model
           ? createWhisper({ bin: config.whisper.bin, model: config.whisper.model })
           : null,
+        loudness: createLoudnessNormalizer(config.ffmpegBin),
         blockSeconds: WHISPER_BLOCK_SECONDS,
       }),
     ],

@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import pino from 'pino';
 import { describe, expect, test } from 'vitest';
 import { createTimingHandler } from '../../src/handlers/timing.js';
+import { createLoudnessNormalizer } from '../../src/media/loudness.js';
 import { createVoiceBuilder } from '../../src/media/voice.js';
 import { createWhisper } from '../../src/media/whisper.js';
 import { writeCheckpoint } from '../../src/storage/checkpoint.js';
@@ -52,6 +53,7 @@ describe.runIf(MODEL)('timing (real ffmpeg + whisper.cpp)', () => {
       const handler = createTimingHandler({
         buildVoice: createVoiceBuilder(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         transcribe: createWhisper({ bin: process.env.WHISPER_BIN ?? 'whisper-cli', model: MODEL! }),
+        loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         blockSeconds: 3600,
       });
       const result = await handler({

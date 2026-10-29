@@ -115,4 +115,23 @@ describe('preview media', () => {
     expect(response.payload).toBe(SCRIPT_MD);
     expect((await app.inject({ method: 'GET', url: md(META_TOKEN) })).statusCode).toBe(404);
   });
+
+  test.each([
+    ['voice.m4a', 'timing.json'],
+    ['mix.m4a', 'agent-turns.json'],
+  ])('serves %s of its job as audio for its own token (D-071)', async (file, other) => {
+    const job = '5b0c7a8e-6666-4c2d-9e3f-000000000006';
+    const dir = join(root, 'videos', VIDEO, 'v1', 'jobs', job);
+    const audio = Buffer.from('fake m4a bytes');
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, file), audio);
+    await checkpoint(dir, [other, file], { media_token: 'f'.repeat(32) });
+    const url = (token: string) => `/media/${VIDEO}/1/${job}/${file}?t=${token}`;
+
+    const response = await app.inject({ method: 'GET', url: url('f'.repeat(32)) });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toBe('audio/mp4');
+    expect(response.rawPayload).toEqual(audio);
+    expect((await app.inject({ method: 'GET', url: url(SCRIPT_TOKEN) })).statusCode).toBe(404);
+  });
 });
