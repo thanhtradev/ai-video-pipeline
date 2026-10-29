@@ -57,6 +57,14 @@ const EPISODE_RENDER_PROFILE = fileURLToPath(
   new URL('../../ops/claude/episode-render.sb', import.meta.url),
 );
 
+/** Render tunables for the sandboxed Remotion scripts (D-075). */
+function renderEnv(config: Config): Record<string, string> {
+  return {
+    REMOTION_GL: config.render.gl,
+    RENDER_CONCURRENCY: String(config.render.concurrency),
+  };
+}
+
 // Step name -> handler. Phase 2d adds qa, final render, archive.
 /** Google Drive through rclone when configured (D-063), else Nextcloud WebDAV, else none. */
 function archiveTarget(config: Config) {
@@ -95,7 +103,11 @@ function buildHandlers(
     detectGaps: createGapDetector(config.ffmpegBin),
   });
   const renderEpisode = createRenderEpisodeHandler({
-    render: createSandboxedEpisodeRenderer(EPISODE_RENDER_PROFILE, config.runtimeRoot),
+    render: createSandboxedEpisodeRenderer(
+      EPISODE_RENDER_PROFILE,
+      config.runtimeRoot,
+      renderEnv(config),
+    ),
     loudness: createLoudnessNormalizer(config.ffmpegBin),
     probe,
     browserReady: chromeInstalled,
@@ -140,6 +152,7 @@ function buildHandlers(
         gates: createGateRunner({
           profile: EPISODE_RENDER_PROFILE,
           runtimeRoot: config.runtimeRoot,
+          env: renderEnv(config),
         }),
         // Values the agent's files must never contain.
         secrets: [
@@ -159,7 +172,11 @@ function buildHandlers(
       createTimingHandler({
         buildVoice: createVoiceBuilder(config.ffmpegBin),
         transcribe: config.whisper.model
-          ? createWhisper({ bin: config.whisper.bin, model: config.whisper.model })
+          ? createWhisper({
+              bin: config.whisper.bin,
+              model: config.whisper.model,
+              threads: config.whisper.threads,
+            })
           : null,
         loudness: createLoudnessNormalizer(config.ffmpegBin),
         blockSeconds: WHISPER_BLOCK_SECONDS,

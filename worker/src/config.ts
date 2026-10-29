@@ -82,6 +82,10 @@ const envSchema = z
     // whisper.cpp word timing for episodes (timing step). Unset model: timing jobs wait BLOCKED.
     WHISPER_BIN: z.string().min(1).default('whisper-cli'),
     WHISPER_MODEL: z.string().refine(isAbsolute, 'must be an absolute path').optional(),
+    // CPU tunables (D-075). Mac defaults; a CPU-only Linux worker uses swangle and fewer threads.
+    WHISPER_THREADS: z.coerce.number().int().min(1).max(64).default(8),
+    REMOTION_GL: z.enum(['angle', 'swangle', 'swiftshader', 'egl', 'angle-egl']).default('angle'),
+    RENDER_CONCURRENCY: z.coerce.number().int().min(1).max(32).default(8),
   })
   .refine((env) => env.HEARTBEAT_SECONDS * 2 <= env.LEASE_SECONDS, {
     path: ['HEARTBEAT_SECONDS'],
@@ -129,7 +133,9 @@ export interface Config {
   ffprobeBin: string;
   ffmpegBin: string;
   musicLibraryDir: string | undefined;
-  whisper: { bin: string; model: string | undefined };
+  whisper: { bin: string; model: string | undefined; threads: number };
+  /** Chrome's GL backend and parallel frames for episode renders (D-075). */
+  render: { gl: string; concurrency: number };
 }
 
 /** Validates the environment at startup; errors name the variables but never their values. */
@@ -192,6 +198,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     ffprobeBin: e.FFPROBE_BIN,
     ffmpegBin: e.FFMPEG_BIN,
     musicLibraryDir: e.MUSIC_LIBRARY_DIR,
-    whisper: { bin: e.WHISPER_BIN, model: e.WHISPER_MODEL },
+    whisper: { bin: e.WHISPER_BIN, model: e.WHISPER_MODEL, threads: e.WHISPER_THREADS },
+    render: { gl: e.REMOTION_GL, concurrency: e.RENDER_CONCURRENCY },
   };
 }

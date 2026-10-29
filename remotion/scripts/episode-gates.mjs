@@ -40,7 +40,8 @@ const QA_CHUNK = 20;
 /** Must match src/Root.tsx: board shots per page, QA sampling step. */
 const BOARD_PER = 12;
 const QA_EVERY = 10;
-const CHROMIUM = { gl: 'angle' };
+// The worker's GL backend (D-075): ANGLE on the Macs, swangle on a CPU-only Linux.
+const CHROMIUM = { gl: process.env.REMOTION_GL || 'angle' };
 
 const tail = (text) => String(text ?? '').slice(-OUTPUT_TAIL);
 const run = (args) =>

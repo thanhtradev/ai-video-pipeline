@@ -13,6 +13,7 @@ Never put credentials in this file.
 | NAS | **Interim:** LXC 106 `lxc-nextcloud` is treated as the NAS until a dedicated NAS is bought (user, 2026-10-23, D-033) |
 | Worker 1 | Mac mini M4 — Remotion rendering, heavy tasks |
 | Worker 2 | MacBook Pro M1 — audio, subtitles, QA, light tasks; **offline for now, not in tailnet** (D-034) |
+| Worker 3 | HP ProDesk 400 G7, Core i5-10500, 16 GB RAM, no discrete GPU (user, 2026-10-29); Ubuntu VM on Proxmox, worker id `hp-400-g7` (D-075). **Not set up yet** (U-23) |
 | Network | Tailscale in use across the homelab |
 | Source control | Private GitHub repositories; manual production deploys |
 | Notifications/approval | Telegram Bot |
@@ -75,6 +76,7 @@ Never put credentials in this file.
 | R-14 | n8n's Redis credential defaults to db 0; the worker reads db 1 | Jobs stay `QUEUED` silently (happened once on 2026-10-24; fixed by setting db 1) | Runbook warning (`ops/README.md` §5); Phase 2: alert on jobs `QUEUED` longer than a threshold |
 | R-06 | Mac mini has **~31 GiB free** | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
 | R-07 | MacBook Pro M1 offline / not in tailnet (D-034) | Single worker: no redundancy; render and light jobs compete on the Mac mini | Accepted for now; concurrency limits set for one machine; join M1 later (U-17) |
+| R-15 | Two workers share one Claude Max plan (D-075, U-14) | Usage limits are hit sooner; script and episode-code jobs wait BLOCKED (`CLAUDE_BLOCK_SECONDS`), never switch model | Watch both worker logs for usage-limit blocks in the first days |
 | R-08 | MariaDB is installed (data dir `/mnt/data/db/mysql`) but inactive; not used by the project (D-035); Nextcloud also uses PostgreSQL (S-12), so nothing depends on MariaDB | None for the pipeline | Optional cleanup: uninstall + remove data only after user approval and a backup |
 
 ## 4. Still unknown [UNKNOWN]
@@ -93,6 +95,7 @@ Never put credentials in this file.
 | U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) and the brief form (WF-01) | Telegram can only deliver button presses to a public HTTPS webhook |
 | U-22 | Google Drive archive (D-063): Google One plan and free space of the owner's account, rclone version on the Mac mini, remote name and root folder | Personal Drive has 15 GB free; an archived episode is about 150 MB. Recorded when the owner runs `ops/final-delivery.md` §2 |
 | U-15 | Canonical timezone for reports/retention | |
+| U-23 | HP worker (`hp-400-g7`, D-075): VM LAN and Tailscale addresses, Ubuntu/Node/ffmpeg/whisper/rclone versions, whether AppArmor blocks bwrap, disk size, render and whisper time per episode on CPU | Recorded while running `ops/linux-worker.md` |
 | U-17 | MacBook Pro M1: tailnet name, macOS, RAM, free SSD, tools | Deferred until it joins (D-034) |
 
 Resolved by survey: U-01 (S-04, S-05), U-02 (S-02), U-06 for Mac mini (S-10), U-16 (S-06).

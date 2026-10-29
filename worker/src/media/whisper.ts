@@ -8,12 +8,14 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const WHISPER_TIMEOUT_MS = 30 * 60 * 1000;
 const MAX_BUFFER = 16 * 1024 * 1024;
-const THREADS = 8;
+const DEFAULT_THREADS = 8;
 
 export interface WhisperOptions {
   bin: string;
   /** ggml model file, e.g. ggml-large-v3-turbo.bin. */
   model: string;
+  /** CPU threads (WHISPER_THREADS); 8 when unset. */
+  threads?: number;
 }
 
 /** Transcribes a 16 kHz WAV and returns the raw JSON bytes (they may hold invalid UTF-8). */
@@ -44,7 +46,7 @@ export function whisperArgs(
     '1',
     '-sow',
     '-t',
-    String(THREADS),
+    String(options.threads ?? DEFAULT_THREADS),
     '-np',
   ];
 }

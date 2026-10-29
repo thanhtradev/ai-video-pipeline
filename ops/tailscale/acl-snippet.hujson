@@ -7,12 +7,15 @@
     "macmini": "100.71.214.125",
     "lxc-utils": "100.85.20.21",
     "lxc-nextcloud": "100.120.60.20",
+    // Linux worker (D-075, ops/linux-worker.md §8), once it has joined the tailnet:
+    // "hp-400-g7": "<VM tailscale IP>",
   },
   "acls": [
     // Worker -> interim NAS (Nextcloud WebDAV, D-036).
     { "action": "accept", "src": ["macmini"], "dst": ["lxc-nextcloud:8080"] },
     // n8n and Uptime Kuma (LXC 104) -> worker API (/health, signed endpoints).
     { "action": "accept", "src": ["lxc-utils"], "dst": ["macmini:8787"] },
+    // { "action": "accept", "src": ["lxc-utils"], "dst": ["hp-400-g7:8787"] },
     // Your personal devices: list them explicitly instead of allow-all, e.g.
     // { "action": "accept", "src": ["<your-laptop>", "<your-phone>"], "dst": ["*:*"] },
   ],

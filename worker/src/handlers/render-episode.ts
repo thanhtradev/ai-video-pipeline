@@ -50,12 +50,14 @@ export type EpisodeRenderer = (
 export function createSandboxedEpisodeRenderer(
   profile: string,
   runtimeRoot: string,
+  env?: Readonly<Record<string, string>>,
 ): EpisodeRenderer {
   return (ws, output, scale, signal) =>
     runSandboxedNode({
       profile,
       ws,
       runtimeRoot,
+      ...(env ? { env } : {}),
       script: RENDER_SCRIPT,
       args: [ws, output, String(scale)],
       timeoutMs: RENDER_TIMEOUT_MS,
