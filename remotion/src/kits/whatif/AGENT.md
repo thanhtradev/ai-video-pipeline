@@ -26,9 +26,12 @@
 - Voice: one `<Html5Audio src={staticFile(VOICE)} trimBefore={l.src[0]} trimAfter={l.src[1]}>` per
   sentence inside `<Sequence from={l.from} durationInFrames={l.to - l.from} layout="none">`, as
   the reference episode's `audio.tsx` does. Never change its speed or pitch.
-- SFX, foley and ambience are synthesized by your `sfx/generate-sfx.mjs` (deterministic, seeded;
+- SFX and foley are synthesized by your `sfx/generate-sfx.mjs` (deterministic, seeded;
   reuse `kit/kits/whatif/sfx/ep1-sfx.mjs` functions and `kit/kits/whatif/sfx/sfx-lib.mjs`; loops through `loopify`). Play
   them with `staticFile(\`sfx/${name}.wav\`)`; every file you play must be produced by the script.
-- Mix approved by the owner: voice 1.0, SFX × 0.45, ambience beds × 0.56, beds ducked −12 dB and SFX
-  −15 dB near the voice (copy the ducking from the reference episode's `audio.tsx`). No music.
+- Mix approved by the owner: voice 1.0, SFX × 0.45, SFX ducked −15 dB near the voice (copy the
+  ducking from the reference episode's `audio.tsx`). No music.
+- No ambience beds and no room tone: nothing plays under a whole scene (the owner heard them as a
+  constant hiss). Between lines the episode is silent apart from event SFX and loops tied to an
+  action on screen (boiling, footsteps). The gates reject any `amb_*` or `*room_tone*` file.
 - Avoid pure high sines, long broadband noise, and birds (heard as hiss); low-pass distant voices.

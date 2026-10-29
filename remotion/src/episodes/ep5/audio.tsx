@@ -1,20 +1,18 @@
 import React from 'react';
 import { Html5Audio, interpolate, Sequence, staticFile } from 'remotion';
 import { clamp } from '../../kits/whatif/theme';
-import { Amb, Cue, ShotDef } from './kit';
-import { FREEZES, freezeK } from './freeze';
+import { Cue, ShotDef } from './kit';
+import { FREEZES } from './freeze';
 import { at, L, line, LINES, SHOTS, TOTAL, VOICE } from './time';
 
 /**
  * EP5 audio – every time is an ABSOLUTE frame. Voice: each sentence is its own <Html5Audio> cut from the source file with trimBefore/trimAfter
- * (= startFrom/endAt), no speed/pitch change. Same mix as the user-approved EP1: voice 1.0, SFX ×0.45, beds ×0.56;
- * under voice beds duck a further −12 dB, foley −15 dB; during holds beds/foley play at full level.
+ * (= startFrom/endAt), no speed/pitch change. Voice 1.0, SFX ×0.45, foley ducked −15 dB under the voice and at full
+ * level during holds. No ambience beds or room tone: they were filtered noise heard as constant hiss (2026-10-29).
  */
 export const SFX = (n: string) => `reference-audio/sfx/ep5/${n}.wav`;
 const VOICE_GAIN = 1.0;
 const FX_GAIN = 0.45;
-const BED_GAIN = 0.56;
-const DUCK_BED = Math.pow(10, -12 / 20);
 const DUCK_FX = Math.pow(10, -15 / 20);
 
 const NEAR = (() => {
@@ -27,78 +25,7 @@ const NEAR = (() => {
 const duck = (abs: number, depth: number) =>
   interpolate(NEAR[Math.max(0, Math.min(TOTAL, Math.round(abs)))], [0, 5], [depth, 1], clamp);
 
-const AMB: Record<Exclude<Amb, 'none'>, readonly (readonly [string, number])[]> = {
-  class: [
-    ['amb_class_soft_loop', 0.6],
-    ['amb_room_tone_loop', 0.35],
-  ],
-  home: [
-    ['amb_home_loop', 0.65],
-    ['amb_room_tone_loop', 0.3],
-  ],
-  yard: [
-    ['amb_yard_soft_loop', 0.6],
-    ['amb_room_tone_loop', 0.3],
-  ],
-  alley: [['amb_alley_loop', 0.65]],
-  dinner: [
-    ['amb_dinner_loop', 0.65],
-    ['amb_room_tone_loop', 0.3],
-  ],
-  street: [
-    ['amb_street_night_loop', 0.6],
-    ['amb_room_tone_loop', 0.3],
-  ],
-  er: [
-    ['amb_er_loop', 0.65],
-    ['amb_room_tone_loop', 0.3],
-  ],
-  ward: [
-    ['amb_ward_loop', 0.65],
-    ['amb_room_tone_loop', 0.35],
-  ],
-  rules: [
-    ['amb_room_tone_loop', 0.5],
-    ['amb_quiet_loop', 0.25],
-  ],
-  quiet: [
-    ['amb_quiet_loop', 0.55],
-    ['amb_room_tone_loop', 0.35],
-  ],
-};
-type Bed = { src: string; from: number; to: number; vol: number };
-const buildBeds = (defs: Record<string, ShotDef>): Bed[] => {
-  const runs: { amb: Amb; from: number; to: number }[] = [];
-  for (const s of SHOTS) {
-    const amb = defs[s.id]?.amb ?? 'none';
-    const last = runs[runs.length - 1];
-    if (last && last.amb === amb) last.to = s.to;
-    else runs.push({ amb, from: s.from, to: s.to });
-  }
-  // Each bed run is split around the time stops (beds are off during a stop): one <Audio> spanning a long zero-volume stretch
-  // is rendered silent by Remotion for the rest of its length (seen at 3.4–3.6 and 8.14–8.18).
-  const pieces = (from: number, to: number) => {
-    const out: { from: number; to: number }[] = [];
-    let a = from;
-    for (const z of FREEZES) {
-      if (z.to <= a || z.from >= to) continue;
-      if (z.from + 10 > a) out.push({ from: a, to: z.from + 10 });
-      a = Math.max(a, z.to - 2);
-    }
-    if (to > a) out.push({ from: a, to });
-    return out.filter((p) => p.to - p.from > 4);
-  };
-  return runs
-    .filter((r) => r.amb !== 'none')
-    .flatMap((r) =>
-      pieces(Math.max(0, r.from - 6), Math.min(TOTAL, r.to + 10)).flatMap((p) =>
-        AMB[r.amb as Exclude<Amb, 'none'>].map(([src, vol]) => ({ src, ...p, vol })),
-      ),
-    );
-};
-
 export const AudioLayer5: React.FC<{ defs: Record<string, ShotDef> }> = ({ defs }) => {
-  const beds = buildBeds(defs);
   const cues: { c: Cue; abs: number }[] = [];
   for (const s of SHOTS) {
     const fx = defs[s.id]?.fx;
@@ -159,28 +86,6 @@ export const AudioLayer5: React.FC<{ defs: Record<string, ShotDef> }> = ({ defs 
       >
         <Html5Audio src={staticFile(SFX('freeze_stem'))} volume={(f) => duck(f, DUCK_FX)} />
       </Sequence>
-      {beds.map((b, i) => (
-        <Sequence
-          key={`bed${i}`}
-          name={`🌫 ${b.src}`}
-          from={b.from}
-          durationInFrames={Math.max(1, b.to - b.from)}
-          layout="none"
-        >
-          <Html5Audio
-            src={staticFile(SFX(b.src))}
-            loop
-            volume={(f) =>
-              (1 - freezeK(b.from + f)) *
-              BED_GAIN *
-              b.vol *
-              duck(b.from + f, DUCK_BED) *
-              interpolate(f, [0, 12], [0, 1], clamp) *
-              interpolate(f, [b.to - b.from - 12, b.to - b.from], [1, 0], clamp)
-            }
-          />
-        </Sequence>
-      ))}
       {cues
         .filter(({ abs }) => abs >= 0 && abs < TOTAL)
         .map(({ c, abs }, i) => (
