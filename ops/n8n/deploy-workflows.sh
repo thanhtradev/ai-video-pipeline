@@ -197,7 +197,10 @@ report() {
   fi
   n8n_cli export:workflow --all | node -e '
     const ids = new Set(process.argv.slice(1));
-    const raw = require("fs").readFileSync(0, "utf8").trim();
+    // The n8n CLI prints warnings (e.g. the binaryData deprecation) on stdout before the JSON.
+    const out = require("fs").readFileSync(0, "utf8");
+    const start = out.search(/^\[/m);
+    const raw = start < 0 ? "" : out.slice(start).trim();
     if (!raw) { console.log("(export:workflow --all returned nothing; check the state in the n8n UI)"); process.exit(0); }
     for (const wf of JSON.parse(raw)) {
       if (!ids.has(wf.id)) continue;
