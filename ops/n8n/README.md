@@ -27,10 +27,11 @@ What one run does, in order:
    `REPLACE_WITH_WORKER_URL` filled in; fails if any other `REPLACE_WITH_` is left.
 2. `n8n export:workflow --backup` of **all** workflows into
    `/home/node/.n8n/backups/workflows/pre-deploy-<UTC time>/` inside the container.
-3. Copies the staged files to `/mnt/data/docker-utils/n8n_data/deploy/workflows/` (the bind mount,
-   `/home/node/.n8n/deploy/workflows/` in the container).
-4. `n8n import:workflow --separate`: ids are kept, so the existing workflow with the same id is
-   overwritten; n8n deactivates every imported workflow.
+3. Copies the staged files to `/opt/docker/n8n_data/deploy/workflows/<UTC time>/` inside LXC 104
+   (the bind mount, `/home/node/.n8n/…` in the container; infrastructure.md S-28), then checks
+   with `ls` that the container sees every file and stops before import if it does not.
+4. `n8n import:workflow --separate` of that folder: ids are kept, so the existing workflow with
+   the same id is overwritten; n8n deactivates every imported workflow.
 5. `n8n publish:workflow --id=…` for each staged workflow, in the fixed order WF-99, 08, 02, 06,
    05, 01, 12, 13, 14 (`PUBLISH_ORDER` in the script; a new workflow must be added there).
 6. `docker restart n8n` and polls `/healthz` for up to 60 s. CLI import/publish only write the
