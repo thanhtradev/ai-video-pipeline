@@ -35,6 +35,12 @@ const envSchema = z
     API_HOST: z.string().default('127.0.0.1'),
     API_PORT: z.coerce.number().int().min(1).max(65535).default(8787),
     API_CLIENT_KEYS: clientKeys,
+    // This worker's API as n8n reaches it (Tailscale), stored with each heartbeat so n8n fetches a
+    // video's media from the worker the video is pinned to (D-074).
+    WORKER_API_URL: z
+      .string()
+      .regex(/^https?:\/\/[^\s/]+$/, 'must be http(s)://host[:port] without a path')
+      .optional(),
     LEASE_SECONDS: z.coerce.number().int().min(10).default(60),
     HEARTBEAT_SECONDS: z.coerce.number().int().min(1).default(20),
     POLL_INTERVAL_MS: z.coerce.number().int().min(100).default(1000),
@@ -93,6 +99,8 @@ export interface Config {
   apiHost: string;
   apiPort: number;
   apiClientKeys: Record<string, string>;
+  /** Base URL n8n uses for this worker's API (D-074). */
+  apiUrl: string | undefined;
   leaseSeconds: number;
   heartbeatSeconds: number;
   pollIntervalMs: number;
@@ -144,6 +152,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     apiHost: e.API_HOST,
     apiPort: e.API_PORT,
     apiClientKeys: e.API_CLIENT_KEYS,
+    apiUrl: e.WORKER_API_URL,
     leaseSeconds: e.LEASE_SECONDS,
     heartbeatSeconds: e.HEARTBEAT_SECONDS,
     pollIntervalMs: e.POLL_INTERVAL_MS,

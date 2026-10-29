@@ -26,7 +26,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, take, title, voice FROM voice_approvals_due();",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, take, title, voice, video_worker_url(video_id) AS worker_url FROM voice_approvals_due();",
         "options": {}
       },
       "id": "6f1d6a10-0000-4000-8000-000000001502",
@@ -46,7 +46,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per new A1b request (reminders send no audio). The worker serves voice.m4a against the\n// timing job's media token (D-071). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.voice)?.file);\nreturn rows.map(({ json: row }) => {\n  const voice = parse(row.voice);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${voice.file.job_id}/voice.m4a?t=${voice.file.token}`,\n      caption: `🎙 #${shortId} v${row.version} · giọng đọc lần ${row.take}/${voice.max_takes}`,\n    },\n  };\n});"
+        "jsCode": "// One item per new A1b request (reminders send no audio). The worker serves voice.m4a against the\n// timing job's media token (D-071). Replace the base URL on import.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.voice)?.file);\nreturn rows.map(({ json: row }) => {\n  const voice = parse(row.voice);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${voice.file.job_id}/voice.m4a?t=${voice.file.token}`,\n      caption: `🎙 #${shortId} v${row.version} · giọng đọc lần ${row.take}/${voice.max_takes}`,\n    },\n  };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001503",
       "name": "Build audio",

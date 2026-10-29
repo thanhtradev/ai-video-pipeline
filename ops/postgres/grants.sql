@@ -29,5 +29,6 @@ GRANT EXECUTE ON FUNCTION
   cost_guard(uuid, text, numeric),
   cost_record(uuid, text, text, numeric, numeric),
   worker_heartbeat(text, text[]),
+  worker_heartbeat(text, text[], text),
   worker_idle(text)
 TO aivideo_worker;

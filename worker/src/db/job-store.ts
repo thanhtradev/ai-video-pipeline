@@ -33,7 +33,11 @@ export interface JobStore {
     reason: string,
     retryAfterSeconds: number,
   ) => Promise<string>;
-  workerHeartbeat: (workerId: string, streams: readonly string[]) => Promise<void>;
+  workerHeartbeat: (
+    workerId: string,
+    streams: readonly string[],
+    apiUrl: string | undefined,
+  ) => Promise<void>;
   /** Records that every queue this worker serves was empty (watchdog lost-message detection). */
   workerIdle: (workerId: string) => Promise<void>;
 }
@@ -108,8 +112,8 @@ export function createJobStore(pool: pg.Pool): JobStore {
       return result.rows[0]!.status;
     },
 
-    workerHeartbeat: async (workerId, streams) => {
-      await pool.query('SELECT worker_heartbeat($1, $2)', [workerId, streams]);
+    workerHeartbeat: async (workerId, streams, apiUrl) => {
+      await pool.query('SELECT worker_heartbeat($1, $2, $3)', [workerId, streams, apiUrl ?? null]);
     },
 
     workerIdle: async (workerId) => {

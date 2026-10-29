@@ -14,7 +14,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, cost, media FROM preview_approvals_due();",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, cost, media, video_worker_url(video_id) AS worker_url FROM preview_approvals_due();",
         "options": {}
       },
       "id": "6f1d6a10-0000-4000-8000-000000001302",
@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per new A2 request (reminders send no video). The worker serves the preview against the\n// qa_preview job's media token (D-057). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.media);\nreturn rows.map(({ json: row }) => {\n  const media = typeof row.media === 'string' ? JSON.parse(row.media) : row.media;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${media.job_id}/preview.mp4?t=${media.token}`,\n      caption: `👀 #${shortId} v${row.version} · preview 720p`,\n    },\n  };\n});"
+        "jsCode": "// One item per new A2 request (reminders send no video). The worker serves the preview against the\n// qa_preview job's media token (D-057). Replace the base URL on import.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.media);\nreturn rows.map(({ json: row }) => {\n  const media = typeof row.media === 'string' ? JSON.parse(row.media) : row.media;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${media.job_id}/preview.mp4?t=${media.token}`,\n      caption: `👀 #${shortId} v${row.version} · preview 720p`,\n    },\n  };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001303",
       "name": "Build video",

@@ -14,7 +14,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, metadata, report FROM final_due();",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, metadata, report, video_worker_url(video_id) AS worker_url FROM final_due();",
         "options": {}
       },
       "id": "6f1d6a10-0000-4000-8000-000000001402",
@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// The thumbnail of each new A3 request (reminders send none). The worker serves it against the\n// metadata job's media token (D-062). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.metadata);\nreturn rows.map(({ json: row }) => {\n  const meta = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${meta.job_id}/thumbnail.jpg?t=${meta.token}`,\n      caption: `🏷 #${shortId} v${row.version} · thumbnail (shot ${meta.thumbnail_shot})`,\n    },\n  };\n});"
+        "jsCode": "// The thumbnail of each new A3 request (reminders send none). The worker serves it against the\n// metadata job's media token (D-062). Replace the base URL on import.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.metadata);\nreturn rows.map(({ json: row }) => {\n  const meta = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${meta.job_id}/thumbnail.jpg?t=${meta.token}`,\n      caption: `🏷 #${shortId} v${row.version} · thumbnail (shot ${meta.thumbnail_shot})`,\n    },\n  };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001403",
       "name": "Build thumbnail",
@@ -68,7 +68,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// The finished video with each DONE row (D-073), sent before the done message. The bot talks to a\n// self-hosted Bot API server (uploads up to 2000 MB); the worker serves final.mp4 against the\n// qa_final job's media token. Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn $input\n  .all()\n  .filter((item) => item.json.kind === 'DONE' && parse(item.json.report)?.final)\n  .map(({ json: row }) => {\n    const { final } = parse(row.report);\n    return {\n      json: {\n        url: `${WORKER}/media/${row.video_id}/${row.version}/${final.job_id}/final.mp4?t=${final.token}`,\n        caption: `🎬 #${String(row.video_id).slice(0, 8)} v${row.version} · final 1080p`,\n      },\n    };\n  });"
+        "jsCode": "// The finished video with each DONE row (D-073), sent before the done message. The bot talks to a\n// self-hosted Bot API server (uploads up to 2000 MB); the worker serves final.mp4 against the\n// qa_final job's media token. Replace the base URL on import.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn $input\n  .all()\n  .filter((item) => item.json.kind === 'DONE' && parse(item.json.report)?.final)\n  .map(({ json: row }) => {\n    const { final } = parse(row.report);\n    return {\n      json: {\n        url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${final.job_id}/final.mp4?t=${final.token}`,\n        caption: `🎬 #${String(row.video_id).slice(0, 8)} v${row.version} · final 1080p`,\n      },\n    };\n  });"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001412",
       "name": "Build final",

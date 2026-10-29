@@ -10,6 +10,8 @@ const ERROR_BACKOFF_MS = 5_000;
 
 export interface WorkerLoopDeps extends RunnerDeps {
   streams: readonly string[];
+  /** Sent with each worker heartbeat so n8n can reach this worker (D-074). */
+  apiUrl?: string | undefined;
   pollIntervalMs: number;
   /** Liveness for the watchdog; runs on its own timer so long jobs do not look like outages. */
   workerHeartbeatMs?: number;
@@ -40,7 +42,7 @@ export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
 
   function sendWorkerHeartbeat(): void {
     deps.store
-      .workerHeartbeat(deps.workerId, deps.streams)
+      .workerHeartbeat(deps.workerId, deps.streams, deps.apiUrl)
       .catch((error: unknown) =>
         deps.logger.warn({ err: errorText(error) }, 'worker heartbeat failed'),
       );

@@ -20,7 +20,7 @@
 
 ## 3. Directory layout [PROPOSED; episodes implemented by D-062, see docs/episode-pipeline.md §10]
 
-`WORK_ROOT` on a worker Mac: `~/aivideo/work` (D-065, [CONFIRMED] Mac mini 2026-10-28). `ARCHIVE_ROOT`: Google Drive through rclone (D-063).
+`WORK_ROOT` on a worker Mac: `~/aivideo/work` (D-065, [CONFIRMED] Mac mini 2026-10-28). It is local to each worker, so every job of a video runs on the worker the video is pinned to (D-074). `ARCHIVE_ROOT`: Google Drive through rclone (D-063).
 
 ```
 <WORK_ROOT>/videos/{video_id}/v{n}/

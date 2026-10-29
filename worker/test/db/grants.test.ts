@@ -89,6 +89,17 @@ describe('worker role', () => {
     expect(started.rows).toHaveLength(1);
   });
 
+  test('can send a worker heartbeat with its API URL (D-074)', async () => {
+    await asRole('aivideo_worker', (client) =>
+      client.query(
+        `SELECT worker_heartbeat('mac-mini-m4', ARRAY['q:light'], 'http://100.71.214.125:8787')`,
+      ),
+    );
+    await asRole('aivideo_worker', (client) =>
+      client.query(`SELECT worker_heartbeat('mac-mini-m4', ARRAY['q:light'])`),
+    );
+  });
+
   test('can report the progress of its running job (P-017)', async () => {
     const result = await asRole('aivideo_worker', (client) =>
       client.query(`SELECT job_report_progress($1, 'mac-mini-m4', '{"stage":"x"}'::jsonb) AS ok`, [
