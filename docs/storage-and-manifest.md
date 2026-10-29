@@ -50,6 +50,7 @@ On NAS: `<ARCHIVE_ROOT>/{yyyy}/{mm}/{video_id}/v{n}/` — same layout, without `
 1. Freeze the version: generate `manifest.json` + `checksums.sha256` (SHA-256 of every file).
 2. Copy to the archive into a temp directory `…/v{n}.partial/` through the storage adapter (rclone to Google Drive per D-063; WebDAV for Nextcloud per D-036 as a fallback).
    WebDAV notes: create folders with `MKCOL`, upload with `PUT`, list file count/size with `PROPFIND`, rename with `MOVE`. Nextcloud does not compute SHA-256 server-side, so step 3 verifies by **downloading each file back and hashing it** on the worker.
+   rclone notes: each rclone call costs seconds (start-up, config, Drive API), so the upload is one `rclone copy --files-from-raw -` and step 3 reads sizes and Drive's SHA-256 from one `lsjson -R --hash-type sha256`; only files without a listed SHA-256 are hashed one by one (download-and-hash if needed).
 3. Verify on NAS: file count, total size, SHA-256 of each file matches `checksums.sha256`.
 4. Rename `.partial` → `v{n}` (atomic within the same share).
 5. Write `archive_record` (path, file_count, total_bytes, manifest checksum, verified_at) → `ARCHIVE_VERIFIED`.

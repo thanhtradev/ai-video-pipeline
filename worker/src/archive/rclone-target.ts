@@ -5,7 +5,9 @@ import type { ArchiveTarget } from './webdav-target.js';
 // Google Drive as the archive (D-063) through rclone: a remote created once by the owner with
 // `rclone config` (personal account, OAuth, scope drive.file so rclone sees only what it created).
 // The OAuth token lives in rclone's config file, never in this repo; the worker only runs rclone.
-// Uses lsjson, mkdir, copyto, rcat, hashsum and moveto; it never deletes anything remote.
+// Uses lsjson, mkdir, copy, copyto, rcat, hashsum and moveto; it never deletes anything remote.
+// Each rclone call costs seconds (start-up, config, Drive API), so uploads and the verification
+// listing are one call per archive, not per file.
 
 const SHA256 = /^[0-9a-f]{64}$/;
 /** rclone exit codes for "directory not found" and "file not found". */
@@ -58,6 +60,7 @@ interface LsEntry {
   Path: string;
   Size: number;
   IsDir?: boolean;
+  Hashes?: { sha256?: string };
 }
 
 export function createRcloneTarget(options: RcloneTargetOptions): ArchiveTarget {
@@ -92,14 +95,26 @@ export function createRcloneTarget(options: RcloneTargetOptions): ArchiveTarget 
     upload: async (localPath, remotePath) => {
       await run(['copyto', localPath, at(remotePath)]);
     },
+    uploadFiles: async (localDir, remoteDir, paths) => {
+      const list = paths.map((path) => `${path}\n`).join('');
+      await run(['copy', '--files-from-raw', '-', localDir, at(remoteDir)], list);
+    },
     putContent: async (remotePath, content) => {
       await run(['rcat', at(remotePath)], content);
     },
     list: async (remoteDir) => {
       const entries = JSON.parse(
-        await run(['lsjson', '-R', '--files-only', at(remoteDir)]),
+        await run(['lsjson', '-R', '--files-only', '--hash-type', 'sha256', at(remoteDir)]),
       ) as LsEntry[];
-      return entries.map((entry) => ({ path: entry.Path, bytes: entry.Size }));
+      // Drive may not have a SHA-256 yet for a fresh upload; those files go through hash().
+      return entries.map((entry) => {
+        const sha256 = entry.Hashes?.sha256 ?? '';
+        return {
+          path: entry.Path,
+          bytes: entry.Size,
+          ...(SHA256.test(sha256) ? { sha256 } : {}),
+        };
+      });
     },
     // Drive keeps a SHA-256 of every file; when it is not available yet, rclone downloads the file
     // and hashes it, which is what the Nextcloud target always did.
