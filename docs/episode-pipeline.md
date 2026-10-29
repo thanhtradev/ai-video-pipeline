@@ -266,7 +266,7 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 3. QA passed → `AWAITING_PREVIEW_APPROVAL` and an A2 request bound to the SHA-256 of the render's
    outputs. WF-13 fetches `preview.mp4` from the worker (`GET /media/<video>/<version>/<qa job>/
    preview.mp4?t=<media token>`, the token from the QA checkpoint, like D-055) and sends it as a
-   Telegram video (bots may upload up to 50 MB; a 3-minute 720p preview is about 25 MB), then the
+   Telegram video (through the self-hosted Bot API server, uploads up to 2000 MB, D-073), then the
    message with the QA warnings, cost so far and **Approve** / **Reject**.
 
 | Telegram | Effect |
@@ -275,8 +275,7 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a revision of the code as for storyboard notes, sharing its rounds; storyboard, preview, QA and A2 follow again |
 
-What follows the final render is §10. The final file is not sent to Telegram (a 1080p episode
-exceeds the 50 MB bot upload limit).
+What follows the final render is §10. The final file reaches Telegram with the done message (§10.3).
 
 ## 10. Final QA, metadata (A3), archive (D-062, D-063)
 
@@ -314,7 +313,10 @@ videos/<id>/v<n>/
    Remote: `<ARCHIVE_RCLONE_REMOTE>/<yyyy>/<mm>/<video_id>/v<n>`. No archive configured → the job
    waits `BLOCKED`. Verified → `archive_record`, `ARCHIVE_VERIFIED`, and WF-14 sends the final message
    (archive path, file count, size, cost by currency, agent minutes) with **Xóa bản trên Mac** /
-   **Giữ lại** (CLEANUP, 7 days).
+   **Giữ lại** (CLEANUP, 7 days). Just before it, WF-14 sends `final.mp4` as a Telegram video
+   (D-073, migration `20261109000100`): the DONE row's `report.final` holds the `qa_final` job id and
+   media token, and the worker serves the file like the A2 preview. A failed fetch or upload is
+   skipped, so the done message and its buttons still go out.
 4. Only the **owner** can press Xóa. The `cleanup` job (q:heavy) re-verifies the remote copy against
    the local `checksums.sha256` and the archive record, then deletes the version folder on the Mac
    except its own job folder; WF-14 reports the space freed. Giữ lại or no answer keeps the copy.

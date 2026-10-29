@@ -6,7 +6,8 @@ import { buildApi } from '../../src/api.js';
 import { createMemoryNonceStore } from '../../src/security/hmac.js';
 
 // GET /media/… serves an episode preview to WF-13 against the media token of its qa_preview job
-// (D-057), only for files the checked render lists.
+// (D-057), and final.mp4 to WF-14 against its qa_final job (D-073), only for files the checked
+// render lists.
 
 const VIDEO = '5b0c7a8e-1111-4c2d-9e3f-000000000001';
 const QA = '5b0c7a8e-2222-4c2d-9e3f-000000000002';
@@ -88,13 +89,42 @@ describe('preview media', () => {
     ['a wrong token', url('preview.mp4', 'c'.repeat(32))],
     ['no token', `/media/${VIDEO}/1/${QA}/preview.mp4`],
     ['a file the render does not list', url('vi.srt')],
-    ['a file type that is never served', url('final.mp4')],
+    ['a file type that is never served', url('checkpoint.json')],
+    ['a file the render does not list, of a served type', url('final.mp4')],
     ['the render job instead of the QA job', url('preview.mp4', TOKEN, RENDER)],
     ['a traversal', `/media/${VIDEO}/1/..%2F..%2F${QA}/preview.mp4?t=${TOKEN}`],
   ])('answers 404 for %s', async (_name, path) => {
     const response = await app.inject({ method: 'GET', url: path });
     expect(response.statusCode).toBe(404);
     expect(response.json()).toEqual({ success: false, error: 'not found' });
+  });
+
+  test('serves final.mp4 of a final render for its qa_final token (D-073)', async () => {
+    const jobs = join(root, 'videos', VIDEO, 'v1', 'jobs');
+    const [qaFinal, final] = [
+      '5b0c7a8e-7777-4c2d-9e3f-000000000007',
+      '5b0c7a8e-8888-4c2d-9e3f-000000000008',
+    ];
+    const finalToken = 'f'.repeat(32);
+    await mkdir(join(jobs, final), { recursive: true });
+    await writeFile(join(jobs, final, 'final.mp4'), MP4);
+    await checkpoint(join(jobs, final), ['final.mp4', 'vi.srt'], {});
+    await mkdir(join(jobs, qaFinal), { recursive: true });
+    await checkpoint(join(jobs, qaFinal), ['qa-report.json'], {
+      media_token: finalToken,
+      render_job_id: final,
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: url('final.mp4', finalToken, qaFinal),
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toBe('video/mp4');
+    expect(response.rawPayload).toEqual(MP4);
+    expect(
+      (await app.inject({ method: 'GET', url: url('final.mp4', TOKEN, qaFinal) })).statusCode,
+    ).toBe(404);
   });
 
   test('serves the thumbnail of a metadata job for its own token (D-062)', async () => {
