@@ -46,7 +46,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per new A1b request (reminders send no audio). The worker serves voice.m4a against the\n// timing job's media token (D-071). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.voice)?.file);\nreturn rows.map(({ json: row }) => {\n  const voice = parse(row.voice);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${voice.file.job_id}/voice.m4a?t=${voice.file.token}`,\n      caption: `Video ${shortId} v${row.version} · giọng đọc lần ${row.take}/${voice.max_takes} · ${row.title ?? '?'}`.slice(0, 1024),\n    },\n  };\n});"
+        "jsCode": "// One item per new A1b request (reminders send no audio). The worker serves voice.m4a against the\n// timing job's media token (D-071). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.voice)?.file);\nreturn rows.map(({ json: row }) => {\n  const voice = parse(row.voice);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${voice.file.job_id}/voice.m4a?t=${voice.file.token}`,\n      caption: `🎙 #${shortId} v${row.version} · giọng đọc lần ${row.take}/${voice.max_takes}`,\n    },\n  };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001503",
       "name": "Build audio",
@@ -107,7 +107,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One message with buttons per row from voice_approvals_due(), after its audio. Telegram text is\n// Vietnamese (D-061). Callback data: a1b:<A|G|R>:<32-hex token>. Đọc lại pays for one more TTS\n// take; its label shows the estimate (none after the last take: the video then needs a decision).\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const voice = parse(row.voice) ?? {};\n  const cost = voice.retake_cost ? `${voice.retake_cost.amount} ${voice.retake_cost.currency}` : null;\n  const header = row.kind === 'REMINDER'\n    ? '[AI Video] Nhắc: giọng đọc đang chờ duyệt (A1b)'\n    : '[AI Video] Giọng đọc sẵn sàng để nghe (A1b)';\n  const length = typeof voice.seconds === 'number' ? ` · ${clock(voice.seconds)}` : '';\n  const text = [\n    header,\n    `Video ${shortId} v${row.version} · lần đọc ${row.take}/${voice.max_takes ?? '?'}${length}`,\n    `Tiêu đề: ${row.title ?? '?'}`,\n    '',\n    'Nghe file giọng đọc ở trên. Bấm Duyệt để Claude viết code tập (storyboard đến sau).',\n    cost\n      ? `Đọc lại: TTS đọc lại toàn bộ, tốn thêm khoảng ${cost}.`\n      : 'Đã hết lượt đọc lại; bấm Đọc lại thì video chuyển sang chờ bạn quyết định.',\n    `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n  ].join('\\n');\n  return {\n    json: {\n      text,\n      retakeLabel: cost ? `Đọc lại (~${cost})` : 'Đọc lại (hết lượt)',\n      approve: `a1b:A:${row.token}`,\n      retake: `a1b:G:${row.token}`,\n      reject: `a1b:R:${row.token}`,\n    },\n  };\n});"
+        "jsCode": "// One message with buttons per row from voice_approvals_due(), after its audio (Vietnamese, D-061).\n// Callback data: a1b:<A|G|R>:<32-hex token>. Đọc lại pays for one more TTS take; its label shows the\n// estimate (none after the last take: the video then needs a decision).\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const voice = parse(row.voice) ?? {};\n  const cost = voice.retake_cost ? `${voice.retake_cost.amount} ${voice.retake_cost.currency}` : null;\n  const reminder = row.kind === 'REMINDER';\n  const length = typeof voice.seconds === 'number' ? ` · ${clock(voice.seconds)}` : '';\n  const html = [\n    `<b>${reminder ? '⏰ Nhắc: ' : ''}🎙 Duyệt giọng đọc</b> · bước 2/5 · A1b`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · lần ${row.take}/${voice.max_takes ?? '?'}${length} · Duyệt → Claude viết code tập`,\n    cost ? `Đọc lại: đọc lại toàn bộ, ≈ ${esc(cost)}` : 'Hết lượt đọc lại: bấm Đọc lại thì video chờ bạn quyết định',\n    `⏰ Hạn ${vnTime(row.expires_at)}`,\n  ].join('\\n');\n  return {\n    json: {\n      html,\n      retakeLabel: cost ? `Đọc lại (~${cost})` : 'Đọc lại (hết lượt)',\n      approve: `a1b:A:${row.token}`,\n      retake: `a1b:G:${row.token}`,\n      reject: `a1b:R:${row.token}`,\n    },\n  };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001506",
       "name": "Build message",
@@ -121,7 +121,7 @@
     {
       "parameters": {
         "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
-        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "text": "={{ $json.html }}",
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -153,7 +153,8 @@
         },
         "additionalFields": {
           "parse_mode": "HTML",
-          "appendAttribution": false
+          "appendAttribution": false,
+          "disable_web_page_preview": true
         }
       },
       "id": "6f1d6a10-0000-4000-8000-000000001507",

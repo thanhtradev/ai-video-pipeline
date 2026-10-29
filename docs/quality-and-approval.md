@@ -59,3 +59,15 @@ Runs on the `q:light` stream (`qa` job; Mac mini M4 while MacBook Pro M1 is offl
 Every message includes a short `video_id` + version for cross-reference. No secrets or sensitive paths.
 Anti-spam: group repeated alerts (same cause) within a time window.
 Telegram messages are in Vietnamese (D-061): requests, replies, alerts and button labels. Video ids, step and status names (`episode_code`, `NEEDS_DECISION`), commands and error details from the worker or SQL stay as they are.
+Format (D-072): an approval step is its media (one-line caption) followed by one message with the buttons:
+
+```
+📝 Duyệt kịch bản · bước 1/5 · A1
+«Tiêu đề»
+#679cd22f v1 · ~6.6 phút · 9 hồi · 83 shot · 126 câu
+TTS tối đa 462 credit ITERA (6251 ký tự)
+▸ preview (collapsed)
+⏰ Hạn 14:30 30/10 · ↩️ Reply tin này để góp ý sửa
+```
+
+Times are Vietnam time (UTC+7). The token for replies is a hidden link at the start of the message. After a decision the message shrinks to its first 3 lines plus `✔️ <outcome> · HH:MM DD/MM`.

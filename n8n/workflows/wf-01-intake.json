@@ -85,7 +85,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const row = $input.first().json;\nconst shortId = String(row.video_id).slice(0, 8);\nconst verb = row.created ? 'Đã nhận video mới' : 'Bỏ qua form gửi trùng';\nreturn [{ json: { text: `[AI Video] ${verb}\\nVideo ${shortId} v1: đang viết kịch bản` } }];"
+        "jsCode": "const row = $input.first().json;\nconst shortId = String(row.video_id).slice(0, 8);\nconst verb = row.created ? 'Đã nhận video mới' : 'Bỏ qua form gửi trùng';\nreturn [{ json: { text: `📥 ${verb}\\n#${shortId} v1 · đang viết kịch bản` } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000104",
       "name": "Build status",

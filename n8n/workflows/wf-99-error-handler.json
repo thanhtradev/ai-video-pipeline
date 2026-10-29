@@ -13,7 +13,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Keep alerts short and free of payloads: only names, ids and a truncated message.\nconst data = $input.first().json;\nconst workflowName = data.workflow?.name ?? 'unknown workflow';\nconst workflowId = String(data.workflow?.id ?? 'unknown');\nconst executionId = String(data.execution?.id ?? 'n/a');\nconst node = data.execution?.lastNodeExecuted ?? 'n/a';\nconst message = String(data.execution?.error?.message ?? data.trigger?.error?.message ?? 'unknown error').slice(0, 300);\n\nreturn [{\n  json: {\n    workflowId,\n    detail: JSON.stringify({ workflow: workflowName, executionId, node, message }),\n    text: `[AI Video] Lỗi workflow\\n${workflowName}\\nNode: ${node}\\nLần chạy: ${executionId}\\n${message}`,\n  },\n}];"
+        "jsCode": "// Keep alerts short and free of payloads: only names, ids and a truncated message.\nconst data = $input.first().json;\nconst workflowName = data.workflow?.name ?? 'unknown workflow';\nconst workflowId = String(data.workflow?.id ?? 'unknown');\nconst executionId = String(data.execution?.id ?? 'n/a');\nconst node = data.execution?.lastNodeExecuted ?? 'n/a';\nconst message = String(data.execution?.error?.message ?? data.trigger?.error?.message ?? 'unknown error').slice(0, 300);\n\nreturn [{\n  json: {\n    workflowId,\n    detail: JSON.stringify({ workflow: workflowName, executionId, node, message }),\n    text: `⚠️ Lỗi workflow: ${workflowName}\\nNode ${node} · lần chạy ${executionId}\\n${message}`,\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000009902",
       "name": "Summarize error",
