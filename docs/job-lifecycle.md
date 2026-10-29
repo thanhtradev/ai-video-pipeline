@@ -25,7 +25,7 @@ BRIEF_SUBMITTED → SCRIPTING → AWAITING_SCRIPT_APPROVAL ──reject/revise�
 Blocking states (from any step; return to the previous step once resolved):
   NEEDS_DECISION   — cost over threshold, QA failure, unclear license, provider/model change
   BLOCKED_PROVIDER — quota exhausted / provider error
-Terminal: COMPLETED · FAILED (retries exhausted, user confirmed stop) · CANCELLED
+Terminal: COMPLETED · FAILED (retries exhausted, user confirmed stop) · CANCELLED (Reject button, or `/stop` on Telegram, D-067)
 ```
 
 ## 3. State machine — job
@@ -76,6 +76,10 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 `NEEDS_DECISION` after a permanent failure: an approver sends `/retry <video id prefix>` on Telegram
 once the cause is fixed. `telegram_retry()` gives the failed job one more attempt and resumes the video
 where it was; the step's checkpoints decide what is redone (D-056).
+
+`/stop [video id prefix]` (D-067) ends a video at any point after a **Dừng** confirmation:
+`telegram_stop_decide()` cancels its unfinished jobs and sets the version `CANCELLED`. A running job stops at its next heartbeat (`job_heartbeat()`
+returns `CANCELLED`, the runner aborts the handler); the workspace is kept.
 
 **Never** retry with a different provider/model. Every attempt of a paid step goes through the cost guard again.
 
