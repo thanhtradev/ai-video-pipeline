@@ -12,6 +12,7 @@ Overview: `README.md`. Architecture: `docs/architecture.md`. Decisions: `docs/de
 | Log messages, error messages, DB enum values | **English only** |
 | Telegram messages sent by the bot (requests, replies, alerts, button labels) | **Vietnamese** (D-061); ids, step/status names and command names stay as they are |
 | Video scripts, storyboards, voice-over text, subtitles, on-screen text, video titles/descriptions/tags, and other video resources | **Vietnamese** |
+| File and folder names, asset paths in code (`staticFile(...)`, `voice` fields), archive paths | **ASCII only** (checked by `worker/test/unit/ascii-paths.test.ts`) |
 
 - Vietnamese is allowed **only** for content that ends up in, or directly describes, a video (script, narration, subtitles, metadata for publishing).
 - Prompts sent to AI providers: instructions in English; quoted video content may be Vietnamese.

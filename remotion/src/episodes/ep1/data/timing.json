@@ -1,7 +1,7 @@
 {
  "_doc": "SINH TỰ ĐỘNG bởi scripts/tiktok2/ep1/build_timing.py – không sửa tay; chỉnh ở timing-overrides.json.",
  "fps": 30,
- "voice": "kênh tiktok 2/Voice/ep1/ep1 tiktok2.mp3",
+ "voice": "reference-audio/voice/ep1/ep1-tiktok2.mp3",
  "totalFrames": 12698,
  "totalSec": 423.267,
  "endCardFrom": 12653,
