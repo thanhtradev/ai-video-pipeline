@@ -4,6 +4,7 @@ import type { ClaudeRunner } from '../claude/claude-cli.js';
 import { rulesPrompt, type ChannelRules, type RulesSource } from '../rules/channel-rules.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
 import { writeAtomic } from './script.js';
+import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
 
 // `script` step for a 16:9 TikTok 2 channel episode (D-050, docs/episode-pipeline.md §3). Hybrid
 // brief: from a topic Claude writes the episode; from the user's full brief it only restructures it
@@ -22,9 +23,13 @@ const EPISODE_SCRIPT_TIMEOUT_MS = 30 * 60 * 1000;
 const PREVIEW_MAX_CHARS = 3000;
 const PREVIEW_LINE_CHARS = 160;
 
+const slug = z.string().regex(/^[a-z0-9-]{2,40}$/);
 const briefSchema = z.object({
   format: z.literal('episode'),
   topic: z.string().min(3).max(500),
+  /** Kit and character set (D-066); the catalog defaults when absent. */
+  kit: slug.optional(),
+  character_set: slug.optional(),
   duration_minutes: z.number().int().min(2).max(12).optional(),
   full_brief: z.string().min(1).max(30_000).optional(),
   notes: z.string().max(2000).optional(),
@@ -146,15 +151,17 @@ export function checkEpisodeScript(script: EpisodeScript, brief: Brief): string[
   return problems;
 }
 
-const SYSTEM_PROMPT = [
-  'You are the head writer of a Vietnamese animated YouTube channel ("Kênh TikTok 2").',
-  'Each 16:9 episode asks "Nếu bạn…?" (what if you…) and follows "bạn", a teenager in an orange',
-  'hoodie, through the rules, the fun, the cost and an emotional climax of that power, in a',
-  'code-drawn 2D cartoon: glossy black round-headed characters with only two white oval eyes,',
-  'muted Vietnamese settings, parallax camera, burned-in captions, synthesized SFX, no music.',
-  'All video content (narration, character looks, shot descriptions, on-screen text) is in',
-  'Vietnamese. Reply only with the JSON object required by the schema.',
-].join(' ');
+/** The head writer of the selected channel: its kit and character set describe it (D-066). */
+function systemPrompt(channel: string): string {
+  return [
+    'You are the head writer of a Vietnamese animated YouTube channel.',
+    channel,
+    'Each episode follows its hero through the rules, the fun, the cost and an emotional climax',
+    'of its question.',
+    'All video content (narration, character looks, shot descriptions, on-screen text) is in',
+    'Vietnamese. Reply only with the JSON object required by the schema.',
+  ].join(' ');
+}
 
 const SHARED_RULES = [
   'Rules for every field:',
@@ -169,8 +176,8 @@ const SHARED_RULES = [
   '  TEXT "…" in Vietnamese; sfx lists sounds and foley; hold_seconds only where the picture',
   '  needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting',
   '  (montages, countdowns), where pauses between sentences are kept to the minimum.',
-  '- characters: name and look (hoodie colour, hair, props); the main character is BẠN in an',
-  '  orange hoodie. effects: the episode-specific visual effects and signature sounds.',
+  '- characters: name and look (hoodie colour, hair, props); the main character is the one the',
+  '  channel description names. effects: the episode-specific visual effects and signature sounds.',
   '  notes: pacing hints and checks for the animator. Both in Vietnamese Markdown.',
 ];
 
@@ -188,8 +195,8 @@ function buildPrompt(brief: Brief, rules: ChannelRules): string {
         brief.duration_minutes
           ? `- Length: about ${brief.duration_minutes} minutes, i.e. about ${Math.round(brief.duration_minutes * 60 * WORDS_PER_SECOND)} spoken words.`
           : '- Length: about 6 minutes, i.e. about 1150 spoken words.',
-        '- Open on the "Nếu bạn…?" question; end with a question to the viewers for the comments and',
-        '  "Một chữ nếu… một cuộc đời khác."',
+        "- Open on the channel's hook and close with its ending sentence, as the channel description",
+        '  says.',
         '- Only state facts ("Chuyện này là thật: …") that are well established; never invent',
         '  statistics, names or quotes. Nothing frightening or graphic on screen.',
       ];
@@ -293,9 +300,10 @@ export function createEpisodeScriptHandler(deps: EpisodeScriptHandlerDeps): JobH
 
     await progress({ stage: 'writing the script' });
     const rules = await deps.rules();
+    const channel = await channelDescription(selectionOf(brief));
     const reply = await deps.claude({
       prompt: buildPrompt(brief, rules),
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: systemPrompt(channel),
       jsonSchema: EPISODE_JSON_SCHEMA,
       cwd: workDir,
       signal,

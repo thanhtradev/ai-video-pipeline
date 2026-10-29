@@ -46,7 +46,8 @@ When a real value is surveyed, update `docs/infrastructure.md` with the date and
 
 1. Work on a dedicated branch; changes go through a PR on the private GitHub repo. Never push directly to `main`.
 2. Write tests first (TDD), run tests, review before opening a PR.
-3. n8n workflows are versioned as JSON exports in the repo; the user imports them manually.
+3. n8n workflows are versioned as JSON exports in the repo; the user imports and publishes them with
+   `ops/n8n/deploy-workflows.sh` (never an agent).
 4. Database migrations are versioned files with a rollback plan; never run them against production from an agent.
 5. Commits follow Conventional Commits: `feat|fix|refactor|docs|test|chore|perf|ci: ...`.
 6. Before committing: `npm run format:check && npm run typecheck && npm test` (needs `npm run infra:up`).

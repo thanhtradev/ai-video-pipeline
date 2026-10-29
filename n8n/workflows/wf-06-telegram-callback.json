@@ -4,18 +4,18 @@
   "active": false,
   "nodes": [
     {
-      "parameters": { "updates": ["callback_query", "message"], "additionalFields": {} },
+      "parameters": {"updates": ["callback_query", "message"], "additionalFields": {}},
       "id": "6f1d6a10-0000-4000-8000-000000000601",
       "name": "Telegram button",
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.2,
       "position": [0, 0],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } },
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}},
       "webhookId": "6f1d6a10-0000-4000-8000-0000000006ff"
     },
     {
       "parameters": {
-        "jsCode": "// /status, /retry, /new, rules and member commands, well-formed A1 / storyboard / A2 / intake /\n// member / A3 / cleanup buttons, and replies with notes to a storyboard, A2 or A3 request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Cách dùng: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <nội dung> · /rule del <số> · /say <từ> = <cách đọc> · /unsay <từ> · gửi file .md/.txt kèm caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Hãy đính kèm file .md hoặc .txt đã sửa, với caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'Quy tắc phải là file .md hoặc .txt, tối đa 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\n// Members (D-060): /join asks the owner (in the approval chat only), /members lists approvers,\n// /revoke <user id> is the owner's. telegram_members() checks who may do what.\nconst memberCommand = /^\\/(join|members|revoke)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? '');\nif (update.message && memberCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const from = message.from;\n  const base = {\n    kind: 'member',\n    userId: String(from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    name: '',\n    target: '',\n    error: '',\n    text: '',\n  };\n  const fail = (error) => [{ json: { ...base, error, text: error } }];\n  const [, command, rest] = memberCommand;\n  if (command === 'join') {\n    if (String(message.chat.id) !== APPROVAL_CHAT) {\n      return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /join chỉ dùng được ở đó.`);\n    }\n    const name = from.username ? `@${from.username}` : [from.first_name, from.last_name].filter(Boolean).join(' ');\n    return [{ json: { ...base, action: 'JOIN', name } }];\n  }\n  if (command === 'members') return [{ json: { ...base, action: 'LIST' } }];\n  const target = rest.trim();\n  if (!/^\\d{1,18}$/.test(target)) return fail('Cách dùng: /revoke <user id> (xem id bằng /members)');\n  return [{ json: { ...base, action: 'REVOKE', target } }];\n}\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /new chỉ dùng được ở đó.`);\n  }\n  const [first = '', ...rest] = newCommand[1].trim().split('\\n');\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Cách dùng: /new [số phút] <chủ đề>, ghi chú ở các dòng sau; full brief thì gửi file .md hoặc .txt với lệnh này làm caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('Full brief phải là file .md hoặc .txt, tối đa 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in|mb|a3|cl):([AGR]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (!['a1', 'a3'].includes(match[1]) && match[2] === 'G')) return [];\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake', mb: 'member', a3: 'metadata', cl: 'cleanup' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\n// A3 messages (D-062) end with meta:<token> instead, so notes there rewrite the metadata.\nconst ref = /(ref|meta):([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: ref[1] === 'meta' ? 'metadata' : 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[2],\n    note: message.text.trim(),\n  },\n}];"
+        "jsCode": "// /status, /retry, /new, rules and member commands, well-formed A1 / storyboard / A2 / intake /\n// member / A3 / cleanup buttons, and replies with notes to a storyboard, A2 or A3 request reach the\n// database; anything else is ignored. Storyboard requests (WF-12) end with \"ref:<token>\".\nconst update = $input.first().json;\n// /status [video id prefix] (P-017) is answered from telegram_status(); approvers only.\nconst statusCommand = /^\\/status(?:@\\w+)?(?:\\s+([0-9a-fA-F-]{1,36}))?\\s*$/.exec(update.message?.text ?? '');\nif (update.message && statusCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'status',\n      prefix: (statusCommand[1] ?? '').toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// /retry <video id prefix> (D-056) gives a permanently failed job one more attempt; approvers only.\nconst retryCommand = /^\\/retry(?:@\\w+)?\\s+([0-9a-fA-F-]{4,36})\\s*$/.exec(update.message?.text ?? '');\nif (update.message && retryCommand && !update.message.from?.is_bot) {\n  return [{\n    json: {\n      kind: 'retry',\n      prefix: retryCommand[1].toLowerCase(),\n      userId: String(update.message.from.id),\n      chatId: String(update.message.chat.id),\n      messageId: String(update.message.message_id),\n    },\n  }];\n}\n// Channel rules (D-059): /rules [video|tts|say], /rules file <scope>, a .md/.txt file captioned\n// /rules set <scope>, /rule add <video|tts> <text>, /rule del <number>, /say <term> = <spoken>,\n// /unsay <term>. telegram_rules() checks the user.\nconst rulesText = update.message?.text ?? update.message?.caption ?? '';\nconst rulesCommand = /^\\/(rules|rule|say|unsay)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(rulesText);\nif (update.message && rulesCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'rules',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    scope: '',\n    text: '',\n    extra: '',\n    fileId: '',\n    exportFile: false,\n    error: '',\n  };\n  const scopes = { video: 'video', tts: 'tts', say: 'pronunciation' };\n  const usage = 'Cách dùng: /rules [video|tts|say] · /rules file <video|tts|say> · /rule add <video|tts> <nội dung> · /rule del <số> · /say <từ> = <cách đọc> · /unsay <từ> · gửi file .md/.txt kèm caption /rules set <video|tts|say>';\n  const out = (fields) => [{ json: { ...base, ...fields } }];\n  const [, command, restRaw] = rulesCommand;\n  const rest = restRaw.trim();\n  if (command === 'rules') {\n    const parts = rest.split(/\\s+/).filter(Boolean);\n    if (parts.length === 0) return out({ action: 'VIEW' });\n    if (parts.length === 1 && scopes[parts[0]]) return out({ action: 'VIEW', scope: scopes[parts[0]] });\n    if (parts.length === 2 && parts[0] === 'file' && scopes[parts[1]]) {\n      return out({ action: 'VIEW', scope: scopes[parts[1]], exportFile: true });\n    }\n    if (parts.length === 2 && parts[0] === 'set' && scopes[parts[1]]) {\n      const file = message.document;\n      if (!file) return out({ error: 'Hãy đính kèm file .md hoặc .txt đã sửa, với caption /rules set <video|tts|say>.' });\n      if (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000) {\n        return out({ error: 'Quy tắc phải là file .md hoặc .txt, tối đa 200 KB.' });\n      }\n      return out({ action: 'SET', scope: scopes[parts[1]], fileId: file.file_id });\n    }\n    return out({ error: usage });\n  }\n  if (command === 'rule') {\n    const add = /^add\\s+(video|tts)\\s+([\\s\\S]+)$/.exec(rest);\n    if (add) return out({ action: 'ADD', scope: add[1], text: add[2].trim() });\n    const del = /^del\\s+#?(\\d{1,18})$/.exec(rest);\n    if (del) return out({ action: 'DELETE', text: del[1] });\n    return out({ error: usage });\n  }\n  if (command === 'say') {\n    const say = /^([^=\\n]+?)\\s*=\\s*(.+)$/.exec(rest);\n    if (say) return out({ action: 'SAY', scope: 'pronunciation', text: say[1].trim(), extra: say[2].trim() });\n    return out({ error: usage });\n  }\n  if (rest === '' || rest.includes('\\n')) return out({ error: usage });\n  return out({ action: 'UNSAY', scope: 'pronunciation', text: rest });\n}\n// /new [minutes] <topic> (D-058), notes on the next lines, optionally as the caption of a .md/.txt\n// file holding the full brief. Only in the approval chat; telegram_intake_draft() checks the user.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\n// Members (D-060): /join asks the owner (in the approval chat only), /members lists approvers,\n// /revoke <user id> is the owner's. telegram_members() checks who may do what.\nconst memberCommand = /^\\/(join|members|revoke)(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? '');\nif (update.message && memberCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const from = message.from;\n  const base = {\n    kind: 'member',\n    userId: String(from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    name: '',\n    target: '',\n    error: '',\n    text: '',\n  };\n  const fail = (error) => [{ json: { ...base, error, text: error } }];\n  const [, command, rest] = memberCommand;\n  if (command === 'join') {\n    if (String(message.chat.id) !== APPROVAL_CHAT) {\n      return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /join chỉ dùng được ở đó.`);\n    }\n    const name = from.username ? `@${from.username}` : [from.first_name, from.last_name].filter(Boolean).join(' ');\n    return [{ json: { ...base, action: 'JOIN', name } }];\n  }\n  if (command === 'members') return [{ json: { ...base, action: 'LIST' } }];\n  const target = rest.trim();\n  if (!/^\\d{1,18}$/.test(target)) return fail('Cách dùng: /revoke <user id> (xem id bằng /members)');\n  return [{ json: { ...base, action: 'REVOKE', target } }];\n}\nconst newCommand = /^\\/new(?:@\\w+)?(?=\\s|$)([\\s\\S]*)$/.exec(update.message?.text ?? update.message?.caption ?? '');\nif (update.message && newCommand && !update.message.from?.is_bot) {\n  const message = update.message;\n  const base = {\n    kind: 'intake',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n  };\n  const fail = (error) => [{ json: { ...base, error } }];\n  if (String(message.chat.id) !== APPROVAL_CHAT) {\n    return fail(`Chat này (${message.chat.id}) không phải chat duyệt; /new chỉ dùng được ở đó.`);\n  }\n  const [firstRaw = '', ...rest] = newCommand[1].trim().split('\\n');\n  // kit=<slug> / nhanvat=<slug> anywhere on the first line pick the kit and character set (D-066);\n  // without them the draft gets the defaults and the confirmation's buttons switch them.\n  const selection = {};\n  const first = firstRaw.replace(/(?:^|\\s)(kit|nhanvat)=([a-z0-9-]{2,40})(?=\\s|$)/g, (_, key, slug) => {\n    selection[key === 'kit' ? 'kit' : 'character_set'] = slug;\n    return ' ';\n  });\n  const minutes = /^(\\d{1,2})\\s+(\\S[\\s\\S]*)$/.exec(first.trim());\n  const topic = (minutes ? minutes[2] : first).trim();\n  if (topic === '') {\n    return fail('Cách dùng: /new [số phút] <chủ đề> [kit=<kit>] [nhanvat=<nhân vật>], ghi chú ở các dòng sau; full brief thì gửi file .md hoặc .txt với lệnh này làm caption.');\n  }\n  const file = message.document;\n  if (file && (!/\\.(md|txt)$/i.test(file.file_name ?? '') || (file.file_size ?? 0) > 200000)) {\n    return fail('Full brief phải là file .md hoặc .txt, tối đa 200 KB.');\n  }\n  return [{\n    json: {\n      ...base,\n      topic,\n      minutes: minutes ? Number(minutes[1]) : null,\n      notes: rest.join('\\n').trim(),\n      fileId: file?.file_id ?? '',\n      selection,\n      error: '',\n    },\n  }];\n}\nconst query = update.callback_query;\nconst actions = { A: 'APPROVE', G: 'REGENERATE', R: 'REJECT' };\nif (query) {\n  const match = /^(a1|sb|a2|in|mb|a3|cl):([AGRKC]):([0-9a-f]{32})$/.exec(query.data ?? '');\n  if (!match || (!['a1', 'a3'].includes(match[1]) && match[2] === 'G')) return [];\n  // Kit / Nhân vật buttons of an intake draft (D-066): telegram_intake_cycle() switches the choice.\n  if (match[2] === 'K' || match[2] === 'C') {\n    if (match[1] !== 'in') return [];\n    return [{\n      json: {\n        kind: 'intake-set',\n        setKind: match[2] === 'K' ? 'kit' : 'character_set',\n        queryId: query.id,\n        userId: String(query.from.id),\n        chatId: String(query.message?.chat?.id ?? ''),\n        messageId: String(query.message?.message_id ?? ''),\n        token: match[3],\n      },\n    }];\n  }\n  return [{\n    json: {\n      kind: 'button',\n      approval: { a1: 'script', sb: 'storyboard', a2: 'preview', in: 'intake', mb: 'member', a3: 'metadata', cl: 'cleanup' }[match[1]],\n      queryId: query.id,\n      userId: String(query.from.id),\n      chatId: String(query.message?.chat?.id ?? ''),\n      messageId: String(query.message?.message_id ?? ''),\n      originalText: String(query.message?.text ?? ''),\n      action: actions[match[2]],\n      token: match[3],\n      note: '',\n    },\n  }];\n}\nconst message = update.message;\nconst repliedTo = message?.reply_to_message;\n// A3 messages (D-062) end with meta:<token> instead, so notes there rewrite the metadata.\nconst ref = /(ref|meta):([0-9a-f]{32})/.exec(repliedTo?.text ?? '');\nif (!message || message.from?.is_bot || !repliedTo?.from?.is_bot || !ref || typeof message.text !== 'string') return [];\nreturn [{\n  json: {\n    kind: 'reply',\n    approval: ref[1] === 'meta' ? 'metadata' : 'storyboard',\n    userId: String(message.from.id),\n    chatId: String(message.chat.id),\n    messageId: String(message.message_id),\n    action: 'FEEDBACK',\n    token: ref[2],\n    note: message.text.trim(),\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000602",
       "name": "Parse callback",
@@ -27,16 +27,14 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "SELECT result, video_id::text AS video_id, version, round FROM telegram_decide($1, $2::bigint, $3, $4);",
-        "options": {
-          "queryReplacement": "={{ [$json.token, $json.userId, $json.action, $json.note] }}"
-        }
+        "options": {"queryReplacement": "={{ [$json.token, $json.userId, $json.action, $json.note] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000603",
       "name": "Decide",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [440, 0],
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -52,24 +50,24 @@
       "parameters": {
         "resource": "callback",
         "queryId": "={{ $json.queryId }}",
-        "additionalFields": { "text": "={{ $json.answer }}", "show_alert": false }
+        "additionalFields": {"text": "={{ $json.answer }}", "show_alert": false}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000605",
       "name": "Answer button",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [880, 0],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $('Build reply').first().json.settled }}",
               "rightValue": "",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -88,24 +86,24 @@
         "chatId": "={{ $('Build reply').first().json.chatId }}",
         "messageId": "={{ $('Build reply').first().json.messageId }}",
         "text": "={{ String($('Build reply').first().json.editedText).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
-        "additionalFields": { "parse_mode": "HTML" }
+        "additionalFields": {"parse_mode": "HTML"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000607",
       "name": "Remove buttons",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [1320, 0],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.isButton }}",
               "rightValue": "",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -133,17 +131,17 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [990, 220],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.kind }}",
               "rightValue": "status",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {"type": "string", "operation": "equals"}
             }
           ],
           "combinator": "and"
@@ -160,7 +158,7 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "SELECT * FROM telegram_status($1::bigint, $2);",
-        "options": { "queryReplacement": "={{ [$json.userId, $json.prefix] }}" }
+        "options": {"queryReplacement": "={{ [$json.userId, $json.prefix] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000611",
       "name": "Progress",
@@ -168,7 +166,7 @@
       "typeVersion": 2.6,
       "position": [550, -220],
       "alwaysOutputData": true,
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -195,17 +193,17 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [990, -220],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.kind }}",
               "rightValue": "retry",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {"type": "string", "operation": "equals"}
             }
           ],
           "combinator": "and"
@@ -222,7 +220,7 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "SELECT * FROM telegram_retry($1::bigint, $2);",
-        "options": { "queryReplacement": "={{ [$json.userId, $json.prefix] }}" }
+        "options": {"queryReplacement": "={{ [$json.userId, $json.prefix] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000615",
       "name": "Retry",
@@ -230,7 +228,7 @@
       "typeVersion": 2.6,
       "position": [660, -440],
       "alwaysOutputData": true,
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -245,12 +243,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.kind }}",
               "rightValue": "intake",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {"type": "string", "operation": "equals"}
             }
           ],
           "combinator": "and"
@@ -266,12 +264,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.fileId }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -296,11 +294,11 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [990, -760],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
-        "jsCode": "// /new -> the brief for telegram_intake_draft() (D-058); a parse error becomes the reply instead.\n// The full brief file is read as UTF-8 text and kept verbatim (only a byte order mark is dropped).\nconst input = $('Parse callback').first().json;\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (input.error) return [{ json: { ...reply, ok: false, text: input.error } }];\nconst fullBrief = input.fileId\n  ? (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8').replace(/^\\uFEFF/, '')\n  : '';\nconst brief = {\n  topic: input.topic,\n  ...(input.minutes ? { duration_minutes: input.minutes } : {}),\n  ...(fullBrief.trim() ? { full_brief: fullBrief } : {}),\n  ...(input.notes ? { notes: input.notes } : {}),\n};\nreturn [{ json: { ...reply, ok: true, userId: input.userId, brief: JSON.stringify(brief) } }];"
+        "jsCode": "// /new -> the brief for telegram_intake_draft() (D-058); a parse error becomes the reply instead.\n// The full brief file is read as UTF-8 text and kept verbatim (only a byte order mark is dropped).\nconst input = $('Parse callback').first().json;\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (input.error) return [{ json: { ...reply, ok: false, text: input.error } }];\nconst fullBrief = input.fileId\n  ? (await this.helpers.getBinaryDataBuffer(0, 'data')).toString('utf8').replace(/^\\uFEFF/, '')\n  : '';\nconst brief = {\n  topic: input.topic,\n  ...(input.minutes ? { duration_minutes: input.minutes } : {}),\n  ...(fullBrief.trim() ? { full_brief: fullBrief } : {}),\n  ...(input.notes ? { notes: input.notes } : {}),\n  ...(input.selection ?? {}),\n};\nreturn [{ json: { ...reply, ok: true, userId: input.userId, brief: JSON.stringify(brief) } }];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000620",
       "name": "Build draft",
@@ -311,12 +309,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.ok }}",
               "rightValue": "",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -332,8 +330,8 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT result, token, expires_at, brief, has_voice, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb);",
-        "options": { "queryReplacement": "={{ [$json.userId, $json.chatId, $json.brief] }}" }
+        "query": "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb);",
+        "options": {"queryReplacement": "={{ [$json.userId, $json.chatId, $json.brief] }}"}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000622",
       "name": "Draft",
@@ -341,11 +339,11 @@
       "typeVersion": 2.6,
       "position": [1650, -760],
       "alwaysOutputData": true,
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
-        "jsCode": "// telegram_intake_draft() -> the confirmation with Create / Cancel (callback in:<A|R>:<token>), or\n// the reason nothing was drafted. Telegram text is Vietnamese (D-061).\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst reply = { chatId: input.chatId, messageId: input.messageId };\nif (row.result === 'NOT_APPROVER') return [{ json: { ...reply, text: 'Bạn không phải approver.' } }];\nif (row.result !== 'DRAFT') {\n  return [{ json: { ...reply, text: `[AI Video] Chưa tạo: ${row.error ?? row.result ?? 'không có phản hồi'}` } }];\n}\nconst brief = typeof row.brief === 'string' ? JSON.parse(row.brief) : row.brief;\nconst text = [\n  '[AI Video] Tập mới: xác nhận',\n  `Chủ đề: ${brief.topic}`,\n  `Thời lượng: ${brief.duration_minutes ? `khoảng ${brief.duration_minutes} phút` : 'không đặt (khoảng 6 phút)'}`,\n  `Full brief: ${brief.full_brief ? `${brief.full_brief.length} ký tự` : 'không có (Claude tự viết tập)'}`,\n  ...(brief.notes ? [`Ghi chú: ${brief.notes}`] : []),\n  ...(row.has_voice === false\n    ? ['', 'Cảnh báo: full brief không có mục VOICE. Khi có full brief, kịch bản phải chép nguyên văn từng câu thoại từ đó, nên brief này sẽ lỗi. Hãy thêm mục VOICE, hoặc gửi dàn ý dưới dạng ghi chú.']\n    : []),\n  '',\n  `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n].join('\\n');\nreturn [{ json: { ...reply, text, approve: `in:A:${row.token}`, reject: `in:R:${row.token}` } }];"
+        "jsCode": "// telegram_intake_draft() / telegram_intake_cycle() -> the confirmation with Tạo / Hủy and the\n// Kit / Nhân vật buttons (callback in:<A|R|K|C>:<token>, D-066), or the reason nothing was\n// drafted. A cycle edits the bot's own message (edit: true). Telegram text is Vietnamese (D-061).\nconst input = $('Parse callback').first().json;\nconst row = $input.first()?.json ?? {};\nconst edit = input.kind === 'intake-set';\nconst reply = { chatId: input.chatId, messageId: input.messageId, queryId: input.queryId ?? '', edit };\nif (row.result === 'NOT_APPROVER') return [{ json: { ...reply, edit: false, text: 'Bạn không phải approver.' } }];\nif (row.result !== 'DRAFT') {\n  const closed = { NOT_FOUND: 'Không tìm thấy bản nháp này.', NOT_PENDING: 'Bản nháp đã được quyết định rồi.', EXPIRED: 'Bản nháp đã hết hạn; gửi /new lại.' };\n  const text = edit ? (closed[row.result] ?? `Không đổi được (${row.result ?? 'không có phản hồi'}).`) : `[AI Video] Chưa tạo: ${row.error ?? row.result ?? 'không có phản hồi'}`;\n  return [{ json: { ...reply, edit: false, text } }];\n}\nconst brief = typeof row.brief === 'string' ? JSON.parse(row.brief) : row.brief;\nconst selection = typeof row.selection === 'string' ? JSON.parse(row.selection) : row.selection;\nconst text = [\n  '[AI Video] Tập mới: xác nhận',\n  `Chủ đề: ${brief.topic}`,\n  `Kit: ${selection.kit.label} · Nhân vật: ${selection.character_set.label}`,\n  `Thời lượng: ${brief.duration_minutes ? `khoảng ${brief.duration_minutes} phút` : 'không đặt (khoảng 6 phút)'}`,\n  `Full brief: ${brief.full_brief ? `${brief.full_brief.length} ký tự` : 'không có (Claude tự viết tập)'}`,\n  ...(brief.notes ? [`Ghi chú: ${brief.notes}`] : []),\n  ...(row.has_voice === false\n    ? ['', 'Cảnh báo: full brief không có mục VOICE. Khi có full brief, kịch bản phải chép nguyên văn từng câu thoại từ đó, nên brief này sẽ lỗi. Hãy thêm mục VOICE, hoặc gửi dàn ý dưới dạng ghi chú.']\n    : []),\n  '',\n  `Hết hạn: ${new Date(row.expires_at).toISOString().replace('T', ' ').slice(0, 16)} UTC`,\n].join('\\n');\nreturn [{\n  json: {\n    ...reply,\n    text,\n    approve: `in:A:${row.token}`,\n    reject: `in:R:${row.token}`,\n    kitButton: `Kit → ${selection.kit.next_label}`,\n    kitData: `in:K:${row.token}`,\n    castButton: `Nhân vật → ${selection.character_set.next_label}`,\n    castData: `in:C:${row.token}`,\n  },\n}];"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000623",
       "name": "Build confirmation",
@@ -356,12 +354,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.approve }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -384,11 +382,22 @@
             {
               "row": {
                 "buttons": [
+                  {"text": "Tạo", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+                  {"text": "Hủy", "additionalFields": {"callback_data": "={{ $json.reject }}"}}
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
                   {
-                    "text": "Tạo",
-                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                    "text": "={{ $json.kitButton }}",
+                    "additionalFields": {"callback_data": "={{ $json.kitData }}"}
                   },
-                  { "text": "Hủy", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
+                  {
+                    "text": "={{ $json.castButton }}",
+                    "additionalFields": {"callback_data": "={{ $json.castData }}"}
+                  }
                 ]
               }
             }
@@ -405,17 +414,17 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [2310, -860],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.kind }}",
               "rightValue": "rules",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {"type": "string", "operation": "equals"}
             }
           ],
           "combinator": "and"
@@ -431,12 +440,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.fileId }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -461,7 +470,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [1210, -1200],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
@@ -476,12 +485,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.ok }}",
               "rightValue": "",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -508,7 +517,7 @@
       "typeVersion": 2.6,
       "position": [1870, -1200],
       "alwaysOutputData": true,
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -523,12 +532,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.exportFile }}",
               "rightValue": "",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -568,17 +577,17 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [2750, -1300],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.kind }}",
               "rightValue": "member",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {"type": "string", "operation": "equals"}
             }
           ],
           "combinator": "and"
@@ -594,12 +603,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.error }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -626,7 +635,7 @@
       "typeVersion": 2.6,
       "position": [1430, -1640],
       "alwaysOutputData": true,
-      "credentials": { "postgres": { "id": "aivideoPgCred001", "name": "aivideo-postgres" } }
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
     },
     {
       "parameters": {
@@ -641,12 +650,12 @@
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "strict", "version": 2 },
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
           "conditions": [
             {
               "leftValue": "={{ $json.approve }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
             }
           ],
           "combinator": "and"
@@ -669,14 +678,8 @@
             {
               "row": {
                 "buttons": [
-                  {
-                    "text": "Duyệt",
-                    "additionalFields": { "callback_data": "={{ $json.approve }}" }
-                  },
-                  {
-                    "text": "Từ chối",
-                    "additionalFields": { "callback_data": "={{ $json.reject }}" }
-                  }
+                  {"text": "Duyệt", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+                  {"text": "Từ chối", "additionalFields": {"callback_data": "={{ $json.reject }}"}}
                 ]
               }
             }
@@ -693,120 +696,281 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [2090, -1740],
-      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "intake-set",
+              "operator": {"type": "string", "operation": "equals"}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "aac624d7-cead-4f0c-9775-5181e83ddc6d",
+      "name": "Selection?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_cycle($1, $2::bigint, $3);",
+        "options": {"queryReplacement": "={{ [$json.token, $json.userId, $json.setKind] }}"}
+      },
+      "id": "03621a6e-f0e6-4e2c-aa1b-e56290380320",
+      "name": "Cycle selection",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [440, -180],
+      "alwaysOutputData": true,
+      "credentials": {"postgres": {"id": "aivideoPgCred001", "name": "aivideo-postgres"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.edit }}",
+              "rightValue": "",
+              "operator": {"type": "boolean", "operation": "true", "singleValue": true}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "be690c9c-3b28-4cda-90b7-723f04a3aff3",
+      "name": "Edit?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2310, -1020]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $json.chatId }}",
+        "messageId": "={{ $json.messageId }}",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {"text": "Tạo", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+                  {"text": "Hủy", "additionalFields": {"callback_data": "={{ $json.reject }}"}}
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "={{ $json.kitButton }}",
+                    "additionalFields": {"callback_data": "={{ $json.kitData }}"}
+                  },
+                  {
+                    "text": "={{ $json.castButton }}",
+                    "additionalFields": {"callback_data": "={{ $json.castData }}"}
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {"parse_mode": "HTML", "appendAttribution": false}
+      },
+      "id": "6ace5387-c827-4bb9-990e-388ae467278c",
+      "name": "Edit confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2530, -1100],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Build confirmation').first().json.queryId }}",
+        "additionalFields": {"text": "Đã đổi.", "show_alert": false}
+      },
+      "id": "7951572e-e257-4182-9eee-c829938cf599",
+      "name": "Answer selection",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2750, -1100],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.queryId }}",
+        "additionalFields": {"text": "={{ $json.text }}", "show_alert": true}
+      },
+      "id": "8094ccbd-dc54-49af-a673-46e9e1a447c2",
+      "name": "Answer closed draft",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2530, -940],
+      "credentials": {"telegramApi": {"id": "aivideoTgCred001", "name": "aivideo-telegram"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "typeValidation": "strict", "version": 2},
+          "conditions": [
+            {
+              "leftValue": "={{ $json.queryId }}",
+              "rightValue": "",
+              "operator": {"type": "string", "operation": "notEmpty", "singleValue": true}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e8bdecb5-30e5-4972-a80b-a08ea4e20d33",
+      "name": "Closed by button?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2090, -940]
     }
   ],
   "connections": {
-    "Telegram button": { "main": [[{ "node": "Parse callback", "type": "main", "index": 0 }]] },
-    "Parse callback": { "main": [[{ "node": "Status?", "type": "main", "index": 0 }]] },
-    "Decide": { "main": [[{ "node": "Build reply", "type": "main", "index": 0 }]] },
-    "Build reply": { "main": [[{ "node": "Button?", "type": "main", "index": 0 }]] },
-    "Answer button": { "main": [[{ "node": "Settled?", "type": "main", "index": 0 }]] },
-    "Settled?": { "main": [[{ "node": "Remove buttons", "type": "main", "index": 0 }], []] },
+    "Telegram button": {"main": [[{"node": "Parse callback", "type": "main", "index": 0}]]},
+    "Parse callback": {"main": [[{"node": "Status?", "type": "main", "index": 0}]]},
+    "Decide": {"main": [[{"node": "Build reply", "type": "main", "index": 0}]]},
+    "Build reply": {"main": [[{"node": "Button?", "type": "main", "index": 0}]]},
+    "Answer button": {"main": [[{"node": "Settled?", "type": "main", "index": 0}]]},
+    "Settled?": {"main": [[{"node": "Remove buttons", "type": "main", "index": 0}], []]},
     "Button?": {
       "main": [
-        [{ "node": "Answer button", "type": "main", "index": 0 }],
-        [{ "node": "Answer reply", "type": "main", "index": 0 }]
+        [{"node": "Answer button", "type": "main", "index": 0}],
+        [{"node": "Answer reply", "type": "main", "index": 0}]
       ]
     },
     "Status?": {
       "main": [
-        [{ "node": "Progress", "type": "main", "index": 0 }],
-        [{ "node": "Retry?", "type": "main", "index": 0 }]
+        [{"node": "Progress", "type": "main", "index": 0}],
+        [{"node": "Retry?", "type": "main", "index": 0}]
       ]
     },
-    "Progress": { "main": [[{ "node": "Build status", "type": "main", "index": 0 }]] },
-    "Build status": { "main": [[{ "node": "Send status", "type": "main", "index": 0 }]] },
+    "Progress": {"main": [[{"node": "Build status", "type": "main", "index": 0}]]},
+    "Build status": {"main": [[{"node": "Send status", "type": "main", "index": 0}]]},
     "Retry?": {
       "main": [
-        [{ "node": "Retry", "type": "main", "index": 0 }],
-        [{ "node": "Intake?", "type": "main", "index": 0 }]
+        [{"node": "Retry", "type": "main", "index": 0}],
+        [{"node": "Intake?", "type": "main", "index": 0}]
       ]
     },
-    "Retry": { "main": [[{ "node": "Build retry", "type": "main", "index": 0 }]] },
-    "Build retry": { "main": [[{ "node": "Send status", "type": "main", "index": 0 }]] },
+    "Retry": {"main": [[{"node": "Build retry", "type": "main", "index": 0}]]},
+    "Build retry": {"main": [[{"node": "Send status", "type": "main", "index": 0}]]},
     "Intake?": {
       "main": [
-        [{ "node": "File?", "type": "main", "index": 0 }],
-        [{ "node": "Rules?", "type": "main", "index": 0 }]
+        [{"node": "File?", "type": "main", "index": 0}],
+        [{"node": "Rules?", "type": "main", "index": 0}]
       ]
     },
     "File?": {
       "main": [
-        [{ "node": "Get file", "type": "main", "index": 0 }],
-        [{ "node": "Build draft", "type": "main", "index": 0 }]
+        [{"node": "Get file", "type": "main", "index": 0}],
+        [{"node": "Build draft", "type": "main", "index": 0}]
       ]
     },
-    "Get file": { "main": [[{ "node": "Build draft", "type": "main", "index": 0 }]] },
-    "Build draft": { "main": [[{ "node": "Draft ok?", "type": "main", "index": 0 }]] },
+    "Get file": {"main": [[{"node": "Build draft", "type": "main", "index": 0}]]},
+    "Build draft": {"main": [[{"node": "Draft ok?", "type": "main", "index": 0}]]},
     "Draft ok?": {
       "main": [
-        [{ "node": "Draft", "type": "main", "index": 0 }],
-        [{ "node": "Send status", "type": "main", "index": 0 }]
+        [{"node": "Draft", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
       ]
     },
-    "Draft": { "main": [[{ "node": "Build confirmation", "type": "main", "index": 0 }]] },
-    "Build confirmation": { "main": [[{ "node": "Buttons?", "type": "main", "index": 0 }]] },
+    "Draft": {"main": [[{"node": "Build confirmation", "type": "main", "index": 0}]]},
+    "Build confirmation": {"main": [[{"node": "Buttons?", "type": "main", "index": 0}]]},
     "Buttons?": {
       "main": [
-        [{ "node": "Send confirmation", "type": "main", "index": 0 }],
-        [{ "node": "Send status", "type": "main", "index": 0 }]
+        [{"node": "Edit?", "type": "main", "index": 0}],
+        [{"node": "Closed by button?", "type": "main", "index": 0}]
       ]
     },
     "Rules?": {
       "main": [
-        [{ "node": "Rules file?", "type": "main", "index": 0 }],
-        [{ "node": "Members?", "type": "main", "index": 0 }]
+        [{"node": "Rules file?", "type": "main", "index": 0}],
+        [{"node": "Members?", "type": "main", "index": 0}]
       ]
     },
     "Rules file?": {
       "main": [
-        [{ "node": "Get rules file", "type": "main", "index": 0 }],
-        [{ "node": "Build rules request", "type": "main", "index": 0 }]
+        [{"node": "Get rules file", "type": "main", "index": 0}],
+        [{"node": "Build rules request", "type": "main", "index": 0}]
       ]
     },
-    "Get rules file": { "main": [[{ "node": "Build rules request", "type": "main", "index": 0 }]] },
-    "Build rules request": { "main": [[{ "node": "Rules ok?", "type": "main", "index": 0 }]] },
+    "Get rules file": {"main": [[{"node": "Build rules request", "type": "main", "index": 0}]]},
+    "Build rules request": {"main": [[{"node": "Rules ok?", "type": "main", "index": 0}]]},
     "Rules ok?": {
       "main": [
-        [{ "node": "Rules", "type": "main", "index": 0 }],
-        [{ "node": "Send status", "type": "main", "index": 0 }]
+        [{"node": "Rules", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
       ]
     },
-    "Rules": { "main": [[{ "node": "Build rules reply", "type": "main", "index": 0 }]] },
-    "Build rules reply": { "main": [[{ "node": "Export?", "type": "main", "index": 0 }]] },
+    "Rules": {"main": [[{"node": "Build rules reply", "type": "main", "index": 0}]]},
+    "Build rules reply": {"main": [[{"node": "Export?", "type": "main", "index": 0}]]},
     "Export?": {
       "main": [
-        [{ "node": "Rules document", "type": "main", "index": 0 }],
-        [{ "node": "Send status", "type": "main", "index": 0 }]
+        [{"node": "Rules document", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
       ]
     },
-    "Rules document": { "main": [[{ "node": "Send rules file", "type": "main", "index": 0 }]] },
+    "Rules document": {"main": [[{"node": "Send rules file", "type": "main", "index": 0}]]},
     "Members?": {
       "main": [
-        [{ "node": "Member error?", "type": "main", "index": 0 }],
-        [{ "node": "Decide", "type": "main", "index": 0 }]
+        [{"node": "Member error?", "type": "main", "index": 0}],
+        [{"node": "Selection?", "type": "main", "index": 0}]
       ]
     },
     "Member error?": {
       "main": [
-        [{ "node": "Send status", "type": "main", "index": 0 }],
-        [{ "node": "Members", "type": "main", "index": 0 }]
+        [{"node": "Send status", "type": "main", "index": 0}],
+        [{"node": "Members", "type": "main", "index": 0}]
       ]
     },
-    "Members": { "main": [[{ "node": "Build members reply", "type": "main", "index": 0 }]] },
-    "Build members reply": { "main": [[{ "node": "Join request?", "type": "main", "index": 0 }]] },
+    "Members": {"main": [[{"node": "Build members reply", "type": "main", "index": 0}]]},
+    "Build members reply": {"main": [[{"node": "Join request?", "type": "main", "index": 0}]]},
     "Join request?": {
       "main": [
-        [{ "node": "Send join request", "type": "main", "index": 0 }],
-        [{ "node": "Send status", "type": "main", "index": 0 }]
+        [{"node": "Send join request", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
+      ]
+    },
+    "Selection?": {
+      "main": [
+        [{"node": "Cycle selection", "type": "main", "index": 0}],
+        [{"node": "Decide", "type": "main", "index": 0}]
+      ]
+    },
+    "Cycle selection": {"main": [[{"node": "Build confirmation", "type": "main", "index": 0}]]},
+    "Edit?": {
+      "main": [
+        [{"node": "Edit confirmation", "type": "main", "index": 0}],
+        [{"node": "Send confirmation", "type": "main", "index": 0}]
+      ]
+    },
+    "Edit confirmation": {"main": [[{"node": "Answer selection", "type": "main", "index": 0}]]},
+    "Closed by button?": {
+      "main": [
+        [{"node": "Answer closed draft", "type": "main", "index": 0}],
+        [{"node": "Send status", "type": "main", "index": 0}]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "errorWorkflow": "aivideoWf99Error",
-    "saveDataSuccessExecution": "none"
-  },
+  "settings": {"executionOrder": "v1", "errorWorkflow": "aivideoWf99Error", "saveDataSuccessExecution": "none"},
   "pinData": {}
 }

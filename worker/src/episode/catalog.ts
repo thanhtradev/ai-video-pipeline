@@ -61,6 +61,11 @@ export interface ResolvedSelection {
   /** AGENT.md fragments to splice into CLAUDE.md, base kit first. */
   readonly kitDocs: readonly string[];
   readonly characterDocs: readonly string[];
+  /** prompt.md fragments for the script and metadata prompts, base kit first. */
+  readonly kitPrompts: readonly string[];
+  readonly characterPrompts: readonly string[];
+  /** Telegram labels (Vietnamese). */
+  readonly labels: { readonly kit: string; readonly characterSet: string };
 }
 
 let cached: Catalog | undefined;
@@ -114,5 +119,8 @@ export function resolveSelection(selection: Selection): ResolvedSelection {
     referenceEpisode: kit.referenceEpisode,
     kitDocs: kitDirs.map((dir) => `${dir}/${AGENT_DOC}`),
     characterDocs: [`${set.dir}/${AGENT_DOC}`],
+    kitPrompts: kitDirs.map((dir) => `${dir}/${PROMPT_DOC}`),
+    characterPrompts: [`${set.dir}/${PROMPT_DOC}`],
+    labels: { kit: kit.label, characterSet: set.label },
   };
 }

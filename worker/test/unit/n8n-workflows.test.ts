@@ -707,12 +707,29 @@ describe('WF-06 /new (D-058)', () => {
       minutes: 8,
       notes: 'Giọng vui.\nKết buồn.',
       fileId: '',
+      selection: {},
       error: '',
     });
     expect(parse(message('/new Mèo nghĩ gì?'))).toMatchObject({
       topic: 'Mèo nghĩ gì?',
       minutes: null,
     });
+  });
+
+  test('takes kit= and nhanvat= tokens off the first line (D-066)', () => {
+    expect(
+      parse(message('/new 5 Bíp ơi, tại sao? kit=science nhanvat=bip\nGhi chú')),
+    ).toMatchObject({
+      topic: 'Bíp ơi, tại sao?',
+      minutes: 5,
+      notes: 'Ghi chú',
+      selection: { kit: 'science', character_set: 'bip' },
+    });
+    expect(parse(message('/new kit=whatif Mèo'))).toMatchObject({
+      topic: 'Mèo',
+      selection: { kit: 'whatif' },
+    });
+    expect(parse(message('/new kit=science'))!.error).toMatch(/^Cách dùng/);
   });
 
   test('takes the full brief from an attached .md or .txt file', () => {
@@ -756,6 +773,13 @@ describe('WF-06 /new (D-058)', () => {
         notes: 'Ghi chú',
       }),
     });
+    const [chosen] = await runAsyncCode('wf-06-telegram-callback.json', 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: {
+        'Parse callback': [{ json: { ...parsed, fileId: '', selection: { kit: 'science' } } }],
+      },
+    });
+    expect(JSON.parse(String(chosen!.json.brief))).toMatchObject({ kit: 'science' });
     const [failed] = await runAsyncCode('wf-06-telegram-callback.json', 'Build draft', {
       input: [{ json: {} }],
       nodeOutputs: { 'Parse callback': [{ json: { ...parsed, error: 'Usage: x' } }] },
@@ -763,10 +787,17 @@ describe('WF-06 /new (D-058)', () => {
     expect(failed!.json).toMatchObject({ ok: false, text: 'Usage: x' });
   });
 
-  const confirm = (row: Record<string, unknown>) =>
+  const SELECTION = {
+    kit: { slug: 'whatif', label: 'Nếu bạn…', next_slug: 'science', next_label: 'Khoa học' },
+    character_set: { slug: 'chip', label: 'Chíp (BẠN)', next_slug: 'bip', next_label: 'Bíp' },
+  };
+  const confirm = (
+    row: Record<string, unknown>,
+    parsed: Record<string, unknown> = { chatId: CHAT, messageId: '12' },
+  ) =>
     runCode('wf-06-telegram-callback.json', 'Build confirmation', {
       input: [{ json: row }],
-      nodeOutputs: { 'Parse callback': [{ json: { chatId: CHAT, messageId: '12' } }] },
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
     })[0]!.json;
 
   test('asks to confirm with Create / Cancel, warning when a full brief has no VOICE', () => {
@@ -777,8 +808,17 @@ describe('WF-06 /new (D-058)', () => {
       expires_at: '2026-10-26T06:00:00.000Z',
       brief: { topic: 'Mèo nghĩ gì?', duration_minutes: 8, full_brief: 'Dàn ý' },
       has_voice: false,
+      selection: SELECTION,
     });
     expect(out.text).toContain('Chủ đề: Mèo nghĩ gì?');
+    expect(out.text).toContain('Kit: Nếu bạn… · Nhân vật: Chíp (BẠN)');
+    expect(out).toMatchObject({
+      edit: false,
+      kitButton: 'Kit → Khoa học',
+      kitData: `in:K:${token}`,
+      castButton: 'Nhân vật → Bíp',
+      castData: `in:C:${token}`,
+    });
     expect(out.text).toContain('Thời lượng: khoảng 8 phút');
     expect(out.text).toContain('Full brief: 5 ký tự');
     expect(out.text).toMatch(/không có mục VOICE/);
@@ -790,6 +830,7 @@ describe('WF-06 /new (D-058)', () => {
       expires_at: '2026-10-26T06:00:00Z',
       brief: { topic: 'Mèo' },
       has_voice: null,
+      selection: SELECTION,
     });
     expect(plain.text).toContain('Full brief: không có (Claude tự viết tập)');
     expect(plain.text).not.toMatch(/VOICE/);
@@ -799,11 +840,86 @@ describe('WF-06 /new (D-058)', () => {
     expect(confirm({ result: 'NOT_APPROVER' })).toEqual({
       chatId: CHAT,
       messageId: '12',
+      queryId: '',
+      edit: false,
       text: 'Bạn không phải approver.',
     });
     expect(
       confirm({ result: 'INVALID', error: 'invalid brief: topic must be 3-500 characters' }).text,
     ).toBe('[AI Video] Chưa tạo: invalid brief: topic must be 3-500 characters');
+  });
+
+  test('Kit / Nhân vật buttons cycle the draft and edit the confirmation in place (D-066)', () => {
+    const token = 'd'.repeat(32);
+    const callback = (data: string): Item => ({
+      json: {
+        callback_query: {
+          id: 'q9',
+          data,
+          from: { id: 111 },
+          message: { message_id: 13, chat: { id: CHAT }, text: 'confirm' },
+        },
+      },
+    });
+    const parsed = runCode('wf-06-telegram-callback.json', 'Parse callback', {
+      input: [callback(`in:K:${token}`)],
+    })[0]!.json;
+    expect(parsed).toEqual({
+      kind: 'intake-set',
+      setKind: 'kit',
+      queryId: 'q9',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '13',
+      token,
+    });
+    expect(
+      runCode('wf-06-telegram-callback.json', 'Parse callback', {
+        input: [callback(`in:C:${token}`)],
+      })[0]!.json,
+    ).toMatchObject({ setKind: 'character_set' });
+    expect(
+      runCode('wf-06-telegram-callback.json', 'Parse callback', {
+        input: [callback(`a1:K:${token}`)],
+      }),
+    ).toEqual([]);
+
+    const edited = confirm(
+      {
+        result: 'DRAFT',
+        token,
+        expires_at: '2026-10-26T06:00:00Z',
+        brief: { topic: 'Mèo', kit: 'science' },
+        has_voice: null,
+        selection: {
+          ...SELECTION,
+          kit: {
+            ...SELECTION.kit,
+            slug: 'science',
+            label: 'Khoa học',
+            next_slug: 'whatif',
+            next_label: 'Nếu bạn…',
+          },
+        },
+      },
+      parsed,
+    );
+    expect(edited).toMatchObject({
+      edit: true,
+      chatId: CHAT,
+      messageId: '13',
+      queryId: 'q9',
+      kitButton: 'Kit → Nếu bạn…',
+    });
+    expect(edited.text).toContain('Kit: Khoa học · Nhân vật: Chíp (BẠN)');
+
+    const closed = confirm({ result: 'NOT_PENDING' }, parsed);
+    expect(closed).toMatchObject({
+      edit: false,
+      queryId: 'q9',
+      text: 'Bản nháp đã được quyết định rồi.',
+    });
+    expect(closed.approve).toBeUndefined();
   });
 
   test('parses Create / Cancel buttons and answers them', () => {
@@ -1333,5 +1449,36 @@ describe('WF-08 Watchdog', () => {
     );
     expect(run(['12345678-0000-0000-0000-000000000000'])).toEqual([]);
     expect(run([])[0]!.json.text).toContain('Không còn video nào bị');
+  });
+});
+
+describe('deploy script (ops/n8n/deploy-workflows.sh)', () => {
+  const script = readFileSync(
+    fileURLToPath(new URL('../../../ops/n8n/deploy-workflows.sh', import.meta.url)),
+    'utf8',
+  );
+  const start = script.indexOf('PUBLISH_ORDER=(');
+  const publishOrder = script
+    .slice(start, script.indexOf(')', start))
+    .split('\n')
+    .slice(1)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  test('every workflow id is in PUBLISH_ORDER and WF-99 is published first', () => {
+    const ids = [...workflows.values()].map((wf) => wf.id);
+
+    expect(publishOrder[0]).toBe('aivideoWf99Error');
+    expect(new Set(publishOrder)).toEqual(new Set(ids));
+  });
+
+  test('the only placeholders are the two the script fills in', () => {
+    const KNOWN = new Set(['REPLACE_WITH_APPROVAL_CHAT_ID', 'REPLACE_WITH_WORKER_URL']);
+
+    for (const file of files) {
+      const found = readFileSync(`${DIR}${file}`, 'utf8').match(/REPLACE_WITH_[A-Z_]+/g) ?? [];
+      const unknown = [...new Set(found)].filter((placeholder) => !KNOWN.has(placeholder));
+      expect(unknown, file).toEqual([]);
+    }
   });
 });
