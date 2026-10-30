@@ -17,15 +17,19 @@ Values marked `<…>` are not known yet; record them in `docs/infrastructure.md`
 1. Install Proxmox VE on the HP (or join it to the existing cluster on `192.168.1.111`, your
    choice; the worker does not need the cluster).
 2. Create an **Ubuntu Server 24.04 VM** (a VM, not an LXC: bubblewrap and Chrome need user
-   namespaces, which an unprivileged LXC only gives with nesting tweaks):
-   - CPU type **host**, 12 vCPU (the i5's 12 threads); RAM 13 GB, ballooning off; disk ≥ 150 GB
-     on SSD (`WORK_ROOT` keeps finished videos until the owner approves cleanup, R-06).
-   - Network on the LAN bridge (`vmbr0`) with a **fixed LAN address** `<VM LAN IP>`: Postgres and
-     Redis allow clients by LAN address.
+   namespaces, which an unprivileged LXC only gives with nesting tweaks) with
+   [`proxmox/create-linux-worker-vm.sh`](proxmox/create-linux-worker-vm.sh), run as root on the
+   HP node after reading it (copy it over with `scp`):
+   - CPU type **host**, 12 vCPU (the i5's 12 threads); RAM 13 GB, ballooning off.
+   - Disks: the HP has only a 128 GB NVMe (S-30), so a 64 GB system disk goes on `local-lvm`
+     (SSD) and a separate 250 GB `WORK_ROOT` disk on `data` (HDD; `WORK_ROOT` keeps finished
+     videos until the owner approves cleanup, R-06). The script prints how to mount it.
+   - Network on `vmbr0` with a **fixed LAN address** (default `192.168.1.223`, VMID 223, next to the node's `.222`): Postgres
+     and Redis allow clients by LAN address. Cloud-init creates the user **`aivideo`** (the systemd
+     unit and examples assume `/home/aivideo`) with your SSH key, no password.
    - Start at boot: **on**.
-3. In the VM: a user **`aivideo`** (the systemd unit and examples assume `/home/aivideo`),
-   `sudo apt update && sudo apt full-upgrade`, then Tailscale (`tailscale up`) and note
-   `tailscale ip -4` → `<VM tailscale IP>`.
+3. In the VM: `sudo apt update && sudo apt full-upgrade`, the guest agent and work disk as the
+   script prints, then Tailscale (`tailscale up`) and note `tailscale ip -4` → `<VM tailscale IP>`.
 
 ## 2. Packages
 
