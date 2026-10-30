@@ -86,12 +86,33 @@ describe('loadConfig', () => {
   });
 
   test('episode timing: whisper-cli by default, the model file is optional and absolute', () => {
-    expect(loadConfig(VALID_ENV).whisper).toEqual({ bin: 'whisper-cli', model: undefined });
+    expect(loadConfig(VALID_ENV).whisper).toEqual({
+      bin: 'whisper-cli',
+      model: undefined,
+      threads: 8,
+    });
     expect(
       loadConfig({ ...VALID_ENV, WHISPER_MODEL: '/Users/aivideo/Models/ggml-large-v3-turbo.bin' })
         .whisper.model,
     ).toBe('/Users/aivideo/Models/ggml-large-v3-turbo.bin');
     expect(() => loadConfig({ ...VALID_ENV, WHISPER_MODEL: 'ggml.bin' })).toThrow(/WHISPER_MODEL/);
+  });
+
+  test('render and whisper tunables keep the Mac defaults; a CPU-only Linux worker lowers them (D-075)', () => {
+    expect(loadConfig(VALID_ENV).render).toEqual({ gl: 'angle', concurrency: 8 });
+    const linux = loadConfig({
+      ...VALID_ENV,
+      REMOTION_GL: 'swangle',
+      RENDER_CONCURRENCY: '6',
+      WHISPER_THREADS: '6',
+    });
+    expect(linux.render).toEqual({ gl: 'swangle', concurrency: 6 });
+    expect(linux.whisper.threads).toBe(6);
+    expect(() => loadConfig({ ...VALID_ENV, REMOTION_GL: 'metal' })).toThrow(/REMOTION_GL/);
+    expect(() => loadConfig({ ...VALID_ENV, RENDER_CONCURRENCY: '0' })).toThrow(
+      /RENDER_CONCURRENCY/,
+    );
+    expect(() => loadConfig({ ...VALID_ENV, WHISPER_THREADS: '0' })).toThrow(/WHISPER_THREADS/);
   });
 
   test('accepts only an https ITERA base url', () => {

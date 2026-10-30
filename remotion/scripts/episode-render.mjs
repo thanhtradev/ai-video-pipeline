@@ -13,8 +13,9 @@ if (!ws || !output || !scale) {
 }
 // Remotion finds its Chrome download from the working directory (see episode-gates.mjs).
 process.chdir(join(dirname(fileURLToPath(import.meta.url)), '..'));
-const CHROMIUM = { gl: 'angle' };
-const CONCURRENCY = 8;
+// Tunables from the worker (D-075): ANGLE and 8 frames on the Macs, swangle on a CPU-only Linux.
+const CHROMIUM = { gl: process.env.REMOTION_GL || 'angle' };
+const CONCURRENCY = Number(process.env.RENDER_CONCURRENCY) || 8;
 
 const serveUrl = await bundle({
   entryPoint: join(ws, 'src', 'index.ts'),

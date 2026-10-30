@@ -501,6 +501,8 @@ describe('agent settings and arguments', () => {
         '~/.claude',
         '~/Library',
         '/Volumes',
+        '/mnt',
+        '/media',
         '/Users/aivideo/aivideo/config',
         '/Users/aivideo/aivideo/media',
       ]),

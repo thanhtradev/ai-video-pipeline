@@ -4,6 +4,7 @@
 
 - No secrets in Git, prompts, logs, manifests, Telegram messages, or docs. `[CONFIRMED]`
 - n8n: use the n8n Credentials store for Telegram, Postgres, Redis, provider APIs. `[PROPOSED]`
+- Linux workers (D-075): one file per secret in `~/aivideo/config/secrets/` (directory 700, files 600, owned by the worker user, same names as the Keychain items), read by `ops/systemd/run-worker.sh`, which refuses to start if they are group/other readable. `config/` is hidden from the bubblewrap render sandbox and denied to the episode agent. `[IMPLEMENTED]`
 - Mac workers: secrets in an env file outside the repo (mode `600`, owned by the service user) or macOS Keychain. The repo only has a value-free `.env.example`. `[PROPOSED]`
 - ITERA TTS API key: Keychain item `aivideo-itera-api-key` on the worker, exported only into the worker process by `run-worker.sh`; sent only to the API origin; never logged (2b). `[IMPLEMENTED]`
 - Nextcloud archive access: dedicated Nextcloud user with an app password, limited to the archive folder; stored in macOS Keychain on the worker (D-036). `[CONFIRMED]` approach

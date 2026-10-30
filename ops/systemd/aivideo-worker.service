@@ -1,0 +1,28 @@
+# systemd unit for the worker on a Linux machine (D-075); the macOS counterpart is
+# ops/launchd/com.aivideo.worker.plist. Install as root (ops/linux-worker.md §5):
+#   install -m 644 ~aivideo/aivideo/repo/ops/systemd/aivideo-worker.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now aivideo-worker
+# Unlike launchd (R-13), it starts at boot without anyone logging in.
+[Unit]
+Description=AI video pipeline worker
+Wants=network-online.target tailscaled.service
+After=network-online.target tailscaled.service
+
+[Service]
+Type=simple
+User=aivideo
+Group=aivideo
+WorkingDirectory=/home/aivideo/aivideo/repo/worker
+Environment=AIVIDEO_ROOT=/home/aivideo/aivideo
+ExecStart=/home/aivideo/aivideo/repo/ops/systemd/run-worker.sh
+Restart=always
+RestartSec=10
+# The worker finishes or checkpoints its current job on SIGTERM (5 min, as ExitTimeOut in launchd).
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec=300
+StandardOutput=append:/home/aivideo/aivideo/logs/worker.log
+StandardError=append:/home/aivideo/aivideo/logs/worker.log
+
+[Install]
+WantedBy=multi-user.target

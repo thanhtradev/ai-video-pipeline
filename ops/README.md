@@ -171,6 +171,9 @@ The worker loads code once at start, so **restart it only from an up-to-date `ma
 **Check**: `curl http://<tailscale ip>:8787/health` returns `{"status":"ok","workerId":"<WORKER_ID>"}`;
 `tail ~/aivideo/logs/worker.log` shows `worker ready`.
 
+A **Linux worker** (Proxmox VM, systemd, bubblewrap) follows [linux-worker.md](linux-worker.md) instead
+(D-075).
+
 **Known limitation (R-13)**: a LaunchAgent and the login Keychain need a console login. After a
 reboot (including `autorestart` after a power cut) the worker starts only once someone logs in at
 the Mac.

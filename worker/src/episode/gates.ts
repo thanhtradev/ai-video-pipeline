@@ -50,6 +50,8 @@ export interface GateRunnerOptions {
   profile: string;
   /** The worker's runtime root (D-065). */
   runtimeRoot: string;
+  /** Render tunables for the gates script (D-075). */
+  env?: Readonly<Record<string, string>>;
 }
 
 /** `ws` must be the real path (Seatbelt matches resolved paths, e.g. /private/tmp). */
@@ -59,6 +61,7 @@ export function createGateRunner(options: GateRunnerOptions): GateRunner {
       profile: options.profile,
       ws,
       runtimeRoot: options.runtimeRoot,
+      ...(options.env ? { env: options.env } : {}),
       script: GATES_SCRIPT,
       args: [ws],
       timeoutMs: GATES_TIMEOUT_MS,

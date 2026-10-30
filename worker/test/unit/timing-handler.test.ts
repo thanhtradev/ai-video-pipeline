@@ -241,5 +241,8 @@ describe('voice and whisper helpers', () => {
       '8',
       '-np',
     ]);
+    expect(
+      whisperArgs({ bin: 'whisper-cli', model: '/m.bin', threads: 6 }, '/v.wav', '/t', 'vi'),
+    ).toContain('6');
   });
 });

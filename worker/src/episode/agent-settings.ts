@@ -2,7 +2,7 @@ import { join } from 'node:path';
 
 // Claude Code settings for the episode agent (D-053, D-054), written outside the workspace. Spike
 // results (2026-10-26, CLI 2.1.310): Read/Edit permission rules confine the file tools; Bash runs
-// in the macOS sandbox, which denies network, writes outside the workspace and reads of the paths
+// in the OS sandbox (Seatbelt on macOS; bubblewrap + socat on Linux, D-075), which denies network, writes outside the workspace and reads of the paths
 // below. Sandboxed Bash would otherwise be auto-allowed, so auto-allow is off: only the two
 // commands below (any arguments, never chained with another command) and the CLI's built-in
 // read-only commands (cat, ls, grep, sed, …) run. No npm (it reads ~/.npmrc). Glob/Grep tools do
@@ -36,6 +36,9 @@ const DENY_READ = [
   '~/.zsh_history',
   '~/.bash_history',
   '/Volumes',
+  // Linux worker mounts (D-075).
+  '/mnt',
+  '/media',
 ];
 
 /** Folders of the worker's runtime root (D-065) next to the workspaces: never readable by the agent. */
