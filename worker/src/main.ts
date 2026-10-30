@@ -224,6 +224,7 @@ async function main(): Promise<void> {
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
+    apiUrl: config.apiUrl,
     leaseSeconds: config.leaseSeconds,
     heartbeatMs: config.heartbeatSeconds * 1000,
     pollIntervalMs: config.pollIntervalMs,

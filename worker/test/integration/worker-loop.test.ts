@@ -84,6 +84,7 @@ describe('worker liveness', () => {
       workRoot: await mkdtemp(join(tmpdir(), 'live-')),
       workerId: 'live-worker',
       streams: [stream],
+      apiUrl: 'http://100.64.0.9:8787',
       leaseSeconds: 60,
       heartbeatMs: 1000,
       pollIntervalMs: 20,
@@ -91,16 +92,21 @@ describe('worker liveness', () => {
       idleReportMs: 50,
       logger: pino({ level: 'silent' }),
     });
-    const seen = async (): Promise<{ last_seen_at: Date; last_idle_at: Date | null }> =>
+    const seen = async (): Promise<{
+      last_seen_at: Date;
+      last_idle_at: Date | null;
+      api_url: string | null;
+    }> =>
       (
         await db.pool.query(
-          `SELECT last_seen_at, last_idle_at FROM worker WHERE id = 'live-worker'`,
+          `SELECT last_seen_at, last_idle_at, api_url FROM worker WHERE id = 'live-worker'`,
         )
       ).rows[0];
 
     loop.start();
     await waitFor(async () => (await jobStatus(db.pool, jobId)) === 'RUNNING');
     const atStart = (await seen()).last_seen_at;
+    expect((await seen()).api_url).toBe('http://100.64.0.9:8787');
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect((await jobStatus(db.pool, jobId)) === 'RUNNING').toBe(true);
     expect((await seen()).last_seen_at.getTime()).toBeGreaterThan(atStart.getTime());

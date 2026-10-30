@@ -57,4 +57,39 @@ describe('redis queue', () => {
     expect((await queue.next())?.jobId).toBe(jobId);
     expect(await redis.llen(`${stream}:processing:w3`)).toBe(1);
   });
+
+  test("takes the worker's own list before the shared list of each stream (D-074)", async () => {
+    const high = uniqueStream();
+    const low = uniqueStream();
+    const queue = createRedisQueue(redis, { workerId: 'w4', streams: [high, low] });
+    const [shared, own, lowOwn] = [randomUUID(), randomUUID(), randomUUID()];
+    await redis.rpush(high, shared);
+    await redis.rpush(`${high}:w:w4`, own);
+    await redis.rpush(`${low}:w:w4`, lowOwn);
+    await redis.rpush(`${high}:w:other`, randomUUID());
+
+    const received: string[] = [];
+    for (let i = 0; i < 3; i += 1) {
+      const message = await queue.next();
+      expect(message!.stream).toBe(i < 2 ? high : low);
+      received.push(message!.jobId);
+      await queue.ack(message!);
+    }
+
+    expect(received).toEqual([own, shared, lowOwn]);
+    expect(await queue.next()).toBeNull();
+    expect(await redis.llen(`${high}:w:other`)).toBe(1);
+    expect(await redis.llen(`${high}:w:w4:processing:w4`)).toBe(0);
+  });
+
+  test('recovers in-flight messages of its own list back onto that list', async () => {
+    const stream = uniqueStream();
+    const jobId = randomUUID();
+    await redis.rpush(`${stream}:w:w5`, jobId);
+    await createRedisQueue(redis, { workerId: 'w5', streams: [stream] }).next();
+
+    const restarted = createRedisQueue(redis, { workerId: 'w5', streams: [stream] });
+    expect(await restarted.recoverInFlight()).toBe(1);
+    expect(await redis.lrange(`${stream}:w:w5`, 0, -1)).toEqual([jobId]);
+  });
 });

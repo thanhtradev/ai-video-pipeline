@@ -14,7 +14,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, board FROM storyboard_approvals_due();",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, round, title, board, video_worker_url(video_id) AS worker_url FROM storyboard_approvals_due();",
         "options": {}
       },
       "id": "6f1d6a10-0000-4000-8000-000000001202",
@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per storyboard page of each new request (reminders send no pages). The worker serves\n// the pages against the episode_code job's board token (D-055). Replace the base URL on import.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.board);\nreturn rows.flatMap(({ json: row }) => {\n  const board = typeof row.board === 'string' ? JSON.parse(row.board) : row.board;\n  const shortId = String(row.video_id).slice(0, 8);\n  return board.pages.map((page, i) => ({\n    json: {\n      url: `${WORKER}/boards/${row.video_id}/${row.version}/${board.job_id}/${page.split('/').pop()}?t=${board.token}`,\n      caption: `🎬 #${shortId} · ${i + 1}/${board.pages.length}`,\n    },\n  }));\n});"
+        "jsCode": "// One item per storyboard page of each new request (reminders send no pages). The worker serves\n// the pages against the episode_code job's board token (D-055). Replace the base URL on import.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && item.json.board);\nreturn rows.flatMap(({ json: row }) => {\n  const board = typeof row.board === 'string' ? JSON.parse(row.board) : row.board;\n  const shortId = String(row.video_id).slice(0, 8);\n  return board.pages.map((page, i) => ({\n    json: {\n      url: `${row.worker_url || WORKER}/boards/${row.video_id}/${row.version}/${board.job_id}/${page.split('/').pop()}?t=${board.token}`,\n      caption: `🎬 #${shortId} · ${i + 1}/${board.pages.length}`,\n    },\n  }));\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001203",
       "name": "Build pages",
@@ -68,7 +68,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// The episode's audio mix (voice + SFX, D-071) of each new request, after its pages; episode code\n// written before the mix has none. Served against the episode_code job's media token.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.board)?.mix_token);\nreturn rows.map(({ json: row }) => {\n  const board = parse(row.board);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${board.job_id}/mix.m4a?t=${board.mix_token}`,\n      caption: `🎬 #${shortId} v${row.version} · âm thanh (giọng + SFX)`,\n    },\n  };\n});"
+        "jsCode": "// The episode's audio mix (voice + SFX, D-071) of each new request, after its pages; episode code\n// written before the mix has none. Served against the episode_code job's media token.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST' && parse(item.json.board)?.mix_token);\nreturn rows.map(({ json: row }) => {\n  const board = parse(row.board);\n  const shortId = String(row.video_id).slice(0, 8);\n  return {\n    json: {\n      url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${board.job_id}/mix.m4a?t=${board.mix_token}`,\n      caption: `🎬 #${shortId} v${row.version} · âm thanh (giọng + SFX)`,\n    },\n  };\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001208",
       "name": "Build mix",

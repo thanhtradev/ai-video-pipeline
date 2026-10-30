@@ -1678,6 +1678,70 @@ describe('WF-14 Final Delivery (D-062)', () => {
   });
 });
 
+describe("media URLs follow the video's worker (D-074)", () => {
+  const videoId = '12345678-aaaa-bbbb-cccc-000000000000';
+  const file = { job_id: '87654321-aaaa-bbbb-cccc-000000000000', token: 'c'.repeat(32) };
+  const request = { kind: 'REQUEST', video_id: videoId, version: 1, take: 1 };
+  const cases: { file: string; query: string; node: string; row: Record<string, unknown> }[] = [
+    {
+      file: 'wf-05-script-approval.json',
+      query: 'Due approvals',
+      node: 'Build file',
+      row: { ...request, script: { file } },
+    },
+    {
+      file: 'wf-12-storyboard-approval.json',
+      query: 'Due storyboards',
+      node: 'Build pages',
+      row: { ...request, board: { ...file, pages: ['b/page-01.jpg'] } },
+    },
+    {
+      file: 'wf-12-storyboard-approval.json',
+      query: 'Due storyboards',
+      node: 'Build mix',
+      row: { ...request, board: { ...file, mix_token: file.token } },
+    },
+    {
+      file: 'wf-13-preview-approval.json',
+      query: 'Due previews',
+      node: 'Build video',
+      row: { ...request, media: file },
+    },
+    {
+      file: 'wf-14-final-delivery.json',
+      query: 'Due finals',
+      node: 'Build thumbnail',
+      row: { ...request, metadata: { ...file, thumbnail_shot: 1 } },
+    },
+    {
+      file: 'wf-14-final-delivery.json',
+      query: 'Due finals',
+      node: 'Build final',
+      row: { ...request, kind: 'DONE', report: { final: file } },
+    },
+    {
+      file: 'wf-15-voice-approval.json',
+      query: 'Due voices',
+      node: 'Build audio',
+      row: { ...request, voice: { file, max_takes: 3 } },
+    },
+  ];
+
+  test.each(cases)('$file $node uses worker_url, else the deployed WORKER_URL', (c) => {
+    const query = workflow(c.file).nodes.find((n) => n.name === c.query)!.parameters.query;
+    expect(query).toContain('video_worker_url(video_id) AS worker_url');
+
+    const pinned = runCode(c.file, c.node, {
+      input: [{ json: { ...c.row, worker_url: 'http://100.64.0.9:8787' } }],
+    });
+    const unpinned = runCode(c.file, c.node, { input: [{ json: { ...c.row, worker_url: null } }] });
+
+    expect(pinned).toHaveLength(1);
+    expect(pinned[0]!.json.url).toMatch(/^http:\/\/100\.64\.0\.9:8787\/(media|boards)\//);
+    expect(unpinned[0]!.json.url).toMatch(/^REPLACE_WITH_WORKER_URL\/(media|boards)\//);
+  });
+});
+
 describe('WF-08 Watchdog', () => {
   const summary = (blocked: string[]) => ({
     json: {
@@ -1724,6 +1788,22 @@ describe('WF-08 Watchdog', () => {
     );
     expect(run(['12345678-0000-0000-0000-000000000000'])).toEqual([]);
     expect(run([])[0]!.json.text).toContain('Không còn video nào bị');
+  });
+
+  test('alerts when videos wait on an offline pinned worker, once per change (D-074)', () => {
+    const staticData = {};
+    const run = (stalled: object[]) =>
+      runCode('wf-08-watchdog.json', 'Build alert', {
+        input: [{ json: { summary: { ...summary([]).json.summary, stalled_pinned: stalled } } }],
+        staticData,
+      });
+    const stalled = [{ video_id: 'abcdef12-0000-0000-0000-000000000000', worker_id: 'hp-400-g7' }];
+
+    expect(run(stalled)[0]!.json.text).toContain(
+      'Video đang chờ worker mất kết nối (file nằm trên máy đó): abcdef12 (hp-400-g7)',
+    );
+    expect(run(stalled)).toEqual([]);
+    expect(run([])[0]!.json.text).toContain('Không còn video nào chờ worker mất kết nối');
   });
 });
 

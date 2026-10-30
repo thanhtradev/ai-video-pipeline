@@ -14,7 +14,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, script FROM script_approvals_due();",
+        "query": "SELECT kind, video_id::text AS video_id, version, token, expires_at, script, video_worker_url(video_id) AS worker_url FROM script_approvals_due();",
         "options": {}
       },
       "id": "6f1d6a10-0000-4000-8000-000000000502",
@@ -72,7 +72,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One item per new A1 request with a script file (reminders send none): the worker serves script.md\n// against the script job's media token (D-070). Replace the base URL on import. ASCII file name.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST');\nreturn rows.flatMap(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const file = script.file;\n  if (!file || typeof file.job_id !== 'string' || typeof file.token !== 'string') return [];\n  const shortId = String(row.video_id).slice(0, 8);\n  return [{\n    json: {\n      url: `${WORKER}/media/${row.video_id}/${row.version}/${file.job_id}/script.md?t=${file.token}`,\n      fileName: `script-${shortId}-v${row.version}.md`,\n      caption: `📝 #${shortId} v${row.version} · kịch bản đầy đủ`,\n    },\n  }];\n});"
+        "jsCode": "// One item per new A1 request with a script file (reminders send none): the worker serves script.md\n// against the script job's media token (D-070). Replace the base URL on import. ASCII file name.\n// The video's own worker (D-074); WORKER is the fallback filled in on deploy.\nconst WORKER = 'REPLACE_WITH_WORKER_URL';\nconst rows = $input.all().filter((item) => item.json.kind === 'REQUEST');\nreturn rows.flatMap(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const file = script.file;\n  if (!file || typeof file.job_id !== 'string' || typeof file.token !== 'string') return [];\n  const shortId = String(row.video_id).slice(0, 8);\n  return [{\n    json: {\n      url: `${row.worker_url || WORKER}/media/${row.video_id}/${row.version}/${file.job_id}/script.md?t=${file.token}`,\n      fileName: `script-${shortId}-v${row.version}.md`,\n      caption: `📝 #${shortId} v${row.version} · kịch bản đầy đủ`,\n    },\n  }];\n});"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000505",
       "name": "Build file",

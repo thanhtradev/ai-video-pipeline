@@ -108,6 +108,16 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...VALID_ENV, AIVIDEO_ROOT: 'aivideo' })).toThrow(/AIVIDEO_ROOT/);
   });
 
+  test('the worker API URL for n8n is optional, http(s) and without a path (D-074)', () => {
+    expect(loadConfig(VALID_ENV).apiUrl).toBeUndefined();
+    expect(loadConfig({ ...VALID_ENV, WORKER_API_URL: 'http://100.71.214.125:8787' }).apiUrl).toBe(
+      'http://100.71.214.125:8787',
+    );
+    for (const bad of ['100.71.214.125:8787', 'ftp://host', 'http://host:8787/']) {
+      expect(() => loadConfig({ ...VALID_ENV, WORKER_API_URL: bad })).toThrow(/WORKER_API_URL/);
+    }
+  });
+
   test('lists invalid variables without echoing their values', () => {
     const env = { ...VALID_ENV, WORK_ROOT: 'relative/path', DATABASE_URL: undefined };
     expect(() => loadConfig(env)).toThrow(/WORK_ROOT/);
