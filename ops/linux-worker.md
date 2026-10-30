@@ -24,7 +24,7 @@ Values marked `<…>` are not known yet; record them in `docs/infrastructure.md`
    - Disks: the HP has only a 128 GB NVMe (S-30), so a 64 GB system disk goes on `local-lvm`
      (SSD) and a separate 250 GB `WORK_ROOT` disk on `data` (HDD; `WORK_ROOT` keeps finished
      videos until the owner approves cleanup, R-06). The script prints how to mount it.
-   - Network on `vmbr0` with a **fixed LAN address** (default `192.168.1.130`, VMID 130): Postgres
+   - Network on `vmbr0` with a **fixed LAN address** (default `192.168.1.223`, VMID 223, next to the node's `.222`): Postgres
      and Redis allow clients by LAN address. Cloud-init creates the user **`aivideo`** (the systemd
      unit and examples assume `/home/aivideo`) with your SSH key, no password.
    - Start at boot: **on**.
