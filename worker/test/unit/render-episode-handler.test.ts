@@ -106,6 +106,20 @@ describe('render_episode handler', () => {
     expect(result.result).toMatchObject({ quality: 'final', width: 1920, height: 1080 });
   });
 
+  test('renders at the frame of the clip kit recorded by the episode code (D-080)', async () => {
+    const codeDir = join(jobsDir, CODE_JOB);
+    await writeCheckpoint(codeDir, ['ws/src/episode/Episode.tsx'], {
+      frame: { width: 1080, height: 1920 },
+    });
+    const handler = createRenderEpisodeHandler(deps());
+
+    expect((await handler(context())).result).toMatchObject({ width: 720, height: 1280 });
+    expect((await handler(context({ ...INPUT, quality: 'final' }))).result).toMatchObject({
+      width: 1080,
+      height: 1920,
+    });
+  });
+
   test('fails permanently on invalid input or a changed episode code', async () => {
     const handler = createRenderEpisodeHandler(deps());
     await expect(handler(context({ episode_code_job_id: 'x' }))).rejects.toBeInstanceOf(

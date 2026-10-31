@@ -3,6 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveSelection, type ResolvedSelection, type Selection } from './catalog.js';
+import { aspectRatioOf, type Frame } from './frame.js';
 import { isLegacyWorkspace, LEGACY_EPISODE_DIRS, writeLegacyShims } from './legacy-kit.js';
 
 // The episode workspace (docs/episode-pipeline.md §6): what the episode agent sees and may change.
@@ -22,6 +23,7 @@ const NODE_MODULES = fileURLToPath(new URL('../../../node_modules', import.meta.
 const KIT_MARK = '<!-- KIT -->';
 const CHARACTERS_MARK = '<!-- CHARACTERS -->';
 const REFERENCE_MARK = '<!-- REFERENCE -->';
+const FRAME_MARK = '<!-- FRAME -->';
 /** Unit tests and type shims of the kit are not copied into the agent's workspace. */
 const isKitSource = (path: string) => !/\.test\.tsx?$/.test(path);
 /** Paths the agent may write, relative to the workspace. */
@@ -96,14 +98,20 @@ async function readDocs(paths: readonly string[]): Promise<string> {
   return texts.filter(Boolean).join('\n\n');
 }
 
+/** e.g. "16:9 (1920×1080, 30 fps)". */
+function frameText(frame: Frame): string {
+  return `${aspectRatioOf(frame)} (${frame.width}×${frame.height}, 30 fps)`;
+}
+
 /** CLAUDE.md = the base AGENT.md with the kit's and the character set's sections spliced in. */
 async function assembleClaudeMd(ws: string, selection: ResolvedSelection): Promise<void> {
   const base = await readFile(join(ws, 'AGENT.md'), 'utf8');
-  for (const mark of [KIT_MARK, CHARACTERS_MARK, REFERENCE_MARK]) {
+  for (const mark of [KIT_MARK, CHARACTERS_MARK, REFERENCE_MARK, FRAME_MARK]) {
     if (!base.includes(mark)) throw new Error(`remotion/episode/AGENT.md lacks ${mark}`);
   }
   const text = base
     .replaceAll(REFERENCE_MARK, `kit/${selection.referenceEpisode}/`)
+    .replaceAll(FRAME_MARK, frameText(selection.frame))
     .replace(KIT_MARK, await readDocs(selection.kitDocs))
     .replace(CHARACTERS_MARK, await readDocs(selection.characterDocs));
   await writeFile(join(ws, 'CLAUDE.md'), text);

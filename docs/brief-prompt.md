@@ -1,5 +1,5 @@
-You are writing an episode brief for a Vietnamese animated YouTube/TikTok channel (16:9,
-code-drawn cartoon). The brief will be fed to an automated pipeline, so follow the format EXACTLY.
+You are writing an episode brief for a Vietnamese animated YouTube/TikTok channel (code-drawn
+cartoon; the frame depends on the channel, see INPUT). The brief will be fed to an automated pipeline, so follow the format EXACTLY.
 All video content (narration, character descriptions, shot descriptions, on-screen TEXT) must be
 in Vietnamese. VISUAL STYLE may be in English.
 
@@ -88,10 +88,11 @@ INPUT (fill in before sending)
 - Topic: <chủ đề>
 - Length: <số phút> minutes
 - Channel: <choose one>
-    Chíp (BẠN) ("what if" channel): main character BẠN, teenager in a saturated ORANGE hoodie,
-      told in the second person. Hook starts with "Nếu bạn…?" ; final line exactly
+    Chíp (BẠN) ("what if" channel, landscape 16:9): main character BẠN, teenager in a saturated
+      ORANGE hoodie, told in the second person. Hook starts with "Nếu bạn…?" ; final line exactly
       "Một chữ nếu… một cuộc đời khác."
-    Chíp Khoa học (science channel): host CHÍP, a small curious robot in a teal hoodie with a
-      blinking antenna, told in the third person; one science question per episode. Hook starts
+    Chíp Khoa học (science channel, VERTICAL 9:16 for phones): host CHÍP, a small curious robot in
+      a teal hoodie with a blinking antenna, told in the third person; one science question per
+      episode. Shots for a tall frame: one or two characters, diagrams above them. Hook starts
       with "Chíp ơi, tại sao…?" ; final line exactly "Chíp đã hiểu. Còn bạn?"
 - Notes: <ý tưởng, nhân vật, cảnh muốn có>

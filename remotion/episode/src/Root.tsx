@@ -5,16 +5,21 @@
 // their first pages / samples are rendered (frame i = board page i, or QA sample i × QA_EVERY).
 import React from 'react';
 import { AbsoluteFill, Composition, Freeze, useCurrentFrame } from 'remotion';
-import { FONT } from '../kit/active/theme';
+import { FONT, frameSpec, FrameSpecContext, H, W } from '../kit/active/theme';
 import { TextBoundsQA } from '../kit/active/qa';
 import { Episode } from './episode/Episode';
 import { SHOTS, TOTAL } from './time';
 
-const W = 1920;
-const H = 1080;
-/** Storyboard: 12 shots per page (3 × 4), each frozen at `pick` of its length. */
+/** Storyboard: 12 shots per page, each frozen at `pick` of its length; 3 × 4 landscape tiles or
+ * 6 × 2 portrait tiles (the kit's frame, D-080) on a 1920 × 1500 page. */
 export const BOARD_PER = 12;
-const TILE_SCALE = 0.325;
+const BOARD_W = 1920;
+const BOARD_H = 1500;
+const BOARD_PAD = 12;
+const BOARD_COLS = W >= H ? 3 : 6;
+/** The page is 1920 × 1500; the tiles inside draw the episode's own frame. */
+const EPISODE_FRAME = frameSpec(W, H);
+const TILE_SCALE = (BOARD_W - 2 * BOARD_PAD - (BOARD_COLS - 1) * BOARD_PAD) / BOARD_COLS / W;
 /** Text-bounds QA samples every QA_EVERY frames of the episode. */
 export const QA_EVERY = 10;
 
@@ -27,8 +32,8 @@ const EpisodeBoard: React.FC<{ pick: number }> = ({ pick }) => {
         background: '#1a1820',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        padding: 12,
-        gap: 12,
+        padding: BOARD_PAD,
+        gap: BOARD_PAD,
         alignContent: 'flex-start',
       }}
     >
@@ -54,9 +59,11 @@ const EpisodeBoard: React.FC<{ pick: number }> = ({ pick }) => {
                 position: 'absolute',
               }}
             >
-              <Freeze frame={at}>
-                <Episode />
-              </Freeze>
+              <FrameSpecContext.Provider value={EPISODE_FRAME}>
+                <Freeze frame={at}>
+                  <Episode />
+                </Freeze>
+              </FrameSpecContext.Provider>
             </div>
             <div
               style={{
@@ -100,8 +107,8 @@ export const EpisodeRoot: React.FC = () => (
       component={EpisodeBoard}
       durationInFrames={TOTAL}
       fps={30}
-      width={W}
-      height={1500}
+      width={BOARD_W}
+      height={BOARD_H}
       defaultProps={{ pick: 0.55 }}
     />
     <Composition

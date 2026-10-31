@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, runDbmate, type TestDb } from '../helpers/db.js';
 import { OWNER } from '../helpers/episode-flow.js';
@@ -5,7 +7,17 @@ import { OWNER } from '../helpers/episode-flow.js';
 // D-078: the science character set `bip` becomes `chip-science` ("Chíp Khoa học"); briefs, drafts
 // and job inputs made before the migration follow, and the rollback restores them.
 
+const MIGRATION = '20261112000100';
+/** Rollbacks that undo this migration and every later one. */
+const ROLLBACKS = readdirSync(
+  fileURLToPath(new URL('../../../db/migrations', import.meta.url)),
+).filter((file) => file.endsWith('.sql') && file >= MIGRATION).length;
+
 let db: TestDb;
+
+async function rollbackRename(): Promise<void> {
+  for (let i = 0; i < ROLLBACKS; i += 1) await runDbmate(db.url, ['rollback']);
+}
 
 beforeAll(async () => {
   db = await createTestDb();
@@ -47,7 +59,7 @@ async function characterSetOption(): Promise<{ slug: string; label: string }[]> 
 
 describe('chip-science migration', () => {
   test('renames the option and rewrites existing briefs, drafts and job inputs', async () => {
-    await runDbmate(db.url, ['rollback']);
+    await rollbackRename();
     const brief = { format: 'episode', topic: 'Tại sao?', kit: 'science', character_set: 'bip' };
     const submitted = await db.pool.query<{ version_id: string }>(
       'SELECT * FROM video_submit($1, $2::jsonb)',
@@ -71,7 +83,7 @@ describe('chip-science migration', () => {
       draft: 'chip-science',
     });
 
-    await runDbmate(db.url, ['rollback']);
+    await rollbackRename();
     expect(await characterSetOption()).toEqual([
       { slug: 'chip', label: 'Chíp (BẠN)' },
       { slug: 'bip', label: 'Bíp' },

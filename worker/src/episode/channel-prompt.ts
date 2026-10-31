@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { CATALOG_PATH, resolveSelection, type ResolvedSelection } from './catalog.js';
+import { describeFrame } from './frame.js';
 
 // The channel description for the script and metadata prompts: the selected kit's and character
 // set's prompt.md fragments (remotion/src/<dir>/prompt.md), base kit first. Episode code gets the
@@ -19,12 +20,12 @@ export function selectionOf(input: SelectionInput): ResolvedSelection {
   return resolveSelection({ kit: input.kit, characterSet: input.character_set });
 }
 
-/** The kit and character prompt fragments joined, in English, for a system prompt. */
+/** The frame, then the kit and character prompt fragments joined, in English, for a system prompt. */
 export async function channelDescription(selection: ResolvedSelection): Promise<string> {
   const texts = await Promise.all(
     [...selection.kitPrompts, ...selection.characterPrompts].map(async (path) =>
       (await readFile(join(REMOTION_SRC, path), 'utf8')).trim(),
     ),
   );
-  return texts.filter(Boolean).join(' ');
+  return [`${describeFrame(selection.frame)} episodes.`, ...texts.filter(Boolean)].join(' ');
 }

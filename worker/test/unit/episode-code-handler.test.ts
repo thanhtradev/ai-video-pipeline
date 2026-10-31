@@ -222,7 +222,11 @@ describe('episode_code handler', () => {
         'agent-turns.json',
       ]),
     );
-    expect(result.result).toMatchObject({ turns: 2, board_pages: ['ws/board/page-01.jpg'] });
+    expect(result.result).toMatchObject({
+      turns: 2,
+      board_pages: ['ws/board/page-01.jpg'],
+      frame: { width: 1920, height: 1080 },
+    });
     // WF-12 fetches the pages from the worker API with this token (D-055).
     expect(result.result.board_token).toMatch(/^[0-9a-f]{32}$/);
     const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
@@ -457,9 +461,11 @@ describe('episode_code handler', () => {
 
 describe('kit and character selection', () => {
   test('the job input picks the kit and cast of the workspace', async () => {
-    await createEpisodeCodeHandler(deps())(
+    const result = await createEpisodeCodeHandler(deps())(
       context({ ...INPUT, kit: 'science', character_set: 'chip-science' }),
     );
+    // render_episode reads the frame from here (D-080).
+    expect(result.result.frame).toEqual({ width: 1080, height: 1920 });
     const ws = join(workDir, 'ws');
     expect(existsSync(join(ws, 'kit/kits/science/theme.ts'))).toBe(true);
     expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain(

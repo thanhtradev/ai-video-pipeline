@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import { frameSchema, type Frame } from './frame.js';
 
 /**
  * The kit / character-set catalog (remotion/catalog.json): which visual kits and casts exist, where
@@ -23,6 +24,8 @@ const kitSchema = z.object({
   extends: slug.optional(),
   referenceEpisode: relPath,
   episodeDeps: z.array(relPath),
+  /** Video size of the kit's episodes (D-080). */
+  frame: frameSchema,
   modules,
 });
 const characterSetSchema = z.object({
@@ -64,6 +67,8 @@ export interface ResolvedSelection {
   /** prompt.md fragments for the script and metadata prompts, base kit first. */
   readonly kitPrompts: readonly string[];
   readonly characterPrompts: readonly string[];
+  /** Video size of the kit's episodes (D-080). */
+  readonly frame: Frame;
   /** Telegram labels (Vietnamese). */
   readonly labels: { readonly kit: string; readonly characterSet: string };
 }
@@ -121,6 +126,7 @@ export function resolveSelection(selection: Selection): ResolvedSelection {
     characterDocs: [`${set.dir}/${AGENT_DOC}`],
     kitPrompts: kitDirs.map((dir) => `${dir}/${PROMPT_DOC}`),
     characterPrompts: [`${set.dir}/${PROMPT_DOC}`],
+    frame: kit.frame,
     labels: { kit: kit.label, characterSet: set.label },
   };
 }

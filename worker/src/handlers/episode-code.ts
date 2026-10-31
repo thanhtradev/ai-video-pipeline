@@ -318,6 +318,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
         sfx_files: report.sfx?.files?.length ?? 0,
         text_bounds_blur: report.textBounds?.blur ?? 0,
         revision: Boolean(input.revision),
+        // The kit's video size (D-080): render_episode renders at it.
+        frame: selection.frame,
       },
     };
   };

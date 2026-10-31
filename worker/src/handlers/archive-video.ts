@@ -3,6 +3,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { archiveDirectory, ArchiveConflictError, ArchiveSourceError } from '../archive/archiver.js';
 import type { ArchiveTarget } from '../archive/webdav-target.js';
+import { aspectRatioOf, LANDSCAPE_FRAME, type AspectRatio } from '../episode/frame.js';
 import { readValidCheckpoint, sha256File, type Checkpoint } from '../storage/checkpoint.js';
 import { diskBytes } from '../storage/disk-usage.js';
 import { resolveInside } from '../storage/workspace.js';
@@ -113,6 +114,15 @@ function sources(input: Input): Source[] {
   ];
 }
 
+// A final render result without a size counts as 16:9, the only frame before D-080.
+const finalRenderSchema = z.object({ width: z.number(), height: z.number() });
+
+/** The video's aspect ratio, from the size the final render was made at (D-080). */
+function aspectRatioOfSteps(steps: readonly { step: string; result: unknown }[]): AspectRatio {
+  const final = finalRenderSchema.safeParse(steps.find((s) => s.step === 'render_final')?.result);
+  return final.success ? aspectRatioOf(final.data) : aspectRatioOf(LANDSCAPE_FRAME);
+}
+
 /** SRT → WebVTT: the header, and a dot before the milliseconds. */
 export function srtToVtt(srt: string): string {
   const body = srt
@@ -199,7 +209,7 @@ export function createArchiveVideoHandler(deps: ArchiveVideoDeps): JobHandler {
       video_id: data.video_id,
       version: data.version,
       format: 'episode',
-      aspect_ratio: '16:9',
+      aspect_ratio: aspectRatioOfSteps(steps),
       frozen_at: data.frozen_at,
       approvals: data.approvals,
       steps,

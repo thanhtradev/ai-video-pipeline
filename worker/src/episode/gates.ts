@@ -103,7 +103,7 @@ export function describeFailures(report: GateReport): string[] {
     out.push(
       tb.error
         ? `The text-bounds QA failed:\n${tb.error}`
-        : `${tb.sharp ?? rows.length} sharp texts are partly outside the 1920×1080 frame ` +
+        : `${tb.sharp ?? rows.length} sharp texts are partly outside the video frame ` +
             `(side: t/r/b/l = top/right/bottom/left and pixels outside):\n` +
             rows
               .map((r) => `- "${r.text}" ${r.kind}, ${r.side}, ${frames(r.from, r.to)}`)

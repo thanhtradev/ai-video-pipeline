@@ -7,7 +7,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { C, clamp, FONT, H, PX, SAFE, W } from './theme';
+import { C, clamp, FONT, useFrameSpec } from './theme';
 import { tr } from './lang';
 import { CaptionLine, CaptionWord } from './timeline-types';
 
@@ -33,13 +33,14 @@ export const BreathRing: React.FC<{
   y?: number;
   f?: number;
 }> = ({ sec, cap = 60, show, big, x, y, f = 0 }) => {
+  const { W, H, CLOCK_Y } = useFrameSpec();
   if (show <= 0.001) return null;
   const k = Math.max(0, Math.min(1, 1 - sec / cap));
   const red = sec >= 120 || k < 0.2;
   const col = red ? '#ff4a3a' : k < 0.5 ? '#ffc83a' : '#4fd47a';
   const R = big ? 200 : 74;
-  const cx = x ?? (big ? 960 : 130);
-  const cy = y ?? (big ? 470 : 140);
+  const cx = x ?? (big ? W / 2 : 130);
+  const cy = y ?? (big ? CLOCK_Y : 140);
   const pulse = red ? 1 + Math.sin(f * 0.6) * 0.04 : 1;
   const sc = show * pulse;
   const circ = 2 * Math.PI * R;
@@ -120,6 +121,7 @@ export const BigText: React.FC<{
   tilt = -2,
 }) => {
   const { fps } = useVideoConfig();
+  const { SAFE, PX } = useFrameSpec();
   if (f < from || f > out + 8) return null;
   const s = spring({ frame: f - from, fps, config: { damping: 9, stiffness: 160, mass: 0.7 } });
   const o = Number.isFinite(out) ? interpolate(f, [out, out + 8], [1, 0], clamp) : 1;
@@ -171,6 +173,7 @@ export const Pow: React.FC<{
   out?: number;
 }> = ({ text, x, y, from, f, size = 140, color = '#ffffff', rot = -6, out = Infinity }) => {
   const { fps } = useVideoConfig();
+  const { PX } = useFrameSpec();
   if (f < from || f > out + 6) return null;
   const s = spring({ frame: f - from, fps, config: { damping: 7, stiffness: 220, mass: 0.6 } });
   return (
@@ -243,12 +246,14 @@ export const Captions: React.FC<{
   yAt?: (abs: number) => number;
   /** sentence spoken at a frame (the episode's `speakingAt`) */
   speaking: (abs: number) => CaptionLine | null;
-  /** font size (px at 1080p) */
+  /** font size (px; default per frame) */
   size?: number;
   /** keep a sentence's caption into the hold: [sentence, until absolute frame] */
   sticky?: readonly (readonly [CaptionLine, number])[];
-}> = ({ hide, yAt, speaking, size = 50, sticky = [] }) => {
+}> = ({ hide, yAt, speaking, size: sizeProp, sticky = [] }) => {
   const abs = useCurrentFrame();
+  const { SAFE, CAPTION_Y, CAPTION_SIZE } = useFrameSpec();
+  const size = sizeProp ?? CAPTION_SIZE;
   const l = speaking(abs) ?? sticky.find(([sl, until]) => abs >= sl.to && abs < until)?.[0] ?? null;
   if (!l || hide?.(abs)) return null;
   const chunks = chunksOf(l);
@@ -256,7 +261,7 @@ export const Captions: React.FC<{
     chunks.find((k, i) => abs < (chunks[i + 1]?.from ?? Infinity)) ?? chunks[chunks.length - 1];
   const t = abs - Math.max(c.from, l.from);
   const pop = interpolate(t, [0, 3, 6], [0.82, 1.06, 1], clamp);
-  const y = yAt?.(abs) ?? 950;
+  const y = yAt?.(abs) ?? CAPTION_Y;
   return (
     <AbsoluteFill style={{ pointerEvents: 'none' }}>
       <div
@@ -547,24 +552,28 @@ export const Grain: React.FC<{ f: number; a?: number }> = ({ f, a = 0.18 }) => (
 
 export const BIG_TEXT_STYLE = stroke;
 
-/** Container for graphics designed for the old portrait screen (1080×1920), scaled into the centre of the landscape frame. */
+/** Container for graphics designed for the portrait screen (1080×1920), scaled into the centre of the frame (1:1 in a portrait frame). */
 export const PortraitBox: React.FC<{
   children: React.ReactNode;
   s?: number;
   dy?: number;
   dx?: number;
-}> = ({ children, s = 0.5625, dy = 0, dx = 0 }) => (
-  <div
-    style={{
-      position: 'absolute',
-      left: (W - 1080 * s) / 2 + dx,
-      top: (H - 1920 * s) / 2 + dy,
-      width: 1080,
-      height: 1920,
-      transform: `scale(${s})`,
-      transformOrigin: '0 0',
-    }}
-  >
-    {children}
-  </div>
-);
+}> = ({ children, s: scale, dy = 0, dx = 0 }) => {
+  const { W, H, PORTRAIT_SCALE } = useFrameSpec();
+  const s = scale ?? PORTRAIT_SCALE;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: (W - 1080 * s) / 2 + dx,
+        top: (H - 1920 * s) / 2 + dy,
+        width: 1080,
+        height: 1920,
+        transform: `scale(${s})`,
+        transformOrigin: '0 0',
+      }}
+    >
+      {children}
+    </div>
+  );
+};

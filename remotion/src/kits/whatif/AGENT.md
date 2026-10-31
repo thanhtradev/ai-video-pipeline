@@ -17,7 +17,7 @@
 - Captions come from the narration (above). Big on-screen TEXT from the brief uses `BigText`.
 - All on-screen text is Vietnamese, exactly as in the brief, with correct diacritics; fonts only
   `FONT` / `HAND` from `kit/active/theme`.
-- Every sharp text must lie fully inside 1920×1080 (keep it inside `SAFE`), or be fully outside it.
+- Every sharp text must lie fully inside the frame (keep it inside `SAFE`), or be fully outside it.
   Text on a board, sign or poster is drawn on the SAME layer as the object that carries it (e.g. the
   set's `far` layer), never on the actor layer.
 
