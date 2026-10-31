@@ -74,7 +74,8 @@ The worker checks what the schema cannot and retries the step otherwise: shot id
 (the EP5 brief passes all of these). It then assigns line ids `L001…` in order (never the model)
 and writes `script.json` (the hashed A1 content) and `script.md`. From a full brief in the user's
 format (VOICE / NHÂN VẬT / VISUAL STYLE / HIỆU ỨNG / DANH SÁCH SHOT), Claude only restructures it;
-from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with holds).
+from a topic it writes the episode (≈ 3.2 words per second, the EP5 pace with holds). To write a
+full brief with another LLM, use the prompt in `docs/brief-prompt.md` (Telegram: `/brief`, D-077).
 
 A1 (D-070, migration `20261107000100`): WF-05 sends the summary, then `script.md` as a file
 (`GET /media/<video>/<version>/<script job>/script.md?t=<media token>`, the token from the script

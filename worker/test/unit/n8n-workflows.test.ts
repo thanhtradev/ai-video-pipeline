@@ -1281,6 +1281,80 @@ describe('WF-06 channel rules (D-059)', () => {
   });
 });
 
+describe('WF-06 /brief (D-077)', () => {
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const PROMPT_FILE = fileURLToPath(new URL('../../../docs/brief-prompt.md', import.meta.url));
+  const message = (text: string, chat: string | number = CHAT): Item => ({
+    json: {
+      message: { message_id: 41, from: { id: 111, is_bot: false }, chat: { id: chat }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] })[0]?.json;
+  const document = (parsed: Record<string, unknown>, prepared: unknown[] = []) =>
+    runAsyncCode('wf-06-telegram-callback.json', 'Brief document', {
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+      helpers: {
+        prepareBinaryData: async (...args: never[]) => {
+          prepared.push(args);
+          return { fileName: 'brief-prompt.md' };
+        },
+      },
+    });
+
+  test.each(['/brief', '/brief@aivideo_bot', '/brief  '])('%s in the approval chat', (text) => {
+    expect(parse(message(text))).toEqual({
+      kind: 'brief',
+      chatId: CHAT,
+      messageId: '41',
+      error: '',
+    });
+  });
+
+  test('refuses other chats', () => {
+    expect(parse(message('/brief', -5))).toMatchObject({
+      kind: 'brief',
+      error: expect.stringContaining('không phải chat duyệt'),
+    });
+  });
+
+  test.each(['/briefx', '/brief foo'])('ignores %s', (text) => {
+    expect(parse(message(text))?.kind).not.toBe('brief');
+  });
+
+  test('sends docs/brief-prompt.md as a Markdown file', async () => {
+    const prepared: unknown[] = [];
+    const [out] = await document(
+      { kind: 'brief', chatId: CHAT, messageId: '41', error: '' },
+      prepared,
+    );
+    const [buffer, fileName, mime] = prepared[0] as [Buffer, string, string];
+    expect(fileName).toBe('brief-prompt.md');
+    expect(mime).toBe('text/markdown');
+    expect(
+      buffer.toString('utf8'),
+      'docs/brief-prompt.md changed: run node ops/n8n/embed-brief-prompt.mjs',
+    ).toBe(readFileSync(PROMPT_FILE, 'utf8'));
+    expect(out).toMatchObject({
+      json: { ok: true, chatId: CHAT, messageId: '41', caption: expect.stringContaining('/new') },
+      binary: { data: { fileName: 'brief-prompt.md' } },
+    });
+  });
+
+  test('a refusal becomes a reply', async () => {
+    const [out] = await document({ kind: 'brief', chatId: '-5', messageId: '41', error: 'không' });
+    expect(out).toEqual({ json: { ok: false, chatId: '-5', messageId: '41', text: 'không' } });
+  });
+
+  test('the prompt fits a full brief and names every section', () => {
+    const prompt = readFileSync(PROMPT_FILE, 'utf8');
+    expect(prompt.length).toBeLessThan(30_000);
+    for (const marker of ['VOICE', '=== DANH SÁCH SHOT', '=== NHÂN VẬT ===', 'MỐC', 'INPUT']) {
+      expect(prompt).toContain(marker);
+    }
+  });
+});
+
 describe('WF-06 members (D-060)', () => {
   const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
   const message = (text: string, from: object = {}, chat: string | number = CHAT): Item => ({
