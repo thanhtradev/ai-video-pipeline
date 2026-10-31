@@ -671,6 +671,100 @@ describe('WF-06 /status (P-017)', () => {
   });
 });
 
+describe('WF-06 /workers (D-082)', () => {
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+  const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+  const build = (rows: Record<string, unknown>[]) =>
+    runCode('wf-06-telegram-callback.json', 'Build status', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'workers', chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test.each(['/workers', '/worker', '/workers@aivideo_bot'])('parses %j', (text) => {
+    expect(parse(command(text))[0]!.json).toEqual({
+      kind: 'workers',
+      userId: '111',
+      chatId: '-100',
+      messageId: '7',
+    });
+  });
+
+  test.each(['/workersx', '/workers mac'])('ignores %j', (text) => {
+    expect(parse(command(text))).toEqual([]);
+  });
+
+  test('routes /workers to telegram_workers() and its reply to Build status', () => {
+    const wf = workflow('wf-06-telegram-callback.json');
+    const node = wf.nodes.find((n) => n.name === 'Workers')!;
+    expect(node.parameters.query).toBe('SELECT * FROM telegram_workers($1::bigint);');
+    expect(wf.connections['Status?']!.main[1]).toEqual([
+      expect.objectContaining({ node: 'Workers?' }),
+    ]);
+    expect(wf.connections['Workers?']!.main.map((out) => out[0]!.node)).toEqual([
+      'Workers',
+      'Retry?',
+    ]);
+    expect(wf.connections['Workers']!.main[0]).toEqual([
+      expect.objectContaining({ node: 'Build status' }),
+    ]);
+  });
+
+  test('shows each worker, the clip it runs, its step and progress', () => {
+    const out = build([
+      {
+        allowed: true,
+        worker_id: 'hp-400-g7',
+        online: false,
+        last_seen_at: minutesAgo(15),
+        jobs: [],
+        waiting: 0,
+      },
+      {
+        allowed: true,
+        worker_id: 'mac-mini-m4',
+        online: true,
+        last_seen_at: minutesAgo(0),
+        waiting: 2,
+        jobs: [
+          {
+            video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+            version: 1,
+            title: 'Mèo nghĩ gì?',
+            video_status: 'GENERATING_ASSETS',
+            step: 'render_episode',
+            attempts: 2,
+            started: minutesAgo(12),
+            progress: { stage: 'render', frames: 1800 },
+          },
+        ],
+      },
+    ]);
+
+    expect(out).toMatchObject({ chatId: '-100', messageId: '7' });
+    expect(out.text).toContain('🖥 2 worker');
+    expect(out.text).toContain('🔴 hp-400-g7 · offline 15 phút\nrảnh');
+    expect(out.text).toContain('🟢 mac-mini-m4 · online · 2 job đang chờ');
+    expect(out.text).toContain('▶ 679cd22f v1 · Mèo nghĩ gì?');
+    expect(out.text).toContain(
+      'render_episode · 12 phút · lần 2 · đang render 1800 khung hình · GENERATING_ASSETS',
+    );
+    expect(out.text).toContain('Chi tiết: /status <8 ký tự đầu của id>');
+  });
+
+  test('says when no worker has reported and refuses strangers', () => {
+    expect(build([{}]).text).toBe('Chưa có worker nào gửi heartbeat.');
+    expect(build([{ allowed: false }]).text).toBe('Bạn không phải approver.');
+  });
+});
+
 describe('WF-06 /retry (D-056)', () => {
   const command = (text: string): Item => ({
     json: {
