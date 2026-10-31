@@ -458,12 +458,14 @@ describe('episode_code handler', () => {
 describe('kit and character selection', () => {
   test('the job input picks the kit and cast of the workspace', async () => {
     await createEpisodeCodeHandler(deps())(
-      context({ ...INPUT, kit: 'science', character_set: 'bip' }),
+      context({ ...INPUT, kit: 'science', character_set: 'chip-science' }),
     );
     const ws = join(workDir, 'ws');
     expect(existsSync(join(ws, 'kit/kits/science/theme.ts'))).toBe(true);
-    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain('characters/bip/cast');
-    expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toContain('BÍP');
+    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain(
+      'characters/chip-science/cast',
+    );
+    expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toContain('CHÍP');
   });
 
   test('an unknown kit is a permanent failure, not a fallback', async () => {

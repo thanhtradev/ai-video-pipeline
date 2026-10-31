@@ -22,25 +22,25 @@ describe('kit / character catalog', () => {
   });
 
   test('a kit that extends another copies both and splices both docs, base first', () => {
-    const sel = resolveSelection({ kit: 'science', characterSet: 'bip' });
+    const sel = resolveSelection({ kit: 'science', characterSet: 'chip-science' });
     expect(sel.dirs).toEqual(
-      expect.arrayContaining(['rig', 'kits/whatif', 'kits/science', 'characters/bip']),
+      expect.arrayContaining(['rig', 'kits/whatif', 'kits/science', 'characters/chip-science']),
     );
     expect(sel.modules.theme).toBe('kits/science/theme');
     expect(sel.kitDocs).toEqual(['kits/whatif/AGENT.md', 'kits/science/AGENT.md']);
     expect(sel.kitPrompts).toEqual(['kits/whatif/prompt.md', 'kits/science/prompt.md']);
-    expect(sel.characterPrompts).toEqual(['characters/bip/prompt.md']);
-    expect(sel.labels).toEqual({ kit: 'Khoa học', characterSet: 'Bíp' });
-    expect(sel.hero).toBe('BÍP');
+    expect(sel.characterPrompts).toEqual(['characters/chip-science/prompt.md']);
+    expect(sel.labels).toEqual({ kit: 'Khoa học', characterSet: 'Chíp Khoa học' });
+    expect(sel.hero).toBe('CHÍP');
   });
 
   test('a job input selects by the brief field names; the channel description follows', async () => {
-    const bip = selectionOf({ kit: 'science', character_set: 'bip' });
-    expect(bip).toMatchObject({ kit: 'science', characterSet: 'bip' });
-    const text = await channelDescription(bip);
-    expect(text).toContain('BÍP');
-    expect(text).toContain('Bíp ơi, tại sao…?');
-    expect(text).toContain('Bíp đã hiểu. Còn bạn?');
+    const science = selectionOf({ kit: 'science', character_set: 'chip-science' });
+    expect(science).toMatchObject({ kit: 'science', characterSet: 'chip-science' });
+    const text = await channelDescription(science);
+    expect(text).toContain('CHÍP');
+    expect(text).toContain('Chíp ơi, tại sao…?');
+    expect(text).toContain('Chíp đã hiểu. Còn bạn?');
     expect(text).not.toContain('"BẠN"');
 
     const chip = await channelDescription(selectionOf({}));

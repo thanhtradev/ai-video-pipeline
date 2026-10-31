@@ -88,10 +88,10 @@ INPUT (fill in before sending)
 - Topic: <chủ đề>
 - Length: <số phút> minutes
 - Channel: <choose one>
-    Chíp ("what if" channel): main character BẠN, teenager in a saturated ORANGE hoodie, told in
-      the second person. Hook starts with "Nếu bạn…?" ; final line exactly
+    Chíp (BẠN) ("what if" channel): main character BẠN, teenager in a saturated ORANGE hoodie,
+      told in the second person. Hook starts with "Nếu bạn…?" ; final line exactly
       "Một chữ nếu… một cuộc đời khác."
-    Bíp (science channel): host BÍP, a small curious robot in a teal hoodie with a blinking
-      antenna, told in the third person; one science question per episode. Hook starts with
-      "Bíp ơi, tại sao…?" ; final line exactly "Bíp đã hiểu. Còn bạn?"
+    Chíp Khoa học (science channel): host CHÍP, a small curious robot in a teal hoodie with a
+      blinking antenna, told in the third person; one science question per episode. Hook starts
+      with "Chíp ơi, tại sao…?" ; final line exactly "Chíp đã hiểu. Còn bạn?"
 - Notes: <ý tưởng, nhân vật, cảnh muốn có>

@@ -57,11 +57,11 @@
       "hero": "BẠN",
       "modules": { "cast": "characters/chip/cast" }
     },
-    "bip": {
-      "label": "Bíp",
-      "dir": "characters/bip",
-      "hero": "BÍP",
-      "modules": { "cast": "characters/bip/cast" }
+    "chip-science": {
+      "label": "Chíp Khoa học",
+      "dir": "characters/chip-science",
+      "hero": "CHÍP",
+      "modules": { "cast": "characters/chip-science/cast" }
     }
   }
 }

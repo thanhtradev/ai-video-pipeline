@@ -58,8 +58,12 @@ describe('episode brief', () => {
   });
 
   test('keeps a chosen kit and character set', async () => {
-    const brief = await normalize({ topic: 'Tại sao?', kit: 'science', character_set: 'bip' });
-    expect(brief).toMatchObject({ kit: 'science', character_set: 'bip' });
+    const brief = await normalize({
+      topic: 'Tại sao?',
+      kit: 'science',
+      character_set: 'chip-science',
+    });
+    expect(brief).toMatchObject({ kit: 'science', character_set: 'chip-science' });
   });
 
   test('rejects unknown or disabled slugs, never falls back', async () => {
@@ -82,7 +86,12 @@ describe('episode brief', () => {
     );
     expect(result.rows[0]!.s).toEqual({
       kit: { slug: 'science', label: 'Khoa học', next_slug: 'whatif', next_label: 'Nếu bạn…' },
-      character_set: { slug: 'chip', label: 'Chíp (BẠN)', next_slug: 'bip', next_label: 'Bíp' },
+      character_set: {
+        slug: 'chip',
+        label: 'Chíp (BẠN)',
+        next_slug: 'chip-science',
+        next_label: 'Chíp Khoa học',
+      },
     });
   });
 });
@@ -101,11 +110,11 @@ describe('Telegram draft buttons', () => {
     expect(kit.selection!.kit).toMatchObject({ slug: 'science', next_slug: 'whatif' });
 
     const cast = await cycle(drafted.token!, 'character_set');
-    expect(cast.brief).toMatchObject({ kit: 'science', character_set: 'bip' });
+    expect(cast.brief).toMatchObject({ kit: 'science', character_set: 'chip-science' });
 
     // the last cycle wraps to the first option
     const wrapped = await cycle(drafted.token!, 'kit');
-    expect(wrapped.brief).toMatchObject({ kit: 'whatif', character_set: 'bip' });
+    expect(wrapped.brief).toMatchObject({ kit: 'whatif', character_set: 'chip-science' });
 
     // Create submits the brief with the choice
     const created = await decideWith(db.pool, drafted.token!, 'APPROVE', null);
@@ -114,7 +123,7 @@ describe('Telegram draft buttons', () => {
       `SELECT brief FROM video_version WHERE video_id = $1`,
       [(created as { video_id?: string }).video_id],
     );
-    expect(version.rows[0]!.brief).toMatchObject({ kit: 'whatif', character_set: 'bip' });
+    expect(version.rows[0]!.brief).toMatchObject({ kit: 'whatif', character_set: 'chip-science' });
 
     expect((await cycle(drafted.token!, 'kit')).result).toBe('NOT_PENDING');
   });
@@ -127,9 +136,13 @@ describe('Telegram draft buttons', () => {
   });
 
   test('/new tokens choose directly', async () => {
-    const drafted = await draft({ topic: 'Tại sao?', kit: 'science', character_set: 'bip' });
+    const drafted = await draft({
+      topic: 'Tại sao?',
+      kit: 'science',
+      character_set: 'chip-science',
+    });
     expect(drafted.result).toBe('DRAFT');
-    expect(drafted.selection!.character_set!.slug).toBe('bip');
+    expect(drafted.selection!.character_set!.slug).toBe('chip-science');
     const bad = await draft({ topic: 'Tại sao?', kit: 'anime' });
     expect(bad.result).toBe('INVALID');
     expect(bad.error).toMatch(/unknown kit/);
@@ -146,7 +159,7 @@ describe('job inputs', () => {
           format: 'episode',
           topic: 'Tại sao?',
           kit: 'science',
-          character_set: 'bip',
+          character_set: 'chip-science',
         }),
       ],
     );
@@ -159,14 +172,18 @@ describe('job inputs', () => {
     await succeed(db.pool, timing.rows[0]!.job_create, { ok: true });
     await db.pool.query('SELECT episode_code_job_create($1)', [versionId]);
     const code = (await jobs(db.pool, versionId)).find((j) => j.step === 'episode_code')!;
-    expect(code.input).toMatchObject({ kit: 'science', character_set: 'bip' });
+    expect(code.input).toMatchObject({ kit: 'science', character_set: 'chip-science' });
 
     await succeed(db.pool, code.id, { ok: true });
     await db.pool.query(`SELECT episode_code_revision_create($1, 'again')`, [versionId]);
     const revision = (await jobs(db.pool, versionId))
       .filter((j) => j.step === 'episode_code')
       .find((j) => j.id !== code.id)!;
-    expect(revision.input).toMatchObject({ kit: 'science', character_set: 'bip', revision: {} });
+    expect(revision.input).toMatchObject({
+      kit: 'science',
+      character_set: 'chip-science',
+      revision: {},
+    });
   });
 
   test('version_selection gives the defaults for a brief made before D-066', async () => {

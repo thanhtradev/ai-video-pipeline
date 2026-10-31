@@ -43,7 +43,7 @@ describe('prepareWorkspace', () => {
       "export * from '../kits/whatif/theme';",
     );
     expect(existsSync(join(ws, 'kit/episodes/ep1'))).toBe(false);
-    expect(existsSync(join(ws, 'kit/characters/bip'))).toBe(false);
+    expect(existsSync(join(ws, 'kit/characters/chip-science'))).toBe(false);
   });
 
   test('assembles CLAUDE.md from the base, the kit and the character docs', async () => {
@@ -62,19 +62,21 @@ describe('prepareWorkspace', () => {
     const ws = join(root, 'ws');
     const sel = await prepareWorkspace(ws, {
       ...sources,
-      selection: { kit: 'science', characterSet: 'bip' },
+      selection: { kit: 'science', characterSet: 'chip-science' },
     });
-    expect(sel.characterSet).toBe('bip');
+    expect(sel.characterSet).toBe('chip-science');
     expect(existsSync(join(ws, 'kit/kits/science/theme.ts'))).toBe(true);
     expect(existsSync(join(ws, 'kit/kits/whatif/ui.tsx'))).toBe(true);
-    expect(existsSync(join(ws, 'kit/characters/bip/hosts.tsx'))).toBe(true);
-    expect(existsSync(join(ws, 'kit/characters/bip/hosts.test.tsx'))).toBe(false);
-    // the reference episode's own cast comes along (episodeDeps), but the active cast is Bíp's
+    expect(existsSync(join(ws, 'kit/characters/chip-science/hosts.tsx'))).toBe(true);
+    expect(existsSync(join(ws, 'kit/characters/chip-science/hosts.test.tsx'))).toBe(false);
+    // the reference episode's own cast comes along (episodeDeps), but the active cast is Chíp's
     expect(existsSync(join(ws, 'kit/characters/chip/cast.tsx'))).toBe(true);
-    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain('characters/bip/cast');
+    expect(await readFile(join(ws, 'kit/active/cast.ts'), 'utf8')).toContain(
+      'characters/chip-science/cast',
+    );
     expect(await readFile(join(ws, 'kit/active/theme.ts'), 'utf8')).toContain('kits/science/theme');
     const claude = await readFile(join(ws, 'CLAUDE.md'), 'utf8');
-    expect(claude).toContain('BÍP');
+    expect(claude).toContain('CHÍP');
     expect(claude).not.toContain('"BẠN" ALWAYS');
   });
 

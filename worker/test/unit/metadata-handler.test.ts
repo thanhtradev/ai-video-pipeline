@@ -163,9 +163,9 @@ describe('metadata handler', () => {
     await createMetadataHandler(deps())(context());
     expect(requests[0]!.systemPrompt).toContain('Nếu bạn…?');
     await createMetadataHandler(deps())(
-      context({ ...INPUT, kit: 'science', character_set: 'bip' }),
+      context({ ...INPUT, kit: 'science', character_set: 'chip-science' }),
     );
-    expect(requests[1]!.systemPrompt).toContain('BÍP');
+    expect(requests[1]!.systemPrompt).toContain('CHÍP');
     expect(requests[1]!.systemPrompt).not.toContain('Nếu bạn…?');
   });
 

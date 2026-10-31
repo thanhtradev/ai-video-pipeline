@@ -254,17 +254,17 @@ describe('episode script handler', () => {
     });
   });
 
-  test('writes for the selected channel: science kit + Bíp', async () => {
+  test('writes for the selected channel: science kit + Chíp', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
-    const brief = { ...TOPIC_BRIEF, kit: 'science', character_set: 'bip' };
+    const brief = { ...TOPIC_BRIEF, kit: 'science', character_set: 'chip-science' };
     await handler(context({ brief, language: 'vi' }));
 
     const request = requests[0]!;
-    expect(request.systemPrompt).toContain('BÍP');
-    expect(request.systemPrompt).toContain('Bíp ơi, tại sao…?');
+    expect(request.systemPrompt).toContain('CHÍP');
+    expect(request.systemPrompt).toContain('Chíp ơi, tại sao…?');
     expect(request.systemPrompt).not.toContain('Nếu bạn…?');
     expect(request.systemPrompt).toContain('science settings');
-    expect(request.prompt).toContain('"character_set": "bip"');
+    expect(request.prompt).toContain('"character_set": "chip-science"');
   });
 
   test('refuses an unknown kit instead of falling back', async () => {

@@ -93,7 +93,7 @@ Never put credentials in this file.
 | U-12 | ~~n8n webhook reachable from workers~~ — not needed: workers report via PostgreSQL (P-015) | |
 | U-14 | Max plan headless usage limits and terms for automation | Terms confirmed by the user (D-042); usage per video measured from the worker's `script written` log |
 | U-20 | ITERA TTS (D-040): money price per credit, rate limits / concurrency, where `export_transcript` returns the SRT, commercial-use and data-retention terms, chosen provider/model/voice for Vietnamese | API surface documented in S-24 (2026-10-25). Price and voice needed before slice 2b goes live; rate limits measured in the first runs |
-| U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) and the brief form (WF-01) | Telegram can only deliver button presses to a public HTTPS webhook |
+| U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) | Telegram can only deliver button presses to a public HTTPS webhook |
 | U-22 | Google Drive archive (D-063): Google One plan and free space of the owner's account, rclone version on the Mac mini, remote name and root folder | Personal Drive has 15 GB free; an archived episode is about 150 MB. Recorded when the owner runs `ops/final-delivery.md` §2 |
 | U-15 | Canonical timezone for reports/retention | |
 | U-23 | HP worker (`hp-400-g7`, D-075): VM LAN and Tailscale addresses, Ubuntu/Node/ffmpeg/whisper/rclone versions, whether AppArmor blocks bwrap, disk size, render and whisper time per episode on CPU | Recorded while running `ops/linux-worker.md` |

@@ -3,9 +3,9 @@ import { Folder, Still } from 'remotion';
 import { HOSTS } from './hosts';
 import { SciHostContact, SciHostSheet } from './HostSheets';
 
-/** "Bíp" character set – review stills of the host candidates (`npx remotion still src/channels.ts SciHostContact out.png`). */
-export const BipCompositions: React.FC = () => (
-  <Folder name="Bip">
+/** "Chíp Khoa học" character set – review stills of the host candidates (`npx remotion still src/channels.ts SciHostContact out.png`). */
+export const ChipScienceCompositions: React.FC = () => (
+  <Folder name="ChipScience">
     <Still id="SciHostContact" component={SciHostContact} width={1920} height={1080} />
     {HOSTS.map((h) => (
       <Still

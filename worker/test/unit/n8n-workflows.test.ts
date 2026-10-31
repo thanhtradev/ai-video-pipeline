@@ -148,45 +148,6 @@ describe.each(files)('%s', (file) => {
   });
 });
 
-describe('WF-01 Intake', () => {
-  test('builds a trimmed episode brief keyed by the execution id', () => {
-    const [out] = runCode('wf-01-intake.json', 'Build brief', {
-      executionId: '42',
-      input: [
-        {
-          json: {
-            Topic: '  Nếu bạn dừng được thời gian 30 giây? ',
-            'Duration (minutes)': 6,
-            'Full brief': '',
-            Notes: 'giọng kể vui',
-          },
-        },
-      ],
-    });
-
-    expect(out!.json.submissionId).toBe('n8n-form-42');
-    expect(JSON.parse(out!.json.brief as string)).toEqual({
-      format: 'episode',
-      topic: 'Nếu bạn dừng được thời gian 30 giây?',
-      duration_minutes: 6,
-      notes: 'giọng kể vui',
-    });
-  });
-
-  test('passes a full brief through and leaves an empty duration out', () => {
-    const fullBrief = 'VOICE\n[punchy] Nếu bạn dừng được thời gian…\n\n[1. HOOK]';
-    const [out] = runCode('wf-01-intake.json', 'Build brief', {
-      input: [{ json: { Topic: 'EP5', 'Duration (minutes)': '', 'Full brief': fullBrief } }],
-    });
-
-    expect(JSON.parse(out!.json.brief as string)).toEqual({
-      format: 'episode',
-      topic: 'EP5',
-      full_brief: fullBrief,
-    });
-  });
-});
-
 describe('WF-05 Script Approval Request', () => {
   const token = 'f'.repeat(32);
   const row = {
@@ -917,12 +878,12 @@ describe('WF-06 /new (D-058)', () => {
 
   test('takes kit= and nhanvat= tokens off the first line (D-066)', () => {
     expect(
-      parse(message('/new 5 Bíp ơi, tại sao? kit=science nhanvat=bip\nGhi chú')),
+      parse(message('/new 5 Bíp ơi, tại sao? kit=science nhanvat=chip-science\nGhi chú')),
     ).toMatchObject({
       topic: 'Bíp ơi, tại sao?',
       minutes: 5,
       notes: 'Ghi chú',
-      selection: { kit: 'science', character_set: 'bip' },
+      selection: { kit: 'science', character_set: 'chip-science' },
     });
     expect(parse(message('/new kit=whatif Mèo'))).toMatchObject({
       topic: 'Mèo',
@@ -988,7 +949,12 @@ describe('WF-06 /new (D-058)', () => {
 
   const SELECTION = {
     kit: { slug: 'whatif', label: 'Nếu bạn…', next_slug: 'science', next_label: 'Khoa học' },
-    character_set: { slug: 'chip', label: 'Chíp (BẠN)', next_slug: 'bip', next_label: 'Bíp' },
+    character_set: {
+      slug: 'chip',
+      label: 'Chíp (BẠN)',
+      next_slug: 'chip-science',
+      next_label: 'Chíp Khoa học',
+    },
   };
   const confirm = (
     row: Record<string, unknown>,
@@ -1015,7 +981,7 @@ describe('WF-06 /new (D-058)', () => {
       edit: false,
       kitButton: 'Kit → Khoa học',
       kitData: `in:K:${token}`,
-      castButton: 'Nhân vật → Bíp',
+      castButton: 'Nhân vật → Chíp Khoa học',
       castData: `in:C:${token}`,
     });
     expect(out.text).toContain('Thời lượng: khoảng 8 phút');
