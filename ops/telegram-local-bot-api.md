@@ -35,10 +35,35 @@ reaching this one.
 
 ## 2. Things to check on this setup
 
-- **Files sent to the bot** (`/new` with a brief, `/rules set`): in `--local` mode `getFile`
-  returns a path on the Bot API server's disk. Test one `.md` upload. If WF-06 "Get file" fails,
-  the server is not serving `/file/…` over HTTP, and that has to be fixed on the server side (for
-  example nginx over its data directory). Not verified.
+- **Files sent to the bot** (`/new` with a brief, `/rules set`): **confirmed broken 2026-10-31**.
+  WF-06 "Get file" failed with `404 {"ok":false,"error_code":404,"description":"Not Found"}`. In
+  `--local` mode `getFile` returns an absolute path on the server's disk, and the server does not
+  serve `/file/…` over HTTP. Fix: §2.1.
+
+### 2.1 nginx file proxy (fixes "Get file")
+
+[`telegram-bot-api/nginx.conf`](telegram-bot-api/nginx.conf) listens on `:8082`, serves
+`/file/bot<token>//<data dir>/<token>/…` from the data directory (read-only, only the folder
+matching the token in the URL), and proxies everything else to `127.0.0.1:8081`. Uploads still
+go through it with the 2000 MB limit. Run on the Bot API host (`192.168.1.107`):
+
+1. Find the server's data directory (its `--dir`, or the host side of its Docker volume) and call
+   it `DATA_DIR`. If the server sees it at a path other than `/var/lib/telegram-bot-api`, change
+   that path in `nginx.conf` in both places.
+2. Copy `ops/telegram-bot-api/nginx.conf` to the host, e.g. `/opt/telegram-bot-api/nginx.conf`.
+3. Start nginx on the host network (one line):
+   ```bash
+   docker run -d --name tg-bot-api-files --restart unless-stopped --network host -v /opt/telegram-bot-api/nginx.conf:/etc/nginx/conf.d/default.conf:ro -v "$DATA_DIR":/var/lib/telegram-bot-api:ro nginx:1.27-alpine
+   ```
+4. Check from the `n8n` container (same `read -rs TG_TOKEN` as §1):
+   `wget -qO- http://192.168.1.107:8082/bot$TG_TOKEN/getMe` returns `"ok":true`.
+5. n8n UI → Credentials → **aivideo-telegram** → Base URL `http://192.168.1.107:8082` → Save.
+   The webhook stays valid (same server behind the proxy).
+6. Send one `.md` brief with `/new`: "Get file" returns binary data and the draft is built.
+   A `403` instead of `404` means nginx (uid 101) cannot read the files: make `DATA_DIR`
+   world-readable (`chmod -R o+rX`) or run nginx with the Bot API server's uid.
+
+Rollback: Base URL back to `:8081`, then `docker rm -f tg-bot-api-files`.
 - **n8n memory**: LXC 104 now has 2 GiB RAM with ~1.4 GiB available (S-04, 2026-10-29). n8n keeps
   binary data in memory by default, and a 1080p episode is a few hundred MB, so two finals in one
   run would take most of that. Recommended: set `N8N_DEFAULT_BINARY_DATA_MODE=filesystem` on the
