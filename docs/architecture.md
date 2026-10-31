@@ -11,7 +11,7 @@ Everything in this file is `[PROPOSED]` unless stated otherwise.
                  └───────────────▲──────────────┬───────────┘
                                  │ notify       │ callback (signed token)
 ┌─────────┐ brief   ┌────────────┴──────────────▼──────────┐
-│ n8n Form├────────►│ n8n (LXC 104) — orchestration only   │
+│ Telegram├────────►│ n8n (LXC 104) — orchestration only   │
 └─────────┘         │ intake · dispatcher · event handler  │
                     │ cost guard · approvals · watchdog     │
                     └───┬───────────────▲───────────────┬──┘
@@ -63,7 +63,7 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 
 ## 4. Data flow for one video [PROPOSED]
 
-1. **Intake** — n8n Form → validate → create `video` (status `BRIEF_SUBMITTED`) in a batch, FIFO order.
+1. **Intake** — `/new` on Telegram (WF-06, D-058/D-079) → validate → create `video` (status `BRIEF_SUBMITTED`) in a batch, FIFO order.
 2. **Script/storyboard** — `script` job via Claude Code CLI headless (no Claude API, D-019). Usage guard before the call. Output validated against a JSON schema, stored as files + DB rows.
 3. **Script approval** — Telegram sends a summary + file link; approval bound to `video_version`. Waiting = DB state, not a Wait node.
 4. **Assets** — bounded parallel jobs: `tts` (paid API, cost guard), `visuals` (code-only: Claude Code + Remotion templates, D-020), `music/sfx` (free royalty-free library, license per track, D-021).

@@ -47,19 +47,19 @@ A fourth feedback, an episode_code job that keeps failing its gates, or a 90-min
 
 ## 3. Script (A1)
 
-Intake (WF-01): `Topic` (required), `Kit` and `Character set` (dropdowns, D-066), `Duration
-(minutes)` (2–12, optional), `Full brief` (optional, ≤ 30000 characters, kept verbatim), `Notes`.
-The brief gets `format: "episode"`, which `brief_normalize` validates and `video_submit` turns into
+Intake is `/new [minutes] <topic>` on Telegram only (D-058; the WF-01 form was removed, D-079):
+topic (required), duration (2–12 minutes, optional), notes on the next lines, a `.md`/`.txt` full
+brief (optional, ≤ 30000 characters, kept verbatim). The brief gets `format: "episode"`, which `brief_normalize` validates and `video_submit` turns into
 a 16:9 video; Shorts briefs still work. `kit` and `character_set` are slugs of enabled rows of
 `catalog_option` (seeded from `remotion/catalog.json`: kits `whatif`, `science`; character sets
-`chip`, `bip`), filled with the defaults when absent and refused when unknown. On Telegram,
+`chip`, `chip-science`), filled with the defaults when absent and refused when unknown. On Telegram,
 `/new` takes `kit=<slug>` / `nhanvat=<slug>` on its first line, and the confirmation shows
 `Kit: … · Nhân vật: …` with two buttons that switch to the next option
 (`telegram_intake_cycle()`) before **Tạo**. The selection reaches the script job in the brief and
 the `episode_code`, revision and `metadata` jobs as `kit` / `character_set` in their input
 (`version_selection()`); the script and metadata prompts describe the channel from the kit's and
 character set's `prompt.md` (the hero, the fixed hook and ending: Chíp = "Nếu bạn…?" / "Một chữ
-nếu… một cuộc đời khác.", Bíp = "Bíp ơi, tại sao…?" / "Bíp đã hiểu. Còn bạn?").
+nếu… một cuộc đời khác.", Chíp Khoa học = "Chíp ơi, tại sao…?" / "Chíp đã hiểu. Còn bạn?").
 
 The script step returns one JSON document (schema in `worker/src/handlers/episode-script.ts`):
 

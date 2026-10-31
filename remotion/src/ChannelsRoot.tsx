@@ -10,7 +10,7 @@ import { SHOTS as SHOTS3, TOTAL as TOTAL3 } from './episodes/ep3/time';
 import { BOARD5_PER, T2E5Board, Tiktok2Ep5 } from './episodes/ep5/Episode';
 import { SHOTS as SHOTS5, TOTAL as TOTAL5 } from './episodes/ep5/time';
 import { TextBoundsQA } from './kits/whatif/qa/TextBoundsQA';
-import { BipCompositions } from './characters/bip/BipRoot';
+import { ChipScienceCompositions } from './characters/chip-science/ChipScienceRoot';
 
 /** Text-out-of-frame QA (scripts/tiktok2/check-text-bounds.mjs): samples every QA_EVERY frames of an episode. */
 const QA_EVERY = 10;
@@ -173,6 +173,6 @@ export const ChannelsCompositions: React.FC = () => (
         />
       </Folder>
     </Folder>
-    <BipCompositions />
+    <ChipScienceCompositions />
   </>
 );

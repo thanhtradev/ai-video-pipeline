@@ -16,7 +16,7 @@ Claude Code never imports/publishes production workflows.
 
 | ID | Name | Trigger | Responsibility |
 |---|---|---|---|
-| WF-01 | Intake | n8n Form (basic auth); also `/new` on Telegram via WF-06 (D-058) | `video_submit()`: validate the brief in SQL, create batch/video/version and the `script` job; Telegram status. **Implemented (2a):** `wf-01-intake.json`. The voice is a registry setting (D-043). **Implemented (D-066):** `Kit` and `Character set` dropdowns (slugs of `catalog_option`) |
+| WF-01 | ~~Intake~~ | — | Removed (D-079): every clip starts with `/new` on Telegram (WF-06 → `video_submit()`, D-058) |
 | WF-02 | Dispatcher | Every 30 s | `dispatch_all()` → `RPUSH` job ids to Redis. **Implemented:** `n8n/workflows/wf-02-dispatcher.json`. Paid steps are guarded by the worker calling `cost_guard()` (D-045) |
 | WF-03 | ~~Worker Event Handler~~ | — | Removed: workers report via PostgreSQL functions (P-015). Phase 2 reacts to finished jobs from the dispatcher/next-step logic |
 | WF-04 | ~~Cost Guard~~ | — | Replaced by the SQL function `cost_guard()` that the worker calls before every paid request (D-045, `docs/cost-and-providers.md` §3) |
@@ -36,7 +36,7 @@ Claude Code never imports/publishes production workflows.
 ## Dependencies
 
 ```
-WF-01 → (DB) → WF-02 → Redis → worker (cost_guard before paid calls) → (DB functions) → WF-02 ...
+WF-06 /new → (DB) → WF-02 → Redis → worker (cost_guard before paid calls) → (DB functions) → WF-02 ...
                        (DB) → WF-05 → worker GET /media  → Telegram → WF-06 → (DB)   (A1 + script.md)
                        (DB) → WF-15 → worker GET /media  → Telegram → WF-06 → (DB)   (episode A1b voice)
                        (DB) → WF-12 → worker GET /boards → Telegram → WF-06 → (DB)   (episodes, + mix)

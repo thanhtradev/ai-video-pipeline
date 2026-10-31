@@ -56,8 +56,8 @@ export const HOSTS: readonly HostDef[] = [
   }),
   defineHost({
     id: 3,
-    name: 'Bíp',
-    tagline: 'Robot nhỏ, hiểu nghĩa đen, bíp khi hào hứng',
+    name: 'Chíp',
+    tagline: 'Robot nhỏ, hiểu nghĩa đen, kêu bíp khi hào hứng',
     hoodie: '#4fb8c9',
     props: { size: 0.9, accessories: ['antenna', 'visor', 'gloves'] },
     look: 'robot nhỏ, hoodie XANH NGỌC, ăng-ten đèn nháy trên đầu, kính che mắt trong suốt, găng tay xám.',

@@ -3,8 +3,8 @@ import { createTestDb, type TestDb } from '../helpers/db.js';
 import { decide as decideWith, jobs, OWNER, STRANGER } from '../helpers/episode-flow.js';
 import { versionStatus } from '../helpers/fixtures.js';
 
-// Intake from Telegram (D-058): /new stores a draft for an approver; Create submits it like the
-// WF-01 form (video + script job), Cancel drops it. Buttons go through telegram_decide().
+// Intake from Telegram (D-058, the only intake since D-079): /new stores a draft for an approver;
+// Create submits it (video + script job), Cancel drops it. Buttons go through telegram_decide().
 
 let db: TestDb;
 
