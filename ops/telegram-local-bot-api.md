@@ -40,30 +40,36 @@ reaching this one.
   `--local` mode `getFile` returns an absolute path on the server's disk, and the server does not
   serve `/file/…` over HTTP. Fix: §2.1.
 
-### 2.1 nginx file proxy (fixes "Get file")
+### 2.1 nginx file proxy (fixes "Get file") — live since 2026-10-31
 
 [`telegram-bot-api/nginx.conf`](telegram-bot-api/nginx.conf) listens on `:8082`, serves
-`/file/bot<token>//<data dir>/<token>/…` from the data directory (read-only, only the folder
-matching the token in the URL), and proxies everything else to `127.0.0.1:8081`. Uploads still
-go through it with the 2000 MB limit. Run on the Bot API host (`192.168.1.107`):
+`/file/bot<token>//var/lib/telegram-bot-api/<token>/…` from disk (only the folder matching the
+token in the URL), and proxies everything else to `127.0.0.1:8081` with the 2000 MB limit.
 
-1. Find the server's data directory (its `--dir`, or the host side of its Docker volume) and call
-   it `DATA_DIR`. If the server sees it at a path other than `/var/lib/telegram-bot-api`, change
-   that path in `nginx.conf` in both places.
-2. Copy `ops/telegram-bot-api/nginx.conf` to the host, e.g. `/opt/telegram-bot-api/nginx.conf`.
-3. Start nginx on the host network (one line):
-   ```bash
-   docker run -d --name tg-bot-api-files --restart unless-stopped --network host -v /opt/telegram-bot-api/nginx.conf:/etc/nginx/conf.d/default.conf:ro -v "$DATA_DIR":/var/lib/telegram-bot-api:ro nginx:1.27-alpine
-   ```
-4. Check from the `n8n` container (same `read -rs TG_TOKEN` as §1):
-   `wget -qO- http://192.168.1.107:8082/bot$TG_TOKEN/getMe` returns `"ok":true`.
-5. n8n UI → Credentials → **aivideo-telegram** → Base URL `http://192.168.1.107:8082` → Save.
+The Bot API server runs natively in **LXC 107** (`lxc-telegram-api`, Debian 12) as
+`telegram-bot-api.service`, working directory `/var/lib/telegram-bot-api`. tdlib writes files
+with mode `0600`, which also zeroes any ACL, so nginx and the server must run as the same user:
+[`telegram-bot-api/run-as-user.sh`](telegram-bot-api/run-as-user.sh) creates `tgbotapi`, adds a
+systemd drop-in (`telegram-bot-api.service.d/user.conf`) and sets nginx's `user`.
+
+Setup (done 2026-10-31; for a rebuild), from `pve`:
+
+1. `apt-get install -y nginx acl` in LXC 107, remove `/etc/nginx/sites-enabled/default`.
+2. Push the config: `scp` it to `pve:/root/`, then
+   `pct push 107 /root/nginx.conf /etc/nginx/conf.d/tg-bot-api-files.conf`.
+3. Push `run-as-user.sh` the same way and run `pct exec 107 -- sh /root/run-as-user.sh`
+   (restarts the Bot API for a few seconds). Expect `active` twice and `tgbotapi` processes.
+4. n8n UI → Credentials → **aivideo-telegram** → Base URL `http://192.168.1.107:8082` → Save.
    The webhook stays valid (same server behind the proxy).
-6. Send one `.md` brief with `/new`: "Get file" returns binary data and the draft is built.
-   A `403` instead of `404` means nginx (uid 101) cannot read the files: make `DATA_DIR`
-   world-readable (`chmod -R o+rX`) or run nginx with the Bot API server's uid.
+5. Send one `.md` brief with `/new`: "Get file" returns binary data. A `403` means nginx is not
+   running as the server's user (step 3).
 
-Rollback: Base URL back to `:8081`, then `docker rm -f tg-bot-api-files`.
+nginx's access log (`/var/log/nginx/access.log` in LXC 107) contains the bot token in every URL,
+like the Bot API itself; keep the container's access restricted.
+
+Rollback: Base URL back to `:8081`, `systemctl disable --now nginx` in LXC 107. The `tgbotapi`
+user can stay.
+
 - **n8n memory**: LXC 104 now has 2 GiB RAM with ~1.4 GiB available (S-04, 2026-10-29). n8n keeps
   binary data in memory by default, and a 1080p episode is a few hundred MB, so two finals in one
   run would take most of that. Recommended: set `N8N_DEFAULT_BINARY_DATA_MODE=filesystem` on the
