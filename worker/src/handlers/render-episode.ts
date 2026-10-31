@@ -3,6 +3,7 @@ import { readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import { runSandboxedNode } from '../episode/sandbox.js';
+import { frameSchema, LANDSCAPE_FRAME, scaledFrame } from '../episode/frame.js';
 import { copyWorkspace, RENDER_SCRIPT } from '../episode/workspace.js';
 import type { DurationProbe } from '../media/ffprobe.js';
 import type { LoudnessNormalizer } from '../media/loudness.js';
@@ -13,8 +14,9 @@ import { PermanentJobError, ProviderBlockedError, type JobHandler } from '../run
 import { NO_CHROME } from './episode-code.js';
 
 // Episode `render_episode` step (q:render, docs/episode-pipeline.md §8): the approved storyboard's
-// code rendered at 1280×720 with its burned-in captions, loudness normalised (D-032), plus a
-// sidecar SRT from the sentence timeline. `render_final` (after A2, D-057) is the same at 1920×1080. The render runs agent-written code, so it runs on a copy
+// code rendered at 2/3 size (1280×720 for 16:9) with its burned-in captions, loudness normalised (D-032), plus a
+// sidecar SRT from the sentence timeline. `render_final` (after A2, D-057) is the same at full size. The size is
+// the kit's frame that the episode_code job recorded (D-080: 1920×1080 or 1080×1920). The render runs agent-written code, so it runs on a copy
 // of the approved workspace under the worker's sandbox profile (D-054). Free (local).
 
 export const EPISODE_PREVIEW_SCALE = 2 / 3;
@@ -22,8 +24,6 @@ const QUALITIES = {
   preview: { scale: EPISODE_PREVIEW_SCALE, video: 'preview.mp4' },
   final: { scale: 1, video: 'final.mp4' },
 } as const;
-const WIDTH = 1920;
-const HEIGHT = 1080;
 const FPS = 30;
 const RENDER_TIMEOUT_MS = 90 * 60 * 1000;
 const SRT = 'vi.srt';
@@ -33,6 +33,9 @@ const inputSchema = z.object({
   timing_job_id: z.uuid(),
   quality: z.enum(['preview', 'final']).default('preview'),
 });
+
+// Episode code made before D-080 has no frame: those episodes are all 16:9.
+const codeResultSchema = z.object({ frame: frameSchema.default(LANDSCAPE_FRAME) });
 
 const timingSchema = z.object({
   totalFrames: z.number().int().positive(),
@@ -74,12 +77,11 @@ export interface RenderEpisodeDeps {
   blockSeconds: number;
 }
 
-async function checkedJobDir(workDir: string, jobId: string, what: string): Promise<string> {
+async function checkedJob(workDir: string, jobId: string, what: string) {
   const dir = await resolveInside(dirname(workDir), jobId);
-  if (!(await readValidCheckpoint(dir))) {
-    throw new PermanentJobError(`${what} job ${jobId} is missing or changed`);
-  }
-  return dir;
+  const checkpoint = await readValidCheckpoint(dir);
+  if (!checkpoint) throw new PermanentJobError(`${what} job ${jobId} is missing or changed`);
+  return { dir, checkpoint };
 }
 
 export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler {
@@ -89,8 +91,10 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
       throw new PermanentJobError(`invalid render_episode input: ${parsed.error.message}`);
     }
     if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
-    const codeDir = await checkedJobDir(workDir, parsed.data.episode_code_job_id, 'episode_code');
-    const timingDir = await checkedJobDir(workDir, parsed.data.timing_job_id, 'timing');
+    const code = await checkedJob(workDir, parsed.data.episode_code_job_id, 'episode_code');
+    const codeDir = code.dir;
+    const { frame } = codeResultSchema.parse(code.checkpoint.result);
+    const timingDir = (await checkedJob(workDir, parsed.data.timing_job_id, 'timing')).dir;
     const timing = timingSchema.parse(
       JSON.parse(await readFile(join(timingDir, 'timing.json'), 'utf8')),
     );
@@ -125,8 +129,7 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
       result: {
         template: 'Episode',
         quality: parsed.data.quality,
-        width: Math.round(WIDTH * scale),
-        height: Math.round(HEIGHT * scale),
+        ...scaledFrame(frame, scale),
         fps: FPS,
         frames: timing.totalFrames,
         duration_seconds: Math.round(durationSeconds * 100) / 100,

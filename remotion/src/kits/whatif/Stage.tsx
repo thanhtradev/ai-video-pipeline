@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill, Easing, interpolate, random } from 'remotion';
-import { ANCHOR, CAM_K, clamp, H, W } from './theme';
+import { clamp, useFrameSpec, type FrameSpec } from './theme';
 
-/** Camera: the world point (x,y) lands on ANCHOR on screen, zoom z. The world is drawn in a 1080×1920 frame (+ margins). */
+/** Camera: the world point (x,y) lands on the frame's ANCHOR on screen, zoom z. The world is drawn in a 1080×1920 frame (+ margins). */
 export type Cam = {
   readonly x: number;
   readonly y: number;
@@ -68,7 +68,8 @@ export const handheld = (f: number, amp: number, seed = 1) => {
   return { x: n(1, 0.11) * amp, y: n(2, 0.09) * amp, r: n(3, 0.07) * amp * 0.03 };
 };
 
-const layerTransform = (cam: Cam, p: number, sx = 0, sy = 0, sr = 0) => {
+const layerTransform = (frame: FrameSpec, cam: Cam, p: number, sx = 0, sy = 0, sr = 0) => {
+  const { ANCHOR, CAM_K } = frame;
   const cx = WORLD.x + (cam.x - WORLD.x) * p;
   const cy = WORLD.y + 80 + (cam.y - WORLD.y - 80) * p;
   const z = (1 + (cam.z - 1) * p) * CAM_K;
@@ -102,21 +103,24 @@ const Layer: React.FC<{ t: string; blur: number; children: React.ReactNode; extr
   blur,
   children,
   extra,
-}) => (
-  <svg
-    width={W}
-    height={H}
-    viewBox={`0 0 ${W} ${H}`}
-    style={{
-      position: 'absolute',
-      inset: 0,
-      filter: [blur > 0.3 ? `blur(${blur}px)` : '', extra ?? ''].join(' ').trim() || undefined,
-      overflow: 'visible',
-    }}
-  >
-    <g transform={t}>{children}</g>
-  </svg>
-);
+}) => {
+  const { W, H } = useFrameSpec();
+  return (
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        filter: [blur > 0.3 ? `blur(${blur}px)` : '', extra ?? ''].join(' ').trim() || undefined,
+        overflow: 'visible',
+      }}
+    >
+      <g transform={t}>{children}</g>
+    </svg>
+  );
+};
 
 /** 3-layer stage: far/bg (blurred, slow drift) · mid (characters – sharp) · fg (blurred, fast drift). */
 export const Stage: React.FC<StageProps> = ({
@@ -137,6 +141,7 @@ export const Stage: React.FC<StageProps> = ({
   children,
   layerFilter,
 }) => {
+  const frame = useFrameSpec();
   const hh = shake ? handheld(f, shake, seed) : { x: 0, y: 0, r: 0 };
   // background blur increases slightly in close-ups (depth of field)
   const zb = interpolate(cam.z, [1, 3], [1, 1.6], clamp);
@@ -144,7 +149,7 @@ export const Stage: React.FC<StageProps> = ({
     <AbsoluteFill style={{ background: sky, overflow: 'hidden' }}>
       {far && (
         <Layer
-          t={layerTransform(cam, 0.45, hh.x, hh.y, hh.r)}
+          t={layerTransform(frame, cam, 0.45, hh.x, hh.y, hh.r)}
           blur={blurFar * zb}
           extra={layerFilter}
         >
@@ -153,7 +158,7 @@ export const Stage: React.FC<StageProps> = ({
       )}
       {bg && (
         <Layer
-          t={layerTransform(cam, 0.78, hh.x, hh.y, hh.r)}
+          t={layerTransform(frame, cam, 0.78, hh.x, hh.y, hh.r)}
           blur={blurBg * zb}
           extra={layerFilter}
         >
@@ -161,7 +166,7 @@ export const Stage: React.FC<StageProps> = ({
         </Layer>
       )}
       {glow && (
-        <Layer t={layerTransform(cam, 0.9, hh.x, hh.y, hh.r)} blur={0}>
+        <Layer t={layerTransform(frame, cam, 0.9, hh.x, hh.y, hh.r)} blur={0}>
           <defs>
             <radialGradient id={`glow${seed}`}>
               <stop offset="0" stopColor={glow.color} stopOpacity={glow.a ?? 0.55} />
@@ -178,13 +183,13 @@ export const Stage: React.FC<StageProps> = ({
         </Layer>
       )}
       {mid && (
-        <Layer t={layerTransform(cam, 1, hh.x, hh.y, hh.r)} blur={0}>
+        <Layer t={layerTransform(frame, cam, 1, hh.x, hh.y, hh.r)} blur={0}>
           {mid}
         </Layer>
       )}
       {fg && (
         <Layer
-          t={layerTransform(cam, 1.3, hh.x, hh.y, hh.r)}
+          t={layerTransform(frame, cam, 1.3, hh.x, hh.y, hh.r)}
           blur={blurFg * zb}
           extra={layerFilter}
         >
@@ -208,19 +213,22 @@ export const Backdrop: React.FC<{ top: string; bottom: string; f: number; dots?:
   bottom,
   f,
   dots = '#ffffff',
-}) => (
-  <AbsoluteFill style={{ background: `linear-gradient(${top}, ${bottom})` }}>
-    <svg width={W} height={H} style={{ position: 'absolute', filter: 'blur(10px)' }}>
-      {Array.from({ length: 14 }, (_, i) => (
-        <circle
-          key={i}
-          cx={((random(`bd${i}`) * W + f * (0.3 + random(`bv${i}`) * 0.4)) % (W + 200)) - 100}
-          cy={random(`by${i}`) * H}
-          r={30 + random(`br${i}`) * 90}
-          fill={dots}
-          opacity={0.05 + random(`bo${i}`) * 0.06}
-        />
-      ))}
-    </svg>
-  </AbsoluteFill>
-);
+}) => {
+  const { W, H } = useFrameSpec();
+  return (
+    <AbsoluteFill style={{ background: `linear-gradient(${top}, ${bottom})` }}>
+      <svg width={W} height={H} style={{ position: 'absolute', filter: 'blur(10px)' }}>
+        {Array.from({ length: 14 }, (_, i) => (
+          <circle
+            key={i}
+            cx={((random(`bd${i}`) * W + f * (0.3 + random(`bv${i}`) * 0.4)) % (W + 200)) - 100}
+            cy={random(`by${i}`) * H}
+            r={30 + random(`br${i}`) * 90}
+            fill={dots}
+            opacity={0.05 + random(`bo${i}`) * 0.06}
+          />
+        ))}
+      </svg>
+    </AbsoluteFill>
+  );
+};

@@ -19,6 +19,7 @@ describe('kit / character catalog', () => {
     expect(sel.modules).toMatchObject({ theme: 'kits/whatif/theme', cast: 'characters/chip/cast' });
     expect(sel.kitDocs).toEqual(['kits/whatif/AGENT.md']);
     expect(sel.characterDocs).toEqual(['characters/chip/AGENT.md']);
+    expect(sel.frame).toEqual({ width: 1920, height: 1080 });
   });
 
   test('a kit that extends another copies both and splices both docs, base first', () => {
@@ -32,6 +33,8 @@ describe('kit / character catalog', () => {
     expect(sel.characterPrompts).toEqual(['characters/chip-science/prompt.md']);
     expect(sel.labels).toEqual({ kit: 'Khoa học', characterSet: 'Chíp Khoa học' });
     expect(sel.hero).toBe('CHÍP');
+    // D-080: the science kit is vertical.
+    expect(sel.frame).toEqual({ width: 1080, height: 1920 });
   });
 
   test('a job input selects by the brief field names; the channel description follows', async () => {
@@ -42,9 +45,12 @@ describe('kit / character catalog', () => {
     expect(text).toContain('Chíp ơi, tại sao…?');
     expect(text).toContain('Chíp đã hiểu. Còn bạn?');
     expect(text).not.toContain('"BẠN"');
+    expect(text).toMatch(/^Vertical 9:16 \(1080×1920\) episodes\./);
+    expect(text).not.toContain('16:9');
 
     const chip = await channelDescription(selectionOf({}));
     expect(chip).toContain('Nếu bạn…?');
+    expect(chip).toMatch(/^Landscape 16:9 \(1920×1080\) episodes\./);
     expect(chip).toContain('Một chữ nếu… một cuộc đời khác.');
     expect(() => selectionOf({ character_set: 'nope' })).toThrow(CatalogError);
   });

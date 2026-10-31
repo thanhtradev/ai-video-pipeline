@@ -129,7 +129,11 @@ beforeEach(async () => {
   await mkdir(renderDir);
   await writeFile(join(renderDir, 'preview.mp4'), 'video');
   await writeFile(join(renderDir, 'vi.srt'), SRT);
-  await writeCheckpoint(renderDir, ['preview.mp4', 'vi.srt'], { loudness: FACTS.loudness });
+  await writeCheckpoint(renderDir, ['preview.mp4', 'vi.srt'], {
+    loudness: FACTS.loudness,
+    width: 1280,
+    height: 720,
+  });
   const timingDir = join(jobsDir, TIMING_JOB);
   await mkdir(timingDir);
   await writeFile(join(timingDir, 'timing.json'), JSON.stringify({ totalFrames: 5357 }));
@@ -187,7 +191,11 @@ describe('qa_preview handler', () => {
   test('checks the 1080p final.mp4 for qa_final (D-062)', async () => {
     const renderDir = join(jobsDir, RENDER_JOB);
     await writeFile(join(renderDir, 'final.mp4'), 'final');
-    await writeCheckpoint(renderDir, ['final.mp4', 'vi.srt'], { loudness: FACTS.loudness });
+    await writeCheckpoint(renderDir, ['final.mp4', 'vi.srt'], {
+      loudness: FACTS.loudness,
+      width: 1920,
+      height: 1080,
+    });
     const inspected: string[] = [];
     const final = { ...INFO, video: { ...INFO.video!, width: 1920, height: 1080 } };
     const result = await createQaPreviewHandler({
@@ -200,6 +208,22 @@ describe('qa_preview handler', () => {
 
     expect(inspected).toEqual([join(renderDir, 'final.mp4')]);
     expect(result.result).toMatchObject({ level: 'PASS' });
+  });
+
+  test('expects the size the render reports, e.g. a 9:16 kit (D-080)', async () => {
+    const renderDir = join(jobsDir, RENDER_JOB);
+    await writeCheckpoint(renderDir, ['preview.mp4', 'vi.srt'], {
+      loudness: FACTS.loudness,
+      width: 720,
+      height: 1280,
+    });
+    const portrait = { ...INFO, video: { ...INFO.video!, width: 720, height: 1280 } };
+    const handler = createQaPreviewHandler({
+      inspect: async () => portrait,
+      detectGaps: async () => ({ black: [], silence: [] }),
+    });
+
+    expect((await handler(context())).result).toMatchObject({ level: 'PASS' });
   });
 
   test('rejects invalid input or a changed render', async () => {

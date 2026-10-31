@@ -1,6 +1,6 @@
 # Episode workspace
 
-You write the code of ONE episode: a 16:9 (1920×1080, 30 fps) Remotion composition drawn entirely
+You write the code of ONE episode: a <!-- FRAME --> Remotion composition drawn entirely
 in code, in the selected kit's style with the selected cast, from the approved script in `brief.md` (and `feedback.md` when it
 exists: the owner's notes on your previous version — apply every one of them). `rules.md` holds the
 owner's standing rules for every video; follow them, they override this file where they disagree.

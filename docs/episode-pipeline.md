@@ -1,6 +1,6 @@
 # Episode pipeline (TikTok 2 channel) [PROPOSED]
 
-How one 16:9 episode in the TikTok 2 style (D-050) goes from a topic to a rendered MP4 with no
+How one episode in the TikTok 2 style (D-050; 16:9, or 9:16 with the science kit, D-080) goes from a topic to a rendered MP4 with no
 interactive session. Reference process (manual, EP1–EP5): `docs/video-process-export.md`.
 Decisions: D-050 (format/style), D-051 (kit port), D-052 (automated step 5, storyboard approval), D-053 (agent sandbox and limits), D-054 (renders run by the worker).
 
@@ -50,7 +50,8 @@ A fourth feedback, an episode_code job that keeps failing its gates, or a 90-min
 Intake is `/new [minutes] <topic>` on Telegram only (D-058; the WF-01 form was removed, D-079):
 topic (required), duration (2–12 minutes, optional), notes on the next lines, a `.md`/`.txt` full
 brief (optional, ≤ 30000 characters, kept verbatim). The brief gets `format: "episode"`, which `brief_normalize` validates and `video_submit` turns into
-a 16:9 video; Shorts briefs still work. `kit` and `character_set` are slugs of enabled rows of
+a video in its kit's frame (D-080: `whatif` 16:9 1920×1080, `science` 9:16 1080×1920, from
+`catalog_option.aspect_ratio` / `catalog.json` `frame`); Shorts briefs still work. `kit` and `character_set` are slugs of enabled rows of
 `catalog_option` (seeded from `remotion/catalog.json`: kits `whatif`, `science`; character sets
 `chip`, `chip-science`), filled with the defaults when absent and refused when unknown. On Telegram,
 `/new` takes `kit=<slug>` / `nhanvat=<slug>` on its first line, and the confirmation shows
@@ -273,7 +274,7 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 
 | Telegram | Effect |
 |---|---|
-| Approve | → `RENDERING_FINAL`, `render_final` job: the same render at 1920×1080 (`final.mp4`) |
+| Approve | → `RENDERING_FINAL`, `render_final` job: the same render at full size (`final.mp4`, 1920×1080 or 1080×1920) |
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a revision of the code as for storyboard notes, sharing its rounds; storyboard, preview, QA and A2 follow again |
 
@@ -284,7 +285,7 @@ What follows the final render is §10. The final file reaches Telegram with the 
 Migration `20261105000100`, status `AWAITING_METADATA_APPROVAL`, approval type `METADATA`. WF-14
 polls `final_due()` every 30 s:
 
-1. A finished `render_final` gets `qa_final` (§9's checks on `final.mp4` at 1920×1080) and
+1. A finished `render_final` gets `qa_final` (§9's checks on `final.mp4` at the size the render reports) and
    `metadata` (q:light): Claude writes the title (≤ 100 characters), description, 5–15 tags (under
    450 characters together), 1–3 hashtags and picks `thumbnail_shot`. Captions are burned in, so the
    prompt lists the shots with a caption-free pause and the worker grabs the middle of that pause

@@ -54,7 +54,8 @@ describe('prepareWorkspace', () => {
     expect(claude).toContain('## Channel style');
     expect(claude).toContain('BẠN');
     expect(claude).toContain('kit/episodes/ep5/');
-    expect(claude).not.toMatch(/<!-- (KIT|CHARACTERS|REFERENCE) -->/);
+    expect(claude).not.toMatch(/<!-- (KIT|CHARACTERS|REFERENCE|FRAME) -->/);
+    expect(claude).toContain('a 16:9 (1920×1080, 30 fps) Remotion composition');
     expect(existsSync(join(ws, 'AGENT.md'))).toBe(false);
   });
 
@@ -77,6 +78,7 @@ describe('prepareWorkspace', () => {
     expect(await readFile(join(ws, 'kit/active/theme.ts'), 'utf8')).toContain('kits/science/theme');
     const claude = await readFile(join(ws, 'CLAUDE.md'), 'utf8');
     expect(claude).toContain('CHÍP');
+    expect(claude).toContain('a 9:16 (1080×1920, 30 fps) Remotion composition');
     expect(claude).not.toContain('"BẠN" ALWAYS');
   });
 

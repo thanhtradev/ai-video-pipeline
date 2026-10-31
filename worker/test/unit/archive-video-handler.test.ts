@@ -178,10 +178,28 @@ describe('archive handler', () => {
       (await stat(join(versionDir, 'jobs', JOBS.final_render_job_id, 'final.mp4'))).ino,
     );
     const manifest = JSON.parse(await readFile(join(versionDir, 'manifest.json'), 'utf8'));
-    expect(manifest).toMatchObject({ video_id: VIDEO, version: 1, frozen_at: INPUT.frozen_at });
+    expect(manifest).toMatchObject({
+      video_id: VIDEO,
+      version: 1,
+      frozen_at: INPUT.frozen_at,
+      aspect_ratio: '16:9',
+    });
     expect(JSON.stringify(manifest)).not.toMatch(/_token/);
     expect(files.get(`${INPUT.remote_dir}/subtitles/vi.vtt`)!.toString()).toBe(srtToVtt(SRT));
     expect(result.result.local_bytes).toBeGreaterThan(0);
+  });
+
+  test('the manifest takes the aspect ratio from the final render (D-080)', async () => {
+    await writeJob(
+      JOBS.final_render_job_id,
+      { 'final.mp4': 'f', 'vi.srt': SRT },
+      { width: 1080, height: 1920 },
+    );
+    const { target } = memoryTarget();
+    await createArchiveVideoHandler({ target, targetName: 'gdrive', blockSeconds: 60 })(context());
+
+    const manifest = JSON.parse(await readFile(join(versionDir, 'manifest.json'), 'utf8'));
+    expect(manifest.aspect_ratio).toBe('9:16');
   });
 
   test('a retry finds the verified copy instead of uploading another', async () => {

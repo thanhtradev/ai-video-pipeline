@@ -1,11 +1,14 @@
 /**
- * "Khoa học" kit theme: the whatif kit with a cooler palette for environments. Episode code that
- * imports `kit/active/theme` sees this `C`; the kit's own sets/props keep the whatif colours.
- * PR B refines the palette with the user; until then the overrides are deliberately small.
+ * "Khoa học" kit theme: the whatif kit in the vertical 9:16 frame (D-080) with a cooler palette for
+ * environments. Episode code that imports `kit/active/theme` sees this frame and this `C`; the
+ * kit's own sets/props keep the whatif colours, and its Stage/UI follow the composition's frame.
  */
-import { C as WHATIF } from '../whatif/theme';
+import { C as WHATIF, PORTRAIT } from '../whatif/theme';
 
 export * from '../whatif/theme';
+
+/** This kit's frame, for episode code (kit/active/theme). */
+export const { W, H, ANCHOR, CAM_K, SAFE, PX } = PORTRAIT;
 
 export const C = {
   ...WHATIF,

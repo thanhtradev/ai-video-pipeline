@@ -10,7 +10,7 @@ import {
 
 /**
  * Text-out-of-frame QA: frame i of this composition = frame i × every of the episode. After the frame is built, measures all visible text
- * (HTML elements with direct text + SVG <text>, real opacity > 5%) and logs to the console any text partly outside 1920×1080.
+ * (HTML elements with direct text + SVG <text>, real opacity > 5%) and logs to the console any text partly outside the composition frame.
  * Text COMPLETELY outside the frame (invisible) is ignored. Text on a blurred background layer (blur > 2px) is tagged "blur" (informational). Run: node scripts/tiktok2/check-text-bounds.mjs <episode>.
  */
 const MARGIN = 2;

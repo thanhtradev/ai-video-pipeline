@@ -15,7 +15,7 @@
 |---|---|
 | Final | MP4, H.264 + AAC, 1080p, 30 FPS (MVP: 9:16 Shorts, 1080×1920, < 60s — D-025) |
 | Preview | 720p (same codec/FPS — `[PROPOSED]`) |
-| Aspect ratio | 16:9 (1920×1080) or 9:16 (1080×1920); one ratio per video |
+| Aspect ratio | 16:9 (1920×1080) or 9:16 (1080×1920); one ratio per video, set by the kit (D-080); the manifest takes it from the final render |
 | Subtitles | SRT and VTT |
 
 ## 3. Directory layout [PROPOSED; episodes implemented by D-062, see docs/episode-pipeline.md §10]

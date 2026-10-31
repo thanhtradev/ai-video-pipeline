@@ -1,5 +1,6 @@
 import React from 'react';
 import { Folder, Still } from 'remotion';
+import { PortraitSample } from '../../kits/science/PortraitSample';
 import { HOSTS } from './hosts';
 import { SciHostContact, SciHostSheet } from './HostSheets';
 
@@ -7,6 +8,7 @@ import { SciHostContact, SciHostSheet } from './HostSheets';
 export const ChipScienceCompositions: React.FC = () => (
   <Folder name="ChipScience">
     <Still id="SciHostContact" component={SciHostContact} width={1920} height={1080} />
+    <Still id="SciPortraitSample" component={PortraitSample} width={1080} height={1920} />
     {HOSTS.map((h) => (
       <Still
         key={h.id}

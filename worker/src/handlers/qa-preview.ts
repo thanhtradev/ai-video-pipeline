@@ -7,7 +7,6 @@ import type { GapDetector, MediaInspector } from '../media/inspect.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
-import { EPISODE_PREVIEW_SCALE } from './render-episode.js';
 
 // Episode `qa_preview` step (q:light, D-057, docs/quality-and-approval.md §3): checks the 720p
 // preview of a render_episode job before A2. Any FAIL is permanent (the video needs a decision;
@@ -20,8 +19,8 @@ const SRT = 'vi.srt';
 const FPS = 30;
 
 const QUALITIES = {
-  preview: { video: 'preview.mp4', scale: EPISODE_PREVIEW_SCALE },
-  final: { video: 'final.mp4', scale: 1 },
+  preview: { video: 'preview.mp4' },
+  final: { video: 'final.mp4' },
 } as const;
 
 const inputSchema = z.object({
@@ -31,6 +30,9 @@ const inputSchema = z.object({
 });
 const renderSchema = z.object({
   loudness: z.object({ output_lufs: z.number(), output_true_peak: z.number() }),
+  // The size the render was made at (the kit's frame, D-080).
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
 });
 const timingSchema = z.object({ totalFrames: z.number().int().positive() });
 
@@ -54,21 +56,21 @@ export function createQaPreviewHandler(deps: QaPreviewDeps): JobHandler {
     }
     const render = await finishedJob(workDir, parsed.data.render_job_id, 'render_episode');
     const timing = await finishedJob(workDir, parsed.data.timing_job_id, 'timing');
-    const { loudness } = renderSchema.parse(render.checkpoint.result);
+    const { loudness, width, height } = renderSchema.parse(render.checkpoint.result);
     const { totalFrames } = timingSchema.parse(
       JSON.parse(await readFile(join(timing.dir, 'timing.json'), 'utf8')),
     );
 
     await progress({ stage: 'qa' });
-    const { video: file, scale } = QUALITIES[parsed.data.quality];
+    const { video: file } = QUALITIES[parsed.data.quality];
     const video = join(render.dir, file);
     const info = await deps.inspect(video);
     const checks = previewChecks({
       info,
       gaps: await deps.detectGaps(video, signal),
       expected: {
-        width: Math.round(1920 * scale),
-        height: Math.round(1080 * scale),
+        width,
+        height,
         fps: FPS,
         seconds: totalFrames / FPS,
       },
