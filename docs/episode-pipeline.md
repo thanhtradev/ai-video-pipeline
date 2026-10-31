@@ -234,13 +234,14 @@ When the newest `episode_code` job of an episode succeeds, `storyboard_approvals
 issues a token bound to `video_id` + version + the SHA-256 of every file the job produced (code,
 SFX script, pages, mix). WF-12 sends each page as a photo, fetched from the worker with the job's board
 token (D-055), then `mix.m4a` as audio (voice + SFX as the episode plays them; `GET /media` with the
-job's media token, none for code written before D-071), then a message with **Approve** / **Reject** that asks for notes as a reply.
+job's media token, none for code written before D-071), then a message with **Render preview** (Approve) / **Render final** / **Từ chối** (Reject) that asks for notes as a reply.
 
 WF-06 handles both through `telegram_decide()`:
 
 | Telegram | Effect |
 |---|---|
 | Approve | → `RENDERING_PREVIEW`, `render_episode` job (§8) |
+| Render final (D-076) | as Approve, and the approval is marked `approve_all`: A2 (§9) and A3 (§10) of this storyboard are requested as usual, then approved at once in the same approver's name when their QA level is `PASS` (`approval_auto_decide()`, audit `approval_auto`); WF-13/WF-14 send the preview / the thumbnail with the metadata without buttons (`AUTO` rows). A `WARN` sends the normal buttons; a QA failure needs a decision as before. A new storyboard round (notes on A2) needs its own Render final. Cleanup is never automatic |
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a new `episode_code` job revising the previous code with the notes (`feedback.md`); its storyboard comes back as the next round |
 | notes after round 4 (3 revisions) | → `NEEDS_DECISION` |

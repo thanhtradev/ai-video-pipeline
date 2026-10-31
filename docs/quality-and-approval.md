@@ -6,13 +6,13 @@
 |---|---|---|
 | A1 — Script/storyboard | Script summary, scene list, cost estimate, assets with unclear license | Approve / Revise (with note) / Reject. **Implemented (2a):** Approve / Regenerate (new version, same brief) / Reject (cancel); the cost estimate is added with TTS pricing (2b). **Implemented (D-070, episodes):** the full `script.md` is sent as a file, and a plain-language reply revises the script into a new version (≤ 3 rounds) |
 | A1b — Voice (episodes, D-071) | The whole narration (`voice.m4a`, -14 LUFS), take n/3, the cost of one more take | Duyệt (the agent writes the episode) / Đọc lại (one more paid TTS take) / Từ chối; Đọc lại after take 3 → needs a decision |
-| Storyboard (episodes, D-052) | Storyboard pages and, since D-071, the audio mix (voice + SFX) | Approve / Reject / reply with notes (≤ 3 rounds) |
+| Storyboard (episodes, D-052) | Storyboard pages and, since D-071, the audio mix (voice + SFX) | Render preview (Approve) / Render final / Từ chối (Reject) / reply with notes (≤ 3 rounds). **Render final (D-076)** also approves A2 and A3 of that storyboard, each only when its QA passed with no warnings |
 | A2 — Preview 720p | Preview link, thumbnail, metadata (title/description/tags), QA report, cost so far, estimate for the rest | Approve / Revise / Reject. **Implemented for episodes (D-057):** the preview video itself, QA warnings and cost so far; Approve / Reject / reply with notes; metadata later in 2d |
 | A3 — Metadata (episodes, D-062) | Thumbnail, title, description, tags, final QA warnings | Duyệt / Viết lại / reply with notes; approving archives the video |
 | Cleanup (episodes, D-063) | Archive path, size of the Mac copy | Xóa bản trên Mac / Giữ lại — owner only; the archive is re-verified before deleting |
 | Ad-hoc decision | Cost over threshold, provider/model change, QA failure, unclear license, file deletion request | Situation-specific choices |
 
-Never render final without A1 and A2 for the **same version**.
+Never render final without A1 and A2 for the **same version**. An A2 or A3 pre-approved by Render final (D-076) is still a recorded approval of that version's own preview or metadata hash, decided only after a clean QA.
 
 ## 2. Approval binding [PROPOSED implementation]
 

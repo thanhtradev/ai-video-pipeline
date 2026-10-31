@@ -372,6 +372,20 @@ describe('WF-06 Telegram Callback', () => {
     expect(parse(`sb:G:${token}`)).toEqual([]);
   });
 
+  test('parses Render final on a storyboard only (D-076)', () => {
+    const parse = (data: string) =>
+      runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback(data)] });
+    expect(parse(`sb:F:${token}`)[0]!.json).toMatchObject({
+      kind: 'button',
+      approval: 'storyboard',
+      action: 'APPROVE_ALL',
+      token,
+    });
+    for (const kind of ['a1', 'a1b', 'a2', 'in', 'mb', 'a3', 'cl']) {
+      expect(parse(`${kind}:F:${token}`), kind).toEqual([]);
+    }
+  });
+
   test('parses voice buttons, Đọc lại included (A1b, D-071)', () => {
     const parse = (data: string) =>
       runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [callback(data)] });
@@ -527,6 +541,11 @@ describe('WF-06 Telegram Callback', () => {
       answer: 'Đã duyệt: đang render preview',
       settled: true,
       isButton: true,
+    });
+    expect(storyboardReply('OK', 'button', 'APPROVE_ALL', 1)).toMatchObject({
+      answer:
+        'Đã chọn Render final: đang render preview; preview và metadata tự duyệt nếu QA không cảnh báo',
+      settled: true,
     });
     expect(storyboardReply('OK', 'reply', 'FEEDBACK', 2)).toMatchObject({
       answer: 'Đã nhận ghi chú: đang sửa storyboard (vòng 2/4).',
@@ -833,12 +852,31 @@ describe('WF-12 Storyboard Approval Request', () => {
     expect(html).toContain('↩️ Reply tin này để góp ý sửa');
     expect(html.startsWith(`<a href="https://t.me/?ref=${token}">\u200d</a>`)).toBe(true);
     expect(html).not.toContain(`ref:${token}`);
+    expect(html).toContain('#12345678 v1 · Render preview → gửi preview để duyệt');
+    expect(html).toContain('Render final → tự duyệt preview + metadata nếu QA không cảnh báo');
     expect(out!.json.approve).toBe(`sb:A:${token}`);
+    expect(out!.json.approveAll).toBe(`sb:F:${token}`);
     expect(out!.json.reject).toBe(`sb:R:${token}`);
-    for (const key of ['approve', 'reject']) {
+    for (const key of ['approve', 'approveAll', 'reject']) {
       expect(Buffer.byteLength(out!.json[key] as string)).toBeLessThanOrEqual(64);
     }
   });
+});
+
+test('WF-12 offers Render preview, Render final and Từ chối (D-076)', () => {
+  const send = workflow('wf-12-storyboard-approval.json').nodes.find(
+    (n) => n.name === 'Send buttons',
+  )!;
+  const keyboard = send.parameters.inlineKeyboard as {
+    rows: { row: { buttons: { text: string; additionalFields: { callback_data: string } }[] } }[];
+  };
+  expect(
+    keyboard.rows[0]!.row.buttons.map((b) => [b.text, b.additionalFields.callback_data]),
+  ).toEqual([
+    ['Render preview', '={{ $json.approve }}'],
+    ['Render final', '={{ $json.approveAll }}'],
+    ['Từ chối', '={{ $json.reject }}'],
+  ]);
 });
 
 describe('WF-06 /new (D-058)', () => {
@@ -1475,6 +1513,15 @@ describe('WF-13 Preview Approval Request (D-057)', () => {
     }
   });
 
+  test('sends an A2 approved by Render final as information, without buttons (D-076)', () => {
+    const auto = { json: { ...row, kind: 'AUTO', media: { ...row.media, level: 'PASS' } } };
+    const [video] = runCode('wf-13-preview-approval.json', 'Build video', { input: [auto] });
+    expect(video!.json.caption).toBe(
+      '👀 #679cd22f v1 · preview 720p · ✔️ tự duyệt (Render final): đang render bản cuối 1080p',
+    );
+    expect(runCode('wf-13-preview-approval.json', 'Build message', { input: [auto] })).toEqual([]);
+  });
+
   test('reminds without the report', () => {
     const [out] = runCode('wf-13-preview-approval.json', 'Build message', {
       input: [{ json: { ...row, kind: 'REMINDER', media: null, cost: null } }],
@@ -1517,6 +1564,26 @@ describe('WF-14 Final Delivery (D-062)', () => {
     expect(out!.json.url).toBe(
       `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${row.metadata.job_id}/thumbnail.jpg?t=${'c'.repeat(32)}`,
     );
+  });
+
+  test('sends an A3 approved by Render final as the thumbnail with its metadata (D-076)', () => {
+    const auto = { json: { ...row, kind: 'AUTO' } };
+    const [thumbnail] = runCode('wf-14-final-delivery.json', 'Build thumbnail', { input: [auto] });
+    expect(thumbnail!.json.url).toContain('/thumbnail.jpg?t=');
+    expect(thumbnail!.json.caption).toBe(
+      [
+        '🏷 #679cd22f v1 · ✔️ metadata tự duyệt (Render final): đang lưu lên Google Drive',
+        '«Nếu bạn nghe được suy nghĩ của mèo?»',
+        'Tag: mèo, nếu bạn',
+        'Con mèo nhà bạn đang nghĩ gì?',
+      ].join('\n'),
+    );
+    const long = {
+      json: { ...row, kind: 'AUTO', metadata: { ...row.metadata, description: 'x'.repeat(5000) } },
+    };
+    const [capped] = runCode('wf-14-final-delivery.json', 'Build thumbnail', { input: [long] });
+    expect((capped!.json.caption as string).length).toBe(1024);
+    expect(runCode('wf-14-final-delivery.json', 'Build message', { input: [auto] })).toEqual([]);
   });
 
   test('asks for A3 with the metadata, QA warnings, Duyệt and Viết lại', () => {

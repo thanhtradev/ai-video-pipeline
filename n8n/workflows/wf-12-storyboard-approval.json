@@ -110,7 +110,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages and mix\n// (Vietnamese, D-061). Notes come back as a reply to this message (WF-06 finds the request by the\n// hidden ref link). Callback data: sb:<A|R>:<32-hex token>.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  const html = [\n    `${hiddenRef('ref', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}🎬 Duyệt storyboard</b> · bước 3/5 · vòng ${row.round}/4`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · Duyệt → render preview`,\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `sb:A:${row.token}`, reject: `sb:R:${row.token}` } };\n});\n"
+        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages and mix\n// (Vietnamese, D-061). Notes come back as a reply to this message (WF-06 finds the request by the\n// hidden ref link). Callback data: sb:<A|F|R>:<32-hex token>; F is Render final (D-076): A2 and A3\n// of this storyboard are then approved without buttons when their QA has no warnings.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  const html = [\n    `${hiddenRef('ref', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}🎬 Duyệt storyboard</b> · bước 3/5 · vòng ${row.round}/4`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · Render preview → gửi preview để duyệt`,\n    'Render final → tự duyệt preview + metadata nếu QA không cảnh báo',\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `sb:A:${row.token}`, approveAll: `sb:F:${row.token}`, reject: `sb:R:${row.token}` } };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001206",
       "name": "Build message",
@@ -129,8 +129,12 @@
               "row": {
                 "buttons": [
                   {
-                    "text": "Duyệt",
+                    "text": "Render preview",
                     "additionalFields": { "callback_data": "={{ $json.approve }}" }
+                  },
+                  {
+                    "text": "Render final",
+                    "additionalFields": { "callback_data": "={{ $json.approveAll }}" }
                   },
                   {
                     "text": "Từ chối",
