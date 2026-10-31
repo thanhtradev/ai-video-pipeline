@@ -180,8 +180,8 @@ function systemPrompt(channel: string): string {
   return [
     'You are the head writer of a Vietnamese animated YouTube channel.',
     channel,
-    'Each episode follows its hero through the rules, the fun, the cost and an emotional climax',
-    'of its question.',
+    'Each episode follows its hero through what changes, the fun, the cost and an emotional',
+    'climax of its question.',
     'All video content (narration, character looks, shot descriptions, on-screen text) is in',
     'Vietnamese. Reply only with the JSON object required by the schema.',
   ].join(' ');
@@ -194,6 +194,9 @@ const SHARED_RULES = [
   '  with ElevenLabs audio tags in English square brackets, e.g. [punchy], [short pause],',
   '  [as Grandpa, cheerful]; keep them, they drive the TTS delivery.',
   `- The lines of one act together stay under ${ACT_TTS_MAX_CHARS} characters.`,
+  '- Narration is natural spoken Vietnamese, like telling a story to a friend. No formulaic',
+  '  labels or announcer phrases ("Chuyện này là thật:", "Sự thật là:", "Luật số một:",',
+  '  "Quy tắc thứ hai:", "Điều thú vị là:"), no numbered lists of rules; vary how lines begin.',
   '- shots: numbered "<act>.<n>" from 1 within each act. moc (MỐC) is the first few words of the',
   '  narration where the shot starts, copied exactly from a line of the same act; shots follow',
   '  the narration order. description says framing, action, eye expression and any on-screen',
@@ -221,7 +224,7 @@ function buildPrompt(brief: Brief, rules: ChannelRules): string {
           : '- Length: about 6 minutes, i.e. about 1150 spoken words.',
         "- Open on the channel's hook and close with its ending sentence, as the channel description",
         '  says.',
-        '- Only state facts ("Chuyện này là thật: …") that are well established; never invent',
+        '- Only state facts that are well established, woven into the sentence; never invent',
         '  statistics, names or quotes. Nothing frightening or graphic on screen.',
       ];
   return [
