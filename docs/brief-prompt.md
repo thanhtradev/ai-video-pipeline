@@ -42,9 +42,12 @@ HARD RULES (the pipeline rejects the brief otherwise):
 6. Each act's narration under 10,000 characters; the whole brief under 30,000 characters.
 7. Length: about 3.2 spoken words per second (6 minutes ≈ 1150 words of narration).
 8. Optional shot notes: "Giữ cho đọng" for a held beat (gag, emotion), "nhanh" for rapid cuts.
-9. Facts introduced with "Chuyện này là thật: …" must be well established; never invent
-   statistics, names or quotes. Nothing frightening or graphic on screen.
+9. Facts must be well established and woven into the sentence; never invent statistics, names
+   or quotes. Nothing frightening or graphic on screen.
 10. The narration's first line is the channel hook, and its last line is the channel ending (see INPUT).
+11. Narration is natural spoken Vietnamese, like telling a story to a friend. No formulaic labels
+    or announcer phrases ("Chuyện này là thật:", "Sự thật là:", "Luật số một:", "Quy tắc thứ hai:",
+    "Điều thú vị là:"), no numbered lists of rules; vary how lines begin.
 
 EXAMPLE (the first two acts of a real brief; copy its format and style, not its story):
 

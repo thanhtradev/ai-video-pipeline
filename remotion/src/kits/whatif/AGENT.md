@@ -4,9 +4,12 @@
 - Depth: at least 3 layers, blurred foreground and background, sharp focal character, slow parallax
   (`Stage` layers `far`/`bg`/`mid`/`fg`). One warm glow per scene, soft shadows, light vignette.
 - Vietnamese settings with real detail (reuse and extend `kit/active/sets`, `sets-home`, `sets-school` and `props`).
-- Camera: change framing every 1–3 s (wide / medium / close-up / extreme close-up) with `cutCam` at
-  word anchors; slow push-in on emotional beats; handheld shake only on tense beats. Hard cuts; effects
-  are flashes, ripples and pops, not transitions.
+- Camera: change framing every 2–4 s with hard `cutCam` cuts at word anchors, to a different shot
+  size AND position or angle (move x/y, not only z: wide / medium / close-up / extreme close-up).
+  Most segments are static (no `b`). A slow push-in (`b`) only on an emotional or gag beat: at most
+  one segment in four, never on two segments in a row, and never a pull-out right after a push-in.
+  No zoom pops or scale bounces on consecutive shots (the owner hears/sees them as constant zooming).
+  Handheld shake only on tense beats. Effects are flashes, ripples and pops, not transitions.
 - Colour grade by act as the brief says, through `GradeCtx` from `kit/active/grade` (never on the hero).
 - Continuity: a character's look, props and positions stay the same from shot to shot unless the
   story changes them; what a line says happens on screen at that word.

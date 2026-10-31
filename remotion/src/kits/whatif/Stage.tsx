@@ -23,13 +23,14 @@ export const lerpCam = (a: Cam, b: Cam, k: number): Cam => ({
 const ease = Easing.inOut(Easing.cubic);
 
 /**
- * Sequence of hard camera cuts: [{at, a, b?}] – within each segment the camera drifts slowly a → b (push-in).
- * Segments longer than 100 frames are auto-split into size changes (tighten 1.22×) so framing changes every 1–3 s.
+ * Sequence of hard camera cuts: [{at, a, b?}] – within a segment the camera holds a, or drifts once
+ * a → b (push-in). No automatic in/out pulsing on long segments (D-081).
  */
 export type CamSeg = {
   readonly at: number;
   readonly a: Cam;
   readonly b?: Cam;
+  /** kept for episodes written before D-081; every segment holds now */
   readonly hold?: boolean;
 };
 export const cutCam = (f: number, segs: readonly CamSeg[], dur: number): Cam => {
@@ -37,28 +38,11 @@ export const cutCam = (f: number, segs: readonly CamSeg[], dur: number): Cam => 
   while (i + 1 < segs.length && f >= segs[i + 1].at) i++;
   const s = segs[i];
   const end = i + 1 < segs.length ? segs[i + 1].at : dur;
-  const len = Math.max(1, end - s.at);
   const k = interpolate(f, [s.at, end], [0, 1], clamp);
-  const c = s.b ? lerpCam(s.a, s.b, ease(k)) : s.a;
-  if (s.hold || len <= 100) return c;
-  const parts = Math.ceil(len / 80);
-  const part = Math.min(parts - 1, Math.floor(((f - s.at) / len) * parts));
-  return part % 2 === 1 ? { ...c, z: c.z * 1.22 } : c;
+  return s.b ? lerpCam(s.a, s.b, ease(k)) : s.a;
 };
 /** List of cut frames (to check pacing). */
-export const camCutFrames = (segs: readonly CamSeg[], dur: number) => {
-  const out: number[] = [];
-  segs.forEach((s, i) => {
-    out.push(s.at);
-    const end = i + 1 < segs.length ? segs[i + 1].at : dur;
-    const len = end - s.at;
-    if (!s.hold && len > 100) {
-      const parts = Math.ceil(len / 80);
-      for (let k = 1; k < parts; k++) out.push(Math.round(s.at + (len * k) / parts));
-    }
-  });
-  return out;
-};
+export const camCutFrames = (segs: readonly CamSeg[]) => segs.map((s) => s.at);
 
 /** Handheld shake (smooth, by seed). */
 export const handheld = (f: number, amp: number, seed = 1) => {

@@ -254,6 +254,17 @@ describe('episode script handler', () => {
     });
   });
 
+  test('asks for natural spoken narration without formulaic labels (D-081)', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
+
+    const { prompt, systemPrompt } = requests[0]!;
+    expect(prompt).toMatch(/natural spoken Vietnamese/);
+    expect(prompt).not.toContain('("Chuyện này là thật: …")');
+    expect(prompt).toContain('"Luật số một:"');
+    expect(systemPrompt).not.toMatch(/the rules/);
+  });
+
   test('writes for the selected channel: science kit + Chíp', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     const brief = { ...TOPIC_BRIEF, kit: 'science', character_set: 'chip-science' };
@@ -373,6 +384,7 @@ describe('episode script revision (A1 notes)', () => {
     // The previous script as the model wrote it: plain line strings, no worker line ids.
     expect(prompt).toContain(JSON.stringify(SCRIPT.acts[1]!.lines[0]));
     expect(prompt).not.toContain('"L001"');
+    expect(prompt).toMatch(/natural spoken Vietnamese/);
     expect(result.result.revision).toEqual({ previous_job_id: PREVIOUS, round: 1 });
   });
 
