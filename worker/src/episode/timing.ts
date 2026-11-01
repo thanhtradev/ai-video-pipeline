@@ -1,5 +1,5 @@
 import type { SpokenWord } from './align.js';
-import { wordKeys, type Sentence } from './sentences.js';
+import { spokenKeys, wordKeys, type Sentence } from './sentences.js';
 
 // Episode timeline from the narration (port of the reference scripts/tiktok2/ep1/build_timing.py and
 // check_cuts.py, docs/episode-pipeline.md §5). The reference took rough sentence times from the TTS
@@ -356,7 +356,7 @@ function shotStarts(sentences: readonly Sentence[], shots: readonly TimingShot[]
   const tokens = sentences.flatMap((s, i) => wordKeys(s.text).map((key) => ({ key, i })));
   let cur = 0;
   return shots.map((shot) => {
-    const key = wordKeys(shot.moc);
+    const key = spokenKeys(shot.moc);
     const from = tokens.findIndex((t) => t.i >= cur);
     for (let k = Math.max(from, 0); k + key.length <= tokens.length; k++) {
       if (key.every((word, m) => tokens[k + m]!.key === word)) {

@@ -220,6 +220,16 @@ describe('buildTiming', () => {
     expect(run({ shots: fast }).timing.lines[0]!.gap).toBe(0);
   });
 
+  test('ignores audio tags copied into a MỐC, as the script check does', () => {
+    const tagged = shots.map((s) => (s.id === '1.2' ? { ...s, moc: '[curious] Ba bốn' } : s));
+    const { timing } = run({ shots: tagged });
+    expect(timing.shots.map((s) => [s.id, s.firstLine])).toEqual([
+      ['1.1', 'S001'],
+      ['1.2', 'S002'],
+      ['1.3', 'S003'],
+    ]);
+  });
+
   test('fails when a MỐC is not spoken', () => {
     expect(() => run({ shots: [{ id: '1.1', act: 1, moc: 'Bảy tám' }] })).toThrow(
       /shot 1.1: MỐC "Bảy tám" not found/,
