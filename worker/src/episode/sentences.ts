@@ -45,6 +45,11 @@ export function wordKeys(text: string): string[] {
     .filter(Boolean);
 }
 
+/** Match keys of spoken text only: audio tags (e.g. a MỐC copied with "[curious]") are dropped. */
+export function spokenKeys(text: string): string[] {
+  return wordKeys(text.replace(AUDIO_TAG, ' '));
+}
+
 /** Splits a script line into spoken sentences (audio tags removed). */
 export function splitSentences(text: string): string[] {
   const words = text.replace(AUDIO_TAG, ' ').split(/\s+/).filter(Boolean);
