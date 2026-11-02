@@ -2256,3 +2256,29 @@ describe('WF-16 Video Ideas (D-083)', () => {
     expect(rows[1]!.html).toContain('thử lại lúc 10:00 02/11');
   });
 });
+
+describe('BotFather command list (ops/telegram-commands.md)', () => {
+  const doc = readFileSync(
+    fileURLToPath(new URL('../../../ops/telegram-commands.md', import.meta.url)),
+    'utf8',
+  );
+  const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
+  // Aliases WF-06 accepts but the menu does not list.
+  const ALIASES = new Set(['ytuong']);
+
+  test('every line is a valid BotFather entry', () => {
+    for (const line of menu) expect(line).toMatch(/^[a-z0-9_]{1,32} - \S.{0,254}$/);
+  });
+
+  test('lists exactly the commands WF-06 parses', () => {
+    const code = workflow('wf-06-telegram-callback.json').nodes.find(
+      (n) => n.name === 'Parse callback',
+    )!.parameters.jsCode as string;
+    const parsed = [...code.matchAll(/\/\^\\\/\(?(?:\?:)?([a-z|]+)/g)]
+      .flatMap((m) => m[1]!.split('|'))
+      .filter((name) => !ALIASES.has(name));
+    const listed = menu.map((line) => line.split(' - ')[0]);
+    expect(new Set(listed)).toEqual(new Set(parsed));
+    expect(listed).toHaveLength(new Set(listed).size);
+  });
+});

@@ -43,11 +43,8 @@ ops/n8n/deploy-workflows.sh wf-06 wf-16
 
 WF-16 is new. It gets the approval chat id on deploy and is published right after WF-06.
 
-Optional: add this line to the BotFather command list (`vietnamese-messages.md`):
-
-```
-ideas - ý tưởng video mới theo kit và nhân vật
-```
+Optional: paste the BotFather command list of [telegram-commands.md](telegram-commands.md), which
+includes `ideas`.
 
 ## 4. Check
 

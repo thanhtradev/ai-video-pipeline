@@ -33,18 +33,8 @@ As in `preview-approval.md` §1; expect `20261103000100`. Re-run `ops/postgres/g
 
 ## 2. Re-import WF-06
 
-As before (with the approval chat id). Optional: in BotFather, `/setcommands` so the commands show
-up in the chat's menu:
-
-```
-status - progress of active videos, or /status <video id>
-new - new episode: /new [minutes] <topic>
-retry - retry a stopped video: /retry <video id>
-rules - channel rules and pronunciation
-rule - /rule add video|tts <text> or /rule del <number>
-say - pronunciation: /say <term> = <how to say it>
-unsay - remove a pronunciation: /unsay <term>
-```
+As before (with the approval chat id). Optional: paste the BotFather command list of
+[telegram-commands.md](telegram-commands.md) (`/setcommands` replaces the whole list).
 
 **Check**: `/say TikTok = tích tốc`, then `/rules say` lists it; `/unsay TikTok` removes it.
 

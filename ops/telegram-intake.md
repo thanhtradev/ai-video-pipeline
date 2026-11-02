@@ -58,8 +58,8 @@ the LLM's answer (the text inside its code block) as a `.txt` file, check that e
 word for word from the start of a VOICE line, then send the file with `/new <chủ đề>` as its caption.
 Anywhere else the bot answers that `/brief` only works in the approval chat.
 
-Rollout: `ops/n8n/deploy-workflows.sh wf-06`. Optionally add `brief - Mẫu prompt viết brief` to the
-bot's command list in BotFather (`/setcommands`). **Check**: `/brief` → the file arrives.
+Rollout: `ops/n8n/deploy-workflows.sh wf-06`. Optionally paste the BotFather command list of
+[telegram-commands.md](telegram-commands.md). **Check**: `/brief` → the file arrives.
 
 After editing `docs/brief-prompt.md`: run `node ops/n8n/embed-brief-prompt.mjs` (the unit tests fail
 until you do), then re-import WF-06.
