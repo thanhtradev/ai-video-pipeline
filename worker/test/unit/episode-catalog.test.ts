@@ -55,6 +55,16 @@ describe('kit / character catalog', () => {
     expect(() => selectionOf({ character_set: 'nope' })).toThrow(CatalogError);
   });
 
+  test('asks for plain act titles in the science kit only (D-085)', async () => {
+    const rule = 'Act titles are short plain labels';
+    const science = await channelDescription(selectionOf({ kit: 'science' }));
+    expect(science).toContain(rule);
+    expect(science).toContain('"Cái giá của…"');
+
+    const whatif = await channelDescription(selectionOf({}));
+    expect(whatif).not.toContain(rule);
+  });
+
   test('refuses an unknown kit or character set instead of falling back', () => {
     expect(() => resolveSelection({ kit: 'nope' })).toThrow(CatalogError);
     expect(() => resolveSelection({ characterSet: 'nope' })).toThrow(/character set/);
