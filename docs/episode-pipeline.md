@@ -341,3 +341,28 @@ Runbook: [ops/episode-pipeline.md](../ops/episode-pipeline.md).
 | C4 | ✅ `render_episode`: 720p episode render, loudness, SRT | — |
 | D1 | ✅ preview QA, A2 on Telegram with the video, final 1080p render (D-057) | migration, WF-06/WF-13 import (`ops/preview-approval.md`) |
 | D2 | ✅ final QA, metadata + thumbnail (A3), archive to Google Drive, owner-approved Mac cleanup, COMPLETED with cost report (D-062, D-063) | rclone + Drive login, migration, worker env + restart, WF-06/WF-14 import (`ops/final-delivery.md`) |
+
+## 12. Video ideas (D-083)
+
+Runbook: [ops/video-ideas.md](../ops/video-ideas.md). Migration `20261115000100_video_ideas.sql`.
+
+```
+/ideas [kit=<slug>] [nhanvat=<slug>]   or   WF-16 daily 07:00 (UTC+7)
+  → idea_request per kit + character pair (idea_pair; history = ideas_history())
+  → an idle q:light worker claims it (idea_claim, own lease) → Claude, no tools → 5 ideas
+  → idea_complete(): links checked against the history, series episode numbers computed
+  → WF-16 (ideas_due): one message per pair, buttons 1–5
+  → button → WF-06 idea_to_draft() → the /new draft (Tạo / Hủy, kit / character buttons)
+```
+
+- **Kinds.** `series`: the next episode of a series in the history, or a follow-up that turns a past
+  video into a series (its video id becomes the series id, episode 2). `related`: a new angle on a
+  past video. `new`: a subject the history does not cover. Rejected or failed topics are not
+  suggested again unchanged; unused ideas count as taken.
+- **Brief links.** The draft's brief carries `series {id, title, episode}` and
+  `related_to {video_id, title}` (`episode_brief_links()`); the script step mentions the earlier
+  episode in one line. The hook and angle become the notes.
+- **Limits.** 3 attempts per request; a usage limit waits without using one and the chat is told
+  once. One `/ideas` per pair at a time (`BUSY`); one daily request per pair and day. An idea's
+  button works for 7 days, and again after its draft is cancelled or expires.
+- **Cost.** None: the Claude CLI on the subscription. Nothing renders until the owner presses Tạo.

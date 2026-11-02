@@ -278,6 +278,27 @@ describe('episode script handler', () => {
     expect(request.prompt).toContain('"character_set": "chip-science"');
   });
 
+  test('links a series episode or a follow-up to the earlier video (D-083)', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    const id = '6b0c8f8e-1111-4222-8333-444455556666';
+    const brief = {
+      ...TOPIC_BRIEF,
+      series: { id, title: 'Dưới biển', episode: 3 },
+      related_to: { video_id: id, title: 'Nếu bạn là cá' },
+    };
+    await handler(context({ brief, language: 'vi' }));
+
+    const { prompt } = requests[0]!;
+    expect(prompt).toMatch(/episode 3 of the series "Dưới biển"/);
+    expect(prompt).toMatch(/follows up on the earlier video "Nếu bạn là cá"/);
+  });
+
+  test('a brief without links gets no series instructions', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
+    expect(requests[0]!.prompt).not.toMatch(/of the series|follows up on/);
+  });
+
   test('refuses an unknown kit instead of falling back', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     await expect(

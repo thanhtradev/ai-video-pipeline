@@ -9,6 +9,11 @@ All `[PROPOSED]`. State lives in PostgreSQL; Redis only transports tasks.
 
 Revising content after rejection → create a new `video_version` (v2, v3…); approvals for the old version become invalid automatically.
 
+Video idea requests (D-083) are not jobs: they belong to no video, so `idea_request` has its own
+lease (`idea_claim` / `idea_complete` / `idea_fail` / `idea_block`): `PENDING → RUNNING →
+SUCCEEDED | FAILED`, 3 attempts with backoff, an expired lease returns the request to `PENDING`, a
+usage limit waits without using an attempt. See `docs/episode-pipeline.md` §12.
+
 ## 2. State machine — video version
 
 ```

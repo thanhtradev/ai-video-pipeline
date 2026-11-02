@@ -710,7 +710,7 @@ describe('WF-06 /workers (D-082)', () => {
     ]);
     expect(wf.connections['Workers?']!.main.map((out) => out[0]!.node)).toEqual([
       'Workers',
-      'Retry?',
+      'Ideas?',
     ]);
     expect(wf.connections['Workers']!.main[0]).toEqual([
       expect.objectContaining({ node: 'Build status' }),
@@ -2036,5 +2036,223 @@ describe('deploy script (ops/n8n/deploy-workflows.sh)', () => {
       const unknown = [...new Set(found)].filter((placeholder) => !KNOWN.has(placeholder));
       expect(unknown, file).toEqual([]);
     }
+  });
+});
+
+describe('WF-06 /ideas and idea buttons (D-083)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const command = (text: string, chat: string | number = CHAT): Item => ({
+    json: {
+      message: { message_id: 9, from: { id: 111, is_bot: false }, chat: { id: chat }, text },
+    },
+  });
+  const parse = (item: Item) => runCode(FILE, 'Parse callback', { input: [item] });
+  const token = 'e'.repeat(32);
+
+  test.each([
+    ['/ideas', '*', '*'],
+    ['/ytuong', '*', '*'],
+    ['/ideas@aivideo_bot kit=science', 'science', '*'],
+    ['/ideas kit=whatif nhanvat=chip-science', 'whatif', 'chip-science'],
+  ])('parses %j', (text, kit, characterSet) => {
+    expect(parse(command(text))[0]!.json).toEqual({
+      kind: 'ideas',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '9',
+      kit,
+      characterSet,
+      error: '',
+    });
+  });
+
+  test.each(['/ideasx', '/ideas science', '/ideas kit=A'])('ignores %j', (text) => {
+    expect(parse(command(text))).toEqual([]);
+  });
+
+  test('refuses other chats with their id', () => {
+    expect(parse(command('/ideas', -5))[0]!.json.error).toMatch(/Chat này \(-5\)/);
+  });
+
+  test('parses an idea button', () => {
+    const query = {
+      id: 'q1',
+      from: { id: 111 },
+      data: `id:${token}`,
+      message: { message_id: 40, chat: { id: -100 } },
+    };
+    expect(parse({ json: { callback_query: query } })[0]!.json).toEqual({
+      kind: 'idea-pick',
+      queryId: 'q1',
+      userId: '111',
+      chatId: '-100',
+      messageId: '40',
+      token,
+    });
+    expect(parse({ json: { callback_query: { ...query, data: 'id:short' } } })).toEqual([]);
+  });
+
+  test('routes /ideas to telegram_ideas() and idea buttons to idea_to_draft()', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out[0]?.node);
+    expect(next('Ideas?')).toEqual(['Ideas ok?', 'Retry?']);
+    expect(next('Ideas ok?')).toEqual(['Ideas', 'Build ideas reply']);
+    expect(next('Build ideas reply')).toEqual(['Send status']);
+    expect(next('Selection?')).toEqual(['Cycle selection', 'Idea pick?']);
+    expect(next('Idea pick?')).toEqual(['Pick idea', 'Decide']);
+    expect(next('Pick idea')).toEqual(['Build confirmation']);
+    expect(next('Send confirmation')).toEqual(['Idea button?']);
+    const query = (name: string) => wf.nodes.find((n) => n.name === name)!.parameters.query;
+    expect(query('Ideas')).toMatch(/FROM telegram_ideas\(\$1::bigint, \$2, nullif\(\$3, '\*'\)/);
+    expect(query('Pick idea')).toMatch(/FROM idea_to_draft\(\$1, \$2::bigint, \$3\)/);
+  });
+
+  const reply = (rows: Record<string, unknown>[], parsed: Record<string, unknown> = {}) =>
+    runCode(FILE, 'Build ideas reply', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [{ json: { chatId: CHAT, messageId: '9', error: '', ...parsed } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test('confirms each queued pair and explains refusals', () => {
+    const text = reply([
+      { result: 'QUEUED', kit: 'whatif', character_set: 'chip' },
+      { result: 'BUSY', kit: 'science', character_set: 'chip-science' },
+    ]).text;
+    expect(text).toContain('⏳ whatif · chip: đang nghĩ ý tưởng…');
+    expect(text).toContain('science · chip-science: ý tưởng đang được viết');
+    expect(text).toMatch(/gửi vào chat này/);
+    expect(reply([{ result: 'NOT_APPROVER' }]).text).toBe('Bạn không phải approver.');
+    expect(reply([{ result: 'UNKNOWN_KIT', kit: 'anime' }]).text).toBe('Không có kit "anime".');
+    expect(reply([], { error: 'Chat này (-5) …' }).text).toBe('Chat này (-5) …');
+  });
+
+  const confirm = (row: Record<string, unknown>) =>
+    runCode(FILE, 'Build confirmation', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'idea-pick', chatId: '-100', messageId: '40', queryId: 'q1' } },
+        ],
+      },
+    })[0]!.json;
+
+  test('an idea opens a new draft message that shows its series and related video', () => {
+    const out = confirm({
+      result: 'DRAFT',
+      token,
+      expires_at: '2026-11-02T06:00:00Z',
+      brief: {
+        topic: 'Nếu bạn là cá heo',
+        notes: 'Hook gợi ý: …',
+        series: { id: 'x', title: 'Dưới biển', episode: 3 },
+        related_to: { video_id: 'y', title: 'Nếu bạn là cá' },
+      },
+      has_voice: null,
+      selection: {
+        kit: { label: 'Nếu bạn…', next_label: 'Khoa học' },
+        character_set: { label: 'Chíp (BẠN)', next_label: 'Chíp Khoa học' },
+      },
+    });
+    expect(out).toMatchObject({ edit: false, queryId: 'q1', approve: `in:A:${token}` });
+    expect(out.text).toContain('Series: Dưới biển · tập 3');
+    expect(out.text).toContain('Liên quan: Nếu bạn là cá');
+  });
+
+  test('a used or expired idea answers the button with the reason', () => {
+    expect(confirm({ result: 'IDEA_USED' })).toMatchObject({
+      queryId: 'q1',
+      text: 'Ý tưởng này đang có bản nháp hoặc đã tạo video.',
+    });
+    expect(confirm({ result: 'IDEA_EXPIRED' }).text).toMatch(/hết hạn/);
+  });
+});
+
+describe('WF-16 Video Ideas (D-083)', () => {
+  const FILE = 'wf-16-video-ideas.json';
+  const build = (rows: Record<string, unknown>[]) =>
+    runCode(FILE, 'Build ideas message', { input: rows.map((json) => ({ json })) }).map(
+      (item) => item.json,
+    );
+  const idea = (position: number, extra: Record<string, unknown> = {}) => ({
+    position,
+    kind: 'new',
+    topic: `Ý tưởng <${position}>`,
+    hook: 'Nếu bạn…?',
+    angle: 'Góc nhìn',
+    token: String(position).repeat(32),
+    ...extra,
+  });
+
+  test('runs the daily request every morning in Vietnam time and polls for finished ideas', () => {
+    const wf = workflow(FILE);
+    const node = (name: string) => wf.nodes.find((n) => n.name === name)!;
+    expect(node('Every morning').parameters.rule).toEqual({
+      interval: [{ field: 'cronExpression', expression: '0 7 * * *' }],
+    });
+    expect((wf.settings as Record<string, unknown>).timezone).toBe('Asia/Ho_Chi_Minh');
+    expect(node('Daily ideas').parameters.query).toMatch(/ideas_daily\(/);
+    expect(node('Due ideas').parameters.query).toMatch(/FROM ideas_due\(\)/);
+  });
+
+  test('has one button per idea of a request (ideas_per_request() = 5)', () => {
+    const send = workflow(FILE).nodes.find((n) => n.name === 'Send ideas')!;
+    const rows = (send.parameters.inlineKeyboard as { rows: { row: { buttons: unknown[] } }[] })
+      .rows;
+    expect(rows[0]!.row.buttons).toHaveLength(5);
+    const migration = readFileSync(
+      fileURLToPath(
+        new URL('../../../db/migrations/20261115000100_video_ideas.sql', import.meta.url),
+      ),
+      'utf8',
+    );
+    expect(migration).toMatch(
+      /ideas_per_request\(\) RETURNS integer\s+LANGUAGE sql IMMUTABLE AS \$\$ SELECT 5;/,
+    );
+  });
+
+  test('lists the ideas with their kind, escaped, and a button per idea', () => {
+    const [out] = build([
+      {
+        kind: 'IDEAS',
+        source: 'daily',
+        chat_id: null,
+        kit: 'whatif',
+        kit_label: 'Nếu bạn…',
+        character_label: 'Chíp (BẠN)',
+        ideas: JSON.stringify([
+          idea(1, { kind: 'series', series_title: 'Dưới biển', episode_no: 3 }),
+          idea(2, { kind: 'related', related_title: 'Nếu bạn là cá' }),
+          idea(3),
+          idea(4),
+          idea(5),
+        ]),
+      },
+    ]);
+    expect(out).toMatchObject({
+      chatId: 'REPLACE_WITH_APPROVAL_CHAT_ID',
+      hasButtons: true,
+      idea1: `id:${'1'.repeat(32)}`,
+      idea5: `id:${'5'.repeat(32)}`,
+    });
+    const html = String(out!.html);
+    expect(html).toMatch(/^💡 Ý tưởng hôm nay · Nếu bạn… · Chíp \(BẠN\)/);
+    expect(html).toContain('<b>1. Ý tưởng &lt;1&gt;</b>');
+    expect(html).toContain('🔗 Series: Dưới biển · tập 3');
+    expect(html).toContain('↪️ Liên quan: Nếu bạn là cá');
+    expect(html).toContain('✨ Mới');
+    expect(html.length).toBeLessThan(4096);
+  });
+
+  test('answers /ideas in its chat and sends failures and usage-limit waits as notices', () => {
+    const rows = build([
+      { kind: 'FAILED', chat_id: '-100', kit: 'science', error: 'boom <x>' },
+      { kind: 'BLOCKED', chat_id: '-100', kit: 'science', blocked_until: '2026-11-02T03:00:00Z' },
+    ]);
+    expect(rows[0]).toMatchObject({ chatId: '-100', hasButtons: false });
+    expect(rows[0]!.html).toContain('boom &lt;x&gt;');
+    expect(rows[1]!.html).toContain('thử lại lúc 10:00 02/11');
   });
 });

@@ -14,6 +14,7 @@ Optional: Vietnamese descriptions in the command menu (BotFather `/setcommands`,
 ```
 status - tiến độ các video, hoặc /status <id video>
 workers - worker nào đang chạy clip nào
+ideas - ý tưởng video mới theo kit và nhân vật
 new - tập mới: /new [số phút] <chủ đề>
 retry - chạy lại video bị dừng: /retry <id video>
 rules - quy tắc kênh và phát âm

@@ -1,0 +1,296 @@
+{
+  "id": "aivideoWf16Ideas",
+  "name": "WF-16 Video Ideas",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001601",
+      "name": "Every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ideas_daily((now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) AS queued;",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001602",
+      "name": "Daily ideas",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aivideoPgCred001",
+          "name": "aivideo-postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001603",
+      "name": "Every 30 seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT kind, request_id::text AS request_id, source, chat_id, kit, character_set, kit_label, character_label, ideas, error, blocked_until FROM ideas_due();",
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001604",
+      "name": "Due ideas",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        220
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aivideoPgCred001",
+          "name": "aivideo-postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One message per row of ideas_due() (D-083). Telegram text is Vietnamese (D-061); every value is\n// escaped because the message is HTML. IDEAS rows get one button per idea (callback id:<token>,\n// answered by WF-06 with the /new draft). The Send ideas node has 5 buttons: ideas_per_request()\n// in SQL is 5 and idea_complete() stores exactly that many. FAILED / BLOCKED rows are notices.\n// Daily requests have no chat: they go to the approval chat, filled in on deploy.\nconst APPROVAL_CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';\nconst BUTTONS = 5;\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst cut = (value, max) => {\n  const text = String(value ?? '').trim();\n  return text.length > max ? `${text.slice(0, max - 1)}…` : text;\n};\n// Vietnam time (UTC+7, no daylight saving): \"14:30 30/10\".\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst tag = (idea) => {\n  if (idea.kind === 'series') return `🔗 Series: ${esc(idea.series_title)} · tập ${idea.episode_no}`;\n  if (idea.kind === 'related') return `↪️ Liên quan: ${esc(idea.related_title ?? '')}`;\n  return '✨ Mới';\n};\nreturn $input.all().map((item) => item.json).filter((row) => row.kind).map((row) => {\n  const pair = `${esc(row.kit_label ?? row.kit)} · ${esc(row.character_label ?? row.character_set)}`;\n  const chatId = row.chat_id ?? APPROVAL_CHAT;\n  if (row.kind === 'FAILED') {\n    return { json: { chatId, hasButtons: false, html: `⚠️ Không viết được ý tưởng cho ${pair}: ${esc(cut(row.error, 300))}\\nGửi /ideas để thử lại.` } };\n  }\n  if (row.kind === 'BLOCKED') {\n    const until = row.blocked_until ? ` (thử lại lúc ${vnTime(row.blocked_until)})` : '';\n    return { json: { chatId, hasButtons: false, html: `⏸ Ý tưởng cho ${pair} đang chờ: Claude hết lượt dùng${until}.` } };\n  }\n  const ideas = parse(row.ideas) ?? [];\n  const blocks = ideas.map((idea) => [\n    `<b>${idea.position}. ${esc(cut(idea.topic, 300))}</b>`,\n    tag(idea),\n    `<i>${esc(cut(idea.hook, 150))}</i>`,\n    esc(cut(idea.angle, 180)),\n  ].join('\\n'));\n  const title = row.source === 'daily' ? '💡 Ý tưởng hôm nay' : '💡 Ý tưởng';\n  const html = [\n    `${title} · ${pair}`,\n    ...blocks.flatMap((block) => ['', block]),\n    '',\n    'Bấm số để mở bản nháp /new (ý tưởng dùng được 7 ngày).',\n  ].join('\\n');\n  const buttons = Object.fromEntries(\n    Array.from({ length: BUTTONS }, (_, i) => [`idea${i + 1}`, ideas[i] ? `id:${ideas[i].token}` : '']),\n  );\n  return { json: { chatId, hasButtons: ideas.length === BUTTONS, html, ...buttons } };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001605",
+      "name": "Build ideas message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.hasButtons }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001606",
+      "name": "Has ideas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.html }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "1",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.idea1 }}"
+                    }
+                  },
+                  {
+                    "text": "2",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.idea2 }}"
+                    }
+                  },
+                  {
+                    "text": "3",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.idea3 }}"
+                    }
+                  },
+                  {
+                    "text": "4",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.idea4 }}"
+                    }
+                  },
+                  {
+                    "text": "5",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.idea5 }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001607",
+      "name": "Send ideas",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        120
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.html }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001608",
+      "name": "Send notice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        320
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every morning": {
+      "main": [
+        [
+          {
+            "node": "Daily ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30 seconds": {
+      "main": [
+        [
+          {
+            "node": "Due ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due ideas": {
+      "main": [
+        [
+          {
+            "node": "Build ideas message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build ideas message": {
+      "main": [
+        [
+          {
+            "node": "Has ideas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has ideas?": {
+      "main": [
+        [
+          {
+            "node": "Send ideas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "aivideoWf99Error",
+    "saveDataSuccessExecution": "none",
+    "timezone": "Asia/Ho_Chi_Minh"
+  },
+  "pinData": {}
+}

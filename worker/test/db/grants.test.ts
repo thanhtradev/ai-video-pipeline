@@ -148,6 +148,31 @@ describe('worker role', () => {
     ).rejects.toThrow(/permission denied/);
   });
 
+  test('can claim and finish idea requests but not queue them (D-083)', async () => {
+    await db.pool.query(`SELECT ideas_daily('2026-11-02')`);
+    const ok = await asRole('aivideo_worker', async (client) => {
+      const claimed = await client.query<{ request_id: string }>(
+        `SELECT request_id FROM idea_claim('mac-mini-m4', 600)`,
+      );
+      const ideas = JSON.stringify(
+        [1, 2, 3, 4, 5].map((n) => ({
+          kind: 'new',
+          topic: `Nếu bạn là cá ${n}`,
+          hook: 'h',
+          angle: 'a',
+        })),
+      );
+      return client.query<{ ok: boolean }>(
+        `SELECT idea_complete($1, 'mac-mini-m4', $2::jsonb) AS ok`,
+        [claimed.rows[0]!.request_id, ideas],
+      );
+    });
+    expect(ok.rows[0]!.ok).toBe(true);
+    await expect(
+      asRole('aivideo_worker', (client) => client.query(`SELECT ideas_daily('2026-11-03')`)),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   test('cannot submit briefs or decide approvals', async () => {
     await expect(
       asRole('aivideo_worker', (client) =>

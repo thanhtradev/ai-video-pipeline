@@ -3,9 +3,10 @@ import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
 import { createAgentCli } from './claude/agent-cli.js';
-import { claudeChildEnv, createClaudeCli } from './claude/claude-cli.js';
+import { claudeChildEnv, createClaudeCli, type ClaudeRunner } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
+import { createIdeaStore } from './db/idea-store.js';
 import { createJobStore } from './db/job-store.js';
 import { createRulesSource } from './db/rules-store.js';
 import { createRcloneRunner, createRcloneTarget } from './archive/rclone-target.js';
@@ -27,6 +28,7 @@ import { createScriptHandler } from './handlers/script.js';
 import { simulateHandler } from './handlers/simulate.js';
 import { createTimingHandler } from './handlers/timing.js';
 import { createTtsHandler } from './handlers/tts.js';
+import { createIdeaRunner } from './ideas/idea-runner.js';
 import { createLogger, redactUrl } from './logger.js';
 import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
@@ -44,6 +46,10 @@ import { createIteraClient } from './tts/itera-client.js';
 import { createWorkerLoop } from './worker-loop.js';
 
 const SHUTDOWN_TIMEOUT_MS = 5 * 60 * 1000;
+/** Idea requests (D-083) run on workers serving the light queue, where the script step runs. */
+const IDEA_STREAM = 'q:light';
+/** An idea request's lease outlives the Claude CLI timeout by this much. */
+const IDEA_LEASE_MARGIN_SECONDS = 300;
 const ITERA_REQUEST_TIMEOUT_MS = 60_000;
 /** A timing job without a whisper model waits this long before it checks again. */
 const WHISPER_BLOCK_SECONDS = 3600;
@@ -81,12 +87,9 @@ function archiveTarget(config: Config) {
   return { target: null, targetName: 'none', blockSeconds };
 }
 
-function buildHandlers(
-  config: Config,
-  pool: pg.Pool,
-  logger: Logger,
-): ReadonlyMap<string, JobHandler> {
-  const claude = createClaudeCli({
+/** The text-only Claude CLI shared by the script, metadata and idea steps. */
+function createPipelineClaude(config: Config): ClaudeRunner {
+  return createClaudeCli({
     bin: config.claude.bin,
     settingsPath: CLAUDE_SETTINGS,
     timeoutMs: config.claude.timeoutSeconds * 1000,
@@ -94,6 +97,14 @@ function buildHandlers(
     env: claudeChildEnv(process.env),
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
+}
+
+function buildHandlers(
+  config: Config,
+  pool: pg.Pool,
+  logger: Logger,
+  claude: ClaudeRunner,
+): ReadonlyMap<string, JobHandler> {
   const { itera } = config;
   const probe = createFfprobe(config.ffprobeBin);
   const rules = createRulesSource(pool, config.workerId);
@@ -234,10 +245,21 @@ async function main(): Promise<void> {
   const recovered = await queue.recoverInFlight();
   if (recovered > 0) logger.warn({ recovered }, 'returned in-flight messages to the queue');
 
+  const claude = createPipelineClaude(config);
+  const ideas = config.workerStreams.includes(IDEA_STREAM)
+    ? createIdeaRunner({
+        store: createIdeaStore(pool),
+        claude,
+        workerId: config.workerId,
+        leaseSeconds: config.claude.timeoutSeconds + IDEA_LEASE_MARGIN_SECONDS,
+        logger,
+      })
+    : undefined;
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
-    handlers: buildHandlers(config, pool, logger),
+    handlers: buildHandlers(config, pool, logger, claude),
+    ...(ideas ? { idleWork: ideas } : {}),
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
