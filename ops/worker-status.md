@@ -15,12 +15,8 @@ Backup as in `phase-2b.md` §3, then migrate as in `preview-approval.md` §1; ex
 
 ## 2. n8n
 
-`ops/n8n/deploy-workflows.sh wf-06`. Optional: add to the BotFather command list
-(`ops/vietnamese-messages.md`):
-
-```
-workers - worker nào đang chạy clip nào
-```
+`ops/n8n/deploy-workflows.sh wf-06`. Optional: paste the BotFather command list of
+[telegram-commands.md](telegram-commands.md).
 
 ## 3. Check
 

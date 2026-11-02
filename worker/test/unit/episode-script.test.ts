@@ -183,6 +183,27 @@ describe('checkEpisodeScript', () => {
     );
   });
 
+  test('rejects a beep spoken in the narration (it is a sound effect, D-084)', () => {
+    const beeping = withAct(1, {
+      lines: ['[excited] Bíp bíp! Luật thế này.', SCRIPT.acts[1]!.lines[1]!],
+    });
+    expect(checkEpisodeScript(beeping, TOPIC_BRIEF)).toContainEqual(
+      expect.stringMatching(/act 2 line 1 speaks a beep/),
+    );
+  });
+
+  test('accepts a beep in the shot sfx and in verbatim full-brief narration', () => {
+    const inSfx = withAct(1, {
+      shots: [{ ...SCRIPT.acts[1]!.shots[0]!, sfx: ['bíp'] }, SCRIPT.acts[1]!.shots[1]!],
+    });
+    expect(checkEpisodeScript(inSfx, TOPIC_BRIEF)).toEqual([]);
+
+    const line = '[excited] Bíp! Luật thế này.';
+    const brief = { ...TOPIC_BRIEF, full_brief: `${FULL_BRIEF_TEXT}\n${line}` };
+    const verbatim = withAct(1, { lines: [line, SCRIPT.acts[1]!.lines[1]!] });
+    expect(checkEpisodeScript(verbatim, brief)).toEqual([]);
+  });
+
   test('rejects a topic episode far longer than the requested duration', () => {
     const words = Array.from({ length: 2000 }, () => 'chữ').join(' ');
     const chunks = Array.from(

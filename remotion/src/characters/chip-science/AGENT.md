@@ -10,3 +10,8 @@
   on screen (no mouth), reactions are eyes, antenna and body.
 - Side characters in `kit/active/cast` are muted versions of the other candidates (`TiMo`, `Moc`,
   `Neo`, `HatTieu`, `Sao`, `Cu`), wrapped in `<Side>` so the act grade applies to them.
+- Chíp's beep is ONE shared sound for every episode: `chipBeep()` from
+  `kit/characters/chip-science/sfx/chip-beep.mjs` (a soft two-note chime chosen by the owner),
+  written by your `sfx/generate-sfx.mjs` as `sfx/chip_beep.wav` (`CHIP_BEEP_FILE`). Every "bíp" in
+  a shot's sfx plays that file; several beeps play it again. Do not synthesize another beep (nor
+  EP1's `beep`), change its pitch or speed, or let the voice say it (D-084).
