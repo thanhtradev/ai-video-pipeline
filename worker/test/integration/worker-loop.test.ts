@@ -125,3 +125,31 @@ describe('redis nonce store', () => {
     expect(await nonces.claim(nonce, 10)).toBe(false);
   });
 });
+
+describe('idle work (D-083)', () => {
+  test('runs idle work only when every queue is empty, and keeps polling after it', async () => {
+    const stream = uniqueStream();
+    let runs = 0;
+    const loop = createWorkerLoop({
+      store: createJobStore(db.pool),
+      queue: createRedisQueue(redis, { workerId: 'idle-worker', streams: [stream] }),
+      handlers: new Map([['simulate', simulateHandler]]),
+      workRoot: await mkdtemp(join(tmpdir(), 'idle-')),
+      workerId: 'idle-worker',
+      streams: [stream],
+      leaseSeconds: 60,
+      heartbeatMs: 1000,
+      pollIntervalMs: 20,
+      logger: pino({ level: 'silent' }),
+      idleWork: async () => {
+        runs += 1;
+        return runs === 1;
+      },
+    });
+
+    loop.start();
+    await waitFor(async () => runs >= 3);
+    await loop.stop();
+    expect(loop.activeJobs()).toBe(0);
+  });
+});

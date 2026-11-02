@@ -30,5 +30,9 @@ GRANT EXECUTE ON FUNCTION
   cost_record(uuid, text, text, numeric, numeric),
   worker_heartbeat(text, text[]),
   worker_heartbeat(text, text[], text),
-  worker_idle(text)
+  worker_idle(text),
+  idea_claim(text, integer),
+  idea_complete(uuid, text, jsonb),
+  idea_fail(uuid, text, text, boolean),
+  idea_block(uuid, text, text, integer)
 TO aivideo_worker;

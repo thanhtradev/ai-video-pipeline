@@ -31,6 +31,7 @@ Claude Code never imports/publishes production workflows.
 | WF-13 | Preview Approval Request | Every 30 s | `preview_approvals_due()`: episodes whose preview rendered → `qa_preview` job; passed QA → A2 token, the preview video fetched from the worker (`GET /media/…` with the QA job's media token) and a message with the QA warnings, cost, Approve / Reject (notes by reply). **Implemented (D-057):** `wf-13-preview-approval.json` |
 | WF-14 | Final Delivery | Every 30 s | `final_due()`: finished final renders → `qa_final` + `metadata` jobs; both done → A3 (thumbnail fetched from the worker, metadata, Duyệt / Viết lại, notes by reply); a verified archive → `final.mp4` as a video (D-073), then the final message with the cost report and Xóa bản trên Mac / Giữ lại (owner only); the cleanup done → a confirmation. **Implemented (D-062, D-063, D-073):** `wf-14-final-delivery.json` |
 | WF-15 | Voice Approval Request | Every 30 s | `voice_approvals_due()`: episodes whose newest timing job succeeded and that have no episode code → VOICE token (A1b); sends `voice.m4a` (`GET /media/…` with the timing job's media token) and a message with Duyệt / Đọc lại (~cost of one more take) / Từ chối; reminders every 6 h. **Implemented (D-071):** `wf-15-voice-approval.json` |
+| WF-16 | Video Ideas | Daily 07:00 (Asia/Ho_Chi_Minh) + every 30 s | `ideas_daily()` queues one idea request per kit + character pair (D-083); `ideas_due()` sends each finished request's 5 ideas with buttons 1–5 (`id:<token>`, answered by WF-06 with the `/new` draft), and notices for failed or usage-limited requests. `/ideas` on WF-06 queues the same requests on demand. **Implemented:** `n8n/workflows/wf-16-video-ideas.json` |
 | WF-99 | Error Handler | n8n Error Trigger | Write audit log, notify Telegram with execution id (no payloads). **Implemented:** `wf-99-error-handler.json`. Must be **active** — n8n 2.x skips inactive error workflows |
 
 ## Dependencies
@@ -42,6 +43,7 @@ WF-06 /new → (DB) → WF-02 → Redis → worker (cost_guard before paid calls
                        (DB) → WF-12 → worker GET /boards → Telegram → WF-06 → (DB)   (episodes, + mix)
                        (DB) → WF-13 → worker GET /media  → Telegram → WF-06 → (DB)   (episode A2)
                        (DB) → WF-14 → worker GET /media  → Telegram → WF-06 → (DB)   (episode A3, done)
+WF-06 /ideas, WF-16 07:00 → (DB) → idle q:light worker (Claude) → (DB) → WF-16 → Telegram → WF-06 → /new draft
 WF-08 watches everything; WF-99 catches errors from every workflow.
 ```
 

@@ -17,6 +17,11 @@ export interface WorkerLoopDeps extends RunnerDeps {
   workerHeartbeatMs?: number;
   /** Minimum gap between "all queues empty" reports (used to detect lost queue messages). */
   idleReportMs?: number;
+  /**
+   * Work done only when every queue is empty, one unit per call (idea requests, D-083). Resolves
+   * true when it did something, so the loop checks the queues again before sleeping.
+   */
+  idleWork?: () => Promise<boolean>;
 }
 
 export interface WorkerLoop {
@@ -67,13 +72,15 @@ export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
       try {
         active = 1;
         const outcome = await runNextJob(deps);
-        active = 0;
-        if (outcome.kind === 'idle') {
-          await reportIdle();
-          await idle(deps.pollIntervalMs);
-        } else {
+        if (outcome.kind !== 'idle') {
+          active = 0;
           deps.logger.info({ outcome }, 'job finished');
+          continue;
         }
+        await reportIdle();
+        const didWork = deps.idleWork ? await deps.idleWork() : false;
+        active = 0;
+        if (!didWork) await idle(deps.pollIntervalMs);
       } catch (error: unknown) {
         active = 0;
         deps.logger.error({ err: errorText(error) }, 'worker loop error');

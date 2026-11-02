@@ -38,6 +38,15 @@ const briefSchema = z.object({
   duration_minutes: z.number().int().min(2).max(12).optional(),
   full_brief: z.string().min(1).max(30_000).optional(),
   notes: z.string().max(2000).optional(),
+  /** Series and follow-up links from a picked idea (D-083, episode_brief_links). */
+  series: z
+    .object({
+      id: z.uuid(),
+      title: z.string().min(1).max(100),
+      episode: z.number().int().min(2).max(99),
+    })
+    .optional(),
+  related_to: z.object({ video_id: z.uuid(), title: z.string().max(200).optional() }).optional(),
 });
 
 const inputSchema = z.object({
@@ -208,6 +217,25 @@ const SHARED_RULES = [
   '  notes: pacing hints and checks for the animator. Both in Vietnamese Markdown.',
 ];
 
+/** How a series episode or a follow-up refers to the earlier video; empty for a standalone one. */
+function linkRules(brief: Brief): string[] {
+  const rules: string[] = [];
+  if (brief.series) {
+    rules.push(
+      `- This is episode ${brief.series.episode} of the series "${brief.series.title}": mention`,
+      '  the previous episode in one short line near the start, then stand on its own for new',
+      '  viewers.',
+    );
+  }
+  if (brief.related_to?.title) {
+    rules.push(
+      `- The episode follows up on the earlier video "${brief.related_to.title}": refer to it`,
+      '  once, briefly; do not retell it.',
+    );
+  }
+  return rules;
+}
+
 function buildPrompt(brief: Brief, rules: ChannelRules): string {
   const task = brief.full_brief
     ? [
@@ -226,6 +254,7 @@ function buildPrompt(brief: Brief, rules: ChannelRules): string {
         '  says.',
         '- Only state facts that are well established, woven into the sentence; never invent',
         '  statistics, names or quotes. Nothing frightening or graphic on screen.',
+        ...linkRules(brief),
       ];
   return [
     ...task,

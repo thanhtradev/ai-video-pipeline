@@ -28,6 +28,7 @@ PUBLISH_ORDER=(
   aivideoWf08Watch
   qXD7V4t9Bd9v47UZ
   aivideoWf06TgCbk
+  aivideoWf16Ideas
   aivideoWf05Apprv
   aivideoWf15Voice
   aivideoWf12Story
