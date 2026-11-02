@@ -21,7 +21,7 @@ export interface WorkerLoopDeps extends RunnerDeps {
    * Work done only when every queue is empty, one unit per call (idea requests, D-083). Resolves
    * true when it did something, so the loop checks the queues again before sleeping.
    */
-  idleWork?: () => Promise<boolean>;
+  idleWork?: (signal: AbortSignal) => Promise<boolean>;
 }
 
 export interface WorkerLoop {
@@ -77,9 +77,10 @@ export function createWorkerLoop(deps: WorkerLoopDeps): WorkerLoop {
           deps.logger.info({ outcome }, 'job finished');
           continue;
         }
-        await reportIdle();
-        const didWork = deps.idleWork ? await deps.idleWork() : false;
         active = 0;
+        await reportIdle();
+        // Idle work is not a job: /capabilities keeps reporting this worker as free.
+        const didWork = deps.idleWork ? await deps.idleWork(stopController.signal) : false;
         if (!didWork) await idle(deps.pollIntervalMs);
       } catch (error: unknown) {
         active = 0;

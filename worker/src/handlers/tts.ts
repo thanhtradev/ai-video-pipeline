@@ -49,15 +49,19 @@ const paramsSchema = z.object({
 
 const sceneStateSchema = z.object({
   key: z.string(),
-  taskId: z.string(),
+  /** Null while the request is being sent (the intent); set once the provider returned the id. */
+  taskId: z.string().nullable(),
   done: z.boolean(),
   chars: z.number(),
   credits: z.number().optional(),
   durationSeconds: z.number().optional(),
+  /** An intent without a task id was already reported to the owner (see pendingIntent). */
+  reported: z.boolean().optional(),
 });
 
 type Scene = z.infer<typeof inputSchema>['scenes'][number];
 type SceneState = z.infer<typeof sceneStateSchema>;
+type QueuedState = SceneState & { taskId: string };
 
 interface Voice {
   modelId: string;
@@ -141,13 +145,29 @@ function checkGuard(guard: GuardResult, blockSeconds: number): void {
   );
 }
 
+/**
+ * The scene's state, or null when none was written yet. Any other problem (unreadable or corrupt
+ * file) stops the job: a missing state means "pay for this scene", so it is never guessed.
+ */
 async function readState(path: string): Promise<SceneState | null> {
+  let raw: string;
   try {
-    const parsed = sceneStateSchema.safeParse(JSON.parse(await readFile(path, 'utf8')));
-    return parsed.success ? parsed.data : null;
-  } catch {
-    return null;
+    raw = await readFile(path, 'utf8');
+  } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw error;
   }
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch (error: unknown) {
+    throw new PermanentJobError(`corrupt scene state ${path}: ${String(error)}`);
+  }
+  const parsed = sceneStateSchema.safeParse(json);
+  if (!parsed.success) {
+    throw new PermanentJobError(`corrupt scene state ${path}: ${parsed.error.message}`);
+  }
+  return parsed.data;
 }
 
 async function writeState(path: string, state: SceneState): Promise<void> {
@@ -180,13 +200,40 @@ async function waitForTask(run: SceneRun, taskId: string): Promise<IteraTask> {
   }
 }
 
+/**
+ * A state whose request may have reached the provider but whose task id was never saved (the
+ * process died between the two). The provider cannot be asked which task that was, so the first
+ * time this is seen the job stops for a decision: the owner checks the ITERA history and uses
+ * /retry, which then requests the scene again (the only retry path after a permanent failure).
+ */
+async function pendingIntent(
+  run: SceneRun,
+  scene: Scene,
+  state: SceneState,
+  statePath: string,
+): Promise<void> {
+  if (!state.reported) {
+    // Mark it only when this attempt will really end as a permanent failure: an aborted attempt
+    // (lost lease) is re-dispatched by the watchdog, not by the owner.
+    if (!run.context.signal.aborted) await writeState(statePath, { ...state, reported: true });
+    throw new PermanentJobError(
+      `scene ${scene.index}: a TTS request of ${state.chars} characters may have been sent but ` +
+        'its task id was not saved; check the ITERA history, then /retry requests the scene again',
+    );
+  }
+  run.context.logger.warn(
+    { scene: scene.index, chars: state.chars },
+    'requesting a scene whose earlier request was not recorded (owner retried)',
+  );
+}
+
 /** Guard, balance check, then queue a new provider task and remember it before waiting. */
 async function startTask(
   run: SceneRun,
   scene: Scene,
   key: string,
   statePath: string,
-): Promise<SceneState> {
+): Promise<QueuedState> {
   const { deps, context, voice } = run;
   const chars = billedChars(scene.text);
   const guard = await deps.costs.guard(context.jobId, deps.workerId, chars);
@@ -198,21 +245,63 @@ async function startTask(
       deps.blockSeconds,
     );
   }
-  const taskId = await deps.itera.createSpeech(
-    {
-      voiceId: voice.params.voice_id,
-      text: scene.text,
-      modelId: voice.modelId,
-      provider: voice.params.provider,
-      languageCode: voice.params.language_code,
-      ...(voice.params.voice_settings ? { voiceSettings: voice.params.voice_settings } : {}),
-    },
-    context.signal,
-  );
-  const state: SceneState = { key, taskId, done: false, chars };
+  // The intent goes to disk before the paid request, so a crash in between is never mistaken for
+  // "nothing was sent" (CLAUDE.md §5: a re-run must not pay twice).
+  await writeState(statePath, { key, taskId: null, done: false, chars });
+  let taskId: string;
+  try {
+    taskId = await deps.itera.createSpeech(
+      {
+        voiceId: voice.params.voice_id,
+        text: scene.text,
+        modelId: voice.modelId,
+        provider: voice.params.provider,
+        languageCode: voice.params.language_code,
+        ...(voice.params.voice_settings ? { voiceSettings: voice.params.voice_settings } : {}),
+      },
+      context.signal,
+    );
+  } catch (error: unknown) {
+    // A classified refusal (4xx: key, credits, rate limit, bad request) means the provider
+    // answered and queued nothing: forget the intent so the retry is a normal one. Anything else
+    // (timeout, socket drop, 5xx) is ambiguous and keeps it.
+    if (error instanceof ProviderBlockedError || error instanceof PermanentJobError) {
+      await rm(statePath, { force: true });
+    }
+    throw error;
+  }
+  const state: QueuedState = { key, taskId, done: false, chars };
   await writeState(statePath, state);
   context.logger.info({ scene: scene.index, taskId, chars }, 'tts task queued');
   return state;
+}
+
+/** The scene's queued task from an earlier run, or null when a new request is needed. */
+async function queuedTask(
+  run: SceneRun,
+  scene: Scene,
+  key: string,
+  statePath: string,
+): Promise<QueuedState | null> {
+  const state = await readState(statePath);
+  if (state === null || state.key !== key) return null;
+  if (state.taskId === null) {
+    await pendingIntent(run, scene, state, statePath);
+    return null;
+  }
+  return { ...state, taskId: state.taskId };
+}
+
+async function recordCost(run: SceneRun, task: IteraTask, state: QueuedState): Promise<number> {
+  const credits = task.creditsDeducted ?? state.chars;
+  await run.deps.costs.record(
+    run.context.jobId,
+    run.deps.workerId,
+    task.id,
+    task.charactersUsed ?? state.chars,
+    credits,
+  );
+  return credits;
 }
 
 async function synthesizeScene(run: SceneRun, scene: Scene): Promise<SceneResult> {
@@ -222,36 +311,32 @@ async function synthesizeScene(run: SceneRun, scene: Scene): Promise<SceneResult
   const statePath = join(context.workDir, sceneName(scene.index, 'json'));
   const key = sceneKey(run.voice, scene.text);
 
-  let state = await readState(statePath);
-  if (state?.key !== key) state = null;
-  if (state?.done && state.durationSeconds && (await exists(audioPath))) {
-    return toResult(scene.index, file, state);
+  const existing = await queuedTask(run, scene, key, statePath);
+  if (existing?.done && existing.durationSeconds && (await exists(audioPath))) {
+    return toResult(scene.index, file, existing);
   }
-  state ??= await startTask(run, scene, key, statePath);
+  const state = existing ?? (await startTask(run, scene, key, statePath));
 
   const task = await waitForTask(run, state.taskId);
-  if (task.status === 'failed' || !task.audioUrl) {
+  if (task.status === 'failed') {
     // ITERA refunds failed tasks; forget the task so the next attempt queues a new one.
     await rm(statePath, { force: true });
-    throw new Error(`ITERA task ${state.taskId} failed: ${task.error ?? 'no audio url'}`);
+    throw new Error(`ITERA task ${state.taskId} failed: ${task.error ?? 'unknown error'}`);
   }
-
-  const credits = task.creditsDeducted ?? state.chars;
-  await deps.costs.record(
-    context.jobId,
-    deps.workerId,
-    task.id,
-    task.charactersUsed ?? state.chars,
-    credits,
-  );
+  // A completed task was charged: record it before anything else can go wrong.
+  const credits = await recordCost(run, task, state);
+  if (!task.audioUrl) {
+    // Keep the state: the next attempt polls the same (paid) task instead of buying another.
+    throw new Error(`ITERA task ${state.taskId} completed without an audio url`);
+  }
   await writeFileAtomic(audioPath, await deps.itera.download(task.audioUrl, context.signal));
   const durationSeconds = await deps.probe(audioPath);
-  const finished: SceneState = { ...state, done: true, credits, durationSeconds };
+  const finished: QueuedState = { ...state, done: true, credits, durationSeconds };
   await writeState(statePath, finished);
   return toResult(scene.index, file, finished);
 }
 
-function toResult(index: number, file: string, state: SceneState): SceneResult {
+function toResult(index: number, file: string, state: QueuedState): SceneResult {
   return {
     index,
     file,

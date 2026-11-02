@@ -108,6 +108,43 @@ describe.each(files)('%s', (file) => {
     expect(wf.settings.errorWorkflow).toBe('aivideoWf99Error');
   });
 
+  // The *_due() call has already recorded the request when the media branch runs, so an unreachable
+  // worker (or a failed upload) must not end the execution before the buttons go out; the owner
+  // would otherwise see them only with the next reminder, hours later (D-086).
+  test('a failed media fetch or upload never loses the approval buttons', () => {
+    const approvalPolls = [
+      'wf-05-script-approval.json',
+      'wf-12-storyboard-approval.json',
+      'wf-13-preview-approval.json',
+      'wf-14-final-delivery.json',
+      'wf-15-voice-approval.json',
+    ];
+    if (!approvalPolls.includes(file)) return;
+    // The fetch nodes and the Telegram nodes that upload what they fetched.
+    const media = wf.nodes.filter(
+      (n) => n.type === 'n8n-nodes-base.httpRequest' || n.parameters.binaryData === true,
+    );
+    expect(media.length).toBeGreaterThan(0);
+    for (const node of media) {
+      expect((node as WorkflowNode & { onError?: string }).onError, node.name).toBe(
+        'continueRegularOutput',
+      );
+    }
+  });
+
+  // WF-99 writes the audit row before it notifies; when Postgres itself is the outage, the alert
+  // must still go out (D-086).
+  test('WF-99 notifies Telegram even when the audit write fails', () => {
+    if (wf.id !== 'aivideoWf99Error') return;
+    const audit = wf.nodes.find((n) => n.name === 'Write audit log') as WorkflowNode & {
+      onError?: string;
+    };
+    expect(audit.onError).toBe('continueRegularOutput');
+    expect(wf.connections['Write audit log']!.main[0]!.map((c) => c.node)).toEqual([
+      'Notify Telegram',
+    ]);
+  });
+
   // The Telegram node parses text as Markdown unless told otherwise, so a step name such as
   // episode_code breaks the message ("can't parse entities"). Texts go out as escaped HTML: either
   // escaped by the node, or built as HTML by a Code node that escapes every value (an `html` field).
@@ -814,6 +851,9 @@ describe('WF-06 /retry (D-056)', () => {
       /679cd22f không ở trạng thái chờ/,
     );
     expect(reply({ result: 'NO_FAILED_JOB', video_id: id }).text).toMatch(/không có job lỗi/);
+    expect(reply({ result: 'RETRY_LIMIT', video_id: id, step: 'tts' }).text).toMatch(
+      /679cd22f đã chạy lại bước tts 5 lần/,
+    );
   });
 
   test('/status of a stopped video shows the retry command', () => {

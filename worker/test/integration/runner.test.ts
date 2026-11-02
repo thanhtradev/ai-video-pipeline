@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Redis } from 'ioredis';
@@ -192,6 +192,43 @@ describe('runNextJob', () => {
       reason: 'CANCELLED',
     });
     expect(await jobStatus(db.pool, h.jobId)).toBe('CANCELLED');
+  });
+
+  test('a result that cannot be checkpointed fails the job permanently', async () => {
+    const h = await setup();
+    await h.dispatch();
+    const missingOutput: JobHandler = async () => ({ outputs: ['never-written.txt'], result: {} });
+
+    expect(await runNextJob(h.deps({ simulate: missingOutput }))).toMatchObject({
+      kind: 'failed',
+      status: 'FAILED_PERMANENT',
+    });
+    const job = await db.pool.query<{ last_error: string }>(
+      'SELECT last_error FROM job WHERE id = $1',
+      [h.jobId],
+    );
+    expect(job.rows[0]!.last_error).toMatch(/checkpoint: .*never-written/);
+  });
+
+  test('finished work is checkpointed even when the job was cancelled meanwhile', async () => {
+    const h = await setup();
+    await h.dispatch();
+    const ignoresAbort: JobHandler = async (context) => {
+      await db.pool.query(`SELECT job_cancel($1, 'owner')`, [h.jobId]);
+      await new Promise((resolve) => setTimeout(resolve, 120)); // a heartbeat notices
+      expect(context.signal.aborted).toBe(true);
+      return writeResult(context);
+    };
+
+    expect(await runNextJob(h.deps({ simulate: ignoresAbort }))).toEqual({
+      kind: 'aborted',
+      jobId: h.jobId,
+      reason: 'CANCELLED',
+    });
+    const workDir = (await readdir(join(h.deps({}).workRoot, 'videos'), { recursive: true })).find(
+      (path) => path.endsWith('checkpoint.json'),
+    );
+    expect(workDir).toBeDefined();
   });
 
   test('a duplicate message for a running job is dropped', async () => {

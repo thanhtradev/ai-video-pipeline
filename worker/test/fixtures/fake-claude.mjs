@@ -83,6 +83,10 @@ switch (mode) {
     );
     process.exit(1);
     break;
+  case 'MODE:mentions-oauth':
+    process.stderr.write('fetch failed: https://oauth.example.net/callback returned 502\n');
+    process.exit(1);
+    break;
   case 'MODE:crash':
     process.stderr.write('internal error\n');
     process.exit(2);

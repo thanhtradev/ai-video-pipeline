@@ -29,7 +29,7 @@ import { simulateHandler } from './handlers/simulate.js';
 import { createTimingHandler } from './handlers/timing.js';
 import { createTtsHandler } from './handlers/tts.js';
 import { createIdeaRunner } from './ideas/idea-runner.js';
-import { createLogger, redactUrl } from './logger.js';
+import { createLogger, redactUrl, urlPassword } from './logger.js';
 import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
 import { createFrameGrabber } from './media/frame.js';
@@ -99,6 +99,18 @@ function createPipelineClaude(config: Config): ClaudeRunner {
   });
 }
 
+/** Every secret value this process holds: the agent's files must never contain any of them. */
+function agentSecrets(config: Config): string[] {
+  return [
+    process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
+    config.itera.apiKey ?? '',
+    config.archive.webdav?.password ?? '',
+    urlPassword(config.databaseUrl),
+    urlPassword(config.redisUrl),
+    ...Object.values(config.apiClientKeys),
+  ].filter((value) => value !== '');
+}
+
 function buildHandlers(
   config: Config,
   pool: pg.Pool,
@@ -165,12 +177,7 @@ function buildHandlers(
           runtimeRoot: config.runtimeRoot,
           env: renderEnv(config),
         }),
-        // Values the agent's files must never contain.
-        secrets: [
-          process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
-          config.itera.apiKey ?? '',
-          ...Object.values(config.apiClientKeys),
-        ],
+        secrets: agentSecrets(config),
         rules,
         browserReady: chromeInstalled,
         blockSeconds: CHROME_BLOCK_SECONDS,

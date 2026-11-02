@@ -72,6 +72,7 @@
       },
       "id": "6f1d6a10-0000-4000-8000-000000001504",
       "name": "Fetch audio",
+      "onError": "continueRegularOutput",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -92,6 +93,7 @@
       },
       "id": "6f1d6a10-0000-4000-8000-000000001505",
       "name": "Send audio",
+      "onError": "continueRegularOutput",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [

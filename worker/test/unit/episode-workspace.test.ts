@@ -1,11 +1,15 @@
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { CatalogError } from '../../src/episode/catalog.js';
 import { LEGACY_SHIMS } from '../../src/episode/legacy-kit.js';
-import { prepareWorkspace, type WorkspaceSources } from '../../src/episode/workspace.js';
+import {
+  keepPreviousWorkspace,
+  prepareWorkspace,
+  type WorkspaceSources,
+} from '../../src/episode/workspace.js';
 
 let root: string;
 let sources: WorkspaceSources;
@@ -18,6 +22,28 @@ beforeEach(async () => {
   await writeFile(join(timingDir, 'captions.json'), '[]');
   await writeFile(join(timingDir, 'voice.wav'), 'RIFF');
   sources = { scriptMarkdown: '# brief\n', rulesMarkdown: '# rules\n', timingDir };
+});
+
+describe('keepPreviousWorkspace', () => {
+  test('moves the old workspace aside by attempt and never fails on a taken name', async () => {
+    await mkdir(join(root, 'ws'));
+    await writeFile(join(root, 'ws', 'a.txt'), 'first');
+    await keepPreviousWorkspace(root, 'ws', 2);
+    expect(await readFile(join(root, 'ws.attempt-1', 'a.txt'), 'utf8')).toBe('first');
+    expect(existsSync(join(root, 'ws'))).toBe(false);
+
+    // A /retry reuses attempt numbers: the second attempt 2 keeps both copies.
+    await mkdir(join(root, 'ws'));
+    await writeFile(join(root, 'ws', 'a.txt'), 'second');
+    await keepPreviousWorkspace(root, 'ws', 2);
+    expect(await readFile(join(root, 'ws.attempt-1', 'a.txt'), 'utf8')).toBe('first');
+    const extra = (await readdir(root)).filter((name) => /^ws\.attempt-1-\d+$/.test(name));
+    expect(extra).toHaveLength(1);
+    expect(await readFile(join(root, extra[0]!, 'a.txt'), 'utf8')).toBe('second');
+
+    // Nothing to keep: a no-op.
+    await keepPreviousWorkspace(root, 'ws', 3);
+  });
 });
 
 describe('prepareWorkspace', () => {

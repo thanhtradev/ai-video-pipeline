@@ -10,6 +10,7 @@ What it adds:
 - migration `20261031000100_job_retry.sql`: `telegram_retry()` for n8n;
 - **WF-06** answers `/retry <first characters of a video id>`: a video stopped by a failed job
   (`NEEDS_DECISION`) gets one more attempt. `/status <id>` of such a video shows the command.
+  At most 5 manual retries per job; after that the answer is `RETRY_LIMIT` (D-086).
 
 ## 1. Chrome (Mac mini, once)
 

@@ -45,6 +45,15 @@ export function createLogger(options: LoggerOptions): Logger {
   );
 }
 
+/** The password part of a connection URL, or an empty string when there is none. */
+export function urlPassword(value: string): string {
+  try {
+    return decodeURIComponent(new URL(value).password);
+  } catch {
+    return '';
+  }
+}
+
 /** Strips passwords and secret query parameters from a URL for safe logging. */
 export function redactUrl(value: string): string {
   let url: URL;

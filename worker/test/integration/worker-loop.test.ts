@@ -130,6 +130,8 @@ describe('idle work (D-083)', () => {
   test('runs idle work only when every queue is empty, and keeps polling after it', async () => {
     const stream = uniqueStream();
     let runs = 0;
+    const activeDuringIdleWork: number[] = [];
+    const signals: AbortSignal[] = [];
     const loop = createWorkerLoop({
       store: createJobStore(db.pool),
       queue: createRedisQueue(redis, { workerId: 'idle-worker', streams: [stream] }),
@@ -141,8 +143,10 @@ describe('idle work (D-083)', () => {
       heartbeatMs: 1000,
       pollIntervalMs: 20,
       logger: pino({ level: 'silent' }),
-      idleWork: async () => {
+      idleWork: async (signal) => {
         runs += 1;
+        activeDuringIdleWork.push(loop.activeJobs());
+        signals.push(signal);
         return runs === 1;
       },
     });
@@ -151,5 +155,8 @@ describe('idle work (D-083)', () => {
     await waitFor(async () => runs >= 3);
     await loop.stop();
     expect(loop.activeJobs()).toBe(0);
+    // Idle work is not a job (the worker stays free), and stop() aborts it.
+    expect(activeDuringIdleWork.every((n) => n === 0)).toBe(true);
+    expect(signals[0]!.aborted).toBe(true);
   });
 });

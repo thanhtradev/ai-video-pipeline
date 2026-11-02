@@ -1,10 +1,9 @@
-import { existsSync } from 'node:fs';
-import { readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
+import { readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import { runSandboxedNode } from '../episode/sandbox.js';
 import { frameSchema, LANDSCAPE_FRAME, scaledFrame } from '../episode/frame.js';
-import { copyWorkspace, RENDER_SCRIPT } from '../episode/workspace.js';
+import { copyWorkspace, keepPreviousWorkspace, RENDER_SCRIPT } from '../episode/workspace.js';
 import type { DurationProbe } from '../media/ffprobe.js';
 import type { LoudnessNormalizer } from '../media/loudness.js';
 import { buildCues, toSrt } from '../render/subtitles.js';
@@ -100,8 +99,8 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
     );
 
     // A failed earlier attempt's copy is kept for inspection, never deleted.
+    await keepPreviousWorkspace(workDir, 'ws', attemptNo);
     const copy = join(workDir, 'ws');
-    if (existsSync(copy)) await rename(copy, join(workDir, `ws.attempt-${attemptNo - 1}`));
     await copyWorkspace(join(codeDir, 'ws'), copy);
     const ws = await realpath(copy);
     const { scale, video } = QUALITIES[parsed.data.quality];

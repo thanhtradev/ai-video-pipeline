@@ -97,6 +97,14 @@ describe('claude cli', () => {
     expect((error as Error).message).toMatch(/login failed.*OAuth session expired/s);
   });
 
+  test('an error that merely mentions oauth is a normal (retryable) failure', async () => {
+    const error = await run('mentions-oauth').catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(ProviderBlockedError);
+    expect((error as Error).message).toMatch(/exited with code 1/);
+  });
+
   test('the child environment keeps the CLI token and drops worker secrets', () => {
     const env = claudeChildEnv({
       PATH: '/usr/bin',

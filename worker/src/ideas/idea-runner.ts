@@ -28,9 +28,12 @@ function errorMessage(error: unknown): string {
   return message.slice(0, MAX_ERROR_LENGTH);
 }
 
-/** Returns a function that runs at most one request; it resolves true when it ran one. */
-export function createIdeaRunner(deps: IdeaRunnerDeps): () => Promise<boolean> {
-  return async () => {
+/**
+ * Returns a function that runs at most one request; it resolves true when it ran one. The signal
+ * (the worker loop's stop) aborts the Claude call, so shutdown never waits for a whole CLI run.
+ */
+export function createIdeaRunner(deps: IdeaRunnerDeps): (signal?: AbortSignal) => Promise<boolean> {
+  return async (signal = new AbortController().signal) => {
     const request = await deps.store.claim(deps.workerId, deps.leaseSeconds);
     if (!request) return false;
     const log = deps.logger.child({
@@ -42,14 +45,16 @@ export function createIdeaRunner(deps: IdeaRunnerDeps): () => Promise<boolean> {
     // The CLI runs in an empty directory of its own (claude-cli.ts); nothing is kept.
     const workDir = await mkdtemp(join(tmpdir(), 'aivideo-ideas-'));
     try {
-      const ideas = await generateIdeas(deps.claude, request, {
-        workDir,
-        signal: new AbortController().signal,
-      });
+      const ideas = await generateIdeas(deps.claude, request, { workDir, signal });
       const ok = await deps.store.complete(request.requestId, deps.workerId, ideas);
       if (ok) log.info({ count: ideas.length }, 'ideas written');
       else log.warn('ideas written but the request is no longer ours');
     } catch (error: unknown) {
+      if (signal.aborted) {
+        // Shutdown, not a failure: the lease expires and the request runs again.
+        log.info('idea request interrupted by shutdown');
+        return true;
+      }
       if (error instanceof ProviderBlockedError) {
         log.warn({ err: errorMessage(error) }, 'idea request blocked by the provider');
         await deps.store.block(

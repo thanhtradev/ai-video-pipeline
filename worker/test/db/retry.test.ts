@@ -93,6 +93,33 @@ describe('telegram_retry', () => {
     expect((await retry(video.videoId)).result).toBe('NOT_STOPPED');
   });
 
+  test('allows at most 5 manual retries of one job, then answers RETRY_LIMIT (D-086)', async () => {
+    const video = await stoppedVideo('retry-limit');
+    for (let round = 1; round <= 5; round += 1) {
+      expect((await retry(video.videoId)).result).toBe('RETRIED');
+      await failPermanently(video.jobId);
+    }
+    const job = await db.pool.query<{ manual_retries: number }>(
+      'SELECT manual_retries FROM job WHERE id = $1',
+      [video.jobId],
+    );
+    expect(job.rows[0]).toEqual({ manual_retries: 5 });
+
+    expect(await retry(video.videoId)).toEqual({
+      result: 'RETRY_LIMIT',
+      video_id: video.videoId,
+      step: 'episode_code',
+      attempt: 6,
+    });
+    expect(await jobStatus(db.pool, video.jobId)).toBe('FAILED_PERMANENT');
+    expect(await versionStatus(db.pool, video.versionId)).toBe('NEEDS_DECISION');
+    const audit = await db.pool.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM audit_log WHERE action = 'manual_retry' AND object_id = $1`,
+      [video.jobId],
+    );
+    expect(audit.rows[0]!.n).toBe(5);
+  });
+
   test('refuses strangers, unknown or ambiguous prefixes, and videos stopped for another reason', async () => {
     const video = await stoppedVideo('retry-refusals');
     expect((await retry(video.videoId, STRANGER)).result).toBe('NOT_APPROVER');

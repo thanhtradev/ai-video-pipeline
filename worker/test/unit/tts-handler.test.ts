@@ -270,9 +270,93 @@ describe('tts handler', () => {
     expect(created).toHaveLength(1);
   });
 
-  test('ignores a corrupt scene state file', async () => {
+  test('a corrupt scene state stops the job instead of paying for the scene again', async () => {
     await writeFile(join(workDir, 'scene-01.json'), '{not json');
-    await createTtsHandler(deps())(context());
+    const error = await createTtsHandler(deps())(context()).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PermanentJobError);
+    expect(String(error)).toMatch(/corrupt scene state .*scene-01\.json/);
+    expect(created).toEqual([]);
+  });
+
+  test('a refused request (rate limit, bad request) leaves no intent behind', async () => {
+    const refusing: IteraClient = {
+      ...fakeItera(),
+      createSpeech: async () => {
+        throw new ProviderBlockedError('ITERA rate limit', 60);
+      },
+    };
+    await expect(createTtsHandler(deps({ itera: refusing }))(context())).rejects.toBeInstanceOf(
+      ProviderBlockedError,
+    );
+    expect(await readdir(workDir)).not.toContain('scene-01.json');
+
+    // The retry after the block is a normal one: the scene is requested, nothing stops the job.
+    const result = await createTtsHandler(deps())(context());
+    expect(result.outputs).toEqual(['scene-01.mp3', 'scene-02.mp3']);
+  });
+
+  test('writes the intent before the paid request, so a crash in between is visible', async () => {
+    const seen: string[] = [];
+    const crashing: IteraClient = {
+      ...fakeItera(),
+      createSpeech: async () => {
+        seen.push(await readFile(join(workDir, 'scene-01.json'), 'utf8'));
+        throw new Error('process killed after the request reached the provider');
+      },
+    };
+    await expect(createTtsHandler(deps({ itera: crashing }))(context())).rejects.toThrow(
+      /process killed/,
+    );
+    expect(JSON.parse(seen[0]!)).toMatchObject({ taskId: null, done: false, chars: 14 });
+  });
+
+  test('an unrecorded request stops the job once; the owner retry requests the scene again', async () => {
+    const crashing: IteraClient = {
+      ...fakeItera(),
+      createSpeech: async () => {
+        throw new Error('killed');
+      },
+    };
+    await expect(createTtsHandler(deps({ itera: crashing }))(context())).rejects.toThrow(/killed/);
+
+    const error = await createTtsHandler(deps())(context()).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PermanentJobError);
+    expect(String(error)).toMatch(/scene 1: a TTS request of 14 characters may have been sent/);
+    expect(created).toEqual([]);
+    expect(JSON.parse(await readFile(join(workDir, 'scene-01.json'), 'utf8'))).toMatchObject({
+      taskId: null,
+      reported: true,
+    });
+
+    // After /retry (the only way past a permanent failure) the scene is requested again.
+    const result = await createTtsHandler(deps())(context());
     expect(created).toHaveLength(2);
+    expect(result.outputs).toEqual(['scene-01.mp3', 'scene-02.mp3']);
+  });
+
+  test('a completed task without audio is recorded as paid and polled again next time', async () => {
+    const itera = fakeItera();
+    let withoutAudio = true;
+    const flaky: IteraClient = {
+      ...itera,
+      getTask: async (id, signal) => {
+        const task = await itera.getTask(id, signal);
+        return withoutAudio && id === 'task-1' ? { ...task, audioUrl: undefined } : task;
+      },
+    };
+    const error = await createTtsHandler(deps({ itera: flaky }))(context()).catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(PermanentJobError);
+    expect(String(error)).toMatch(/task-1 completed without an audio url/);
+    expect(recorded).toEqual([{ ref: 'task-1', units: 14, amount: 15 }]);
+    expect(await readdir(workDir)).toContain('scene-01.json');
+
+    withoutAudio = false;
+    await createTtsHandler(deps({ itera: flaky }))(context());
+    // No new request for scene 1: the paid task was polled again.
+    expect(created).toHaveLength(2);
+    expect(recorded.map((r) => r.ref)).toEqual(['task-1', 'task-1', 'task-2']);
   });
 });
