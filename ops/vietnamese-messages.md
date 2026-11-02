@@ -9,21 +9,7 @@ does all of them at once and publishes them in the right order ([n8n/README.md](
 
 Requests that are already in the chat keep their English buttons and text; they still work.
 
-Optional: Vietnamese descriptions in the command menu (BotFather `/setcommands`, replaces the list):
-
-```
-status - tiến độ các video, hoặc /status <id video>
-workers - worker nào đang chạy clip nào
-ideas - ý tưởng video mới theo kit và nhân vật
-new - tập mới: /new [số phút] <chủ đề>
-retry - chạy lại video bị dừng: /retry <id video>
-rules - quy tắc kênh và phát âm
-rule - /rule add video|tts <nội dung> hoặc /rule del <số>
-say - cách đọc: /say <từ> = <cách đọc>
-unsay - bỏ cách đọc: /unsay <từ>
-join - xin làm approver (chủ sở hữu duyệt)
-members - danh sách approver
-revoke - chỉ chủ sở hữu: /revoke <user id>
-```
+Optional: Vietnamese descriptions in the command menu (BotFather `/setcommands`): paste the block
+of [telegram-commands.md](telegram-commands.md).
 
 **Check**: `/status` answers in Vietnamese.
