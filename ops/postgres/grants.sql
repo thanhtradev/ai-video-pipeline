@@ -34,5 +34,9 @@ GRANT EXECUTE ON FUNCTION
   idea_claim(text, integer),
   idea_complete(uuid, text, jsonb),
   idea_fail(uuid, text, text, boolean),
-  idea_block(uuid, text, text, integer)
+  idea_block(uuid, text, text, integer),
+  video_move_claim(text, integer),
+  video_move_token_valid(text, uuid, text),
+  video_move_complete(uuid, text),
+  video_move_fail(uuid, text, text)
 TO aivideo_worker;

@@ -7,12 +7,13 @@ import { claudeChildEnv, createClaudeCli, type ClaudeRunner } from './claude/cla
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createIdeaStore } from './db/idea-store.js';
+import { createMoveStore } from './db/move-store.js';
 import { createJobStore } from './db/job-store.js';
 import { createRulesSource } from './db/rules-store.js';
 import { createRcloneRunner, createRcloneTarget } from './archive/rclone-target.js';
 import { createWebdavTarget } from './archive/webdav-target.js';
 import { createGateRunner } from './episode/gates.js';
-import { chromeInstalled } from './episode/workspace.js';
+import { chromeInstalled, NODE_MODULES } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
 import { createArchiveVideoHandler } from './handlers/archive-video.js';
@@ -29,6 +30,7 @@ import { simulateHandler } from './handlers/simulate.js';
 import { createTimingHandler } from './handlers/timing.js';
 import { createTtsHandler } from './handlers/tts.js';
 import { createIdeaRunner } from './ideas/idea-runner.js';
+import { createMoveRunner } from './move/move-runner.js';
 import { createLogger, redactUrl, urlPassword } from './logger.js';
 import type { Logger } from 'pino';
 import { createFfprobe } from './media/ffprobe.js';
@@ -262,11 +264,22 @@ async function main(): Promise<void> {
         logger,
       })
     : undefined;
+  // Every worker can be the target of a video move (D-087); a move goes before ideas.
+  const moveStore = createMoveStore(pool);
+  const moves = createMoveRunner({
+    store: moveStore,
+    workerId: config.workerId,
+    workRoot: config.workRoot,
+    nodeModules: NODE_MODULES,
+    logger,
+  });
+  const idleWork = async (signal: AbortSignal): Promise<boolean> =>
+    (await moves(signal)) || (ideas ? await ideas(signal) : false);
   const loop = createWorkerLoop({
     store: createJobStore(pool),
     queue,
     handlers: buildHandlers(config, pool, logger, claude),
-    ...(ideas ? { idleWork: ideas } : {}),
+    idleWork,
     workRoot: config.workRoot,
     workerId: config.workerId,
     streams: config.workerStreams,
@@ -285,6 +298,7 @@ async function main(): Promise<void> {
     activeJobs: loop.activeJobs,
     logger,
     workRoot: config.workRoot,
+    transferAllowed: (videoId, token) => moveStore.tokenValid(config.workerId, videoId, token),
   });
   await api.listen({ host: config.apiHost, port: config.apiPort });
   loop.start();

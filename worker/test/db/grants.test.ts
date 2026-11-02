@@ -173,6 +173,41 @@ describe('worker role', () => {
     ).rejects.toThrow(/permission denied/);
   });
 
+  test('can claim, check and finish a video move but not request one (D-087)', async () => {
+    const { videoId } = await createVideo(db.pool, await createBatch(db.pool), 1);
+    await db.pool.query(`UPDATE video SET worker_id = 'hp-400-g7' WHERE id = $1`, [videoId]);
+    await db.pool.query(
+      `INSERT INTO video_move (video_id, from_worker, to_worker, requested_by)
+       VALUES ($1, 'hp-400-g7', 'mac-mini-m4', 111)`,
+      [videoId],
+    );
+    const result = await asRole('aivideo_worker', async (client) => {
+      const claimed = await client.query<{ move_id: string; token: string }>(
+        `SELECT move_id, token FROM video_move_claim('mac-mini-m4', 600)`,
+      );
+      const { move_id: moveId, token } = claimed.rows[0]!;
+      const valid = await client.query<{ ok: boolean }>(
+        `SELECT video_move_token_valid('mac-mini-m4', $1, $2) AS ok`,
+        [videoId, token],
+      );
+      const failed = await client.query<{ r: string }>(
+        `SELECT video_move_fail(gen_random_uuid(), 'mac-mini-m4', 'x') AS r`,
+      );
+      const done = await client.query<{ r: string }>(
+        `SELECT video_move_complete($1, 'mac-mini-m4') AS r`,
+        [moveId],
+      );
+      return { valid: valid.rows[0]!.ok, failed: failed.rows[0]!.r, done: done.rows[0]!.r };
+    });
+    // The target asks with the source's token only as the source: false, but allowed to ask.
+    expect(result).toEqual({ valid: false, failed: 'LOST', done: 'DONE' });
+    await expect(
+      asRole('aivideo_worker', (client) =>
+        client.query(`SELECT * FROM telegram_move(111, 'abcd', 'mac-mini-m4')`),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   test('cannot submit briefs or decide approvals', async () => {
     await expect(
       asRole('aivideo_worker', (client) =>

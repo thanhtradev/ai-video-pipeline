@@ -1002,6 +1002,7 @@ describe('WF-06 /new (D-058)', () => {
       notes: 'Giọng vui.\nKết buồn.',
       fileId: '',
       selection: {},
+      worker: '',
       error: '',
     });
     expect(parse(message('/new Mèo nghĩ gì?'))).toMatchObject({
@@ -1060,6 +1061,7 @@ describe('WF-06 /new (D-058)', () => {
       messageId: '12',
       ok: true,
       userId: '111',
+      worker: '',
       brief: JSON.stringify({
         topic: 'Mèo nghĩ gì?',
         duration_minutes: 6,
@@ -1259,6 +1261,260 @@ describe('WF-06 /new (D-058)', () => {
         input: [callback(`in:G:${token}`)],
       }),
     ).toEqual([]);
+  });
+});
+
+describe('WF-06 worker choice and /move (D-087)', () => {
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const WF = 'wf-06-telegram-callback.json';
+  const wf = workflow(WF);
+  const node = (name: string) => wf.nodes.find((n) => n.name === name)!;
+  const next = (name: string) => wf.connections[name]!.main.map((out) => out[0]?.node);
+  const text = (value: string): Item => ({
+    json: {
+      message: {
+        message_id: 12,
+        from: { id: 111, is_bot: false },
+        chat: { id: CHAT },
+        text: value,
+      },
+    },
+  });
+  const parse = (item: Item) => runCode(WF, 'Parse callback', { input: [item] })[0]?.json;
+  const token = 'd'.repeat(32);
+  const SELECTION = {
+    kit: { slug: 'whatif', label: 'Nếu bạn…', next_slug: 'science', next_label: 'Khoa học' },
+    character_set: {
+      slug: 'chip',
+      label: 'Chíp (BẠN)',
+      next_slug: 'chip',
+      next_label: 'Chíp (BẠN)',
+    },
+    worker: { slug: 'hp-400-g7', label: 'hp-400-g7', next_slug: null, next_label: 'Tự động' },
+  };
+  const confirm = (selection: object) =>
+    runCode(WF, 'Build confirmation', {
+      input: [
+        {
+          json: {
+            result: 'DRAFT',
+            token,
+            expires_at: '2026-11-02T06:00:00Z',
+            brief: { topic: 'Mèo' },
+            has_voice: null,
+            selection,
+          },
+        },
+      ],
+      nodeOutputs: { 'Parse callback': [{ json: { chatId: CHAT, messageId: '12' } }] },
+    })[0]!.json;
+
+  test('/new takes worker= off the first line', () => {
+    expect(parse(text('/new 5 Mèo nghĩ gì? worker=hp-400-g7 kit=science\nGhi chú'))).toMatchObject({
+      topic: 'Mèo nghĩ gì?',
+      minutes: 5,
+      selection: { kit: 'science' },
+      worker: 'hp-400-g7',
+      error: '',
+    });
+    expect(parse(text('/new worker=hp-400-g7'))!.error).toMatch(/worker=<worker>/);
+  });
+
+  test('the draft passes the worker to telegram_intake_draft()', async () => {
+    const parsed = parse(text('/new Mèo worker=hp-400-g7'))!;
+    const [out] = await runAsyncCode(WF, 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+    });
+
+    expect(out!.json).toMatchObject({ worker: 'hp-400-g7' });
+    expect(node('Draft').parameters.query).toBe(
+      "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb, NULLIF($4, ''));",
+    );
+    expect(
+      (node('Draft').parameters.options as { queryReplacement: string }).queryReplacement,
+    ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker] }}');
+  });
+
+  test('the confirmation shows the worker and a Worker button', () => {
+    const out = confirm(SELECTION);
+
+    expect(out.text).toContain('Worker: hp-400-g7');
+    expect(out).toMatchObject({ workerButton: 'Worker → Tự động', workerData: `in:W:${token}` });
+    expect(confirm({ ...SELECTION, worker: undefined }).text).toContain('Worker: Tự động');
+    for (const name of ['Send confirmation', 'Edit confirmation']) {
+      const rows = (
+        node(name).parameters.inlineKeyboard as {
+          rows: {
+            row: { buttons: { text: string; additionalFields: { callback_data: string } }[] };
+          }[];
+        }
+      ).rows;
+      expect(rows.at(-1)!.row.buttons).toEqual([
+        {
+          text: '={{ $json.workerButton }}',
+          additionalFields: { callback_data: '={{ $json.workerData }}' },
+        },
+      ]);
+    }
+  });
+
+  test('the Worker button cycles the draft like Kit / Nhân vật', () => {
+    const callback = (data: string): Item => ({
+      json: {
+        callback_query: {
+          id: 'q9',
+          data,
+          from: { id: 111 },
+          message: { message_id: 13, chat: { id: CHAT }, text: 'confirm' },
+        },
+      },
+    });
+
+    expect(
+      runCode(WF, 'Parse callback', { input: [callback(`in:W:${token}`)] })[0]!.json,
+    ).toMatchObject({
+      kind: 'intake-set',
+      setKind: 'worker',
+      token,
+    });
+    expect(runCode(WF, 'Parse callback', { input: [callback(`a2:W:${token}`)] })).toEqual([]);
+  });
+
+  test('an idea draft gets the Worker button too', () => {
+    expect(node('Pick idea').parameters.query).toContain(
+      "selection || jsonb_build_object('worker', worker_selection(NULL)) AS selection",
+    );
+  });
+
+  test.each([
+    ['/move 679CD22F hp-400-g7', { prefix: '679cd22f', target: 'hp-400-g7', error: '' }],
+    ['/move@aivideo_bot 679cd22f mac-mini-m4', { prefix: '679cd22f', target: 'mac-mini-m4' }],
+    ['/chuyen 679cd22f hp-400-g7', { prefix: '679cd22f', target: 'hp-400-g7' }],
+    ['/move 679cd22f huy', { prefix: '679cd22f', target: '' }],
+    ['/move 679cd22f cancel', { prefix: '679cd22f', target: '' }],
+  ])('parses %j', (command, expected) => {
+    expect(parse(text(command))).toEqual({
+      kind: 'move',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '12',
+      prefix: '679cd22f',
+      target: '',
+      error: '',
+      ...expected,
+    });
+  });
+
+  test.each(['/move', '/move 679cd22f', '/move 67 hp-400-g7', '/move 679cd22f hp 400'])(
+    'answers %j with the usage',
+    (command) => {
+      expect(parse(text(command))).toMatchObject({
+        kind: 'move',
+        error: expect.stringMatching(/^Cách dùng: \/move/),
+      });
+    },
+  );
+
+  test('routes /move to telegram_move() and its reply to Send status', () => {
+    expect(next('Retry?')).toEqual(['Retry', 'Move?']);
+    expect(next('Move?')).toEqual(['Move ok?', 'Intake?']);
+    expect(next('Move ok?')).toEqual(['Move', 'Build move']);
+    expect(next('Move')).toEqual(['Build move']);
+    expect(next('Build move')).toEqual(['Send status']);
+    expect(node('Move').parameters.query).toBe(
+      "SELECT * FROM telegram_move($1::bigint, $2, NULLIF($3, ''));",
+    );
+  });
+
+  test('answers each result of telegram_move()', () => {
+    const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+    const reply = (row: Record<string, unknown>, parsed: Record<string, unknown> = {}) =>
+      String(
+        runCode(WF, 'Build move', {
+          input: [{ json: row }],
+          nodeOutputs: {
+            'Parse callback': [
+              {
+                json: {
+                  kind: 'move',
+                  prefix: '679cd22f',
+                  target: 'hp-400-g7',
+                  chatId: CHAT,
+                  messageId: '12',
+                  error: '',
+                  ...parsed,
+                },
+              },
+            ],
+          },
+        })[0]!.json.text,
+      );
+    const row = { video_id: id, from_worker: 'mac-mini-m4', to_worker: 'hp-400-g7' };
+
+    expect(reply({ ...row, result: 'REQUESTED', busy: false })).toBe(
+      'Đang chuyển video 679cd22f từ mac-mini-m4 sang hp-400-g7: hp-400-g7 sẽ copy file từ mac-mini-m4 khi rảnh. Video tạm dừng trong lúc chuyển; có thông báo khi xong. Hủy: /move 679cd22f huy',
+    );
+    expect(reply({ ...row, result: 'REQUESTED', busy: true })).toMatch(
+      /^Sẽ chuyển video 679cd22f từ mac-mini-m4 sang hp-400-g7 khi bước đang chạy xong/,
+    );
+    expect(reply({ ...row, from_worker: null, result: 'PINNED' })).toBe(
+      'Video 679cd22f chưa chạy bước nào trên worker nào; đã ghim sang hp-400-g7.',
+    );
+    expect(reply({ ...row, result: 'CANCELLED' })).toBe(
+      'Đã hủy chuyển video 679cd22f; video ở lại mac-mini-m4.',
+    );
+    expect(reply({ result: 'NOT_OWNER' })).toBe('Chỉ owner mới chuyển được video giữa các worker.');
+    expect(reply({ result: 'NOT_FOUND' })).toBe('Không có video nào có id bắt đầu bằng 679cd22f.');
+    expect(reply({ result: 'AMBIGUOUS' })).toMatch(/gõ thêm ký tự/);
+    expect(reply({ ...row, result: 'FINISHED' })).toMatch(/679cd22f đã kết thúc/);
+    expect(reply({ ...row, result: 'ALREADY_MOVING' })).toMatch(
+      /đang được chuyển từ mac-mini-m4 sang hp-400-g7/,
+    );
+    expect(reply({ ...row, result: 'NOT_MOVING' })).toMatch(/không có lệnh chuyển nào đang chờ/);
+    expect(reply({ ...row, result: 'COPYING' })).toMatch(
+      /đang được copy sang hp-400-g7; không hủy được nữa/,
+    );
+    expect(reply({ ...row, to_worker: 'raspberry', result: 'UNKNOWN_WORKER' })).toBe(
+      'Không có worker raspberry. Danh sách: /workers',
+    );
+    expect(reply({ ...row, result: 'SAME_WORKER' })).toMatch(/đã ở hp-400-g7 rồi/);
+    expect(reply({ ...row, result: 'TARGET_OFFLINE' })).toMatch(/hp-400-g7 đang offline/);
+    expect(reply({ ...row, result: 'SOURCE_OFFLINE' })).toMatch(
+      /mac-mini-m4 \(đang giữ file của video 679cd22f\) đang offline/,
+    );
+    expect(reply({}, { error: 'Cách dùng: /move x' })).toBe('Cách dùng: /move x');
+  });
+
+  test('/workers lists the moves from or to each worker', () => {
+    const out = runCode(WF, 'Build status', {
+      input: [
+        {
+          json: {
+            allowed: true,
+            worker_id: 'hp-400-g7',
+            online: true,
+            last_seen_at: new Date().toISOString(),
+            jobs: [],
+            waiting: 0,
+            moves: [
+              {
+                video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+                from_worker: 'mac-mini-m4',
+                to_worker: 'hp-400-g7',
+                status: 'COPYING',
+                attempts: 2,
+              },
+            ],
+          },
+        },
+      ],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'workers', chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json as { text: string };
+
+    expect(out.text).toContain('↪ 679cd22f: mac-mini-m4 → hp-400-g7 · đang copy (lần 2)');
   });
 });
 
@@ -2045,6 +2301,63 @@ describe('WF-08 Watchdog', () => {
     );
     expect(run(stalled)).toEqual([]);
     expect(run([])[0]!.json.text).toContain('Không còn video nào chờ worker mất kết nối');
+  });
+
+  test('announces finished and failed moves (D-087)', () => {
+    const out = runCode('wf-08-watchdog.json', 'Build alert', {
+      input: [
+        {
+          json: {
+            summary: {
+              ...summary([]).json.summary,
+              moves: [
+                {
+                  video_id: 'abcdef12-0000-0000-0000-000000000000',
+                  status: 'DONE',
+                  from_worker: 'mac-mini-m4',
+                  to_worker: 'hp-400-g7',
+                  attempts: 1,
+                },
+                {
+                  video_id: '12345678-0000-0000-0000-000000000000',
+                  status: 'FAILED',
+                  from_worker: 'mac-mini-m4',
+                  to_worker: 'hp-400-g7',
+                  attempts: 3,
+                  error: 'VideoImportError: x',
+                },
+              ],
+            },
+          },
+        },
+      ],
+      staticData: {},
+    });
+
+    expect(out[0]!.json.text).toContain('Đã chuyển video abcdef12 từ mac-mini-m4 sang hp-400-g7.');
+    expect(out[0]!.json.text).toContain(
+      'Chuyển video 12345678 từ mac-mini-m4 sang hp-400-g7 thất bại sau 3 lần: VideoImportError: x. Video ở lại mac-mini-m4.',
+    );
+  });
+
+  test('suggests /move for videos stalled on an offline worker (D-087)', () => {
+    const out = runCode('wf-08-watchdog.json', 'Build alert', {
+      input: [
+        {
+          json: {
+            summary: {
+              ...summary([]).json.summary,
+              stalled_pinned: [
+                { video_id: 'abcdef12-0000-0000-0000-000000000000', worker_id: 'hp-400-g7' },
+              ],
+            },
+          },
+        },
+      ],
+      staticData: {},
+    });
+
+    expect(out[0]!.json.text).toContain('/move <id> <worker>');
   });
 });
 
