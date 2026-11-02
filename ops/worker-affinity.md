@@ -46,10 +46,11 @@ New video → `/status <id>` runs as before; `SELECT worker_id FROM video WHERE 
 ## Re-pinning a stalled video
 
 WF-08 sends "Video đang chờ worker mất kết nối" when a video's worker is offline. Its files live
-only on that worker, so first try to bring the worker back. Moving the video means its finished
-steps are gone on the new worker: cancel the version and create a new video from the same brief.
-Do not `UPDATE video SET worker_id` on a video with finished steps; its next job would fail on
-missing files.
+only on that worker, so first bring the worker back; then, if the video should run elsewhere, use
+`/move <id> <worker>` (D-087, [worker-choice-move.md](worker-choice-move.md)), which copies and
+verifies the files before re-pinning. If the old worker is gone for good, cancel the version and
+create a new video from the same brief. Never `UPDATE video SET worker_id` by hand on a video
+with finished steps; its next job would fail on missing files.
 
 ## Rollback
 

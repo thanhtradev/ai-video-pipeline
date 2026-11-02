@@ -91,7 +91,7 @@ real fix (D-086).
 | Incident | Detection | Recovery |
 |---|---|---|
 | Worker dies mid-task | Lease/heartbeat expired (WF-08) | Job → `FAILED_RETRYABLE` → `READY`; the next worker checks checkpoint before running |
-| Worker offline for long | `/health` + heartbeat; WF-08 lists videos pinned to it (`stalled_pinned`, D-074) | Notify Telegram; job stays queued; never moved to another worker, since the video's files are on the pinned one (`ops/worker-affinity.md`) |
+| Worker offline for long | `/health` + heartbeat; WF-08 lists videos pinned to it (`stalled_pinned`, D-074) | Notify Telegram; job stays queued; never moved automatically, since the video's files are on the pinned one. Once that worker is back, the owner may `/move` the video: the files are copied and verified before the re-pin (D-087, `ops/worker-choice-move.md`) |
 | Redis restart/message loss | Job `QUEUED` > 10 min **and** a worker serving its stream has since found its queues empty (`worker_idle`); a job merely waiting behind a long job is left alone | Re-queue from Postgres (safe: `job_start` drops duplicates) |
 | n8n down | Uptime Kuma | No new dispatch; running jobs finish and report to Postgres directly; crons resume when n8n is back |
 | Postgres down | Uptime Kuma | Dispatch stops; a worker that cannot report keeps its checkpoint; the lease expires and the retry completes from the checkpoint without rework |

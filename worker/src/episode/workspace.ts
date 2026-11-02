@@ -28,7 +28,8 @@ import { isLegacyWorkspace, LEGACY_EPISODE_DIRS, writeLegacyShims } from './lega
 const REMOTION_DIR = fileURLToPath(new URL('../../../remotion/', import.meta.url));
 const TEMPLATE_DIR = join(REMOTION_DIR, 'episode');
 const KIT_SRC = join(REMOTION_DIR, 'src');
-const NODE_MODULES = fileURLToPath(new URL('../../../node_modules', import.meta.url));
+/** The repo's node_modules; each workspace links to it (re-pointed when a video moves, D-087). */
+export const NODE_MODULES = fileURLToPath(new URL('../../../node_modules', import.meta.url));
 /** Placeholders in remotion/episode/AGENT.md filled from the selected kit and character set. */
 const KIT_MARK = '<!-- KIT -->';
 const CHARACTERS_MARK = '<!-- CHARACTERS -->';

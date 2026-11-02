@@ -42,6 +42,7 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
 
 - Each job runs in its own directory: `<WORK_ROOT>/videos/{video_id}/v{n}/jobs/{job_id}/`.
 - Worker validates every path (no `..`, no symlinks escaping `WORK_ROOT`).
+- Moving a video (D-087): the source serves `GET /transfer/<video id>?t=<token>` only for the current copy attempt's token (32 hex characters, new per attempt, checked with `video_move_token_valid()` under the worker's own login). The target unpacks the tar into `videos/.incoming/` and rejects the whole copy on any path outside `<video id>/`, any `..`, any symbolic link except a workspace's `node_modules` (re-created to point at its own repo), any hard link leaving the copy, any device or other entry type, or any checkpoint that does not match its files.
 - Service runs as a dedicated non-admin macOS user.
 - Input from providers/external URLs is untrusted data: check MIME/size, never execute.
 
@@ -68,7 +69,7 @@ Claude Code login of the macOS user running the worker (D-039); no `--fallback-m
 ## 6. Telegram [PROPOSED]
 
 - Accept callbacks only from an allow-list of Telegram user ids (configured outside Git). Currently only the owner; more can be added (D-029).
-- The approval chat may be a group (D-058): reading is open to its members, but every button, reply with notes and command (`/new`, `/retry`, `/status`, `/workers`) is checked against the same allow-list by user id. `/new` is also refused outside the configured chat.
+- The approval chat may be a group (D-058): reading is open to its members, but every button, reply with notes and command (`/new`, `/retry`, `/status`, `/workers`) is checked against the same allow-list by user id. `/new` is also refused outside the configured chat. `/move` (D-087) is the owner's only.
 - Archive (D-063): the Google Drive OAuth token lives only in rclone's config (`~/.config/rclone/rclone.conf`), encrypted with a password from the Keychain item `aivideo-rclone-config-pass`; scope `drive.file` limits rclone to the files it created. The episode agent's sandbox cannot read `~/.config`. Deleting the Mac copy needs the owner's Telegram approval and a fresh verification of the archive.
 - New approvers (D-060): `/join` in the approval chat, approved only by the single owner (`approver.is_owner`); the owner can `/revoke` an approver. Changing the owner is a manual SQL step, never possible from Telegram.
 - `callback_data` (64-byte limit) holds only a short random token referencing an `approval` record; no sensitive data.

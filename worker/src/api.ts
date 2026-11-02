@@ -8,11 +8,15 @@ import { createReadStream } from 'node:fs';
 import pino, { type Logger } from 'pino';
 import { readBoardPage } from './episode/boards.js';
 import { findEpisodeMedia } from './episode/media.js';
+import { exportVideo, VIDEO_ID_PATTERN } from './move/export-video.js';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
 
 // Worker API (docs/architecture.md §5). Bind to the Tailscale interface only.
 // /health is unauthenticated for Uptime Kuma; /boards/… and /media/… are guarded by tokens from job
-// checkpoints (D-055, D-057); everything else requires an HMAC signature.
+// checkpoints (D-055, D-057); /transfer/… by the token of a video move's copy attempt, checked in
+// Postgres (D-087); everything else requires an HMAC signature.
+
+const TOKEN_PATTERN = /^[0-9a-f]{32}$/;
 
 export interface ApiOptions {
   workerId: string;
@@ -24,6 +28,8 @@ export interface ApiOptions {
   logger?: Logger;
   /** WORK_ROOT, for storyboard pages and previews; without it /boards and /media answer 404. */
   workRoot?: string;
+  /** Whether a /transfer request carries a video move's current token; without it, 404. */
+  transferAllowed?: (videoId: string, token: string) => Promise<boolean>;
 }
 
 interface ApiResponse<T> {
@@ -111,6 +117,37 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
       .header('content-length', media.bytes)
       .send(createReadStream(media.path));
   });
+
+  app.get<{ Params: { videoId: string }; Querystring: { t?: string } }>(
+    '/transfer/:videoId',
+    async (request, reply) => {
+      const notFound = () => {
+        const body: ApiResponse<never> = { success: false, error: 'not found' };
+        return reply.code(404).send(body);
+      };
+      const { videoId } = request.params;
+      const token = request.query.t ?? '';
+      if (!options.workRoot || !options.transferAllowed) return notFound();
+      if (!VIDEO_ID_PATTERN.test(videoId) || !TOKEN_PATTERN.test(token)) return notFound();
+      let allowed = false;
+      try {
+        allowed = await options.transferAllowed(videoId, token);
+      } catch (error: unknown) {
+        request.log.error(
+          { err: error instanceof Error ? error.message : String(error), videoId },
+          'video move token check failed',
+        );
+      }
+      if (!allowed) {
+        request.log.warn({ videoId }, 'rejected video transfer');
+        return notFound();
+      }
+      const stream = await exportVideo(options.workRoot, videoId);
+      if (!stream) return notFound();
+      request.log.info({ videoId }, 'sending video to the worker it moves to');
+      return reply.type('application/x-tar').send(stream);
+    },
+  );
 
   await app.ready();
   return app;
