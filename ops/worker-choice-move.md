@@ -36,11 +36,8 @@ worker runs the new code, a move to it stays `đang chờ`, and a move from it f
 
 ## 3. n8n
 
-`ops/n8n/deploy-workflows.sh wf-06 wf-08`. Optional BotFather command (`ops/vietnamese-messages.md`):
-
-```
-move - chuyển video sang worker khác (owner)
-```
+`ops/n8n/deploy-workflows.sh wf-06 wf-08`. Then paste the BotFather menu from
+[telegram-commands.md](telegram-commands.md) again (it now lists `move`).
 
 ## 4. Check
 

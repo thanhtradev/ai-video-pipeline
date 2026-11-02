@@ -1399,8 +1399,6 @@ describe('WF-06 worker choice and /move (D-087)', () => {
       userId: '111',
       chatId: CHAT,
       messageId: '12',
-      prefix: '679cd22f',
-      target: '',
       error: '',
       ...expected,
     });
@@ -2617,7 +2615,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong']);
+  const ALIASES = new Set(['ytuong', 'chuyen']);
 
   test('every line is a valid BotFather entry', () => {
     for (const line of menu) expect(line).toMatch(/^[a-z0-9_]{1,32} - \S.{0,254}$/);
