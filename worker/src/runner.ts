@@ -161,28 +161,55 @@ async function runHandler(deps: RunnerDeps, lease: Lease, workDir: string): Prom
     });
   } catch (error: unknown) {
     if (controller.signal.aborted) return aborted(lease);
-    if (error instanceof ProviderBlockedError) {
-      log.warn(
-        { err: errorMessage(error), retryAfterSeconds: error.retryAfterSeconds },
-        'provider blocked',
-      );
-      const status = await deps.store.block(
-        job.jobId,
-        deps.workerId,
-        errorMessage(error),
-        error.retryAfterSeconds,
-      );
-      return { kind: 'blocked', jobId: job.jobId, status };
-    }
-    const retryable = !(error instanceof PermanentJobError);
-    log.warn({ err: errorMessage(error), retryable }, 'handler failed');
-    const status = await deps.store.fail(job.jobId, deps.workerId, errorMessage(error), retryable);
-    return { kind: 'failed', jobId: job.jobId, status };
+    return reportFailure(deps, lease, error);
+  }
+
+  // The checkpoint is written before anything else is checked: finished work (possibly paid) is
+  // kept for the next attempt on this worker even when the lease was lost meanwhile.
+  let checkpoint: Checkpoint;
+  try {
+    checkpoint = await writeCheckpoint(workDir, result.outputs, result.result);
+  } catch (error: unknown) {
+    if (controller.signal.aborted) return aborted(lease);
+    return reportFailure(deps, lease, checkpointError(error));
   }
   if (controller.signal.aborted) return aborted(lease);
-
-  const checkpoint = await writeCheckpoint(workDir, result.outputs, result.result);
   return finish(deps, lease, checkpoint, false);
+}
+
+/**
+ * An output the handler named is missing or outside the workspace: a handler bug, so retrying
+ * cannot help. Any other checkpoint error (disk full, I/O) stays retryable.
+ */
+function checkpointError(error: unknown): Error {
+  const code = (error as NodeJS.ErrnoException).code;
+  const message = `checkpoint: ${errorMessage(error)}`;
+  if (code === 'ENOENT' || /outside workspace/.test(errorMessage(error))) {
+    return new PermanentJobError(message);
+  }
+  return new Error(message);
+}
+
+/** Classifies a failure (docs/job-lifecycle.md §6) and reports it to the store. */
+async function reportFailure(deps: RunnerDeps, lease: Lease, error: unknown): Promise<RunOutcome> {
+  const { job, log } = lease;
+  if (error instanceof ProviderBlockedError) {
+    log.warn(
+      { err: errorMessage(error), retryAfterSeconds: error.retryAfterSeconds },
+      'provider blocked',
+    );
+    const status = await deps.store.block(
+      job.jobId,
+      deps.workerId,
+      errorMessage(error),
+      error.retryAfterSeconds,
+    );
+    return { kind: 'blocked', jobId: job.jobId, status };
+  }
+  const retryable = !(error instanceof PermanentJobError);
+  log.warn({ err: errorMessage(error), retryable }, 'handler failed');
+  const status = await deps.store.fail(job.jobId, deps.workerId, errorMessage(error), retryable);
+  return { kind: 'failed', jobId: job.jobId, status };
 }
 
 async function execute(deps: RunnerDeps, job: StartedJob): Promise<RunOutcome> {

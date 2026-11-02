@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { readFile, realpath, rename, writeFile } from 'node:fs/promises';
+import { readFile, realpath, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import type { AgentRunner } from '../claude/agent-cli.js';
@@ -15,7 +15,12 @@ import {
   type GateReport,
   type GateRunner,
 } from '../episode/gates.js';
-import { agentFiles, containsSecret, prepareWorkspace } from '../episode/workspace.js';
+import {
+  agentFiles,
+  containsSecret,
+  keepPreviousWorkspace,
+  prepareWorkspace,
+} from '../episode/workspace.js';
 import type { LoudnessNormalizer } from '../media/loudness.js';
 import { rulesMarkdown, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
@@ -87,9 +92,8 @@ async function jobDir(workDir: string, jobId: string, what: string): Promise<str
 
 /** A failed earlier attempt's workspace is kept for inspection, never deleted. */
 async function freshWorkspacePath(workDir: string, attemptNo: number): Promise<string> {
-  const ws = join(workDir, WORKSPACE);
-  if (existsSync(ws)) await rename(ws, join(workDir, `${WORKSPACE}.attempt-${attemptNo - 1}`));
-  return ws;
+  await keepPreviousWorkspace(workDir, WORKSPACE, attemptNo);
+  return join(workDir, WORKSPACE);
 }
 
 const turnSchema = z.object({

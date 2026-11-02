@@ -19,8 +19,12 @@
   (literal "/dev/null")
   (regex #"^/dev/tty")
   (regex #"^/dev/fd/"))
+;; Secret paths, the same list the Linux sandbox hides (worker/src/episode/sandbox.ts): all of
+;; ~/.config (rclone's Drive token, the aivideo config), Claude Code's login, the runtime config.
 (deny file-read*
   (subpath (string-append (param "HOME") "/.ssh"))
-  (subpath (string-append (param "HOME") "/.config/aivideo"))
+  (subpath (string-append (param "HOME") "/.config"))
+  (subpath (string-append (param "HOME") "/.claude"))
+  (literal (string-append (param "HOME") "/.claude.json"))
   (subpath (string-append (param "ROOT") "/config"))
   (subpath (string-append (param "HOME") "/Library/Keychains")))

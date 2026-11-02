@@ -80,7 +80,9 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 
 `NEEDS_DECISION` after a permanent failure: an approver sends `/retry <video id prefix>` on Telegram
 once the cause is fixed. `telegram_retry()` gives the failed job one more attempt and resumes the video
-where it was; the step's checkpoints decide what is redone (D-056).
+where it was; the step's checkpoints decide what is redone (D-056). A job takes at most 5 manual
+retries (`job.manual_retries`); after that `/retry` answers `RETRY_LIMIT` and the cause needs a
+real fix (D-086).
 
 **Never** retry with a different provider/model. Every attempt of a paid step goes through the cost guard again.
 

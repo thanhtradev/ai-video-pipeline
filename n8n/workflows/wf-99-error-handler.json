@@ -29,6 +29,7 @@
       },
       "id": "6f1d6a10-0000-4000-8000-000000009903",
       "name": "Write audit log",
+      "onError": "continueRegularOutput",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [440, 0],

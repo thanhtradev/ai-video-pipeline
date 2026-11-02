@@ -1,5 +1,15 @@
 import { existsSync } from 'node:fs';
-import { cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import {
+  cp,
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  rm,
+  stat,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveSelection, type ResolvedSelection, type Selection } from './catalog.js';
@@ -181,4 +191,21 @@ export async function containsSecret(ws: string, secrets: readonly string[]): Pr
 export async function copyWorkspace(from: string, to: string): Promise<void> {
   await cp(from, to, { recursive: true, verbatimSymlinks: true });
   await mkdir(join(to, 'tmp'), { recursive: true });
+}
+
+/**
+ * Moves an earlier attempt's workspace aside (`<name>.attempt-<n>`) so the new attempt starts
+ * clean while the old files stay for inspection, never deleted. A /retry gives a job one more
+ * attempt with the same number sequence, so a name already taken gets a time suffix instead of
+ * failing every later attempt with ENOTEMPTY.
+ */
+export async function keepPreviousWorkspace(
+  workDir: string,
+  name: string,
+  attemptNo: number,
+): Promise<void> {
+  const ws = join(workDir, name);
+  if (!existsSync(ws)) return;
+  const base = join(workDir, `${name}.attempt-${attemptNo - 1}`);
+  await rename(ws, existsSync(base) ? `${base}-${Date.now()}` : base);
 }

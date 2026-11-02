@@ -43,7 +43,10 @@ const KILL_GRACE_MS = 5_000;
 export const USAGE_LIMIT = /usage limit|limit reached|out of extra usage/i;
 // A login the worker cannot repair itself (e.g. OAuth refresh against a locked Keychain): block the
 // job until a person fixes it instead of spending its attempts.
-export const AUTH_FAILURE = /failed to authenticate|oauth|not logged in|invalid api key|\/login/i;
+// Only the CLI's own login messages: a blocked job never uses up an attempt, so a loose match
+// (e.g. any error that mentions "oauth") would retry a real failure forever.
+export const AUTH_FAILURE =
+  /failed to authenticate|authentication failed|not authenticated|oauth (session|token) (has |is )?(expired|invalid|revoked)|not logged in|invalid api key|run \/login|claude login|please log ?in/i;
 // Non-secret variables the CLI needs (HOME for its config), plus the long-lived subscription token
 // from `claude setup-token` (D-046). Nothing else from the worker environment is passed.
 const CHILD_ENV_KEYS = [

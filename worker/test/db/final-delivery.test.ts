@@ -237,6 +237,35 @@ describe('telegram_decide on metadata (A3)', () => {
     expect(await due(v)).toEqual([]);
   });
 
+  test('a malformed archive output stops only its own video (D-086)', async () => {
+    const bad = await episodeAwaitingMetadata('a3-bad-archive');
+    const good = await episodeAwaitingMetadata('a3-good-archive');
+    expect((await decide(bad.a3.token!, 'APPROVE')).result).toBe('OK');
+    expect((await decide(good.a3.token!, 'APPROVE')).result).toBe('OK');
+    await succeed((await jobOf(bad.version_id, 'archive')).id, {
+      outputs: [],
+      result: { ...ARCHIVED(bad.video_id), file_count: 'not a number' },
+    });
+    await succeed((await jobOf(good.version_id, 'archive')).id, {
+      outputs: [],
+      result: ARCHIVED(good.video_id),
+    });
+
+    const rows = (await db.pool.query<FinalRow>('SELECT * FROM final_due()')).rows;
+
+    expect(rows.filter((r) => r.video_version_id === good.version_id)).toHaveLength(1);
+    expect(rows.filter((r) => r.video_version_id === bad.version_id)).toEqual([]);
+    expect(await versionStatus(db.pool, good.version_id)).toBe('ARCHIVE_VERIFIED');
+    expect(await versionStatus(db.pool, bad.version_id)).toBe('NEEDS_DECISION');
+    const audit = await db.pool.query<{ detail: { error: string } }>(
+      `SELECT detail FROM audit_log WHERE action = 'archive_record_failed' AND object_id = $1`,
+      [bad.version_id],
+    );
+    expect(audit.rows[0]!.detail.error).toMatch(/invalid input syntax for type integer/);
+    // Nothing is retried automatically: the next poll leaves the stopped video alone.
+    expect(await due(bad.version_id)).toEqual([]);
+  });
+
   test('a metadata that changed after the request is refused', async () => {
     const { a3, version_id: v } = await episodeAwaitingMetadata('a3-hash');
     const meta = await jobOf(v, 'metadata');

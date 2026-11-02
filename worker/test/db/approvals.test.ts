@@ -46,6 +46,31 @@ async function decide(
   return result.rows[0]!.approval_decide;
 }
 
+describe('approval_request', () => {
+  test('supersedes the earlier pending request; the database allows only one PENDING per type', async () => {
+    const { versionId } = await awaitingScriptApproval();
+    const first = await request(versionId);
+    const second = await request(versionId);
+    const statuses = await db.pool.query<{ token: string; status: string }>(
+      'SELECT token, status FROM approval WHERE video_version_id = $1 ORDER BY requested_at',
+      [versionId],
+    );
+    expect(statuses.rows).toEqual([
+      { token: first, status: 'SUPERSEDED' },
+      { token: second, status: 'PENDING' },
+    ]);
+
+    // D-086: a second PENDING row of the same type can never be inserted, whatever the caller.
+    await expect(
+      db.pool.query(
+        `INSERT INTO approval (video_version_id, type, token, payload_hash, expires_at)
+         VALUES ($1, 'SCRIPT', 'x', 'h1', now() + interval '1 day')`,
+        [versionId],
+      ),
+    ).rejects.toThrow(/approval_one_pending_idx/);
+  });
+});
+
 describe('approval_decide', () => {
   test('accepts an allowed approver once', async () => {
     const { versionId } = await awaitingScriptApproval();

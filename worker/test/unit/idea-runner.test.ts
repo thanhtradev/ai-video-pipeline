@@ -76,6 +76,29 @@ describe('idea runner', () => {
     expect(calls[1]!.args[3]).toBe(true);
   });
 
+  test("passes the worker loop's stop signal to the Claude call", async () => {
+    const { store } = fakeStore(REQUEST);
+    const controller = new AbortController();
+    let seen: AbortSignal | undefined;
+    const capturing: ClaudeRunner = async (request) => {
+      seen = request.signal;
+      return { output: { ideas: [IDEA] }, durationMs: 1, numTurns: 1, usage: null };
+    };
+    await runner(store, capturing)(controller.signal);
+    expect(seen).toBe(controller.signal);
+  });
+
+  test('a shutdown during the Claude call is not a failed attempt', async () => {
+    const { store, calls } = fakeStore(REQUEST);
+    const controller = new AbortController();
+    const interrupted: ClaudeRunner = async (request) => {
+      controller.abort();
+      throw new Error(`claude aborted: ${String(request.signal.reason)}`);
+    };
+    expect(await runner(store, interrupted)(controller.signal)).toBe(true);
+    expect(calls.map((c) => c.method)).toEqual(['claim']);
+  });
+
   test('a usage limit blocks the request instead of failing it', async () => {
     const { store, calls } = fakeStore(REQUEST);
     const limited: ClaudeRunner = async () => {

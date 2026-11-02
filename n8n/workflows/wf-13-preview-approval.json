@@ -44,6 +44,7 @@
       },
       "id": "6f1d6a10-0000-4000-8000-000000001304",
       "name": "Fetch video",
+      "onError": "continueRegularOutput",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [660, 0]
@@ -61,6 +62,7 @@
       },
       "id": "6f1d6a10-0000-4000-8000-000000001305",
       "name": "Send video",
+      "onError": "continueRegularOutput",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [880, 0],
