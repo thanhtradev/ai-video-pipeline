@@ -43,21 +43,8 @@ psql "$DATABASE_URL" -c "UPDATE approver SET is_owner = true WHERE telegram_user
 
 ## 3. Re-import WF-06
 
-As before (with the approval chat id). Optional: add the new commands in BotFather (`/setcommands`
-replaces the whole list):
-
-```
-status - progress of active videos, or /status <video id>
-new - new episode: /new [minutes] <topic>
-retry - retry a stopped video: /retry <video id>
-rules - channel rules and pronunciation
-rule - /rule add video|tts <text> or /rule del <number>
-say - pronunciation: /say <term> = <how to say it>
-unsay - remove a pronunciation: /unsay <term>
-join - ask the owner to become an approver
-members - list approvers
-revoke - owner only: /revoke <user id>
-```
+As before (with the approval chat id). Optional: paste the BotFather command list of
+[telegram-commands.md](telegram-commands.md) (`/setcommands` replaces the whole list).
 
 **Check**: `/members` lists you with ★. From a second account in the group, `/join` → a request;
 pressing Approve from that account is refused, from yours it adds them.
