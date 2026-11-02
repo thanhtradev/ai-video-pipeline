@@ -9,6 +9,7 @@ import { readValidCheckpoint } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { writeAtomic } from './script.js';
 import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
+import { spokenKeys } from '../episode/sentences.js';
 
 // `script` step for a 16:9 TikTok 2 channel episode (D-050, docs/episode-pipeline.md §3). Hybrid
 // brief: from a topic Claude writes the episode; from the user's full brief it only restructures it
@@ -156,6 +157,19 @@ function checkVerbatim(script: EpisodeScript, fullBrief: string): string[] {
   );
 }
 
+// A robot beep read by the TTS voice sounds unnatural: it is the kit's beep SFX (D-084).
+const SPOKEN_BEEP = 'bip';
+
+function checkSpokenBeeps(script: EpisodeScript): string[] {
+  return script.acts.flatMap((act, a) =>
+    act.lines.flatMap((line, l) =>
+      spokenKeys(line).includes(SPOKEN_BEEP)
+        ? [`act ${a + 1} line ${l + 1} speaks a beep; put "bíp" in the shot sfx instead`]
+        : [],
+    ),
+  );
+}
+
 /** Seconds of the finished episode, estimated from the narration (holds included). */
 function estimateSeconds(script: EpisodeScript): number {
   const words = script.acts.reduce((sum, act) => sum + wordCount(actNarration(act)), 0);
@@ -174,6 +188,7 @@ export function checkEpisodeScript(
   const problems = script.acts.flatMap((act, index) => checkAct(act, index + 1));
   if (brief.full_brief && isRevision) return problems;
   if (brief.full_brief) return [...problems, ...checkVerbatim(script, brief.full_brief)];
+  problems.push(...checkSpokenBeeps(script));
   if (brief.duration_minutes) {
     const seconds = estimateSeconds(script);
     const target = brief.duration_minutes * 60;
