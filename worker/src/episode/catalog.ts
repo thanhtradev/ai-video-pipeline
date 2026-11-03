@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import { languageSchema, type Language } from './language.js';
 import { frameSchema, type Frame } from './frame.js';
 
 /**
@@ -26,6 +27,8 @@ const kitSchema = z.object({
   episodeDeps: z.array(relPath),
   /** Video size of the kit's episodes (D-080). */
   frame: frameSchema,
+  /** Language of the kit's video content (D-092); catalog_option.language mirrors it. */
+  language: languageSchema.default('vi'),
   modules,
 });
 const characterSetSchema = z.object({
@@ -69,6 +72,8 @@ export interface ResolvedSelection {
   readonly characterPrompts: readonly string[];
   /** Video size of the kit's episodes (D-080). */
   readonly frame: Frame;
+  /** Language of the video content (D-092). */
+  readonly language: Language;
   /** Telegram labels (Vietnamese). */
   readonly labels: { readonly kit: string; readonly characterSet: string };
 }
@@ -127,6 +132,7 @@ export function resolveSelection(selection: Selection): ResolvedSelection {
     kitPrompts: kitDirs.map((dir) => `${dir}/${PROMPT_DOC}`),
     characterPrompts: [`${set.dir}/${PROMPT_DOC}`],
     frame: kit.frame,
+    language: kit.language,
     labels: { kit: kit.label, characterSet: set.label },
   };
 }

@@ -2,6 +2,13 @@ import { diffArrays } from 'diff';
 import { wordKeys, type Sentence } from './sentences.js';
 import { spokenForm, type Pronunciation } from '../rules/channel-rules.js';
 import { spellNumbers } from './vi-numbers.js';
+import { spellEnglishNumbers } from './en-numbers.js';
+import type { Language } from './language.js';
+
+const SPELL_NUMBERS: Readonly<Record<Language, (text: string) => string>> = {
+  vi: spellNumbers,
+  en: spellEnglishNumbers,
+};
 
 // Word timing: the known sentence words aligned with whisper's word timestamps (port of
 // build_timing.py step 4, difflib → jsdiff). Whisper decides *when*; the script decides *what*.
@@ -28,7 +35,7 @@ interface WhisperSegment {
 }
 
 /** Words of a whisper-cli JSON transcript (-ojf). Invalid UTF-8 from split tokens is tolerated. */
-export function parseWhisperJson(bytes: Uint8Array): HeardWord[] {
+export function parseWhisperJson(bytes: Uint8Array, language: Language = 'vi'): HeardWord[] {
   const parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes)) as {
     transcription?: WhisperSegment[];
   };
@@ -37,7 +44,7 @@ export function parseWhisperJson(bytes: Uint8Array): HeardWord[] {
     const from = segment.offsets?.from;
     const to = segment.offsets?.to;
     if (typeof from !== 'number' || typeof to !== 'number') return [];
-    return wordKeys(spellNumbers(segment.text ?? '')).map((key) => ({
+    return wordKeys(SPELL_NUMBERS[language](segment.text ?? '')).map((key) => ({
       key,
       start: from / 1000,
       end: to / 1000,
@@ -62,6 +69,7 @@ export function alignWords(
   sentences: readonly Sentence[],
   heard: readonly HeardWord[],
   pronunciation: Pronunciation = [],
+  language: Language = 'vi',
 ): SpokenWord[][] {
   const tokens = sentences.map((sentence) =>
     displayWords(sentence.text).map((text) => ({ text, key: wordKeys(text).join(' ') })),
@@ -69,7 +77,7 @@ export function alignWords(
   // One entry per word whisper should hear, pointing back to its display token.
   const expected = tokens.flat().flatMap((token, owner) => {
     const spoken = spokenForm(token.text, pronunciation);
-    const keys = spoken ? wordKeys(spellNumbers(spoken)) : [token.key];
+    const keys = spoken ? wordKeys(SPELL_NUMBERS[language](spoken)) : [token.key];
     return keys.map((key) => ({ key, owner }));
   });
   const matched = new Map<number, HeardWord>();

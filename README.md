@@ -10,7 +10,7 @@ An automated AI video production system running on a homelab, with human approva
 - **Expansion:** short films with consistent characters; explainer/motion graphics; localization.
 - **Operational target:** >10 videos/day **after benchmarking** — not a proven capacity.
 - **MVP format:** Shorts, 9:16, under 60 seconds.
-- **Video content language:** Vietnamese (scripts, narration, subtitles, metadata). Everything else is English — see `CLAUDE.md` §1.
+- **Video content language:** Vietnamese (scripts, narration, subtitles, metadata), or English for the `whatif-en` kit (D-092). Everything else is English — see `CLAUDE.md` §1.
 
 ## Default flow per video
 

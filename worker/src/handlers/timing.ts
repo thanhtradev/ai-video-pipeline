@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import { alignWords, parseWhisperJson } from '../episode/align.js';
 import { episodeSentences } from '../episode/sentences.js';
+import { languageSchema } from '../episode/language.js';
 import { buildTiming, checkCuts, envelope, FPS, type EpisodeTiming } from '../episode/timing.js';
 import type { LoudnessNormalizer } from '../media/loudness.js';
 import { readPcm16, type VoiceBuilder } from '../media/voice.js';
@@ -36,7 +37,7 @@ const TIMELINE = 'timeline.md';
 const inputSchema = z.object({
   script_job_id: z.uuid(),
   tts_job_id: z.uuid(),
-  language: z.literal('vi'),
+  language: languageSchema,
 });
 
 const scriptSchema = z.object({
@@ -156,16 +157,18 @@ async function analyse(context: HandlerContext, deps: TimingHandlerDeps, transcr
   return {
     script,
     pronunciation,
-    heard: parseWhisperJson(transcript),
+    heard: parseWhisperJson(transcript, input.language),
     db: envelope(pcm.samples, pcm.sampleRate),
   };
 }
 
 export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
   return async (context) => {
-    if (!inputSchema.safeParse(context.input).success) {
+    const parsedInput = inputSchema.safeParse(context.input);
+    if (!parsedInput.success) {
       throw new PermanentJobError('invalid timing input');
     }
+    const { language } = parsedInput.data;
     if (!deps.transcribe) {
       throw new ProviderBlockedError(
         'no whisper model configured (WHISPER_MODEL)',
@@ -175,7 +178,7 @@ export function createTimingHandler(deps: TimingHandlerDeps): JobHandler {
     const { script, pronunciation, heard, db } = await analyse(context, deps, deps.transcribe);
 
     const sentences = episodeSentences(script.acts);
-    const words = alignWords(sentences, heard, pronunciation);
+    const words = alignWords(sentences, heard, pronunciation, language);
     const shots = script.acts.flatMap((act, a) =>
       act.shots.map((shot) => ({ ...shot, act: a + 1 })),
     );

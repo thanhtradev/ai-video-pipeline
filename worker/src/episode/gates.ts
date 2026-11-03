@@ -39,6 +39,13 @@ export const gateReportSchema = z
           .optional(),
       })
       .optional(),
+    /** The worker's English-text check (D-092); only in English episodes' reports. */
+    language: z
+      .object({
+        ok: z.boolean(),
+        hits: z.array(z.object({ file: z.string(), line: z.number(), text: z.string() })),
+      })
+      .optional(),
     /** Wall time per gate step in ms; absent in reports of older gate scripts. */
     ms: z.record(z.string(), z.number()).optional(),
   })
@@ -124,6 +131,13 @@ export function describeFailures(report: GateReport): string[] {
             rows
               .map((r) => `- "${r.text}" ${r.kind}, ${r.side}, ${frames(r.from, r.to)}`)
               .join('\n'),
+    );
+  }
+  if (report.language && !report.language.ok) {
+    out.push(
+      'This is an English episode, but these lines of src/episode/ contain Vietnamese text ' +
+        '(translate them to English or remove them):\n' +
+        report.language.hits.map((h) => `- ${h.file}:${h.line} ${h.text}`).join('\n'),
     );
   }
   return out;

@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
+import { languageSchema, subtitleFile } from '../episode/language.js';
 import { overallLevel, previewChecks } from '../episode/qa.js';
 import type { GapDetector, MediaInspector } from '../media/inspect.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
@@ -15,7 +16,6 @@ import { PermanentJobError, type JobHandler } from '../runner.js';
 // the same checks on the 1080p final.mp4 before A3. Free (local).
 
 const REPORT = 'qa-report.json';
-const SRT = 'vi.srt';
 const FPS = 30;
 
 const QUALITIES = {
@@ -33,6 +33,8 @@ const renderSchema = z.object({
   // The size the render was made at (the kit's frame, D-080).
   width: z.number().int().positive(),
   height: z.number().int().positive(),
+  // Renders before D-092 wrote no language: Vietnamese.
+  subtitles: z.object({ language: languageSchema }).default({ language: 'vi' }),
 });
 const timingSchema = z.object({ totalFrames: z.number().int().positive() });
 
@@ -56,7 +58,7 @@ export function createQaPreviewHandler(deps: QaPreviewDeps): JobHandler {
     }
     const render = await finishedJob(workDir, parsed.data.render_job_id, 'render_episode');
     const timing = await finishedJob(workDir, parsed.data.timing_job_id, 'timing');
-    const { loudness, width, height } = renderSchema.parse(render.checkpoint.result);
+    const { loudness, width, height, subtitles } = renderSchema.parse(render.checkpoint.result);
     const { totalFrames } = timingSchema.parse(
       JSON.parse(await readFile(join(timing.dir, 'timing.json'), 'utf8')),
     );
@@ -75,7 +77,7 @@ export function createQaPreviewHandler(deps: QaPreviewDeps): JobHandler {
         seconds: totalFrames / FPS,
       },
       loudness,
-      srt: await readFile(join(render.dir, SRT), 'utf8'),
+      srt: await readFile(join(render.dir, subtitleFile(subtitles.language, 'srt')), 'utf8'),
     });
     const level = overallLevel(checks);
     // Written before a FAIL too, for whoever decides.

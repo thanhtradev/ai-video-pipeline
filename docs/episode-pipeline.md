@@ -110,7 +110,7 @@ the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
 
 1. The act clips are joined in order with 0.6 s of silence between acts → `voice.wav` (48 kHz mono,
    what the composition plays) and a 16 kHz copy.
-2. `whisper-cli` (whisper.cpp, model `large-v3-turbo`, `-l vi -ml 1 -sow -ojf`) gives word times;
+2. `whisper-cli` (whisper.cpp, model `large-v3-turbo`, `-l <video language> -ml 1 -sow -ojf`, `vi` or `en` (D-092)) gives word times;
    digits it writes ("30", "100.000") are read the Vietnamese way for matching.
 3. The script lines are split into spoken **sentences** `S001…` (after `. ! ? … :`, tags removed;
    each keeps its script line id `L…`), the reference episodes' timing unit. Their words are
@@ -260,7 +260,7 @@ WF-06 handles both through `telegram_decide()`:
 `render_episode` (q:render, free) copies the approved workspace and renders `Episode` once at full
 size (`master.mp4`, the final's exact render, D-089) under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
 captions are part of the composition), normalises loudness (-14 LUFS, -1.5 dBTP, D-032) and writes
-`vi.srt` from the sentence timeline; ffmpeg scales `preview.mp4` (1280×720 or 720×1280, H.264
+`<language>.srt` (`vi.srt`, or `en.srt` for an English kit) from the sentence timeline; ffmpeg scales `preview.mp4` (1280×720 or 720×1280, H.264
 CRF 20, audio copied) down from `master.mp4`. `render_final` gets the preview job's id
 (migration `20261118000100`) and hard-links its `master.mp4` as `final.mp4` when that job rendered
 the same code; otherwise (a preview job of an older worker) it renders as before. `master.mp4` is
@@ -317,7 +317,7 @@ polls `final_due()` every 30 s:
 
 ```
 videos/<id>/v<n>/
-  renders/final_1080p.mp4, preview_720p.mp4     subtitles/vi.srt, vi.vtt, captions.json
+  renders/final_1080p.mp4, preview_720p.mp4     subtitles/<lang>.srt, <lang>.vtt, captions.json
   script/script.md, script.json, timing.json   audio/voice.wav
   remotion/src/episode/…, sfx/…, board/…        thumbnail/thumbnail.jpg   metadata/metadata.json
   qa/qa-preview.json, qa-final.json             logs/agent-turns.json

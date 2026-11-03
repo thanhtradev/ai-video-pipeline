@@ -203,6 +203,18 @@ describe('render_episode handler', () => {
     });
   });
 
+  test('names the subtitles after the language the episode code recorded (D-092)', async () => {
+    await writeCheckpoint(join(jobsDir, CODE_JOB), ['ws/src/episode/Episode.tsx'], {
+      frame: { width: 1920, height: 1080 },
+      language: 'en',
+    });
+    const result = await createRenderEpisodeHandler(deps())(
+      context({ ...INPUT, quality: 'final' }),
+    );
+    expect(result.outputs).toEqual(['final.mp4', 'en.srt']);
+    expect(result.result).toMatchObject({ subtitles: { language: 'en', files: ['en.srt'] } });
+  });
+
   test('fails permanently on invalid input or a changed episode code', async () => {
     const handler = createRenderEpisodeHandler(deps());
     await expect(handler(context({ episode_code_job_id: 'x' }))).rejects.toBeInstanceOf(

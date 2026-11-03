@@ -202,6 +202,16 @@ describe('archive handler', () => {
     expect(manifest.aspect_ratio).toBe('9:16');
   });
 
+  test('archives English subtitles under their own name (D-092)', async () => {
+    await writeJob(JOBS.final_render_job_id, { 'final.mp4': 'f', 'en.srt': SRT });
+    const { target, files } = memoryTarget();
+    await createArchiveVideoHandler({ target, targetName: 'gdrive', blockSeconds: 60 })(context());
+
+    expect(files.get(`${INPUT.remote_dir}/subtitles/en.srt`)!.toString()).toBe(SRT);
+    expect(files.get(`${INPUT.remote_dir}/subtitles/en.vtt`)!.toString()).toBe(srtToVtt(SRT));
+    expect(files.has(`${INPUT.remote_dir}/subtitles/vi.srt`)).toBe(false);
+  });
+
   test('a retry finds the verified copy instead of uploading another', async () => {
     const { target, files } = memoryTarget();
     const handler = createArchiveVideoHandler({ target, targetName: 'gdrive', blockSeconds: 60 });
