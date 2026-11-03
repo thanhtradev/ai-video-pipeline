@@ -1248,6 +1248,7 @@ describe('WF-06 /new (D-058)', () => {
       fileId: '',
       selection: {},
       worker: '',
+      auto: false,
       error: '',
     });
     expect(parse(message('/new Mèo nghĩ gì?'))).toMatchObject({
@@ -1307,6 +1308,7 @@ describe('WF-06 /new (D-058)', () => {
       ok: true,
       userId: '111',
       worker: '',
+      auto: 'false',
       brief: JSON.stringify({
         topic: 'Mèo nghĩ gì?',
         duration_minutes: 6,
@@ -1648,11 +1650,11 @@ describe('WF-06 worker choice and /move (D-087)', () => {
 
     expect(out!.json).toMatchObject({ worker: 'hp-400-g7' });
     expect(node('Draft').parameters.query).toBe(
-      "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb, NULLIF($4, ''));",
+      "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb, NULLIF($4, ''), $5::boolean);",
     );
     expect(
       (node('Draft').parameters.options as { queryReplacement: string }).queryReplacement,
-    ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker] }}');
+    ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker, $json.auto] }}');
   });
 
   test('the confirmation shows the worker and a Worker button next to Thời lượng', () => {
@@ -2965,5 +2967,89 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
     const listed = menu.map((line) => line.split(' - ')[0]);
     expect(new Set(listed)).toEqual(new Set(parsed));
     expect(listed).toHaveLength(new Set(listed).size);
+  });
+});
+
+describe('WF-06 /new auto=on (D-096)', () => {
+  const WF = 'wf-06-telegram-callback.json';
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const text = (value: string): Item => ({
+    json: {
+      message: {
+        message_id: 12,
+        from: { id: 111, is_bot: false },
+        chat: { id: CHAT },
+        text: value,
+      },
+    },
+  });
+  const parse = (value: string) =>
+    runCode(WF, 'Parse callback', { input: [text(value)] })[0]?.json as Record<string, unknown>;
+  const SELECTION = {
+    kit: { slug: 'science', label: 'Khoa học', next_slug: 'whatif', next_label: 'Nếu bạn…' },
+    character_set: {
+      slug: 'chip-science',
+      label: 'Chíp Khoa học',
+      next_slug: 'chip-science',
+      next_label: 'Chíp Khoa học',
+    },
+  };
+  const confirm = (selection: object) =>
+    runCode(WF, 'Build confirmation', {
+      input: [
+        {
+          json: {
+            result: 'DRAFT',
+            token: 'd'.repeat(32),
+            expires_at: '2026-11-04T06:00:00Z',
+            brief: { topic: 'Mèo' },
+            has_voice: null,
+            selection,
+          },
+        },
+      ],
+      nodeOutputs: { 'Parse callback': [{ json: { chatId: String(CHAT), messageId: '12' } }] },
+    })[0]!.json as { text: string };
+
+  test('takes auto=on off the first line, with the other options', () => {
+    expect(parse('/new 3 Vì sao trời xanh? kit=science auto=on worker=hp-400-g7')).toMatchObject({
+      topic: 'Vì sao trời xanh?',
+      minutes: 3,
+      selection: { kit: 'science' },
+      worker: 'hp-400-g7',
+      auto: true,
+      error: '',
+    });
+    expect(parse('/new Vì sao trời xanh?')).toMatchObject({ auto: false });
+    expect(parse('/new Vì sao trời xanh? auto=off')).toMatchObject({
+      topic: 'Vì sao trời xanh?',
+      auto: false,
+    });
+  });
+
+  test('the usage names auto=on', () => {
+    expect(parse('/new auto=on')!.error).toMatch(/auto=on/);
+  });
+
+  test('Build draft passes the choice to telegram_intake_draft()', async () => {
+    const parsed = parse('/new Vì sao trời xanh? auto=on');
+    const [on] = await runAsyncCode(WF, 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+    });
+    expect(on!.json).toMatchObject({ auto: 'true' });
+    const [off] = await runAsyncCode(WF, 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: parse('/new Vì sao trời xanh?') }] },
+    });
+    expect(off!.json).toMatchObject({ auto: 'false' });
+  });
+
+  test('the confirmation says whether the video will approve itself', () => {
+    expect(confirm({ ...SELECTION, auto: true }).text).toContain(
+      'Tự duyệt: Bật — mọi bước tới khi lưu Drive (trừ xóa bản trên Mac)',
+    );
+    expect(confirm({ ...SELECTION, auto: false }).text).not.toContain('Tự duyệt');
+    expect(confirm(SELECTION).text).not.toContain('Tự duyệt');
   });
 });
