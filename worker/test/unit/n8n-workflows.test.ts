@@ -1231,6 +1231,73 @@ describe('WF-06 /new (D-058)', () => {
     expect(plain.text).not.toMatch(/VOICE/);
   });
 
+  test('the Thời lượng button cycles the length; a full brief shows its VOICE estimate (D-091)', () => {
+    const token = 'd'.repeat(32);
+    const draftRow = (brief: Record<string, unknown>, duration: Record<string, unknown>) => ({
+      result: 'DRAFT',
+      token,
+      expires_at: '2026-10-26T06:00:00Z',
+      brief,
+      has_voice: brief.full_brief ? true : null,
+      selection: { ...SELECTION, duration },
+    });
+
+    const auto = confirm(
+      draftRow(
+        { topic: 'Mèo' },
+        {
+          follows_voice: false,
+          minutes: null,
+          label: 'Tự động (~6 phút)',
+          next_minutes: 3,
+          next_label: '3 phút',
+        },
+      ),
+    );
+    expect(auto.text).toContain('Thời lượng: Tự động (~6 phút)');
+    expect(auto).toMatchObject({
+      durationButton: 'Thời lượng → 3 phút',
+      durationData: `in:D:${token}`,
+    });
+
+    const voice = confirm(
+      draftRow(
+        { topic: 'Mèo', duration_minutes: 6, full_brief: 'VOICE\n…' },
+        { follows_voice: true, voice_words: 1920, voice_minutes: 10 },
+      ),
+    );
+    expect(voice.text).toContain('Thời lượng: theo VOICE, ước tính ~10 phút (1920 từ)');
+    expect(voice.durationButton).toBe('Thời lượng: theo VOICE');
+
+    const decimal = confirm(
+      draftRow(
+        { topic: 'Mèo', full_brief: 'VOICE\n…' },
+        { follows_voice: true, voice_words: 1250, voice_minutes: 6.5 },
+      ),
+    );
+    expect(decimal.text).toContain('ước tính ~6,5 phút (1250 từ)');
+
+    const parsed = runCode('wf-06-telegram-callback.json', 'Parse callback', {
+      input: [
+        {
+          json: {
+            callback_query: {
+              id: 'q9',
+              data: `in:D:${token}`,
+              from: { id: 111 },
+              message: { message_id: 13, chat: { id: CHAT }, text: 'confirm' },
+            },
+          },
+        },
+      ],
+    })[0]!.json;
+    expect(parsed).toMatchObject({ kind: 'intake-set', setKind: 'duration', token });
+
+    const refused = confirm({ result: 'FULL_BRIEF' }, parsed);
+    expect(refused).toMatchObject({ edit: false, queryId: 'q9' });
+    expect(refused.text).toMatch(/theo mục VOICE/);
+  });
+
   test('explains a refused draft without buttons', () => {
     expect(confirm({ result: 'NOT_APPROVER' })).toEqual({
       chatId: CHAT,
@@ -1430,7 +1497,7 @@ describe('WF-06 worker choice and /move (D-087)', () => {
     ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker] }}');
   });
 
-  test('the confirmation shows the worker and a Worker button', () => {
+  test('the confirmation shows the worker and a Worker button next to Thời lượng', () => {
     const out = confirm(SELECTION);
 
     expect(out.text).toContain('Worker: hp-400-g7');
@@ -1448,6 +1515,10 @@ describe('WF-06 worker choice and /move (D-087)', () => {
         {
           text: '={{ $json.workerButton }}',
           additionalFields: { callback_data: '={{ $json.workerData }}' },
+        },
+        {
+          text: '={{ $json.durationButton }}',
+          additionalFields: { callback_data: '={{ $json.durationData }}' },
         },
       ]);
     }
