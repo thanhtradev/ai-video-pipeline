@@ -77,7 +77,21 @@ const BROWSER_CRASH = /Page crashed!|Target closed|browser crashed|Session close
 /** True when the text (a gate error, or a prompt quoting one) shows Chrome itself crashing. */
 export const isBrowserCrash = (text: string): boolean => BROWSER_CRASH.test(text);
 
-/** The Chrome crash of a gate run, or null. The agent cannot fix it: the worker retries. */
+/**
+ * A Chrome crash told to the agent once it repeats on the same code (the code triggers a Chrome
+ * bug). Worded so that it does not match BROWSER_CRASH: the turn is not given back as wasted.
+ */
+export const CHROME_ABORT_HINT =
+  'Chrome itself aborted while rendering the episode, on two runs of the same code, so something ' +
+  'in the code triggers a Chrome bug. A known cause: Skia aborts on an animated ' +
+  'strokeDasharray with pathLength (a draw-on or partial curve, dashes near zero) of a curved SVG ' +
+  'path (Q, C, S, T or A commands). Draw the visible part of such a curve as a polyline of straight ' +
+  'segments, without dashes, and check any other unusual SVG or CSS you added in your last turn.';
+
+const stepError = (error: string | undefined): string =>
+  error !== undefined && isBrowserCrash(error) ? CHROME_ABORT_HINT : (error ?? '');
+
+/** The Chrome crash of a gate run, or null. The worker retries it once before the agent sees it. */
 export function browserCrash(report: GateReport): string | null {
   const errors = [report.board?.error, report.mix?.error, report.textBounds?.error];
   return errors.find((e): e is string => e !== undefined && isBrowserCrash(e)) ?? null;
@@ -94,15 +108,15 @@ export function describeFailures(report: GateReport): string[] {
   if (report.bundle && !report.bundle.ok)
     out.push(`Bundling failed:\n${report.bundle.error ?? ''}`);
   if (report.board && !report.board.ok)
-    out.push(`The storyboard render failed:\n${report.board.error ?? ''}`);
+    out.push(`The storyboard render failed:\n${stepError(report.board.error)}`);
   if (report.mix && !report.mix.ok)
-    out.push(`The audio mix render failed:\n${report.mix.error ?? ''}`);
+    out.push(`The audio mix render failed:\n${stepError(report.mix.error)}`);
   const tb = report.textBounds;
   if (tb && !tb.ok) {
     const rows = (tb.rows ?? []).filter((r) => r.kind !== 'blur').slice(0, REPORT_ROWS);
     out.push(
       tb.error
-        ? `The text-bounds QA failed:\n${tb.error}`
+        ? `The text-bounds QA failed:\n${stepError(tb.error)}`
         : `${tb.sharp ?? rows.length} sharp texts are partly outside the video frame ` +
             `(side: t/r/b/l = top/right/bottom/left and pixels outside):\n` +
             rows

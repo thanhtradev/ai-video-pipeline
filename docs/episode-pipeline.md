@@ -211,8 +211,10 @@ session. `agent-turns.json` keeps prompts, replies and usage, and is the step's 
 it is written after every agent turn and gate run, so a retry (worker restart, a gate crash,
 `/retry` on Telegram) resumes the same session where it stopped. The limit counts all attempts. The
 step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
-during the board or QA render (`Page crashed!`, `Target closed`) is never shown to the agent: the
-attempt fails retryable and the retry re-runs the gates. Follow-up turns an older worker spent on a Chrome crash do not
+during the board, mix or QA render (`Page crashed!`, `Target closed`) first fails the attempt
+retryable and the retry re-runs the gates; when Chrome crashes again on the same code, the code
+triggers a Chrome bug and the agent gets it as a failed check with a hint (`CHROME_ABORT_HINT`,
+never the raw crash text; D-088). Follow-up turns an older worker spent on a Chrome crash do not
 count toward the three turns (job 476042c2, 2026-10-27). The QA scan opens a fresh browser every 20
 samples; 100 per browser crashed Chrome (a V8 fatal check) on one episode, 2026-10-27.
 

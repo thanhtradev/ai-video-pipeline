@@ -51,6 +51,10 @@ what is wrong.
 - Never type seconds or frame numbers for story events: anchor them to words, e.g.
   `at('S012', 'vỗ tay')`, `L('S030')`, `line('S030').holdFrom`, and use `sec2f()` only for short
   durations of motion.
+- Never animate a partial curve with `pathLength` and a changing `strokeDasharray` on a curved SVG
+  path (`Q`, `C`, `S`, `T`, `A`), above all with dashes near zero: Chrome's renderer aborted on it
+  and the episode could not render. Draw the visible part of the curve as a polyline of straight
+  segments instead. Fixed dashes in pixels, as in the reference episode, are fine.
 
 <!-- KIT -->
 
