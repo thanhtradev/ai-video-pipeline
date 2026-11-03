@@ -39,11 +39,14 @@ import {
 // turn is permanent: a person decides (the workspace stays for an interactive session).
 // agent-turns.json checkpoints every agent turn and gate run: a retry (a crash, the gates' Chrome,
 // /retry on Telegram) resumes the same session where it stopped instead of writing it again.
+// A Chrome crash in the gates is retried once; a second one on the same code goes to the agent (D-088).
 // The gates also render the episode's audio (voice + SFX); mix.m4a, at the delivery loudness, goes
 // to the storyboard request with the pages (D-071).
 
 const AGENT_LIMIT_MS = 90 * 60 * 1000;
 const MAX_FOLLOW_UPS = 2;
+/** Chrome crashes in a row on the same code before the agent is told: the code triggers a Chrome bug. */
+const CRASHES_BEFORE_AGENT = 2;
 const WORKSPACE = 'ws';
 const SETTINGS = 'agent-settings.json';
 const TURNS_LOG = 'agent-turns.json';
@@ -109,9 +112,17 @@ const stateSchema = z.object({
   turns: z.array(turnSchema),
   /** The last gate report. */
   report: gateReportSchema.nullable(),
+  /** Chrome crashes in a row in the gates since the last agent turn; absent in older checkpoints. */
+  crashes: z.number().int().nonnegative().default(0),
 });
 type AgentState = z.infer<typeof stateSchema>;
-const EMPTY_STATE: AgentState = { sessionId: null, agentMs: 0, turns: [], report: null };
+const EMPTY_STATE: AgentState = {
+  sessionId: null,
+  agentMs: 0,
+  turns: [],
+  report: null,
+  crashes: 0,
+};
 
 /** The checkpoint of an earlier attempt with at least one finished agent turn, or null. */
 async function savedState(context: HandlerContext): Promise<AgentState | null> {
@@ -182,16 +193,28 @@ async function runTurns(
     const n = state.turns.length;
     await context.progress({ stage: 'gates', turn: n, of: maxTurns });
     const report = await deps.gates(ws, context.signal);
-    // Not recorded as this turn's gates, so the retry runs the gates again before any agent turn.
     const crash = browserCrash(report);
-    if (crash) throw new Error(`the gates' Chrome crashed: ${crash.slice(0, 1000)}`);
+    const crashes = crash ? state.crashes + 1 : 0;
+    if (crash && crashes < CRASHES_BEFORE_AGENT) {
+      // Not recorded as this turn's gates, so the retry runs the gates again before any agent turn.
+      state = { ...state, crashes };
+      await save();
+      throw new Error(`the gates' Chrome crashed: ${crash.slice(0, 1000)}`);
+    }
+    // A crash that repeats on the same code goes to the agent like any failed check.
     const gates = { ok: report.ok, failures: describeFailures(report) };
     state = {
       ...state,
       report,
+      crashes,
       turns: state.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates } : turn)),
     };
     await save();
+    if (crash)
+      context.logger.warn(
+        { turn: n, crashes },
+        'the gates crashed Chrome again; telling the agent',
+      );
     context.logger.info({ turn: n, gatesOk: report.ok }, 'episode gates');
   };
 
@@ -224,6 +247,7 @@ async function runTurns(
       agentMs: state.agentMs + (Date.now() - started),
       turns: [...state.turns, { prompt, result: { ...result }, gates: null }],
       report: state.report,
+      crashes: 0,
     };
     await save();
     context.logger.info({ turn: n + 1, agentMs: result.durationMs }, 'episode agent turn');

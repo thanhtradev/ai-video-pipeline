@@ -9,6 +9,7 @@ import { agentSettings, SFX_COMMAND, TYPECHECK_COMMAND } from '../../src/episode
 import {
   browserCrash,
   describeFailures,
+  isBrowserCrash,
   type GateReport,
   type GateRunner,
 } from '../../src/episode/gates.js';
@@ -360,6 +361,47 @@ describe('episode_code handler', () => {
     expect(turns[1]!.prompt).not.toMatch(/Page crashed/);
   });
 
+  test('a Chrome crash that repeats on the same code goes to the agent with a hint', async () => {
+    const MIX_CRASH: GateReport = {
+      ...PASS,
+      ok: false,
+      mix: {
+        ok: false,
+        error: 'Error: Page crashed!\n    at #onTargetCrashed (index.mjs:3562:24)',
+      },
+    };
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(MIX_CRASH) }))(context()),
+    ).rejects.toThrow(/the gates' Chrome crashed/);
+    expect(turns).toHaveLength(1);
+
+    // The retry crashes again on the same code: the agent gets it as a failed check.
+    await createEpisodeCodeHandler(deps({ gates: gates(MIX_CRASH, PASS) }))(context(INPUT, 2));
+
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).toMatch(/audio mix render failed:[\s\S]*Chrome itself aborted/);
+    expect(turns[1]!.prompt).toMatch(/strokeDasharray/);
+    // The turn counts: it is not mistaken for an older worker's wasted crash turn.
+    expect(isBrowserCrash(turns[1]!.prompt)).toBe(false);
+    const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
+    expect(log.crashes).toBe(0);
+  });
+
+  test('a Chrome crash after the agent changed the code is retried first', async () => {
+    const reports = [TEXT_FAIL, CHROME_CRASH, CHROME_CRASH, PASS];
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(...reports) }))(context()),
+    ).rejects.toThrow(/the gates' Chrome crashed/);
+    expect(turns).toHaveLength(2);
+    expect(JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8')).crashes).toBe(1);
+  });
+
+  test('describes a Chrome crash in words that do not quote the crash', () => {
+    const [failure] = describeFailures(CHROME_CRASH);
+    expect(failure).toMatch(/^The text-bounds QA failed:\nChrome itself aborted/);
+    expect(isBrowserCrash(failure!)).toBe(false);
+  });
+
   test('a Chrome crash recorded by an older worker is gated again on retry', async () => {
     await expect(
       createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
@@ -385,7 +427,7 @@ describe('episode_code handler', () => {
     // Before the crash check, both follow-up prompts showed the agent a Chrome crash.
     const path = join(workDir, 'agent-turns.json');
     const log = JSON.parse(await readFile(path, 'utf8'));
-    const crashPrompt = `The worker's checks failed:\n\n${describeFailures(CHROME_CRASH).join('\n\n')}`;
+    const crashPrompt = `The worker's checks failed:\n\nThe text-bounds QA failed:\n${CHROME_CRASH.textBounds!.error}`;
     log.turns[1].prompt = crashPrompt;
     log.turns[2].prompt = crashPrompt;
     await writeFile(path, JSON.stringify(log));
