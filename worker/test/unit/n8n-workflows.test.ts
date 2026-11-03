@@ -976,6 +976,157 @@ describe('WF-06 /retry (D-056)', () => {
   });
 });
 
+describe('WF-06 /auto (D-093)', () => {
+  const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 8, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (text: string) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [command(text)] });
+  const reply = (parsed: Record<string, unknown>, row: Record<string, unknown> | null) =>
+    runCode('wf-06-telegram-callback.json', 'Build auto', {
+      input: row ? [{ json: row }] : [],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'auto', chatId: '-100', messageId: '8', ...parsed } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test('parses /auto <id>, /tudong <id> off and the bot mention', () => {
+    expect(parse('/auto@aivideo_bot 679CD22F')[0]!.json).toEqual({
+      kind: 'auto',
+      prefix: '679cd22f',
+      enable: 'true',
+      error: '',
+      userId: '111',
+      chatId: '-100',
+      messageId: '8',
+    });
+    expect(parse('/tudong 679cd22f off')[0]!.json).toMatchObject({
+      prefix: '679cd22f',
+      enable: 'false',
+      error: '',
+    });
+    expect(parse('/auto 679cd22f tat')[0]!.json).toMatchObject({ enable: 'false' });
+  });
+
+  test.each(['/auto', '/auto 679', '/auto 679cd22f now'])('answers %j with the usage', (text) => {
+    expect(parse(text)[0]!.json).toMatchObject({
+      kind: 'auto',
+      error: expect.stringMatching(/^Cách dùng: \/auto/),
+    });
+  });
+
+  test('ignores other commands that start with auto', () => {
+    expect(parse('/automatic 679cd22f')).toEqual([]);
+  });
+
+  test('WF-06 routes /auto to telegram_auto() and its reply to Send status', () => {
+    const wf = workflow('wf-06-telegram-callback.json');
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out.map((c) => c.node));
+    expect(next('Retry?')[1]).toEqual(['Auto?']);
+    expect(next('Auto?')).toEqual([['Auto ok?'], ['Move?']]);
+    expect(next('Auto ok?')).toEqual([['Auto'], ['Build auto']]);
+    expect(next('Auto')).toEqual([['Build auto']]);
+    expect(next('Build auto')).toEqual([['Send status']]);
+    const query = wf.nodes.find((n) => n.name === 'Auto')!.parameters.query as string;
+    expect(query).toBe('SELECT * FROM telegram_auto($1::bigint, $2, $3::boolean);');
+  });
+
+  test('answers each result of telegram_auto()', () => {
+    const on = reply(
+      { prefix: '679cd22f', enable: 'true', error: '' },
+      {
+        result: 'OK',
+        video_id: id,
+        version: 1,
+        status: 'RENDERING_PREVIEW',
+        decided_type: 'STORYBOARD',
+      },
+    );
+    expect(on).toMatchObject({ chatId: '-100', messageId: '8' });
+    expect(on.text).toContain('🤖 Đã bật tự duyệt cho video 679cd22f v1');
+    expect(on.text).toContain('Đã duyệt luôn bước storyboard đang chờ.');
+    expect(on.text).toContain('xóa bản trên Mac vẫn hỏi owner');
+    expect(on.text).toContain('Tắt: /auto 679cd22f off');
+    const plain = reply(
+      { prefix: '679cd22f', enable: 'true', error: '' },
+      { result: 'OK', video_id: id, version: 1, status: 'SCRIPTING', decided_type: null },
+    );
+    expect(plain.text).not.toContain('Đã duyệt luôn');
+    expect(reply({ prefix: '679cd22f' }, { result: 'OFF', video_id: id }).text).toMatch(
+      /Đã tắt tự duyệt cho video 679cd22f/,
+    );
+    expect(reply({ prefix: 'abcd' }, { result: 'NOT_APPROVER' }).text).toBe(
+      'Bạn không phải approver.',
+    );
+    expect(reply({ prefix: 'abcd' }, { result: 'NOT_FOUND' }).text).toBe(
+      'Không có video nào có id bắt đầu bằng abcd.',
+    );
+    expect(reply({ prefix: 'abcd' }, { result: 'AMBIGUOUS' }).text).toMatch(/gõ thêm ký tự/);
+    expect(reply({ prefix: '679cd22f' }, { result: 'NOT_ACTIVE', video_id: id }).text).toMatch(
+      /679cd22f đang lưu trữ hoặc đã kết thúc/,
+    );
+    expect(reply({ error: 'Cách dùng: /auto x' }, null).text).toBe('Cách dùng: /auto x');
+  });
+});
+
+describe('/auto notes in WF-05, WF-15 and WF-12 (D-093)', () => {
+  const base = {
+    kind: 'AUTO',
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 1,
+    token: 'a'.repeat(32),
+    expires_at: '2026-11-05T10:00:00.000Z',
+    title: 'Mèo nghĩ gì?',
+  };
+  const cases = [
+    {
+      file: 'wf-05-script-approval.json',
+      query: 'Due approvals',
+      row: { ...base, title: undefined, script: { title: 'Mèo nghĩ gì?', format: 'episode' } },
+      text: '🤖 #679cd22f v1 · kịch bản tự duyệt (/auto) · «Mèo nghĩ gì?»: đang tạo giọng đọc',
+    },
+    {
+      file: 'wf-15-voice-approval.json',
+      query: 'Due voices',
+      row: { ...base, take: 1, voice: { file: null, max_takes: 3 } },
+      text: '🤖 #679cd22f v1 · giọng đọc tự duyệt (/auto) · «Mèo nghĩ gì?»: đang dựng storyboard',
+    },
+    {
+      file: 'wf-12-storyboard-approval.json',
+      query: 'Due storyboards',
+      row: {
+        ...base,
+        round: 1,
+        board: { job_id: 'j', token: 't', pages: ['p.jpg'], mix_token: 'm' },
+      },
+      text: '🤖 #679cd22f v1 · storyboard tự duyệt (/auto) · «Mèo nghĩ gì?»: đang render preview',
+    },
+  ];
+
+  test.each(cases)('$file sends one line without buttons or media for an AUTO row', (c) => {
+    const wf = workflow(c.file);
+    const input = [{ json: c.row }, { json: { ...c.row, kind: 'REQUEST' } }];
+    const [note, ...rest] = runCode(c.file, 'Build auto note', { input });
+    expect(rest).toEqual([]);
+    expect(note!.json.text).toBe(c.text);
+    expect(runCode(c.file, 'Build message', { input: [{ json: c.row }] })).toEqual([]);
+    for (const n of wf.nodes.filter((n) => n.type === 'n8n-nodes-base.code')) {
+      if (n.name === 'Build auto note' || n.name === 'Build message') continue;
+      expect(runCode(c.file, n.name, { input: [{ json: c.row }] }), n.name).toEqual([]);
+    }
+    expect(wf.connections[c.query]!.main[0]!.map((x) => x.node)).toContain('Build auto note');
+    expect(wf.connections['Build auto note']!.main[0]!.map((x) => x.node)).toEqual([
+      'Send auto note',
+    ]);
+    const send = wf.nodes.find((n) => n.name === 'Send auto note')!;
+    expect(send.type).toBe('n8n-nodes-base.telegram');
+    expect(send.parameters).not.toHaveProperty('replyMarkup');
+  });
+});
+
 describe('WF-12 Storyboard Approval Request', () => {
   const token = 'b'.repeat(32);
   const row = {
@@ -1587,7 +1738,8 @@ describe('WF-06 worker choice and /move (D-087)', () => {
   );
 
   test('routes /move to telegram_move() and its reply to Send status', () => {
-    expect(next('Retry?')).toEqual(['Retry', 'Move?']);
+    expect(next('Retry?')).toEqual(['Retry', 'Auto?']);
+    expect(next('Auto?')).toEqual(['Auto ok?', 'Move?']);
     expect(next('Move?')).toEqual(['Move ok?', 'Intake?']);
     expect(next('Move ok?')).toEqual(['Move', 'Build move']);
     expect(next('Move')).toEqual(['Build move']);
@@ -2005,6 +2157,7 @@ describe('WF-15 Voice Approval Request (A1b, D-071)', () => {
     expect(wf.connections['Due voices']!.main[0]!.map((c) => c.node)).toEqual([
       'Build audio',
       'Build message',
+      'Build auto note',
     ]);
     expect(wf.nodes.find((n) => n.name === 'Send audio')!.parameters.operation).toBe('sendAudio');
     const buttons = JSON.stringify(wf.nodes.find((n) => n.name === 'Send buttons')!.parameters);
@@ -2117,7 +2270,7 @@ describe('WF-13 Preview Approval Request (D-057)', () => {
     const auto = { json: { ...row, kind: 'AUTO', media: { ...row.media, level: 'PASS' } } };
     const [video] = runCode('wf-13-preview-approval.json', 'Build video', { input: [auto] });
     expect(video!.json.caption).toBe(
-      '👀 #679cd22f v1 · preview 720p · ✔️ tự duyệt (Render final): đang render bản cuối 1080p',
+      '👀 #679cd22f v1 · preview 720p · ✔️ tự duyệt: đang render bản cuối 1080p',
     );
     expect(runCode('wf-13-preview-approval.json', 'Build message', { input: [auto] })).toEqual([]);
   });
@@ -2172,7 +2325,7 @@ describe('WF-14 Final Delivery (D-062)', () => {
     expect(thumbnail!.json.url).toContain('/thumbnail.jpg?t=');
     expect(thumbnail!.json.caption).toBe(
       [
-        '🏷 #679cd22f v1 · ✔️ metadata tự duyệt (Render final): đang lưu lên Google Drive',
+        '🏷 #679cd22f v1 · ✔️ metadata tự duyệt: đang lưu lên Google Drive',
         '«Nếu bạn nghe được suy nghĩ của mèo?»',
         'Tag: mèo, nếu bạn',
         'Con mèo nhà bạn đang nghĩ gì?',
@@ -2232,6 +2385,7 @@ describe('WF-14 Final Delivery (D-062)', () => {
     expect(text).toContain('✅ Video hoàn tất');
     expect(text).toContain(`📦 Google Drive (đã kiểm tra checksum): 2026/10/${row.video_id}/v1`);
     expect(text).toContain('18 file · 100.0 MB · chi phí 2817 CRD · agent 42.5 phút');
+    expect(text).toContain('🎬 Video final đã gửi trước khi lưu Drive');
     expect(text).toContain('🗑 Xóa bản trên Mac (0.92 GB)?');
     expect(out!.json).toMatchObject({ approve: `cl:A:${token}`, reject: `cl:R:${token}` });
     expect(
@@ -2241,7 +2395,7 @@ describe('WF-14 Final Delivery (D-062)', () => {
     ).toEqual([]);
   });
 
-  test('sends final.mp4 before the done message, and a failed upload never stops it (D-073)', () => {
+  test('sends final.mp4 with the first A3, before the archive; a failed upload never stops it (D-093)', () => {
     const file = 'wf-14-final-delivery.json';
     const wf = workflow(file);
     expect(wf.connections['Due finals']!.main[0]!.map((c) => c.node)).toContain('Build final');
@@ -2256,18 +2410,26 @@ describe('WF-14 Final Delivery (D-062)', () => {
       operation: 'sendVideo',
       binaryData: true,
     });
-    // executionOrder v1 runs sibling branches top to bottom: the video lands above its message.
-    expect(node('Build final').position[1]).toBeLessThan(node('Build done').position[1]);
-    // The DONE row comes back once; an upload error must not lose the cleanup question.
+    // executionOrder v1 runs sibling branches top to bottom: thumbnail, video, then the A3 buttons.
+    expect(node('Build thumbnail').position[1]).toBeLessThan(node('Build final').position[1]);
+    expect(node('Build final').position[1]).toBeLessThan(node('Build message').position[1]);
+    // The A3 row comes back once; an upload error must not lose its buttons.
     expect(node('Fetch final').onError).toBe('continueRegularOutput');
     expect(node('Send final').onError).toBe('continueRegularOutput');
 
     const final = { job_id: '11111111-aaaa-bbbb-cccc-000000000000', token: 'd'.repeat(32) };
-    const done = { ...row, kind: 'DONE', report: { path: 'x', final } };
-    const [out, ...rest] = runCode(file, 'Build final', {
-      input: [{ json: done }, { json: row }, { json: { ...done, report: { path: 'x' } } }],
+    const first = { ...row, metadata: { ...row.metadata, final } };
+    const [out, auto, ...rest] = runCode(file, 'Build final', {
+      input: [
+        { json: first },
+        { json: { ...first, kind: 'AUTO' } },
+        { json: { ...row, round: 2 } },
+        { json: { ...first, kind: 'REMINDER' } },
+        { json: { ...row, kind: 'DONE', report: { path: 'x', final } } },
+      ],
     });
     expect(rest).toEqual([]);
+    expect(auto!.json.url).toContain('/final.mp4?t=');
     expect(out!.json).toEqual({
       url: `REPLACE_WITH_WORKER_URL/media/${row.video_id}/1/${final.job_id}/final.mp4?t=${final.token}`,
       caption: '🎬 #679cd22f v1 · final 1080p',
@@ -2384,7 +2546,7 @@ describe("media URLs follow the video's worker (D-074)", () => {
       file: 'wf-14-final-delivery.json',
       query: 'Due finals',
       node: 'Build final',
-      row: { ...request, kind: 'DONE', report: { final: file } },
+      row: { ...request, metadata: { ...file, final: file } },
     },
     {
       file: 'wf-15-voice-approval.json',
@@ -2787,7 +2949,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong', 'chuyen', 'cho']);
+  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong']);
 
   test('every line is a valid BotFather entry', () => {
     for (const line of menu) expect(line).toMatch(/^[a-z0-9_]{1,32} - \S.{0,254}$/);

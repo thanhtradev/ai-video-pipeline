@@ -109,7 +109,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One message with buttons per row from voice_approvals_due(), after its audio (Vietnamese, D-061).\n// Callback data: a1b:<A|G|R>:<32-hex token>. Đọc lại pays for one more TTS take; its label shows the\n// estimate (none after the last take: the video then needs a decision).\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const voice = parse(row.voice) ?? {};\n  const cost = voice.retake_cost ? `${voice.retake_cost.amount} ${voice.retake_cost.currency}` : null;\n  const reminder = row.kind === 'REMINDER';\n  const length = typeof voice.seconds === 'number' ? ` · ${clock(voice.seconds)}` : '';\n  const html = [\n    `<b>${reminder ? '⏰ Nhắc: ' : ''}🎙 Duyệt giọng đọc</b> · bước 2/5 · A1b`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · lần ${row.take}/${voice.max_takes ?? '?'}${length} · Duyệt → Claude viết code tập`,\n    cost ? `Đọc lại: đọc lại toàn bộ, ≈ ${esc(cost)}` : 'Hết lượt đọc lại: bấm Đọc lại thì video chờ bạn quyết định',\n    `⏰ Hạn ${vnTime(row.expires_at)}`,\n  ].join('\\n');\n  return {\n    json: {\n      html,\n      retakeLabel: cost ? `Đọc lại (~${cost})` : 'Đọc lại (hết lượt)',\n      approve: `a1b:A:${row.token}`,\n      retake: `a1b:G:${row.token}`,\n      reject: `a1b:R:${row.token}`,\n    },\n  };\n});\n"
+        "jsCode": "// One message with buttons per row from voice_approvals_due(), after its audio (Vietnamese, D-061).\n// Callback data: a1b:<A|G|R>:<32-hex token>. Đọc lại pays for one more TTS take; its label shows the\n// estimate (none after the last take: the video then needs a decision).\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\n// AUTO rows (D-093) were approved by /auto already: Build auto note sends them, without buttons.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string' && item.json.kind !== 'AUTO');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nconst clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const voice = parse(row.voice) ?? {};\n  const cost = voice.retake_cost ? `${voice.retake_cost.amount} ${voice.retake_cost.currency}` : null;\n  const reminder = row.kind === 'REMINDER';\n  const length = typeof voice.seconds === 'number' ? ` · ${clock(voice.seconds)}` : '';\n  const html = [\n    `<b>${reminder ? '⏰ Nhắc: ' : ''}🎙 Duyệt giọng đọc</b> · bước 2/5 · A1b`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · lần ${row.take}/${voice.max_takes ?? '?'}${length} · Duyệt → Claude viết code tập`,\n    cost ? `Đọc lại: đọc lại toàn bộ, ≈ ${esc(cost)}` : 'Hết lượt đọc lại: bấm Đọc lại thì video chờ bạn quyết định',\n    `⏰ Hạn ${vnTime(row.expires_at)}`,\n  ].join('\\n');\n  return {\n    json: {\n      html,\n      retakeLabel: cost ? `Đọc lại (~${cost})` : 'Đọc lại (hết lượt)',\n      approve: `a1b:A:${row.token}`,\n      retake: `a1b:G:${row.token}`,\n      reject: `a1b:R:${row.token}`,\n    },\n  };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001506",
       "name": "Build message",
@@ -173,6 +173,43 @@
           "name": "aivideo-telegram"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A request approved at once by /auto (D-093): one line instead of the buttons and media\n// (Vietnamese, D-061). The approval itself is recorded in the name of the approver who sent /auto.\nconst rows = $input.all().filter((item) => item.json.kind === 'AUTO');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const title = row.title;\n  return {\n    json: {\n      text: `🤖 #${String(row.video_id).slice(0, 8)} v${row.version} · giọng đọc tự duyệt (/auto)${title ? ` · «${title}»` : ''}: đang dựng storyboard`,\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001508",
+      "name": "Build auto note",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001509",
+      "name": "Send auto note",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        440
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "aivideoTgCred001",
+          "name": "aivideo-telegram"
+        }
+      }
     }
   ],
   "connections": {
@@ -197,6 +234,11 @@
           },
           {
             "node": "Build message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build auto note",
             "type": "main",
             "index": 0
           }
@@ -230,6 +272,17 @@
         [
           {
             "node": "Send buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build auto note": {
+      "main": [
+        [
+          {
+            "node": "Send auto note",
             "type": "main",
             "index": 0
           }

@@ -167,20 +167,26 @@ describe('telegram_decide on metadata (A3)', () => {
     await succeed(second.id, METADATA('Mèo nghĩ gì?'));
     const [again] = await due(v);
     expect(again).toMatchObject({ kind: 'REQUEST', round: 2, metadata: { title: 'Mèo nghĩ gì?' } });
+    // A rewrite does not upload final.mp4 again (D-093).
+    expect(again!.metadata).not.toHaveProperty('final');
 
     expect(await decide(again!.token!, 'REGENERATE')).toMatchObject({ result: 'OK', round: 3 });
     expect((await jobOf(v, 'metadata')).input).toMatchObject({ revision: { feedback: '' } });
   });
 
+  test('the first A3 request carries final.mp4, sent before the archive (D-093)', async () => {
+    const { a3, qaFinalId } = await episodeAwaitingMetadata('a3-final-first');
+
+    expect(a3).toMatchObject({
+      kind: 'REQUEST',
+      round: 1,
+      // WF-14 fetches final.mp4 with the qa_final media token (D-073).
+      metadata: { final: { job_id: qaFinalId, token: '1'.repeat(32) } },
+    });
+  });
+
   test('approve archives; the verified archive asks the owner about the Mac copy', async () => {
-    const {
-      version_id: v,
-      video_id,
-      a3,
-      codeId,
-      finalId,
-      qaFinalId,
-    } = await episodeAwaitingMetadata('a3-ok');
+    const { version_id: v, video_id, a3, codeId, finalId } = await episodeAwaitingMetadata('a3-ok');
     expect((await decide(a3.token!, 'REJECT')).result).toBe('NOT_SUPPORTED');
     expect((await decide(a3.token!, 'APPROVE', null, STRANGER)).result).toBe('NOT_ALLOWED');
 
@@ -223,10 +229,10 @@ describe('telegram_decide on metadata (A3)', () => {
         file_count: 42,
         total_bytes: 123456789,
         local_bytes: 987654321,
-        // WF-14 fetches final.mp4 with the qa_final media token (D-073).
-        final: { job_id: qaFinalId, token: '1'.repeat(32) },
       },
     });
+    // final.mp4 went out with the A3 request, before the archive (D-093).
+    expect(done!.report).not.toHaveProperty('final');
     expect(done!.token).toMatch(/^[0-9a-f]{32}$/);
     expect(await versionStatus(db.pool, v)).toBe('ARCHIVE_VERIFIED');
     const record = await db.pool.query(
