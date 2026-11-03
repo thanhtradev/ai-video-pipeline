@@ -183,7 +183,7 @@ describe('timing handler', () => {
 
   test('fails permanently on invalid input, a changed script or a missing clip', async () => {
     const handler = createTimingHandler(deps());
-    await expect(handler(context({ ...INPUT, language: 'en' }))).rejects.toBeInstanceOf(
+    await expect(handler(context({ ...INPUT, language: 'fr' }))).rejects.toBeInstanceOf(
       PermanentJobError,
     );
     await expect(handler(context())).rejects.toThrow(/script job .* is missing or changed/);

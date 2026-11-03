@@ -1,6 +1,7 @@
 import { copyFile, link, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
+import { languageSchema, subtitleFile } from '../episode/language.js';
 import { runSandboxedNode } from '../episode/sandbox.js';
 import { frameSchema, LANDSCAPE_FRAME, scaledFrame, type Frame } from '../episode/frame.js';
 import { copyWorkspace, keepPreviousWorkspace, RENDER_SCRIPT } from '../episode/workspace.js';
@@ -28,7 +29,6 @@ const PREVIEW = 'preview.mp4';
 const FINAL = 'final.mp4';
 const FPS = 30;
 const RENDER_TIMEOUT_MS = 90 * 60 * 1000;
-const SRT = 'vi.srt';
 
 const inputSchema = z.object({
   episode_code_job_id: z.uuid(),
@@ -46,7 +46,11 @@ const previewResultSchema = z.object({
 });
 
 // Episode code made before D-080 has no frame: those episodes are all 16:9.
-const codeResultSchema = z.object({ frame: frameSchema.default(LANDSCAPE_FRAME) });
+// Episode code made before D-092 has no language: those episodes are all Vietnamese.
+const codeResultSchema = z.object({
+  frame: frameSchema.default(LANDSCAPE_FRAME),
+  language: languageSchema.default('vi'),
+});
 
 const timingSchema = z.object({
   totalFrames: z.number().int().positive(),
@@ -143,7 +147,8 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
     }
     if (!deps.browserReady()) throw new ProviderBlockedError(NO_CHROME, deps.blockSeconds);
     const code = await checkedJob(workDir, parsed.data.episode_code_job_id, 'episode_code');
-    const { frame } = codeResultSchema.parse(code.checkpoint.result);
+    const { frame, language } = codeResultSchema.parse(code.checkpoint.result);
+    const srt = subtitleFile(language, 'srt');
     const timingDir = (await checkedJob(workDir, parsed.data.timing_job_id, 'timing')).dir;
     const timing = timingSchema.parse(
       JSON.parse(await readFile(join(timingDir, 'timing.json'), 'utf8')),
@@ -182,12 +187,12 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
         speechSeconds: (line.to - line.from) / FPS,
       })),
     );
-    await writeFile(join(workDir, SRT), toSrt(cues));
+    await writeFile(join(workDir, srt), toSrt(cues));
     const output = isFinal ? FINAL : PREVIEW;
     const durationSeconds = await deps.probe(join(workDir, output));
 
     return {
-      outputs: isFinal ? [FINAL, SRT] : [PREVIEW, MASTER, SRT],
+      outputs: isFinal ? [FINAL, srt] : [PREVIEW, MASTER, srt],
       result: {
         template: 'Episode',
         quality: parsed.data.quality,
@@ -195,7 +200,7 @@ export function createRenderEpisodeHandler(deps: RenderEpisodeDeps): JobHandler 
         fps: FPS,
         frames: timing.totalFrames,
         duration_seconds: Math.round(durationSeconds * 100) / 100,
-        subtitles: { language: 'vi', cues: cues.length, files: [SRT] },
+        subtitles: { language, cues: cues.length, files: [srt] },
         loudness,
         episode_code_job_id: parsed.data.episode_code_job_id,
         ...(isFinal ? {} : { master: { file: MASTER, ...frame, loudness } }),

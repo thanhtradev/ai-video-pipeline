@@ -9,9 +9,11 @@ import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
 import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
+import type { Language } from '../episode/language.js';
 
 // Episode `metadata` step (q:light, D-062): after the 1080p render, Claude writes the publishing
-// metadata in Vietnamese (title, description, tags, hashtags) and picks the thumbnail shot; the
+// metadata in the video's language (title, description, tags, hashtags; Vietnamese, or English for an
+// English kit, D-092) and picks the thumbnail shot; the
 // worker grabs that frame of final.mp4. The owner approves both on Telegram (A3); a rewrite gets the
 // previous metadata and the owner's notes. Uses the Claude subscription like the script step.
 
@@ -91,13 +93,28 @@ export function thumbnailFrame(
 const previousSchema = z.object({ metadata: METADATA_SCHEMA });
 
 /** The channel is described by its kit and character set (D-066). */
-function systemPrompt(channel: string): string {
+function systemPrompt(channel: string, language: Language): string {
   return [
-    'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel.',
+    language === 'en'
+      ? 'You write the publishing metadata of one episode of an international English animated YouTube channel.'
+      : 'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel.',
     channel,
-    'The metadata is in Vietnamese. Reply only with the JSON object required by the schema.',
+    language === 'en'
+      ? 'The metadata is in English. Reply only with the JSON object required by the schema.'
+      : 'The metadata is in Vietnamese. Reply only with the JSON object required by the schema.',
   ].join(' ');
 }
+
+const TAG_RULES: Readonly<Record<Language, readonly string[]>> = {
+  vi: [
+    '- tags: 5–15 search terms in Vietnamese (lowercase, with accents), together under 450',
+    '  characters. hashtags: 1–3, e.g. #nếubạn.',
+  ],
+  en: [
+    '- tags: 5–15 search terms in English (lowercase), together under 450 characters.',
+    '  hashtags: 1–3, e.g. #whatif. No Vietnamese anywhere.',
+  ],
+};
 
 export interface MetadataHandlerDeps {
   claude: ClaudeRunner;
@@ -142,6 +159,7 @@ function buildPrompt(
   rules: Awaited<ReturnType<RulesSource>>,
   revision: { previous: VideoMetadata; feedback: string } | null,
   clean: readonly string[],
+  language: Language,
 ): string {
   const acts = script.acts.map((act, i) =>
     [
@@ -155,8 +173,7 @@ function buildPrompt(
     '- title: what the episode asks, in the channel voice, at most 100 characters, no < or >.',
     '- description: 2 opening lines that make people watch, then a short summary without',
     '  spoilers of the ending, then a question to the viewers for the comments. No links.',
-    '- tags: 5–15 search terms in Vietnamese (lowercase, with accents), together under 450',
-    '  characters. hashtags: 1–3, e.g. #nếubạn.',
+    ...TAG_RULES[language],
     '- thumbnail_shot: the id of the shot whose picture makes the best thumbnail (a clear face',
     '  or the key moment, readable at a small size). Captions are burned into the video; the',
     `  shots with a moment without captions are ${clean.length > 0 ? clean.join(', ') : 'none'}:`,
@@ -211,9 +228,16 @@ export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
       : null;
 
     await progress({ stage: 'metadata', round: data.round });
+    const selection = selectionOf(data);
     const reply = await deps.claude({
-      prompt: buildPrompt(script, await deps.rules(), revision, captionFreeShots(timing)),
-      systemPrompt: systemPrompt(await channelDescription(selectionOf(data))),
+      prompt: buildPrompt(
+        script,
+        await deps.rules(),
+        revision,
+        captionFreeShots(timing),
+        selection.language,
+      ),
+      systemPrompt: systemPrompt(await channelDescription(selection), selection.language),
       jsonSchema: METADATA_JSON_SCHEMA,
       cwd: workDir,
       signal,

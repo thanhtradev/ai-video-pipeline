@@ -374,6 +374,8 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
         revision: Boolean(input.revision),
         // The kit's video size (D-080): render_episode renders at it.
         frame: selection.frame,
+        // The kit's language (D-092): render_episode names the subtitles after it.
+        language: selection.language,
       },
     };
   };

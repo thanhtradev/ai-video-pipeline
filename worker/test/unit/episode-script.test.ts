@@ -447,3 +447,82 @@ describe('episode script revision (A1 notes)', () => {
     expect(requests).toHaveLength(0);
   });
 });
+
+describe('Vietnamese prompts stay unchanged (D-092)', () => {
+  test('topic and revision prompts match the saved snapshot', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
+    await handler(context({ brief: { ...TOPIC_BRIEF, full_brief: FULL_BRIEF_TEXT } }));
+    expect(requests.map((r) => [r.systemPrompt, r.prompt])).toMatchSnapshot();
+  });
+});
+
+const EN_BRIEF = {
+  format: 'episode',
+  topic: 'What if you could stop time for thirty seconds?',
+  duration_minutes: 6,
+} as const;
+
+const EN_SCRIPT: EpisodeScript = {
+  title: 'What If You Could Stop Time for 30 Seconds?',
+  logline: 'Every stop makes you one day older.',
+  characters: [{ name: 'YOU', look: 'teen, ORANGE hoodie' }],
+  effects: 'CLAP → FREEZE: a round ripple spreads from the hands.',
+  notes: 'Hold the hook for ~3 s.',
+  acts: [
+    {
+      title: 'HOOK',
+      grade: 'warm',
+      lines: [
+        '[punchy] What if you could stop time for thirty seconds?',
+        'Math class. The teacher calls you up to the board.',
+      ],
+      shots: [
+        { id: '1.1', moc: 'What if you could', description: 'ECU hands clap.', sfx: ['clap'] },
+        {
+          id: '1.2',
+          moc: 'Math class',
+          description: 'Classroom with lockers outside; TEXT "PROBLEM 3".',
+          sfx: [],
+        },
+      ],
+    },
+  ],
+};
+
+describe('English episodes (D-092)', () => {
+  test('writes for an international English channel with a Western concept', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(EN_SCRIPT), rules: noRules });
+    await handler(context({ brief: EN_BRIEF, language: 'en' }));
+
+    const { prompt, systemPrompt } = requests[0]!;
+    expect(systemPrompt).toMatch(/international English animated YouTube channel/);
+    expect(systemPrompt).not.toMatch(/Vietnamese animated/);
+    expect(systemPrompt).toMatch(/is in English/);
+    expect(prompt).toMatch(/natural spoken English/);
+    expect(prompt).toMatch(/suburban street with sidewalks/);
+    expect(prompt).toMatch(/Never use Vietnam-specific/);
+    expect(prompt).toMatch(/áo dài/);
+    expect(prompt).toMatch(/TEXT "…" in English/);
+    // 6 minutes at 2.5 words per second.
+    expect(prompt).toMatch(/about 900 spoken words/);
+  });
+
+  test('saves an English script and estimates its length at the English pace', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(EN_SCRIPT), rules: noRules });
+    const result = await handler(context({ brief: EN_BRIEF, language: 'en' }));
+    const words = EN_SCRIPT.acts[0]!.lines.join(' ').split(/\s+/).length;
+    expect(result.result.total_seconds).toBe(Math.round(words / 2.5));
+  });
+
+  test('rejects an English script that still contains Vietnamese text', () => {
+    const mixed: EpisodeScript = {
+      ...EN_SCRIPT,
+      notes: 'Giữ hook đủ 3 giây.',
+    };
+    expect(checkEpisodeScript(mixed, EN_BRIEF, false, 'en')).toContainEqual(
+      expect.stringMatching(/Vietnamese text in an English script: notes/),
+    );
+    expect(checkEpisodeScript(EN_SCRIPT, EN_BRIEF, false, 'en')).toEqual([]);
+  });
+});

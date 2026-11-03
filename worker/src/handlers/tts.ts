@@ -13,6 +13,7 @@ import {
   type RulesSource,
 } from '../rules/channel-rules.js';
 import type { IteraClient, IteraTask } from '../tts/itera-client.js';
+import { languageSchema, type Language } from '../episode/language.js';
 import {
   PermanentJobError,
   ProviderBlockedError,
@@ -37,7 +38,7 @@ const inputSchema = z.object({
     .min(1)
     .max(20),
   provider_model_id: z.uuid(),
-  language: z.literal('vi'),
+  language: languageSchema,
 });
 
 const paramsSchema = z.object({
@@ -45,6 +46,19 @@ const paramsSchema = z.object({
   language_code: z.string().min(1),
   voice_id: z.string().min(1),
   voice_settings: z.record(z.string(), z.unknown()).optional(),
+});
+
+/**
+ * Voices per video language (D-092): `voices.<lang>` overrides the flat voice_id/language_code,
+ * which stay the Vietnamese voice so existing clips keep their keys.
+ */
+const voicesSchema = z.object({
+  voices: z
+    .record(
+      z.string(),
+      z.object({ voice_id: z.string().min(1), language_code: z.string().min(1) }).partial(),
+    )
+    .optional(),
 });
 
 const sceneStateSchema = z.object({
@@ -348,10 +362,23 @@ function toResult(index: number, file: string, state: QueuedState): SceneResult 
 }
 
 /** The model and voice the guard allows; any configuration gap blocks instead of guessing. */
-async function resolveVoice(deps: TtsHandlerDeps, jobId: string): Promise<Voice> {
+async function resolveVoice(
+  deps: TtsHandlerDeps,
+  jobId: string,
+  language: Language,
+): Promise<Voice> {
   const guard = await deps.costs.guard(jobId, deps.workerId, 0);
   checkGuard(guard, deps.blockSeconds);
-  const params = paramsSchema.safeParse(guard.params);
+  const voices = voicesSchema.safeParse(guard.params);
+  const own = voices.success ? voices.data.voices?.[language] : undefined;
+  // Never another language's voice: an unconfigured language waits for the owner (CLAUDE.md §3).
+  if (language !== 'vi' && !(own?.voice_id && own.language_code)) {
+    throw new ProviderBlockedError(
+      `no TTS voice configured for language ${language} (provider_model.default_params.voices.${language})`,
+      deps.blockSeconds,
+    );
+  }
+  const params = paramsSchema.safeParse({ ...(guard.params as object), ...own });
   if (!params.success || !guard.modelId) {
     throw new ProviderBlockedError(
       'TTS model has no voice_id/provider configured',
@@ -371,8 +398,13 @@ export function createTtsHandler(deps: TtsHandlerDeps): JobHandler {
     if (!itera)
       throw new ProviderBlockedError('ITERA API key is not configured', deps.blockSeconds);
 
-    const voice = await resolveVoice(deps, context.jobId);
-    const pronunciation = await jobPronunciation(deps, context.workDir);
+    const { language } = parsed.data;
+    const voice = await resolveVoice(deps, context.jobId, language);
+    // The owner's pronunciation table is written for the Vietnamese voice.
+    const pronunciation =
+      language === 'vi'
+        ? await jobPronunciation(deps, context.workDir)
+        : { version: 'none', entries: [] };
     const spoken = parsed.data.scenes.map((scene) => ({
       ...scene,
       text: pronounce(scene.text, pronunciation.entries),

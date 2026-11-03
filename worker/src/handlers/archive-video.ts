@@ -57,6 +57,11 @@ const exactly =
   (outputs: readonly string[]): [string, string][] =>
     pairs.filter(([from]) => outputs.includes(from));
 
+/** The render's subtitles in the language of the video (D-092), e.g. en.srt → subtitles/en.srt. */
+const SUBTITLE = /^[a-z]{2}\.srt$/;
+const subtitles = (outputs: readonly string[]): [string, string][] =>
+  outputs.filter((o) => SUBTITLE.test(o)).map((o) => [o, `subtitles/${o}`]);
+
 function sources(input: Input): Source[] {
   return [
     {
@@ -96,7 +101,10 @@ function sources(input: Input): Source[] {
     {
       step: 'render_final',
       jobId: input.final_render_job_id,
-      files: exactly(['final.mp4', 'renders/final_1080p.mp4'], ['vi.srt', 'subtitles/vi.srt']),
+      files: (outputs) => [
+        ...exactly(['final.mp4', 'renders/final_1080p.mp4'])(outputs),
+        ...subtitles(outputs),
+      ],
     },
     {
       step: 'qa_final',
@@ -196,10 +204,9 @@ export function createArchiveVideoHandler(deps: ArchiveVideoDeps): JobHandler {
 
     await progress({ stage: 'archive', step: 'gathering' });
     const { steps, files } = await assemble(data, jobsDir, versionDir);
-    const srt = files.find((f) => f.path === 'subtitles/vi.srt');
-    if (srt) {
+    for (const srt of files.filter((f) => /^subtitles\/[a-z]{2}\.srt$/.test(f.path))) {
       await writeFile(
-        join(versionDir, 'subtitles', 'vi.vtt'),
+        join(versionDir, srt.path.replace(/\.srt$/, '.vtt')),
         srtToVtt(await readFile(join(versionDir, srt.path), 'utf8')),
       );
     }

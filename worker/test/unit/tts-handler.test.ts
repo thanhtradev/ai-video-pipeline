@@ -28,6 +28,7 @@ let decision: GuardDecision;
 let balance: number;
 let taskStatus: (id: string, polls: number) => IteraTask['status'];
 let rules: ChannelRules;
+let guardParams: Record<string, unknown>;
 
 beforeEach(async () => {
   workDir = await mkdtemp(join(tmpdir(), 'tts-'));
@@ -38,6 +39,7 @@ beforeEach(async () => {
   balance = 1000;
   taskStatus = () => 'completed';
   rules = NO_RULES;
+  guardParams = PARAMS;
 });
 
 function fakeItera(): IteraClient {
@@ -73,7 +75,7 @@ function fakeCosts(): CostStore {
         decision,
         providerId: 'itera',
         modelId: 'eleven_v3',
-        params: PARAMS,
+        params: guardParams,
         amount: units,
         budget: 30,
         spent: 0,
@@ -358,5 +360,46 @@ describe('tts handler', () => {
     // No new request for scene 1: the paid task was polled again.
     expect(created).toHaveLength(2);
     expect(recorded.map((r) => r.ref)).toEqual(['task-1', 'task-1', 'task-2']);
+  });
+});
+
+describe('voice per language (D-092)', () => {
+  const EN_INPUT = {
+    ...INPUT,
+    scenes: [{ index: 1, text: 'What if you could fly?' }],
+    language: 'en',
+  };
+  const EN_VOICE = { voice_id: 'voice-en', language_code: 'en' };
+
+  test('an English job reads with the English voice of the model', async () => {
+    guardParams = { ...PARAMS, voices: { en: EN_VOICE } };
+    const result = await createTtsHandler(deps())(context(EN_INPUT));
+    expect(created.map((r) => [r.voiceId, r.languageCode, r.provider])).toEqual([
+      ['voice-en', 'en', 'elevenlabs'],
+    ]);
+    expect(result.result.voice_id).toBe('voice-en');
+  });
+
+  test('an English job without an English voice waits instead of using another voice', async () => {
+    await expect(createTtsHandler(deps())(context(EN_INPUT))).rejects.toThrow(
+      /no TTS voice configured for language en/,
+    );
+    expect(created).toEqual([]);
+  });
+
+  test('a Vietnamese job keeps the flat voice when a voices map is added', async () => {
+    guardParams = { ...PARAMS, voices: { en: EN_VOICE } };
+    await createTtsHandler(deps())(context());
+    expect(created.map((r) => [r.voiceId, r.languageCode])).toEqual([
+      ['voice-1', 'vi'],
+      ['voice-1', 'vi'],
+    ]);
+  });
+
+  test('the Vietnamese pronunciation table is not applied to English narration', async () => {
+    guardParams = { ...PARAMS, voices: { en: EN_VOICE } };
+    rules = { ...NO_RULES, pronunciation: [{ term: 'fly', spoken: 'phờ lai' }] };
+    await createTtsHandler(deps())(context(EN_INPUT));
+    expect(created[0]!.text).toBe('What if you could fly?');
   });
 });
