@@ -19,6 +19,7 @@ import {
 } from '../../src/handlers/render-episode.js';
 import { createFfprobe } from '../../src/media/ffprobe.js';
 import { createLoudnessNormalizer } from '../../src/media/loudness.js';
+import { createVideoScaler } from '../../src/media/scale.js';
 import { createTimingHandler } from '../../src/handlers/timing.js';
 import { createVoiceBuilder } from '../../src/media/voice.js';
 import { createWhisper } from '../../src/media/whisper.js';
@@ -155,6 +156,7 @@ describe.runIf(process.env.RUN_AGENT_TESTS === '1' && MODEL)('episode_code (real
       const render = createRenderEpisodeHandler({
         render: createSandboxedEpisodeRenderer(PROFILE, ROOT),
         loudness: createLoudnessNormalizer(process.env.FFMPEG_BIN ?? 'ffmpeg'),
+        scale: createVideoScaler(process.env.FFMPEG_BIN ?? 'ffmpeg'),
         probe: createFfprobe(process.env.FFPROBE_BIN ?? 'ffprobe'),
         browserReady: chromeInstalled,
         blockSeconds: 60,

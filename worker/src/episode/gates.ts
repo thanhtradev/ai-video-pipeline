@@ -39,6 +39,8 @@ export const gateReportSchema = z
           .optional(),
       })
       .optional(),
+    /** Wall time per gate step in ms; absent in reports of older gate scripts. */
+    ms: z.record(z.string(), z.number()).optional(),
   })
   .loose();
 

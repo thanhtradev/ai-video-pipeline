@@ -37,6 +37,7 @@ import { createFfprobe } from './media/ffprobe.js';
 import { createFrameGrabber } from './media/frame.js';
 import { createGapDetector, createMediaInspector } from './media/inspect.js';
 import { createLoudnessNormalizer } from './media/loudness.js';
+import { createVideoScaler } from './media/scale.js';
 import { createVoiceBuilder } from './media/voice.js';
 import { createWhisper } from './media/whisper.js';
 import { createRedisQueue } from './queue/redis-queue.js';
@@ -134,6 +135,7 @@ function buildHandlers(
       renderEnv(config),
     ),
     loudness: createLoudnessNormalizer(config.ffmpegBin),
+    scale: createVideoScaler(config.ffmpegBin),
     probe,
     browserReady: chromeInstalled,
     blockSeconds: CHROME_BLOCK_SECONDS,
