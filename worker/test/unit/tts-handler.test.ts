@@ -403,3 +403,49 @@ describe('voice per language (D-092)', () => {
     expect(created[0]!.text).toBe('What if you could fly?');
   });
 });
+
+describe('voice per kit (D-095)', () => {
+  const SCIENCE_VOICE = { voice_id: 'voice-science', language_code: 'vi' };
+  const EN_VOICE = { voice_id: 'voice-en', language_code: 'en' };
+
+  test('a job of a kit with its own voice reads with that voice', async () => {
+    guardParams = { ...PARAMS, kit_voices: { science: SCIENCE_VOICE } };
+    const result = await createTtsHandler(deps())(context({ ...INPUT, kit: 'science' }));
+    expect(created.map((r) => [r.voiceId, r.languageCode])).toEqual([
+      ['voice-science', 'vi'],
+      ['voice-science', 'vi'],
+    ]);
+    expect(result.result.voice_id).toBe('voice-science');
+  });
+
+  test.each([{ kit: 'whatif' }, {}])(
+    'another kit or no kit keeps the language voice (%j)',
+    async (kit) => {
+      guardParams = { ...PARAMS, kit_voices: { science: SCIENCE_VOICE } };
+      await createTtsHandler(deps())(context({ ...INPUT, ...kit }));
+      expect(created.map((r) => r.voiceId)).toEqual(['voice-1', 'voice-1']);
+    },
+  );
+
+  test('the kit voice wins over the language voice', async () => {
+    guardParams = {
+      ...PARAMS,
+      voices: { en: EN_VOICE },
+      kit_voices: { 'whatif-en': { voice_id: 'voice-whatif-en', language_code: 'en' } },
+    };
+    const input = {
+      ...INPUT,
+      scenes: [{ index: 1, text: 'What if?' }],
+      language: 'en',
+      kit: 'whatif-en',
+    };
+    await createTtsHandler(deps())(context(input));
+    expect(created.map((r) => [r.voiceId, r.languageCode])).toEqual([['voice-whatif-en', 'en']]);
+  });
+
+  test('a half-configured kit voice is ignored', async () => {
+    guardParams = { ...PARAMS, kit_voices: { science: { voice_id: 'voice-science' } } };
+    await createTtsHandler(deps())(context({ ...INPUT, kit: 'science' }));
+    expect(created[0]!.voiceId).toBe('voice-1');
+  });
+});

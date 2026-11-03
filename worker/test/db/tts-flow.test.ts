@@ -171,6 +171,8 @@ describe('approving a script', () => {
       ],
       provider_model_id: await modelId(),
       language: 'vi',
+      // The video's kit, for a voice per kit (D-095).
+      kit: 'whatif',
     });
   });
 

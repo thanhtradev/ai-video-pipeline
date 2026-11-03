@@ -14,7 +14,7 @@
 
 ## 2. Provider registry [PROPOSED]
 
-TTS provider: ITERA TTS (D-040), model `eleven_v3` (D-043), priced in ITERA credits (`CRD`, D-044). **Implemented (2b):** migration `20261026000100_tts_flow.sql` seeds the ITERA rows disabled (`20261026000200` renames the model to `eleven_v3`); the voice, the price and enabling are a rollout step (`ops/postgres/itera-tts.sql`). The voice of another video language is `default_params.voices.<lang>` (`ops/postgres/itera-tts-voice.sql`, D-092); a language without one waits as BLOCKED and never borrows another voice. Money price per credit and terms `[UNKNOWN]` (U-20). Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
+TTS provider: ITERA TTS (D-040), model `eleven_v3` (D-043), priced in ITERA credits (`CRD`, D-044). **Implemented (2b):** migration `20261026000100_tts_flow.sql` seeds the ITERA rows disabled (`20261026000200` renames the model to `eleven_v3`); the voice, the price and enabling are a rollout step (`ops/postgres/itera-tts.sql`). The voice of another video language is `default_params.voices.<lang>` (`ops/postgres/itera-tts-voice.sql`, D-092); a language without one waits as BLOCKED and never borrows another voice. A kit can have its own voice, `default_params.kit_voices.<kit>` (`ops/postgres/itera-tts-kit-voice.sql`, D-095): it wins over the language voice for that kit's videos; tts jobs carry the kit (trigger `job_input_kit`, migration `20261123000100`). Money price per credit and terms `[UNKNOWN]` (U-20). Registry also tracks Claude Code as a **usage-limited** (not per-request priced) provider. Tables:
 
 | Table | Key fields |
 |---|---|
