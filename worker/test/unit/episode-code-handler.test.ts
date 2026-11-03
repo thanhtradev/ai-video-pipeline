@@ -91,14 +91,20 @@ beforeEach(async () => {
   });
 });
 
-/** Writes the episode on the first turn; `extra` lets a test write more. */
-function agent(extra?: (turn: AgentTurn, n: number) => Promise<void>): AgentRunner {
+/**
+ * Writes the episode on every turn listed in `writes` (default: every turn, as a fixing agent
+ * would); `extra` lets a test write more.
+ */
+function agent(
+  extra?: (turn: AgentTurn, n: number) => Promise<void>,
+  writes?: readonly number[],
+): AgentRunner {
   return async (turn) => {
     turns.push(turn);
-    if (turns.length === 1) {
+    if (writes === undefined || writes.includes(turns.length)) {
       await writeFile(
         join(turn.cwd, 'src/episode/Episode.tsx'),
-        'export const Episode = () => null;\n',
+        `export const Episode = () => null; // turn ${turns.length}\n`,
       );
     }
     await extra?.(turn, turns.length);
@@ -255,6 +261,66 @@ describe('episode_code handler', () => {
   test('skips the third turn when the review turn passes', async () => {
     await createEpisodeCodeHandler(deps({ gates: gates(FAIL, PASS) }))(context());
     expect(turns).toHaveLength(2);
+  });
+
+  test('reuses the gate report when a turn changed no agent file', async () => {
+    let runs = 0;
+    const inner = gates(PASS);
+    const counted: GateRunner = async (ws, signal) => {
+      runs++;
+      return inner(ws, signal);
+    };
+
+    const result = await createEpisodeCodeHandler(
+      deps({ agent: agent(undefined, [1]), gates: counted }),
+    )(context());
+
+    expect(turns).toHaveLength(2);
+    expect(runs).toBe(1);
+    expect(result.result).toMatchObject({ turns: 2 });
+    const log = JSON.parse(await readFile(join(workDir, 'agent-turns.json'), 'utf8'));
+    expect(log.turns.map((t: { gates: { ok: boolean } }) => t.gates.ok)).toEqual([true, true]);
+    expect(reported).toEqual([
+      { stage: 'agent', turn: 1, of: 3 },
+      { stage: 'gates', turn: 1, of: 3 },
+      { stage: 'agent', turn: 2, of: 3 },
+    ]);
+  });
+
+  test('a reused failed report still gets the fix turn, and gates run after a change', async () => {
+    let runs = 0;
+    const inner = gates(FAIL, PASS);
+    const counted: GateRunner = async (ws, signal) => {
+      runs++;
+      return inner(ws, signal);
+    };
+
+    await createEpisodeCodeHandler(deps({ agent: agent(undefined, [1, 3]), gates: counted }))(
+      context(),
+    );
+
+    expect(turns).toHaveLength(3);
+    expect(runs).toBe(2);
+    expect(turns[2]!.prompt).toMatch(/Typecheck failed:[\s\S]*Cannot find name 'x'/);
+  });
+
+  test('a change to the SFX script counts as a change', async () => {
+    let runs = 0;
+    const inner = gates(PASS);
+    const counted: GateRunner = async (ws, signal) => {
+      runs++;
+      return inner(ws, signal);
+    };
+    const sfxWriter = agent(
+      async (turn, n) => {
+        if (n === 2) await writeFile(join(turn.cwd, 'sfx/generate-sfx.mjs'), '// louder clap\n');
+      },
+      [1],
+    );
+
+    await createEpisodeCodeHandler(deps({ agent: sfxWriter, gates: counted }))(context());
+
+    expect(runs).toBe(2);
   });
 
   test('fails permanently when the gates still fail after the last turn', async () => {

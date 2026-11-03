@@ -164,11 +164,19 @@ describe('telegram_decide on a preview', () => {
     expect(await decide(preview.token, 'APPROVE')).toMatchObject({ result: 'OK', version: 1 });
 
     expect(await versionStatus(db.pool, version_id)).toBe('RENDERING_FINAL');
-    const final = (await jobs(version_id)).find((job) => job.step === 'render_final')!;
+    const all = await jobs(version_id);
+    const render = all.find((job) => job.step === 'render_episode')!;
+    const final = all.find((job) => job.step === 'render_final')!;
     expect(final).toMatchObject({
       stream: 'q:render',
       status: 'READY',
-      input: { episode_code_job_id: codeId, timing_job_id: timingId, quality: 'final' },
+      // The final reuses the preview job's full-size render when it has one (D-089).
+      input: {
+        episode_code_job_id: codeId,
+        timing_job_id: timingId,
+        quality: 'final',
+        preview_job_id: render.id,
+      },
     });
   });
 

@@ -223,7 +223,12 @@ starts after its composition ends. The reference `check-text-bounds.mjs` used a 
 tenth as long, so it only measured the first tenth of each episode; scanned in full, EP5 has 25 sharp
 texts partly outside the frame (e.g. `NHỚ CHI TIẾT NÀY`, wall-calendar numbers).
 
-Measured: the gates take about 1.5 min on EP5 (7 pages, 1200 samples). A 3-shot mini episode went
+Measured: the gates took about 1.5 min on EP5 (7 pages, 1200 samples) before the audio mix
+(D-071). From the worker log of 2026-11-02/03, a gate run now takes 5–12 min on a 6–7 min episode
+and ran 2–3 times per `episode_code` job (D-089). `gates.json` records each step's wall time
+(`ms`: typecheck, sfx, bundle, board, mix, textBounds) and the worker logs it with `episode gates`.
+A turn that changed no file in `src/episode/` or `sfx/` (usually the storyboard review) reuses
+the last report instead of running the gates again; a Chrome crash report is never reused. A 3-shot mini episode went
 through the whole step (macOS `say` voice → whisper timing → real agent → gates) in under 6 min.
 
 **Episodes coded before the kit split (D-064).** Their code imports `kit/ep1/theme`,
@@ -252,10 +257,14 @@ WF-06 handles both through `telegram_decide()`:
 
 ## 8. Render
 
-`render_episode` (q:render, free) copies the approved workspace and renders `Episode` at 1280×720
-under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
+`render_episode` (q:render, free) copies the approved workspace and renders `Episode` once at full
+size (`master.mp4`, the final's exact render, D-089) under the worker's sandbox profile (`remotion/scripts/episode-render.mjs`, ANGLE, 8 tabs; burned-in
 captions are part of the composition), normalises loudness (-14 LUFS, -1.5 dBTP, D-032) and writes
-`vi.srt` from the sentence timeline. QA and A2 follow (§9). A real mini episode (say voice → whisper → agent → render) came out
+`vi.srt` from the sentence timeline; ffmpeg scales `preview.mp4` (1280×720 or 720×1280, H.264
+CRF 20, audio copied) down from `master.mp4`. `render_final` gets the preview job's id
+(migration `20261118000100`) and hard-links its `master.mp4` as `final.mp4` when that job rendered
+the same code; otherwise (a preview job of an older worker) it renders as before. `master.mp4` is
+not archived. QA and A2 follow (§9). A real mini episode (say voice → whisper → agent → render) came out
 at -14.0 LUFS with matching subtitles.
 
 ## 9. Preview QA and A2 (D-057)
@@ -276,7 +285,7 @@ Migration `20261101000100`. WF-13 polls `preview_approvals_due()` every 30 s:
 
 | Telegram | Effect |
 |---|---|
-| Approve | → `RENDERING_FINAL`, `render_final` job: the same render at full size (`final.mp4`, 1920×1080 or 1080×1920) |
+| Approve | → `RENDERING_FINAL`, `render_final` job: the full-size render (`final.mp4`, 1920×1080 or 1080×1920), linked from the preview job's `master.mp4` (D-089) |
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a revision of the code as for storyboard notes, sharing its rounds; storyboard, preview, QA and A2 follow again |
 

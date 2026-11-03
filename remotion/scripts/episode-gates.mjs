@@ -42,6 +42,12 @@ const BOARD_PER = 12;
 const QA_EVERY = 10;
 // The worker's GL backend (D-075): ANGLE on the Macs, swangle on a CPU-only Linux.
 const CHROMIUM = { gl: process.env.REMOTION_GL || 'angle' };
+/**
+ * The worker's render tabs (D-075), for the audio mix as for the episode render. The mix evaluates
+ * every frame in Chrome; 8 tabs took 238 s against 256 s by default on a 13,101-frame episode, with
+ * the same file (D-089). Running the mix beside the text-bounds QA saved only ~30 s, so they stay serial.
+ */
+const CONCURRENCY = Number(process.env.RENDER_CONCURRENCY) || 8;
 
 const tail = (text) => String(text ?? '').slice(-OUTPUT_TAIL);
 const run = (args) =>
@@ -113,6 +119,7 @@ async function mix(serveUrl, browser) {
     serveUrl,
     codec: 'wav',
     outputLocation: join(ws, file),
+    concurrency: CONCURRENCY,
     puppeteerInstance: browser,
     chromiumOptions: CHROMIUM,
     timeoutInMilliseconds: 240_000,
@@ -186,29 +193,43 @@ async function guarded(step) {
   }
 }
 
-const report = { typecheck: typecheck() };
+/** Wall time per gate step in ms (gates.json `ms`), so slow steps show in the worker log. */
+const ms = {};
+async function timed(name, step) {
+  const start = performance.now();
+  try {
+    return await step();
+  } finally {
+    ms[name] = Math.round(performance.now() - start);
+  }
+}
+
+const report = { typecheck: await timed('typecheck', typecheck) };
 if (report.typecheck.ok) {
-  report.sfx = sfx();
-  const serveUrl = await guarded(() =>
-    bundle({
-      entryPoint: join(ws, 'src', 'index.ts'),
-      publicDir: join(ws, 'public'),
-      enableCaching: false,
-    }),
+  report.sfx = await timed('sfx', sfx);
+  const serveUrl = await timed('bundle', () =>
+    guarded(() =>
+      bundle({
+        entryPoint: join(ws, 'src', 'index.ts'),
+        publicDir: join(ws, 'public'),
+        enableCaching: false,
+      }),
+    ),
   );
   if (typeof serveUrl === 'string') {
     const browser = await openBrowser('chrome', { chromiumOptions: CHROMIUM });
     try {
-      report.board = await guarded(() => board(serveUrl, browser));
-      report.mix = await guarded(() => mix(serveUrl, browser));
+      report.board = await timed('board', () => guarded(() => board(serveUrl, browser)));
+      report.mix = await timed('mix', () => guarded(() => mix(serveUrl, browser)));
     } finally {
       await browser.close({ silent: true });
     }
-    report.textBounds = await guarded(() => textBounds(serveUrl));
+    report.textBounds = await timed('textBounds', () => guarded(() => textBounds(serveUrl)));
   } else {
     report.bundle = serveUrl;
   }
 }
+report.ms = ms;
 report.ok = ['typecheck', 'sfx', 'board', 'mix', 'textBounds'].every((k) => report[k]?.ok === true);
 writeFileSync(join(ws, 'gates.json'), `${JSON.stringify(report, null, 1)}\n`);
 console.log(`gates ${report.ok ? 'passed' : 'failed'}`);

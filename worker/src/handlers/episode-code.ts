@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { readFile, realpath, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -42,6 +42,8 @@ import {
 // A Chrome crash in the gates is retried once; a second one on the same code goes to the agent (D-088).
 // The gates also render the episode's audio (voice + SFX); mix.m4a, at the delivery loudness, goes
 // to the storyboard request with the pages (D-071).
+// A turn that changed no agent file (src/episode, sfx) reuses the last gate report instead of
+// running the gates again: they are deterministic on the same code, and a run takes minutes.
 
 const AGENT_LIMIT_MS = 90 * 60 * 1000;
 const MAX_FOLLOW_UPS = 2;
@@ -114,6 +116,8 @@ const stateSchema = z.object({
   report: gateReportSchema.nullable(),
   /** Chrome crashes in a row in the gates since the last agent turn; absent in older checkpoints. */
   crashes: z.number().int().nonnegative().default(0),
+  /** Fingerprint of the agent files the last report was made on; absent in older checkpoints. */
+  gatedHash: z.string().nullable().default(null),
 });
 type AgentState = z.infer<typeof stateSchema>;
 const EMPTY_STATE: AgentState = {
@@ -122,7 +126,19 @@ const EMPTY_STATE: AgentState = {
   turns: [],
   report: null,
   crashes: 0,
+  gatedHash: null,
 };
+
+/** sha256 over the paths and contents of the agent-written files: what the gates check. */
+async function agentFingerprint(ws: string): Promise<string> {
+  const hash = createHash('sha256');
+  for (const file of await agentFiles(ws)) {
+    hash.update(`${file}\0`);
+    hash.update(await readFile(join(ws, file)));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
 
 /** The checkpoint of an earlier attempt with at least one finished agent turn, or null. */
 async function savedState(context: HandlerContext): Promise<AgentState | null> {
@@ -189,8 +205,24 @@ async function runTurns(
   const save = () =>
     writeFileAtomic(join(context.workDir, TURNS_LOG), `${JSON.stringify(state, null, 1)}\n`);
 
+  const recordGates = (n: number, report: GateReport) => {
+    const gates = { ok: report.ok, failures: describeFailures(report) };
+    return state.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates } : turn));
+  };
+
   const gate = async () => {
     const n = state.turns.length;
+    const hash = await agentFingerprint(ws);
+    const last = state.report;
+    if (hash === state.gatedHash && last !== null && browserCrash(last) === null) {
+      state = { ...state, turns: recordGates(n, last) };
+      await save();
+      context.logger.info(
+        { turn: n, gatesOk: last.ok },
+        'episode gates reused: no agent file changed',
+      );
+      return;
+    }
     await context.progress({ stage: 'gates', turn: n, of: maxTurns });
     const report = await deps.gates(ws, context.signal);
     const crash = browserCrash(report);
@@ -202,20 +234,14 @@ async function runTurns(
       throw new Error(`the gates' Chrome crashed: ${crash.slice(0, 1000)}`);
     }
     // A crash that repeats on the same code goes to the agent like any failed check.
-    const gates = { ok: report.ok, failures: describeFailures(report) };
-    state = {
-      ...state,
-      report,
-      crashes,
-      turns: state.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates } : turn)),
-    };
+    state = { ...state, report, crashes, gatedHash: hash, turns: recordGates(n, report) };
     await save();
     if (crash)
       context.logger.warn(
         { turn: n, crashes },
         'the gates crashed Chrome again; telling the agent',
       );
-    context.logger.info({ turn: n, gatesOk: report.ok }, 'episode gates');
+    context.logger.info({ turn: n, gatesOk: report.ok, gatesMs: report.ms }, 'episode gates');
   };
 
   // The last attempt stopped after an agent turn but before its gates finished, or an older worker
@@ -243,10 +269,10 @@ async function runTurns(
       signal: context.signal,
     });
     state = {
+      ...state,
       sessionId: result.sessionId,
       agentMs: state.agentMs + (Date.now() - started),
       turns: [...state.turns, { prompt, result: { ...result }, gates: null }],
-      report: state.report,
       crashes: 0,
     };
     await save();
