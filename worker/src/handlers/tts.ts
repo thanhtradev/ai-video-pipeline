@@ -39,6 +39,8 @@ const inputSchema = z.object({
     .max(20),
   provider_model_id: z.uuid(),
   language: languageSchema,
+  /** The video's kit, stamped on every tts job by the job_input_kit trigger (D-095). */
+  kit: z.string().min(1).optional(),
 });
 
 const paramsSchema = z.object({
@@ -48,18 +50,24 @@ const paramsSchema = z.object({
   voice_settings: z.record(z.string(), z.unknown()).optional(),
 });
 
+const voiceEntrySchema = z
+  .object({ voice_id: z.string().min(1), language_code: z.string().min(1) })
+  .partial();
+
 /**
  * Voices per video language (D-092): `voices.<lang>` overrides the flat voice_id/language_code,
- * which stay the Vietnamese voice so existing clips keep their keys.
+ * which stay the Vietnamese voice so existing clips keep their keys. Voices per kit (D-095):
+ * `kit_voices.<kit>` overrides both for that kit's videos.
  */
 const voicesSchema = z.object({
-  voices: z
-    .record(
-      z.string(),
-      z.object({ voice_id: z.string().min(1), language_code: z.string().min(1) }).partial(),
-    )
-    .optional(),
+  voices: z.record(z.string(), voiceEntrySchema).optional(),
+  kit_voices: z.record(z.string(), voiceEntrySchema).optional(),
 });
+
+type VoiceEntry = z.infer<typeof voiceEntrySchema>;
+
+const isComplete = (entry: VoiceEntry | undefined): entry is Required<VoiceEntry> =>
+  Boolean(entry?.voice_id && entry.language_code);
 
 const sceneStateSchema = z.object({
   key: z.string(),
@@ -366,13 +374,16 @@ async function resolveVoice(
   deps: TtsHandlerDeps,
   jobId: string,
   language: Language,
+  kit: string | undefined,
 ): Promise<Voice> {
   const guard = await deps.costs.guard(jobId, deps.workerId, 0);
   checkGuard(guard, deps.blockSeconds);
   const voices = voicesSchema.safeParse(guard.params);
-  const own = voices.success ? voices.data.voices?.[language] : undefined;
+  const kitVoice = voices.success && kit ? voices.data.kit_voices?.[kit] : undefined;
+  const languageVoice = voices.success ? voices.data.voices?.[language] : undefined;
+  const own = isComplete(kitVoice) ? kitVoice : languageVoice;
   // Never another language's voice: an unconfigured language waits for the owner (CLAUDE.md §3).
-  if (language !== 'vi' && !(own?.voice_id && own.language_code)) {
+  if (language !== 'vi' && !isComplete(own)) {
     throw new ProviderBlockedError(
       `no TTS voice configured for language ${language} (provider_model.default_params.voices.${language})`,
       deps.blockSeconds,
@@ -398,8 +409,8 @@ export function createTtsHandler(deps: TtsHandlerDeps): JobHandler {
     if (!itera)
       throw new ProviderBlockedError('ITERA API key is not configured', deps.blockSeconds);
 
-    const { language } = parsed.data;
-    const voice = await resolveVoice(deps, context.jobId, language);
+    const { language, kit } = parsed.data;
+    const voice = await resolveVoice(deps, context.jobId, language, kit);
     // The owner's pronunciation table is written for the Vietnamese voice.
     const pronunciation =
       language === 'vi'
