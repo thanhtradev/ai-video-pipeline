@@ -27,6 +27,7 @@ On callback (WF-06), reject when:
 Update with `UPDATE approval SET status=… WHERE token=… AND status='PENDING'` → a double click takes effect only once. After a decision, edit the Telegram message to remove the buttons.
 
 Approval expiry: 24h, reminder every 6h (D-028). On expiry → mark `EXPIRED`, offer re-request, **never** auto-approve.
+`/pending` (D-090) lists the open requests and sends the reminder at once (same token), for requests that scrolled away in the chat.
 Approvers: allow-list of Telegram user ids; currently only the owner, more can be added via config (D-029).
 
 ## 3. Automated QA [PROPOSED]
