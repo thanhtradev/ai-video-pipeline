@@ -34,7 +34,7 @@ revoke - chỉ chủ sở hữu: /revoke <user id>
 | `/workers` (alias `/worker`) | `/workers` | any chat | approvers | D-082 |
 | `/pending` (alias `/cho`) | `/pending` · `/pending <id prefix>`; the buttons come again in the approval chat | any chat | approvers | D-090 |
 | `/ideas` (alias `/ytuong`) | `/ideas [kit=<slug>] [nhanvat=<slug>]` | approval chat | approvers | D-083 |
-| `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption | approval chat | approvers | D-058, D-066, D-087 |
+| `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption; the draft's Thời lượng button changes the length | approval chat | approvers | D-058, D-066, D-087, D-091 |
 | `/brief` | `/brief` | approval chat | anyone in it | D-077 |
 | `/retry` | `/retry <id prefix, ≥ 4 chars>` | any chat | approvers | D-056 |
 | `/move` (alias `/chuyen`) | `/move <id prefix> <worker id>` · `/move <id prefix> huy` cancels a waiting move | any chat | owner | D-087 |
