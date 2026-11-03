@@ -747,7 +747,7 @@ describe('WF-06 /workers (D-082)', () => {
     ]);
     expect(wf.connections['Workers?']!.main.map((out) => out[0]!.node)).toEqual([
       'Workers',
-      'Ideas?',
+      'Pending?',
     ]);
     expect(wf.connections['Workers']!.main[0]).toEqual([
       expect.objectContaining({ node: 'Build status' }),
@@ -798,6 +798,100 @@ describe('WF-06 /workers (D-082)', () => {
 
   test('says when no worker has reported and refuses strangers', () => {
     expect(build([{}]).text).toBe('Chưa có worker nào gửi heartbeat.');
+    expect(build([{ allowed: false }]).text).toBe('Bạn không phải approver.');
+  });
+});
+
+describe('WF-06 /pending (D-090)', () => {
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [item] });
+  const build = (rows: Record<string, unknown>[], prefix = '') =>
+    runCode('wf-06-telegram-callback.json', 'Build status', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'pending', prefix, chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json as { text: string; chatId: string; messageId: string };
+
+  test.each([
+    ['/pending', ''],
+    ['/cho', ''],
+    ['/pending@aivideo_bot', ''],
+    ['/pending 679CD22F', '679cd22f'],
+  ])('parses %j', (text, prefix) => {
+    expect(parse(command(text))[0]!.json).toEqual({
+      kind: 'pending',
+      prefix,
+      userId: '111',
+      chatId: '-100',
+      messageId: '7',
+    });
+  });
+
+  test.each(['/pendingx', '/pending abc xyz', '/chooo'])('ignores %j', (text) => {
+    expect(parse(command(text))).toEqual([]);
+  });
+
+  test('routes /pending to telegram_pending() and its reply to Build status', () => {
+    const wf = workflow('wf-06-telegram-callback.json');
+    const node = wf.nodes.find((n) => n.name === 'Pending')!;
+    expect(node.parameters.query).toBe('SELECT * FROM telegram_pending($1::bigint, $2);');
+    expect(node.parameters.options).toEqual({
+      queryReplacement: '={{ [$json.userId, $json.prefix] }}',
+    });
+    expect(wf.connections['Workers?']!.main[1]).toEqual([
+      expect.objectContaining({ node: 'Pending?' }),
+    ]);
+    expect(wf.connections['Pending?']!.main.map((out) => out[0]!.node)).toEqual([
+      'Pending',
+      'Ideas?',
+    ]);
+    expect(wf.connections['Pending']!.main[0]).toEqual([
+      expect.objectContaining({ node: 'Build status' }),
+    ]);
+  });
+
+  test('lists each open request and says the buttons come again', () => {
+    const out = build([
+      {
+        allowed: true,
+        video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+        version: 2,
+        title: 'Mèo nghĩ gì?',
+        type: 'STORYBOARD',
+        expires_at: '2026-11-04T10:00:00Z',
+        reminded: true,
+      },
+      {
+        allowed: true,
+        video_id: '11112222-d1f8-44fe-a9fd-9cdcbaa6325c',
+        version: 1,
+        title: null,
+        type: 'CLEANUP',
+        expires_at: '2026-11-09T01:30:00Z',
+        reminded: false,
+      },
+    ]);
+
+    expect(out).toMatchObject({ chatId: '-100', messageId: '7' });
+    expect(out.text).toContain('⏳ 2 yêu cầu đang chờ duyệt');
+    expect(out.text).toContain('679cd22f v2 · Mèo nghĩ gì? · STORYBOARD · hạn 17:00 04/11');
+    expect(out.text).toContain(
+      '11112222 v1 · ? · CLEANUP · hạn 08:30 09/11 · nút nằm trong tin báo hoàn tất',
+    );
+    expect(out.text).toContain('Bot sẽ gửi lại 1 yêu cầu kèm nút trong khoảng 30 giây.');
+  });
+
+  test('says when nothing is open and refuses strangers', () => {
+    expect(build([{}]).text).toBe('Không có yêu cầu nào đang chờ duyệt.');
+    expect(build([{}], 'abcd').text).toBe(
+      'Không có yêu cầu nào đang chờ duyệt cho video có id bắt đầu bằng abcd.',
+    );
     expect(build([{ allowed: false }]).text).toBe('Bạn không phải approver.');
   });
 });
@@ -2615,7 +2709,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong', 'chuyen']);
+  const ALIASES = new Set(['ytuong', 'chuyen', 'cho']);
 
   test('every line is a valid BotFather entry', () => {
     for (const line of menu) expect(line).toMatch(/^[a-z0-9_]{1,32} - \S.{0,254}$/);

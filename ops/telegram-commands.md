@@ -11,6 +11,7 @@ In BotFather: `/setcommands` → choose the bot → paste the whole block (it **
 ```
 status - tiến độ các video, hoặc /status <id video>
 workers - worker nào đang chạy clip nào
+pending - gửi lại các yêu cầu duyệt đang chờ
 ideas - ý tưởng video mới theo kit và nhân vật
 new - tập mới: /new [số phút] <chủ đề>
 brief - mẫu prompt để LLM khác viết full brief
@@ -31,6 +32,7 @@ revoke - chỉ chủ sở hữu: /revoke <user id>
 |---|---|---|---|---|
 | `/status` | `/status` · `/status <id prefix>` | any chat | approvers | P-017 |
 | `/workers` (alias `/worker`) | `/workers` | any chat | approvers | D-082 |
+| `/pending` (alias `/cho`) | `/pending` · `/pending <id prefix>`; the buttons come again in the approval chat | any chat | approvers | D-090 |
 | `/ideas` (alias `/ytuong`) | `/ideas [kit=<slug>] [nhanvat=<slug>]` | approval chat | approvers | D-083 |
 | `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption | approval chat | approvers | D-058, D-066, D-087 |
 | `/brief` | `/brief` | approval chat | anyone in it | D-077 |
