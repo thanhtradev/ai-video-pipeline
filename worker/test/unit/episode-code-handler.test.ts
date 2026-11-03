@@ -582,6 +582,31 @@ describe('kit and character selection', () => {
     expect(await readFile(join(ws, 'CLAUDE.md'), 'utf8')).toContain('CHÍP');
   });
 
+  test('the English kit gets English docs, Western sets and the English checks (D-092)', async () => {
+    // Turn 1 leaves a Vietnamese word on screen; the gates pass, the language check does not.
+    const writeVi = async (turn: AgentTurn, n: number) => {
+      if (n === 1) {
+        await writeFile(join(turn.cwd, 'src/episode/kit.tsx'), "export const T = 'Mẹ ơi';\n");
+      } else {
+        await writeFile(join(turn.cwd, 'src/episode/kit.tsx'), "export const T = 'Mom!';\n");
+      }
+    };
+    const result = await createEpisodeCodeHandler(deps({ agent: agent(writeVi) }))(
+      context({ ...INPUT, kit: 'whatif-en', character_set: 'chip-en' }),
+    );
+    const ws = join(workDir, 'ws');
+    const claudeMd = await readFile(join(ws, 'CLAUDE.md'), 'utf8');
+    expect(claudeMd).toContain('What if… (EN)');
+    expect(claudeMd).toContain('"YOU"');
+    expect(claudeMd).not.toContain('Vietnamese settings with real detail');
+    expect(await readFile(join(ws, 'kit/active/sets.ts'), 'utf8')).toContain(
+      'kits/whatif-en/sets-intl',
+    );
+    expect(result.result).toMatchObject({ language: 'en', frame: { width: 1920, height: 1080 } });
+    expect(turns[1]!.prompt).toMatch(/English episode[\s\S]*src\/episode\/kit.tsx:1/);
+    expect(turns[1]!.prompt).toMatch(/no Vietnamese text or Vietnam-specific setting/);
+  });
+
   test('an unknown kit is a permanent failure, not a fallback', async () => {
     await expect(
       createEpisodeCodeHandler(deps())(context({ ...INPUT, kit: 'anime' })),

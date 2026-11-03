@@ -85,7 +85,12 @@ describe('episode brief', () => {
       `SELECT catalog_selection('{"kit": "science"}'::jsonb) AS s`,
     );
     expect(result.rows[0]!.s).toEqual({
-      kit: { slug: 'science', label: 'Khoa học', next_slug: 'whatif', next_label: 'Nếu bạn…' },
+      kit: {
+        slug: 'science',
+        label: 'Khoa học',
+        next_slug: 'whatif-en',
+        next_label: 'What if… (EN)',
+      },
       character_set: {
         slug: 'chip',
         label: 'Chíp (BẠN)',
@@ -107,14 +112,18 @@ describe('Telegram draft buttons', () => {
     expect(kit.result).toBe('DRAFT');
     expect(kit.token).toBe(drafted.token);
     expect(kit.brief).toMatchObject({ kit: 'science', character_set: 'chip' });
-    expect(kit.selection!.kit).toMatchObject({ slug: 'science', next_slug: 'whatif' });
+    expect(kit.selection!.kit).toMatchObject({ slug: 'science', next_slug: 'whatif-en' });
 
     const cast = await cycle(drafted.token!, 'character_set');
     expect(cast.brief).toMatchObject({ kit: 'science', character_set: 'chip-science' });
 
-    // the last cycle wraps to the first option
+    // the English kit takes the English cast (D-092)
+    const english = await cycle(drafted.token!, 'kit');
+    expect(english.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
+
+    // the last cycle wraps to the first option, with a Vietnamese cast again
     const wrapped = await cycle(drafted.token!, 'kit');
-    expect(wrapped.brief).toMatchObject({ kit: 'whatif', character_set: 'chip-science' });
+    expect(wrapped.brief).toMatchObject({ kit: 'whatif', character_set: 'chip' });
 
     // Create submits the brief with the choice
     const created = await decideWith(db.pool, drafted.token!, 'APPROVE', null);
@@ -123,7 +132,7 @@ describe('Telegram draft buttons', () => {
       `SELECT brief FROM video_version WHERE video_id = $1`,
       [(created as { video_id?: string }).video_id],
     );
-    expect(version.rows[0]!.brief).toMatchObject({ kit: 'whatif', character_set: 'chip-science' });
+    expect(version.rows[0]!.brief).toMatchObject({ kit: 'whatif', character_set: 'chip' });
 
     expect((await cycle(drafted.token!, 'kit')).result).toBe('NOT_PENDING');
   });

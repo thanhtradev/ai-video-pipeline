@@ -11,10 +11,10 @@ Overview: `README.md`. Architecture: `docs/architecture.md`. Decisions: `docs/de
 | Documentation files (`*.md`, ADRs, runbooks, config comments, workflow notes) | **English only** |
 | Log messages, error messages, DB enum values | **English only** |
 | Telegram messages sent by the bot (requests, replies, alerts, button labels) | **Vietnamese** (D-061); ids, step/status names and command names stay as they are |
-| Video scripts, storyboards, voice-over text, subtitles, on-screen text, video titles/descriptions/tags, and other video resources | **Vietnamese** |
+| Video scripts, storyboards, voice-over text, subtitles, on-screen text, video titles/descriptions/tags, and other video resources | **Vietnamese**; **English** for an English kit (`whatif-en`, D-092: the kit's `language`) |
 | File and folder names, asset paths in code (`staticFile(...)`, `voice` fields), archive paths | **ASCII only** (checked by `worker/test/unit/ascii-paths.test.ts`) |
 
-- Vietnamese is allowed **only** for content that ends up in, or directly describes, a video (script, narration, subtitles, metadata for publishing).
+- Vietnamese is allowed **only** for content that ends up in, or directly describes, a video (script, narration, subtitles, metadata for publishing). An English kit's videos contain no Vietnamese at all.
 - Prompts sent to AI providers: instructions in English; quoted video content may be Vietnamese.
 - Never translate Vietnamese video content to English when storing it; keep the original text.
 

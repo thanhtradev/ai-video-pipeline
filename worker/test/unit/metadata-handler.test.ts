@@ -169,6 +169,18 @@ describe('metadata handler', () => {
     expect(requests[1]!.systemPrompt).not.toContain('Nếu bạn…?');
   });
 
+  test('writes English metadata for the English kit (D-092)', async () => {
+    await createMetadataHandler(deps())(
+      context({ ...INPUT, kit: 'whatif-en', character_set: 'chip-en' }),
+    );
+    const { systemPrompt, prompt } = requests[0]!;
+    expect(systemPrompt).toMatch(/international English animated YouTube channel/);
+    expect(systemPrompt).toMatch(/The metadata is in English/);
+    expect(prompt).toMatch(/search terms in English/);
+    expect(prompt).toContain('#whatif');
+    expect(prompt).not.toContain('#nếubạn');
+  });
+
   test('retries (plain error) on an unknown shot, < in the title or a bad schema', async () => {
     for (const bad of [
       { ...GOOD, thumbnail_shot: '9.9' },

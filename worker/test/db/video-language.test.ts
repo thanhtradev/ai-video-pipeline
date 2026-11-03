@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/db.js';
+import { loadCatalog } from '../../src/episode/catalog.js';
 
 // D-092: a video's language comes from its kit (catalog_option.language), and every job input
 // that names a language carries the video's language instead of a hardcoded 'vi'.
@@ -98,7 +99,10 @@ describe('video language by kit', () => {
     const rows = await db.pool.query<{ slug: string; language: string }>(
       `SELECT slug, language FROM catalog_option WHERE slug <> 'test-en' ORDER BY kind, sort_order`,
     );
-    expect(rows.rows.every((r) => r.language === 'vi')).toBe(true);
+    expect(rows.rows.filter((r) => r.language === 'en').map((r) => r.slug)).toEqual([
+      'chip-en',
+      'whatif-en',
+    ]);
     await expect(
       db.pool.query(`UPDATE catalog_option SET language = 'fr' WHERE slug = 'whatif'`),
     ).rejects.toThrow(/catalog_option_language/);
@@ -116,5 +120,50 @@ describe('video language by kit', () => {
       ).rows[0]!.minutes;
     expect(Number(await estimate('test-en'))).toBe(1);
     expect(Number(await estimate('whatif'))).toBe(0.8);
+  });
+});
+
+describe('the English kit whatif-en (D-092)', () => {
+  test('is English and gets the English cast even when the brief names none', async () => {
+    const video = await submit('lang-kit-en-1', {
+      format: 'episode',
+      topic: 'What if you could stop time?',
+      kit: 'whatif-en',
+    });
+    expect(await videoLanguage(video.videoId)).toBe('en');
+    const brief = await db.pool.query<{ cast: string }>(
+      `SELECT brief->>'character_set' AS cast FROM video_version WHERE id = $1`,
+      [video.versionId],
+    );
+    expect(brief.rows[0]!.cast).toBe('chip-en');
+  });
+
+  test('a cast of the other language is replaced by one of the kit language', async () => {
+    const normalized = async (brief: object) =>
+      (
+        await db.pool.query<{ cast: string }>(
+          `SELECT episode_brief_normalize($1::jsonb)->>'character_set' AS cast`,
+          [JSON.stringify({ format: 'episode', topic: 'x x x', ...brief })],
+        )
+      ).rows[0]!.cast;
+    expect(await normalized({ kit: 'whatif-en', character_set: 'chip' })).toBe('chip-en');
+    expect(await normalized({ kit: 'whatif', character_set: 'chip-en' })).toBe('chip');
+    expect(await normalized({ kit: 'science', character_set: 'chip-science' })).toBe(
+      'chip-science',
+    );
+  });
+
+  test('catalog_option mirrors remotion/catalog.json languages', async () => {
+    const catalog = loadCatalog();
+    const rows = await db.pool.query<{ slug: string; language: string }>(
+      `SELECT slug, language FROM catalog_option WHERE kind = 'kit' AND slug <> 'test-en'`,
+    );
+    expect(Object.fromEntries(rows.rows.map((r) => [r.slug, r.language]))).toEqual(
+      Object.fromEntries(Object.entries(catalog.kits).map(([slug, kit]) => [slug, kit.language])),
+    );
+    const sets = await db.pool.query<{ slug: string }>(
+      `SELECT slug FROM catalog_option WHERE kind = 'character_set' ORDER BY slug`,
+    );
+    expect(sets.rows.map((r) => r.slug)).toEqual(Object.keys(catalog.characterSets).sort());
   });
 });

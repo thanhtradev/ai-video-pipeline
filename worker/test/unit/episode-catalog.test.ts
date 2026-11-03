@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { CatalogError, loadCatalog, resolveSelection } from '../../src/episode/catalog.js';
 import { channelDescription, selectionOf } from '../../src/episode/channel-prompt.js';
+import { hasVietnameseLetters } from '../../src/episode/language.js';
 
 describe('kit / character catalog', () => {
   test('loads remotion/catalog.json with defaults that exist', () => {
@@ -68,5 +69,38 @@ describe('kit / character catalog', () => {
   test('refuses an unknown kit or character set instead of falling back', () => {
     expect(() => resolveSelection({ kit: 'nope' })).toThrow(CatalogError);
     expect(() => resolveSelection({ characterSet: 'nope' })).toThrow(/character set/);
+  });
+
+  test('the English kit is its own channel: English docs only, Western sets (D-092)', async () => {
+    const sel = resolveSelection({ kit: 'whatif-en', characterSet: 'chip-en' });
+    expect(sel).toMatchObject({ kit: 'whatif-en', characterSet: 'chip-en', hero: 'YOU' });
+    expect(sel.language).toBe('en');
+    expect(sel.frame).toEqual({ width: 1920, height: 1080 });
+    // The whatif code is copied, but none of its Vietnamese docs or prompts is spliced in.
+    expect(sel.dirs).toEqual(
+      expect.arrayContaining(['kits/whatif', 'kits/whatif-en', 'characters/chip-en']),
+    );
+    expect(sel.kitDocs).toEqual(['kits/whatif-en/AGENT.md']);
+    expect(sel.kitPrompts).toEqual(['kits/whatif-en/prompt.md']);
+    expect(sel.characterDocs).toEqual(['characters/chip-en/AGENT.md']);
+    expect(sel.modules).toMatchObject({
+      theme: 'kits/whatif-en/theme',
+      sets: 'kits/whatif-en/sets-intl',
+      'sets-home': 'kits/whatif-en/sets-home-intl',
+      'sets-school': 'kits/whatif-en/sets-school-intl',
+      props: 'kits/whatif-en/props-intl',
+      cast: 'characters/chip-en/cast',
+    });
+
+    const text = await channelDescription(sel);
+    expect(text).toContain('What if you…?');
+    expect(text).toContain("One little 'if'… a whole different life.");
+    expect(text).toMatch(/Western/);
+    expect(hasVietnameseLetters(text)).toBe(false);
+  });
+
+  test('every kit has a language; the Vietnamese kits stay Vietnamese', () => {
+    expect(resolveSelection({}).language).toBe('vi');
+    expect(resolveSelection({ kit: 'science' }).language).toBe('vi');
   });
 });

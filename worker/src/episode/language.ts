@@ -14,10 +14,11 @@ export type Language = z.infer<typeof languageSchema>;
 export const WORDS_PER_SECOND: Readonly<Record<Language, number>> = { vi: 3.2, en: 2.5 };
 
 /**
- * Letters only Vietnamese writing uses (breve, circumflex, horn, đ, dot below, hook above), so an
- * English "café" or "naïve" is not flagged.
+ * Letters of Vietnamese writing that English text practically never has: breve, circumflex, horn,
+ * đ, dot below, hook above, and the grave/tilde vowels (à ã ì ò õ ù ỳ ỹ ý). é á í ó ú è are left
+ * out, so an English "café", "Pokémon" or "naïve" is not flagged.
  */
-const VIETNAMESE_LETTER = /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/iu;
+const VIETNAMESE_LETTER = /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹàãìĩòõùũý]/iu;
 
 /** True when the text has a letter only Vietnamese uses. */
 export function hasVietnameseLetters(text: string): boolean {

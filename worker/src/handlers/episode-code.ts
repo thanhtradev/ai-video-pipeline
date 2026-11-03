@@ -15,6 +15,8 @@ import {
   type GateReport,
   type GateRunner,
 } from '../episode/gates.js';
+import { withLanguageGate } from '../episode/language-gate.js';
+import type { Language } from '../episode/language.js';
 import {
   agentFiles,
   containsSecret,
@@ -171,7 +173,15 @@ const REVISION_PROMPT =
   'Revise the episode in src/episode/ and sfx/ (your previous version) following feedback.md, ' +
   'brief.md and CLAUDE.md. Start by reading CLAUDE.md, feedback.md and brief.md.';
 
-function followUpPrompt(report: GateReport, review: boolean): string {
+/** What the storyboard review checks; an English episode also checks for anything Vietnamese (D-092). */
+function reviewChecklist(language: Language): string {
+  return language === 'en'
+    ? '(style, framing, continuity, text in frame, nothing empty, and no Vietnamese text or ' +
+        'Vietnam-specific setting, prop or custom on any page).'
+    : '(style, framing, continuity, text in frame, nothing empty).';
+}
+
+function followUpPrompt(report: GateReport, review: boolean, language: Language): string {
   const failures = describeFailures(report);
   const pages = report.board?.pages ?? [];
   return [
@@ -180,7 +190,7 @@ function followUpPrompt(report: GateReport, review: boolean): string {
       : "The worker's checks passed.",
     review && pages.length > 0
       ? `Now review the storyboard pages ${pages.join(', ')} with the Read tool, shot by shot, ` +
-        'against brief.md and CLAUDE.md (style, framing, continuity, text in frame, nothing empty).'
+        `against brief.md and CLAUDE.md ${reviewChecklist(language)}`
       : '',
     'Fix everything that is wrong, run the typecheck again, and reply with a short summary.',
   ]
@@ -224,7 +234,11 @@ async function runTurns(
       return;
     }
     await context.progress({ stage: 'gates', turn: n, of: maxTurns });
-    const report = await deps.gates(ws, context.signal);
+    const report = await withLanguageGate(
+      await deps.gates(ws, context.signal),
+      ws,
+      selection.language,
+    );
     const crash = browserCrash(report);
     const crashes = crash ? state.crashes + 1 : 0;
     if (crash && crashes < CRASHES_BEFORE_AGENT) {
@@ -257,7 +271,7 @@ async function runTurns(
         ? input.revision
           ? REVISION_PROMPT
           : firstPrompt(selection.referenceEpisode)
-        : followUpPrompt(state.report!, n === 1);
+        : followUpPrompt(state.report!, n === 1, selection.language);
     await context.progress({ stage: 'agent', turn: n + 1, of: maxTurns });
     const started = Date.now();
     const result = await deps.agent({
