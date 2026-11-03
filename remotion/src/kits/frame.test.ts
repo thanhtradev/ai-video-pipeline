@@ -4,13 +4,18 @@ import { describe, expect, test, vi } from 'vitest';
 vi.mock('./whatif/fonts', () => ({ FONT: 'Baloo 2', HAND: 'Patrick Hand' }));
 import { CATALOG } from '../catalog';
 import * as science from './science/theme';
+import * as whatifEn from './whatif-en/theme';
 import { frameSpec, LANDSCAPE, PORTRAIT } from './whatif/theme';
 import * as whatif from './whatif/theme';
 
 // D-080: the frame is a kit property; catalog.json (worker: render size) and the kit theme
 // (episode code: W/H/SAFE/PX) must agree.
 
-const THEMES: Record<string, { W: number; H: number }> = { whatif, science };
+const THEMES: Record<string, { W: number; H: number }> = {
+  whatif,
+  science,
+  'whatif-en': whatifEn,
+};
 
 describe('kit frames', () => {
   test('every kit theme exports the frame its catalog entry declares', () => {
