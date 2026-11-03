@@ -35,7 +35,7 @@ revoke - chỉ chủ sở hữu: /revoke <user id>
 | `/workers` (alias `/worker`) | `/workers` | any chat | approvers | D-082 |
 | `/pending` (alias `/cho`) | `/pending` · `/pending <id prefix>`; the buttons come again in the approval chat | any chat | approvers | D-090 |
 | `/ideas` (alias `/ytuong`) | `/ideas [kit=<slug>] [nhanvat=<slug>]` | approval chat | approvers | D-083 |
-| `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption; the draft's Thời lượng button changes the length | approval chat | approvers | D-058, D-066, D-087, D-091 |
+| `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>] [auto=on]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption; the draft's Thời lượng button changes the length | approval chat | approvers | D-058, D-066, D-087, D-091, D-096 |
 | `/brief` | `/brief` | approval chat | anyone in it | D-077 |
 | `/retry` | `/retry <id prefix, ≥ 4 chars>` | any chat | approvers | D-056 |
 | `/auto` (alias `/tudong`) | `/auto <id prefix>` turns on automatic approval of every remaining gate (A1, A1b, storyboard, A2, A3; QA WARN approved, FAIL stops; never the Mac cleanup); a gate already waiting is approved at once · `/auto <id prefix> off` | any chat | approvers | D-093 |
