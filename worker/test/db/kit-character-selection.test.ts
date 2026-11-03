@@ -211,3 +211,36 @@ describe('job inputs', () => {
     expect(result.rows[0]!.s).toEqual({ kit: 'whatif', character_set: 'chip' });
   });
 });
+
+describe('a button that changes nothing (D-092)', () => {
+  test('the English kit offers only English casts, and a no-op press is UNCHANGED', async () => {
+    const drafted = await draft({ topic: 'What if you could fly?', kit: 'whatif-en' });
+    expect(drafted.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
+    // Only one English cast: the button names it instead of a Vietnamese one.
+    expect(drafted.selection!.character_set).toMatchObject({
+      slug: 'chip-en',
+      next_slug: 'chip-en',
+    });
+
+    // Telegram refuses to edit a message into the same content ("message is not modified").
+    const pressed = await cycle(drafted.token!, 'character_set');
+    expect(pressed.result).toBe('UNCHANGED');
+    expect(pressed.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
+
+    // The draft is still open and other buttons still work.
+    expect((await cycle(drafted.token!, 'kit')).result).toBe('DRAFT');
+  });
+
+  test('Vietnamese kits cycle through Vietnamese casts only', async () => {
+    const drafted = await draft({ topic: 'Nếu bạn bay được?' });
+    expect(drafted.selection!.character_set).toMatchObject({
+      slug: 'chip',
+      next_slug: 'chip-science',
+    });
+    const science = await cycle(drafted.token!, 'character_set');
+    expect(science.selection!.character_set).toMatchObject({
+      slug: 'chip-science',
+      next_slug: 'chip',
+    });
+  });
+});

@@ -18,7 +18,7 @@ Data: `video.language` comes from `catalog_option.language` of the kit (migratio
 ## 1. Migrate (Mac mini)
 
 Backup as in `phase-2b.md` §3, then migrate as in `preview-approval.md` §1; expect
-`20261121000100` and `20261121000200`.
+`20261121000100`, `20261121000200` and `20261121000300`.
 
 ## 2. English voice [UNKNOWN]
 
@@ -33,21 +33,27 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v model_id=eleven_v4 -v language=en \
 Until then an English episode's TTS job waits as BLOCKED with "no TTS voice configured for
 language en"; it never uses the Vietnamese voice.
 
-## 3. Workers
+## 3. Workers and n8n
 
 Restart every worker on the new `main` (`ops/launchd/update-worker.sh`, Linux: `linux-worker.md`):
-the catalog, kit files and prompts ship with the code. No n8n change.
+the catalog, kit files and prompts ship with the code. Then `ops/n8n/deploy-workflows.sh wf-06`:
+a draft button that changes nothing (Nhân vật on an English draft has one cast; one worker) is
+answered "Không có lựa chọn khác để đổi." instead of failing "Edit confirmation" with Telegram's
+"message is not modified" (`UNCHANGED` from `telegram_intake_cycle()`, migration
+`20261121000300`).
 
 ## 4. Check
 
 - `/new kit=whatif-en 3 What if you could stop time?` → the draft shows `Kit: What if… (EN)` and
   `Nhân vật: Chip (YOU, EN)` (the English cast is chosen even without `nhanvat=`). Pressing
-  **Kit →** onto `What if… (EN)` switches the cast too.
+  **Kit →** onto `What if… (EN)` switches the cast too; **Nhân vật →** on it only answers
+  "Không có lựa chọn khác để đổi.".
 - A1 shows an English script whose shots describe Western places; the storyboard (WF-12) shows
   English text only; A3 metadata is English; the archive has `subtitles/en.srt`.
 
 ## Rollback
 
-`npx dbmate … rollback` twice: `20261121000200` refuses while a video or draft uses `whatif-en` /
+Re-import the previous `wf-06-telegram-callback.json`, then `npx dbmate … rollback` three times
+(`20261121000300` restores the cycle without `UNCHANGED`); `20261121000200` refuses while a video or draft uses `whatif-en` /
 `chip-en` (switch those briefs first); `20261121000100` drops the language column and trigger
 (English videos in progress would then get Vietnamese job inputs, so finish or cancel them first).

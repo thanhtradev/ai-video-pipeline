@@ -1296,6 +1296,13 @@ describe('WF-06 /new (D-058)', () => {
     const refused = confirm({ result: 'FULL_BRIEF' }, parsed);
     expect(refused).toMatchObject({ edit: false, queryId: 'q9' });
     expect(refused.text).toMatch(/theo mục VOICE/);
+
+    // A press that changes nothing (one option left) is answered, never edited: Telegram refuses
+    // "message is not modified" (D-092 follow-up).
+    const unchanged = confirm({ result: 'UNCHANGED' }, parsed);
+    expect(unchanged).toMatchObject({ edit: false, queryId: 'q9' });
+    expect(unchanged.text).toBe('Không có lựa chọn khác để đổi.');
+    expect(unchanged.approve).toBeUndefined();
   });
 
   test('explains a refused draft without buttons', () => {
