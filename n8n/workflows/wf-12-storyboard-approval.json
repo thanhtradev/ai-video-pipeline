@@ -114,7 +114,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages and mix\n// (Vietnamese, D-061). Notes come back as a reply to this message (WF-06 finds the request by the\n// hidden ref link). Callback data: sb:<A|F|R>:<32-hex token>; F is Render final (D-076): A2 and A3\n// of this storyboard are then approved without buttons when their QA has no warnings.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  const html = [\n    `${hiddenRef('ref', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}🎬 Duyệt storyboard</b> · bước 3/5 · vòng ${row.round}/4`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · Render preview → gửi preview để duyệt`,\n    'Render final → tự duyệt preview + metadata nếu QA không cảnh báo',\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `sb:A:${row.token}`, approveAll: `sb:F:${row.token}`, reject: `sb:R:${row.token}` } };\n});\n"
+        "jsCode": "// One message with buttons per row from storyboard_approvals_due(), after its pages and mix\n// (Vietnamese, D-061). Notes come back as a reply to this message (WF-06 finds the request by the\n// hidden ref link). Callback data: sb:<A|F|R>:<32-hex token>; F is Render final (D-076): A2 and A3\n// of this storyboard are then approved without buttons when their QA has no warnings.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\n// AUTO rows (D-093) were approved by /auto already: Build auto note sends them, without buttons.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string' && item.json.kind !== 'AUTO');\nreturn rows.map(({ json: row }) => {\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  const html = [\n    `${hiddenRef('ref', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}🎬 Duyệt storyboard</b> · bước 3/5 · vòng ${row.round}/4`,\n    `«${esc(row.title ?? '?')}»`,\n    `#${shortId} v${row.version} · Render preview → gửi preview để duyệt`,\n    'Render final → tự duyệt preview + metadata nếu QA không cảnh báo',\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `sb:A:${row.token}`, approveAll: `sb:F:${row.token}`, reject: `sb:R:${row.token}` } };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000001206",
       "name": "Build message",
@@ -157,16 +157,41 @@
       "typeVersion": 1.2,
       "position": [660, 220],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A request approved at once by /auto (D-093): one line instead of the buttons and media\n// (Vietnamese, D-061). The approval itself is recorded in the name of the approver who sent /auto.\nconst rows = $input.all().filter((item) => item.json.kind === 'AUTO');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const title = row.title;\n  return {\n    json: {\n      text: `🤖 #${String(row.video_id).slice(0, 8)} v${row.version} · storyboard tự duyệt (/auto)${title ? ` · «${title}»` : ''}: đang render preview`,\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001211",
+      "name": "Build auto note",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 440]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000001212",
+      "name": "Send auto note",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 440],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
+    "Build auto note": { "main": [[{ "node": "Send auto note", "type": "main", "index": 0 }]] },
     "Every 30 seconds": { "main": [[{ "node": "Due storyboards", "type": "main", "index": 0 }]] },
     "Due storyboards": {
       "main": [
         [
           { "node": "Build pages", "type": "main", "index": 0 },
           { "node": "Build mix", "type": "main", "index": 0 },
-          { "node": "Build message", "type": "main", "index": 0 }
+          { "node": "Build message", "type": "main", "index": 0 },
+          { "node": "Build auto note", "type": "main", "index": 0 }
         ]
       ]
     },

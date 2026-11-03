@@ -250,7 +250,7 @@ WF-06 handles both through `telegram_decide()`:
 | Telegram | Effect |
 |---|---|
 | Approve | → `RENDERING_PREVIEW`, `render_episode` job (§8) |
-| Render final (D-076) | as Approve, and the approval is marked `approve_all`: A2 (§9) and A3 (§10) of this storyboard are requested as usual, then approved at once in the same approver's name when their QA level is `PASS` (`approval_auto_decide()`, audit `approval_auto`); WF-13/WF-14 send the preview / the thumbnail with the metadata without buttons (`AUTO` rows). A `WARN` sends the normal buttons; a QA failure needs a decision as before. A new storyboard round (notes on A2) needs its own Render final. Cleanup is never automatic |
+| Render final (D-076) | as Approve, and the approval is marked `approve_all`: A2 (§9) and A3 (§10) of this storyboard are requested as usual, then approved at once in the same approver's name when their QA level is `PASS` (`approval_auto_decide()`, audit `approval_auto`); WF-13/WF-14 send the preview / the thumbnail with the metadata without buttons (`AUTO` rows). A `WARN` sends the normal buttons; a QA failure needs a decision as before. A new storyboard round (notes on A2) needs its own Render final. Cleanup is never automatic. `/auto <id>` (D-093) goes further: every gate from A1 to A3, WARN included ([quality-and-approval.md](quality-and-approval.md) §1) |
 | Reject | → `CANCELLED` |
 | reply with notes | → `GENERATING_ASSETS`, a new `episode_code` job revising the previous code with the notes (`feedback.md`); its storyboard comes back as the next round |
 | notes after round 4 (3 revisions) | → `NEEDS_DECISION` |
@@ -303,7 +303,13 @@ polls `final_due()` every 30 s:
    (else 60 % into the shot). A failed QA or metadata job → `NEEDS_DECISION` as usual.
 2. Both done → `AWAITING_METADATA_APPROVAL`; A3 is bound to the SHA-256 of the metadata, the
    thumbnail and the final render. WF-14 sends the thumbnail (`GET /media/…/thumbnail.jpg` with the
-   metadata job's media token) and the message ending in `meta:<token>`.
+   metadata job's media token), then `final.mp4` as a Telegram video, then the message ending in
+   `meta:<token>`. The video goes with the **first** A3 request (REQUEST or AUTO row, round 1) so it
+   is on Telegram before the Google Drive archive starts (D-093, migration `20261122000100`; was
+   with the DONE message, D-073): `metadata.final` holds the `qa_final` job id and media token
+   (self-hosted Bot API server, uploads up to 2000 MB) and the worker serves the file like the A2
+   preview. A metadata rewrite does not send it again. A failed fetch or upload is skipped, so the
+   A3 buttons still go out.
 
 | Telegram | Effect |
 |---|---|
@@ -327,10 +333,7 @@ videos/<id>/v<n>/
    Remote: `<ARCHIVE_RCLONE_REMOTE>/<yyyy>/<mm>/<video_id>/v<n>`. No archive configured → the job
    waits `BLOCKED`. Verified → `archive_record`, `ARCHIVE_VERIFIED`, and WF-14 sends the final message
    (archive path, file count, size, cost by currency, agent minutes) with **Xóa bản trên Mac** /
-   **Giữ lại** (CLEANUP, 7 days). Just before it, WF-14 sends `final.mp4` as a Telegram video
-   (D-073, migration `20261109000100`): the DONE row's `report.final` holds the `qa_final` job id and
-   media token, and the worker serves the file like the A2 preview. A failed fetch or upload is
-   skipped, so the done message and its buttons still go out.
+   **Giữ lại** (CLEANUP, 7 days). `final.mp4` was already sent with A3 (step 2).
 4. Only the **owner** can press Xóa. The `cleanup` job (q:heavy) re-verifies the remote copy against
    the local `checksums.sha256` and the archive record, then deletes the version folder on the Mac
    except its own job folder; WF-14 reports the space freed. Giữ lại or no answer keeps the copy.

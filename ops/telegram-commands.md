@@ -16,6 +16,7 @@ ideas - ý tưởng video mới theo kit và nhân vật
 new - tập mới: /new [số phút] <chủ đề>
 brief - mẫu prompt để LLM khác viết full brief
 retry - chạy lại video bị dừng: /retry <id video>
+auto - tự duyệt mọi bước tới khi lưu Drive: /auto <id video> [off]
 move - chủ sở hữu: chuyển video sang worker khác: /move <id video> <worker>
 rules - quy tắc kênh và phát âm
 rule - /rule add video|tts <nội dung> hoặc /rule del <số>
@@ -37,6 +38,7 @@ revoke - chỉ chủ sở hữu: /revoke <user id>
 | `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption; the draft's Thời lượng button changes the length | approval chat | approvers | D-058, D-066, D-087, D-091 |
 | `/brief` | `/brief` | approval chat | anyone in it | D-077 |
 | `/retry` | `/retry <id prefix, ≥ 4 chars>` | any chat | approvers | D-056 |
+| `/auto` (alias `/tudong`) | `/auto <id prefix>` turns on automatic approval of every remaining gate (A1, A1b, storyboard, A2, A3; QA WARN approved, FAIL stops; never the Mac cleanup); a gate already waiting is approved at once · `/auto <id prefix> off` | any chat | approvers | D-093 |
 | `/move` (alias `/chuyen`) | `/move <id prefix> <worker id>` · `/move <id prefix> huy` cancels a waiting move | any chat | owner | D-087 |
 | `/rules` | `/rules [video\|tts\|say]` · `/rules file <scope>` · file captioned `/rules set <scope>` | any chat | approvers | D-059 |
 | `/rule` | `/rule add <video\|tts> <text>` · `/rule del <number>` | any chat | approvers | D-059 |

@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One Telegram message per row from script_approvals_due(), sent after script.md (Vietnamese, D-061).\n// Callback data stays under Telegram's 64-byte limit: a1:<A|G|R>:<32-hex token>. Episodes (D-050)\n// are counted in acts and shots; Shorts in scenes. Reminders carry no preview.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst PREVIEW_CHARS = 2500;\nconst size = (script) => script.format === 'episode'\n  ? `~${((script.total_seconds ?? 0) / 60).toFixed(1)} phút · ${script.act_count ?? '?'} hồi · ${script.shot_count ?? '?'} shot · ${script.line_count ?? '?'} câu`\n  : `${script.total_seconds ?? '?'} giây · ${script.scene_count ?? '?'} cảnh`;\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string');\nreturn rows.map(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  // tts_estimate is what approving accepts as the TTS budget (D-023); null means no price is set.\n  const estimate = script.tts_estimate;\n  const budget = estimate\n    ? `TTS tối đa ${estimate.amount} ${estimate.currency === 'CRD' ? 'credit ITERA' : estimate.currency} (${estimate.units} ký tự)`\n    : '⚠️ Chưa cấu hình giá TTS: duyệt sẽ không cho chi tiền TTS';\n  const preview = String(script.preview ?? '').slice(0, PREVIEW_CHARS);\n  const html = [\n    `${hiddenRef('kb', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}📝 Duyệt kịch bản</b> · bước 1/5 · A1`,\n    `«${esc(script.title ?? '?')}»`,\n    `#${shortId} v${row.version} · ${size(script)}`,\n    esc(budget),\n    ...(!reminder && preview ? [`<blockquote expandable>${esc(preview)}</blockquote>`] : []),\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `a1:A:${row.token}`, regenerate: `a1:G:${row.token}`, reject: `a1:R:${row.token}` } };\n});\n"
+        "jsCode": "// One Telegram message per row from script_approvals_due(), sent after script.md (Vietnamese, D-061).\n// Callback data stays under Telegram's 64-byte limit: a1:<A|G|R>:<32-hex token>. Episodes (D-050)\n// are counted in acts and shots; Shorts in scenes. Reminders carry no preview.\n// Shared Telegram formatting (same in every approval message node): the text goes out as HTML,\n// times in Vietnam time (UTC+7, no daylight saving), and the request token rides in a hidden link\n// at the start, so a reply to the message finds its request (WF-06) without showing the token.\nconst esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst vnTime = (value) => {\n  const d = new Date(new Date(value).getTime() + 7 * 3_600_000);\n  const p = (n) => String(n).padStart(2, '0');\n  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} ${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}`;\n};\nconst hiddenRef = (kind, token) => `<a href=\"https://t.me/?${kind}=${token}\">\\u200d</a>`;\nconst PREVIEW_CHARS = 2500;\nconst size = (script) => script.format === 'episode'\n  ? `~${((script.total_seconds ?? 0) / 60).toFixed(1)} phút · ${script.act_count ?? '?'} hồi · ${script.shot_count ?? '?'} shot · ${script.line_count ?? '?'} câu`\n  : `${script.total_seconds ?? '?'} giây · ${script.scene_count ?? '?'} cảnh`;\n// AUTO rows (D-093) were approved by /auto already: Build auto note sends them, without buttons.\nconst rows = $input.all().filter((item) => typeof item.json.token === 'string' && item.json.kind !== 'AUTO');\nreturn rows.map(({ json: row }) => {\n  const script = (typeof row.script === 'string' ? JSON.parse(row.script) : row.script) || {};\n  const shortId = String(row.video_id).slice(0, 8);\n  const reminder = row.kind === 'REMINDER';\n  // tts_estimate is what approving accepts as the TTS budget (D-023); null means no price is set.\n  const estimate = script.tts_estimate;\n  const budget = estimate\n    ? `TTS tối đa ${estimate.amount} ${estimate.currency === 'CRD' ? 'credit ITERA' : estimate.currency} (${estimate.units} ký tự)`\n    : '⚠️ Chưa cấu hình giá TTS: duyệt sẽ không cho chi tiền TTS';\n  const preview = String(script.preview ?? '').slice(0, PREVIEW_CHARS);\n  const html = [\n    `${hiddenRef('kb', row.token)}<b>${reminder ? '⏰ Nhắc: ' : ''}📝 Duyệt kịch bản</b> · bước 1/5 · A1`,\n    `«${esc(script.title ?? '?')}»`,\n    `#${shortId} v${row.version} · ${size(script)}`,\n    esc(budget),\n    ...(!reminder && preview ? [`<blockquote expandable>${esc(preview)}</blockquote>`] : []),\n    `⏰ Hạn ${vnTime(row.expires_at)} · ↩️ Reply tin này để góp ý sửa`,\n  ].join('\\n');\n  return { json: { html, approve: `a1:A:${row.token}`, regenerate: `a1:G:${row.token}`, reject: `a1:R:${row.token}` } };\n});\n"
       },
       "id": "6f1d6a10-0000-4000-8000-000000000503",
       "name": "Build message",
@@ -114,15 +114,40 @@
       "typeVersion": 1.2,
       "position": [880, 220],
       "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A request approved at once by /auto (D-093): one line instead of the buttons and media\n// (Vietnamese, D-061). The approval itself is recorded in the name of the approver who sent /auto.\nconst rows = $input.all().filter((item) => item.json.kind === 'AUTO');\nconst parse = (value) => (typeof value === 'string' ? JSON.parse(value) : value);\nreturn rows.map(({ json: row }) => {\n  const title = parse(row.script)?.title ?? row.title;\n  return {\n    json: {\n      text: `🤖 #${String(row.video_id).slice(0, 8)} v${row.version} · kịch bản tự duyệt (/auto)${title ? ` · «${title}»` : ''}: đang tạo giọng đọc`,\n    },\n  };\n});"
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000508",
+      "name": "Build auto note",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 440]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_APPROVAL_CHAT_ID",
+        "text": "={{ String($json.text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": { "parse_mode": "HTML", "appendAttribution": false }
+      },
+      "id": "6f1d6a10-0000-4000-8000-000000000509",
+      "name": "Send auto note",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 440],
+      "credentials": { "telegramApi": { "id": "aivideoTgCred001", "name": "aivideo-telegram" } }
     }
   ],
   "connections": {
+    "Build auto note": { "main": [[{ "node": "Send auto note", "type": "main", "index": 0 }]] },
     "Every 30 seconds": { "main": [[{ "node": "Due approvals", "type": "main", "index": 0 }]] },
     "Due approvals": {
       "main": [
         [
           { "node": "Build message", "type": "main", "index": 0 },
-          { "node": "Build file", "type": "main", "index": 0 }
+          { "node": "Build file", "type": "main", "index": 0 },
+          { "node": "Build auto note", "type": "main", "index": 0 }
         ]
       ]
     },
