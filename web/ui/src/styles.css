@@ -730,3 +730,43 @@ textarea {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.library-group {
+  margin-top: 2rem;
+}
+
+.library-group h2 {
+  margin: 0 0 0.5rem;
+}
+
+.library-note {
+  max-width: 68ch;
+}
+
+.library-row {
+  display: grid;
+  gap: 0.2rem 1.5rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.library-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+}
+
+@media (min-width: 62rem) {
+  .library-row {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+.filters:has(.segmented) {
+  align-items: flex-end;
+}
+
+.filters .segmented {
+  margin-bottom: 0;
+}

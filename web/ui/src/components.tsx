@@ -89,3 +89,45 @@ export function Loading() {
     </p>
   );
 }
+
+export function Pager({
+  offset,
+  pageSize,
+  shown,
+  total,
+  previousLabel,
+  nextLabel,
+  onChange,
+}: {
+  offset: number;
+  pageSize: number;
+  shown: number;
+  total: number;
+  previousLabel: string;
+  nextLabel: string;
+  onChange: (offset: number) => void;
+}) {
+  if (total <= pageSize) return null;
+  const lastShown = offset + shown;
+  return (
+    <nav className="pager" aria-label="Pages">
+      <button
+        type="button"
+        disabled={offset === 0}
+        onClick={() => onChange(Math.max(0, offset - pageSize))}
+      >
+        {previousLabel}
+      </button>
+      <span>
+        {offset + 1} to {lastShown} of {total}
+      </span>
+      <button
+        type="button"
+        disabled={lastShown >= total}
+        onClick={() => onChange(offset + pageSize)}
+      >
+        {nextLabel}
+      </button>
+    </nav>
+  );
+}

@@ -3,6 +3,7 @@ import type { Me } from '../../shared/types';
 import { api, ApiError } from './api';
 import { ErrorNote, Link, Loading } from './components';
 import { SIGNED_OUT_EVENT, usePath } from './hooks';
+import { LibraryPage } from './pages/LibraryPage';
 import { NewVideoPage } from './pages/NewVideoPage';
 import { Overview } from './pages/Overview';
 import { ReportPage } from './pages/ReportPage';
@@ -14,6 +15,7 @@ import { WorkerPage, Workers } from './pages/Workers';
 const NAV = [
   { to: '/', label: 'Overview' },
   { to: '/videos', label: 'Videos' },
+  { to: '/library', label: 'Library' },
   { to: '/workers', label: 'Workers' },
   { to: '/report', label: 'Report' },
 ] as const;
@@ -39,6 +41,7 @@ function Page({ path, me }: { path: string; me: Me }) {
   if (worker) return <WorkerPage key={worker[1]!} id={decodeSegment(worker[1]!)} />;
   if (path === '/') return <Overview />;
   if (path === '/videos') return <Videos />;
+  if (path === '/library') return <LibraryPage />;
   if (path === '/workers') return <Workers />;
   if (path === '/report') return <ReportPage />;
   return (

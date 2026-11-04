@@ -1,7 +1,9 @@
 import { link, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
+import type { Logger } from 'pino';
 import { z } from 'zod';
 import { archiveDirectory, ArchiveConflictError, ArchiveSourceError } from '../archive/archiver.js';
+import { FINAL_VIDEO_PATH } from '../archive/backfill-drive-ids.js';
 import type { ArchiveTarget } from '../archive/webdav-target.js';
 import { aspectRatioOf, LANDSCAPE_FRAME, type AspectRatio } from '../episode/frame.js';
 import { readValidCheckpoint, sha256File, type Checkpoint } from '../storage/checkpoint.js';
@@ -43,6 +45,32 @@ export interface ArchiveVideoDeps {
   /** Recorded in archive_record, e.g. gdrive. */
   targetName: string;
   blockSeconds: number;
+}
+
+/**
+ * The ids of the library's links (D-104). The archive is verified by now, so failing to read them
+ * does not fail the job: the video is listed without a link until the backfill finds them.
+ */
+async function driveIds(
+  target: ArchiveTarget,
+  remotePath: string,
+  logger: Logger,
+): Promise<{ drive_file_id?: string; drive_folder_id?: string }> {
+  if (!target.remoteId) return {};
+  try {
+    const file = await target.remoteId(`${remotePath}/${FINAL_VIDEO_PATH}`);
+    const folder = await target.remoteId(remotePath);
+    return {
+      ...(file ? { drive_file_id: file } : {}),
+      ...(folder ? { drive_folder_id: folder } : {}),
+    };
+  } catch (error: unknown) {
+    logger.warn(
+      { remotePath, err: error instanceof Error ? error.message : String(error) },
+      'could not read Drive ids of a verified archive',
+    );
+    return {};
+  }
 }
 
 interface Source {
@@ -102,7 +130,7 @@ function sources(input: Input): Source[] {
       step: 'render_final',
       jobId: input.final_render_job_id,
       files: (outputs) => [
-        ...exactly(['final.mp4', 'renders/final_1080p.mp4'])(outputs),
+        ...exactly(['final.mp4', FINAL_VIDEO_PATH])(outputs),
         ...subtitles(outputs),
       ],
     },
@@ -248,6 +276,7 @@ export function createArchiveVideoHandler(deps: ArchiveVideoDeps): JobHandler {
       verified_at: new Date().toISOString(),
       // What deleting the Mac copy would free (the owner is asked, D-063).
       local_bytes: await diskBytes(versionDir),
+      ...(await driveIds(deps.target, result.remotePath, logger)),
     };
     await writeFile(join(workDir, REPORT), `${JSON.stringify(report, null, 2)}\n`);
     return { outputs: [REPORT], result: report };

@@ -43,7 +43,9 @@ GRANT EXECUTE ON FUNCTION
   video_move_fail(uuid, text, text),
   deploy_poll(text, boolean),
   deploy_preflight_report(text, uuid, text, text, text[], text),
-  deploy_target_report(text, uuid, text, boolean, text)
+  deploy_target_report(text, uuid, text, boolean, text),
+  archive_records_missing_drive_ids(),
+  archive_record_set_drive_ids(text, uuid, text, text)
 TO aivideo_worker;
 
 -- The web console touches no table and no telegram_* function: only web_* (D-103). Each resolves the
@@ -68,5 +70,6 @@ GRANT EXECUTE ON FUNCTION
   web_video_media_file(text, uuid, text),
   web_catalog(text),
   web_create_draft(text, jsonb, text, boolean),
-  web_create_decide(text, text, boolean)
+  web_create_decide(text, text, boolean),
+  web_library(text, text, text, integer, integer)
 TO aivideo_web;

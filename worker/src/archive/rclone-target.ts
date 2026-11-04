@@ -52,6 +52,8 @@ export function createRcloneRunner(bin: string, timeoutMs: number): RcloneRunner
 
 export interface RcloneTargetOptions {
   run: RcloneRunner;
+  /** For small reads that must not wait as long as an upload may; defaults to `run`. */
+  lookupRun?: RcloneRunner;
   /** e.g. "aivideo-drive:AI Video Archive" */
   root: string;
 }
@@ -59,6 +61,7 @@ export interface RcloneTargetOptions {
 interface LsEntry {
   Path: string;
   Size: number;
+  ID?: string;
   IsDir?: boolean;
   Hashes?: { sha256?: string };
 }
@@ -67,14 +70,16 @@ export function createRcloneTarget(options: RcloneTargetOptions): ArchiveTarget 
   const { run } = options;
   const at = (path: string) => `${options.root.replace(/\/+$/, '')}/${path}`;
 
-  const stat = async (path: string): Promise<LsEntry | null> => {
+  const statWith = async (runner: RcloneRunner, path: string): Promise<LsEntry | null> => {
     try {
-      return JSON.parse(await run(['lsjson', '--stat', at(path)])) as LsEntry;
+      return JSON.parse(await runner(['lsjson', '--stat', at(path)])) as LsEntry;
     } catch (error: unknown) {
       if (error instanceof RcloneError && NOT_FOUND_CODES.has(error.exitCode ?? -1)) return null;
       throw error;
     }
   };
+
+  const stat = (path: string): Promise<LsEntry | null> => statWith(run, path);
 
   const sha256 = async (path: string, download: boolean): Promise<string | null> => {
     const args = ['hashsum', 'sha256', ...(download ? ['--download'] : []), at(path)];
@@ -125,6 +130,9 @@ export function createRcloneTarget(options: RcloneTargetOptions): ArchiveTarget 
       if (!hash) throw new RcloneError(`no SHA-256 for ${remotePath}`, null);
       return { sha256: hash, bytes: entry.Size };
     },
+    // Only reads: unlike `rclone link`, this does not make the file public (D-104).
+    remoteId: async (remotePath) =>
+      (await statWith(options.lookupRun ?? run, remotePath))?.ID ?? null,
     move: async (fromPath, toPath) => {
       if (await stat(toPath)) throw new RcloneError(`${toPath} already exists`, null);
       await run(['moveto', at(fromPath), at(toPath)]);

@@ -256,3 +256,35 @@ export interface CreateOutcome extends ActionResult {
   video_id: string | null;
   error?: string;
 }
+
+export type LibraryGroupBy = 'kit' | 'character';
+
+/** web_library caps a page at the same size. */
+export const LIBRARY_PAGE_SIZE = 500;
+
+export interface LibraryItem {
+  video_id: string;
+  version: number;
+  status: string;
+  title: string | null;
+  /** The slug of the group this row is in; null for a kit or cast not in the catalog. */
+  group_slug: string | null;
+  language: string;
+  duration_seconds: number | null;
+  archived_at: string;
+  /** Null until the Drive id is known. These open only for accounts with access. */
+  file_url: string | null;
+  folder_url: string | null;
+}
+
+export interface LibraryGroup {
+  slug: string | null;
+  label: string | null;
+  count: number;
+}
+
+export interface Library {
+  total: number;
+  groups: LibraryGroup[];
+  items: LibraryItem[];
+}

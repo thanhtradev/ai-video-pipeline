@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { VideoFilter } from '../../../shared/types';
 import { api } from '../api';
-import { ErrorNote, Link, Loading, VideoRow } from '../components';
-import { usePoll } from '../hooks';
+import { ErrorNote, Link, Loading, Pager, VideoRow } from '../components';
+import { useDebounced, usePageOffset, usePoll } from '../hooks';
 
 const PAGE_SIZE = 50;
 const SEARCH_DELAY_MS = 300;
@@ -25,22 +25,13 @@ function filterFromUrl(): VideoFilter {
 export function Videos() {
   const [state, setState] = useState<VideoFilter>(filterFromUrl);
   const [typed, setTyped] = useState('');
-  const [search, setSearch] = useState('');
-  const [offset, setOffset] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setSearch(typed.trim());
-      setOffset(0);
-    }, SEARCH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [typed]);
+  const search = useDebounced(typed.trim(), SEARCH_DELAY_MS);
+  const [offset, setOffset] = usePageOffset(`${state}|${search}`);
 
   const { data, error, isLoading } = usePoll(
     () => api.videos({ state, search, limit: PAGE_SIZE, offset }),
     `${state}|${search}|${offset}`,
   );
-  const lastShown = offset + (data?.items.length ?? 0);
 
   return (
     <section aria-labelledby="videos">
@@ -57,7 +48,6 @@ export function Videos() {
             value={state}
             onChange={(event) => {
               setState(event.target.value as VideoFilter);
-              setOffset(0);
             }}
           >
             {FILTERS.map((filter) => (
@@ -89,26 +79,16 @@ export function Videos() {
           <VideoRow key={video.video_id} video={video} />
         ))}
       </ul>
-      {data && data.total > PAGE_SIZE && (
-        <nav className="pager" aria-label="Pages">
-          <button
-            type="button"
-            disabled={offset === 0}
-            onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-          >
-            Newer
-          </button>
-          <span>
-            {offset + 1} to {lastShown} of {data.total}
-          </span>
-          <button
-            type="button"
-            disabled={lastShown >= data.total}
-            onClick={() => setOffset(offset + PAGE_SIZE)}
-          >
-            Older
-          </button>
-        </nav>
+      {data && (
+        <Pager
+          offset={offset}
+          pageSize={PAGE_SIZE}
+          shown={data.items.length}
+          total={data.total}
+          previousLabel="Newer"
+          nextLabel="Older"
+          onChange={setOffset}
+        />
       )}
     </section>
   );

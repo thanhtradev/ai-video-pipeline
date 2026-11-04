@@ -75,13 +75,20 @@ function renderEnv(config: Config): Record<string, string> {
 }
 
 // Step name -> handler. Phase 2d adds qa, final render, archive.
+// Reading a Drive id comes after a verified archive and must not hold the job for an upload's timeout.
+const DRIVE_LOOKUP_TIMEOUT_MS = 120_000;
+
 /** Google Drive through rclone when configured (D-063), else Nextcloud WebDAV, else none. */
 function archiveTarget(config: Config) {
   const { rclone, webdav, blockSeconds } = config.archive;
   if (rclone) {
     const run = createRcloneRunner(rclone.bin, rclone.timeoutMs);
     return {
-      target: createRcloneTarget({ run, root: rclone.remote }),
+      target: createRcloneTarget({
+        run,
+        lookupRun: createRcloneRunner(rclone.bin, DRIVE_LOOKUP_TIMEOUT_MS),
+        root: rclone.remote,
+      }),
       targetName: 'gdrive',
       blockSeconds,
     };

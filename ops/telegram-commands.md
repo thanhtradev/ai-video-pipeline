@@ -44,6 +44,7 @@ finished, of any approver (D-097). The reply always shows the id it resolved to.
 | `/cancel` (alias `/huy`) | `/cancel <id prefix> [id prefix…]`, at most 20: a preview, then a Confirm button for the sender, 10 minutes. Nothing is deleted | any chat | owner | D-094, D-098 |
 | `/move` (alias `/chuyen`) | `/move <id prefix> <worker id>` · `/move <id prefix> huy` cancels a waiting move | any chat | owner | D-087 |
 | `/deploy` | `/deploy`, no arguments: updates the workers and n8n to `origin/main` after a preflight and a Confirm button; refused if a migration is missing; `/deploy` again shows the one in progress | any chat; messages go to the approval chat | owner | D-100 |
+| `/library` (alias `/thuvien`) | `/library`: each kit's count and 5 newest archived videos with Drive links · `/library kit=<slug>` · `/library nhanvat=<slug>`: the 20 newest | any chat | approvers | D-104 |
 | `/web` | `/web`: a link to the web console that works once, for 5 minutes (`ops/web-console.md`) | private chat with the bot; in a group it refuses and sends no link | approvers | D-103 |
 | `/rules` | `/rules [video\|tts\|say]` · `/rules file <scope>` · file captioned `/rules set <scope>` | any chat | approvers | D-059 |
 | `/rule` | `/rule add <video\|tts> <text>` · `/rule del <number>` | any chat | approvers | D-059 |

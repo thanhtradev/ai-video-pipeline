@@ -189,6 +189,47 @@ describe('archive handler', () => {
     expect(result.result.local_bytes).toBeGreaterThan(0);
   });
 
+  describe('Drive ids for the library (D-104)', () => {
+    const run = (remoteId: ArchiveTarget['remoteId']) => {
+      const { target } = memoryTarget();
+      const handler = createArchiveVideoHandler({
+        target: { ...target, ...(remoteId ? { remoteId } : {}) },
+        targetName: 'gdrive',
+        blockSeconds: 60,
+      });
+      return handler(context());
+    };
+
+    test('records the ids of the final video and its folder', async () => {
+      const asked: string[] = [];
+      const result = await run(async (path) => {
+        asked.push(path);
+        return path.endsWith('.mp4') ? 'file_id-123' : 'folder_id-456';
+      });
+
+      expect(asked).toEqual([`2026/10/${VIDEO}/v1/renders/final_1080p.mp4`, `2026/10/${VIDEO}/v1`]);
+      expect(result.result).toMatchObject({
+        drive_file_id: 'file_id-123',
+        drive_folder_id: 'folder_id-456',
+      });
+    });
+
+    test('the archive still succeeds when reading the ids fails, since it is verified', async () => {
+      const result = await run(async () => {
+        throw new Error('Drive said no');
+      });
+
+      expect(result.result).toMatchObject({ target: 'gdrive' });
+      expect(result.result).not.toHaveProperty('drive_file_id');
+    });
+
+    test('a target with no ids, such as Nextcloud, records none', async () => {
+      const result = await run(undefined);
+
+      expect(result.result).not.toHaveProperty('drive_file_id');
+    });
+  });
+
   test('the manifest takes the aspect ratio from the final render (D-080)', async () => {
     await writeJob(
       JOBS.final_render_job_id,

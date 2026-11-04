@@ -9,6 +9,8 @@ import type {
   NewVideo,
   DecideAction,
   DecideResult,
+  Library,
+  LibraryGroupBy,
   RetryResult,
   VideoMediaList,
   Me,
@@ -89,5 +91,14 @@ export const api = {
   createDraft: (video: NewVideo) => post<VideoDraft>('/api/videos/draft', video),
   createDecide: (token: string, confirm: boolean) =>
     post<CreateOutcome>(`/api/videos/draft/${encodeURIComponent(token)}`, { confirm }),
+  library: (query: { group: LibraryGroupBy; search: string; limit: number; offset: number }) => {
+    const params = new URLSearchParams({
+      group: query.group,
+      search: query.search,
+      limit: String(query.limit),
+      offset: String(query.offset),
+    });
+    return request<Library>(`/api/library?${params.toString()}`);
+  },
   report: (period: ReportPeriod) => request<Report>(`/api/report?period=${period}`),
 };
