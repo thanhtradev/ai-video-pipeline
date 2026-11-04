@@ -608,8 +608,12 @@ describe('WF-06 /status (P-017)', () => {
     });
   });
 
-  test.each(['/statusx', '/status 679cd22f extra', '/status zz'])('ignores %j', (text) => {
-    expect(parse(command(text))).toEqual([]);
+  test.each([
+    ['/statusx', 'statusx'],
+    ['/status 679cd22f extra', 'status'],
+    ['/status zz', 'status'],
+  ])('sends %j to the usage reply (D-097)', (text, topic) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', mode: 'bad', topic });
   });
 
   const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
@@ -734,8 +738,11 @@ describe('WF-06 /workers (D-082)', () => {
     });
   });
 
-  test.each(['/workersx', '/workers mac'])('ignores %j', (text) => {
-    expect(parse(command(text))).toEqual([]);
+  test.each([
+    ['/workersx', 'workersx'],
+    ['/workers mac', 'workers'],
+  ])('sends %j to the usage reply (D-097)', (text, topic) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', mode: 'bad', topic });
   });
 
   test('routes /workers to telegram_workers() and its reply to Build status', () => {
@@ -833,14 +840,20 @@ describe('WF-06 /pending (D-090)', () => {
     });
   });
 
-  test.each(['/pendingx', '/pending abc xyz', '/chooo'])('ignores %j', (text) => {
-    expect(parse(command(text))).toEqual([]);
+  test.each([
+    ['/pendingx', 'pendingx'],
+    ['/pending abc xyz', 'pending'],
+    ['/chooo', 'chooo'],
+  ])('sends %j to the usage reply (D-097)', (text, topic) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', mode: 'bad', topic });
   });
 
   test('routes /pending to telegram_pending() and its reply to Build status', () => {
     const wf = workflow('wf-06-telegram-callback.json');
     const node = wf.nodes.find((n) => n.name === 'Pending')!;
-    expect(node.parameters.query).toBe('SELECT * FROM telegram_pending($1::bigint, $2);');
+    expect(node.parameters.query).toBe(
+      'SELECT * FROM telegram_pending($1::bigint, video_ref($2));',
+    );
     expect(node.parameters.options).toEqual({
       queryReplacement: '={{ [$json.userId, $json.prefix] }}',
     });
@@ -923,9 +936,13 @@ describe('WF-06 /retry (D-056)', () => {
   });
 
   test.each(['/retry', '/retry 679', '/retry zzzz', '/retry 679cd22f now'])(
-    'ignores %j',
+    'sends %j to the usage reply (D-097)',
     (text) => {
-      expect(parse(command(text))).toEqual([]);
+      expect(parse(command(text))[0]!.json).toMatchObject({
+        kind: 'help',
+        mode: 'bad',
+        topic: 'retry',
+      });
     },
   );
 
@@ -1018,8 +1035,12 @@ describe('WF-06 /auto (D-093)', () => {
     });
   });
 
-  test('ignores other commands that start with auto', () => {
-    expect(parse('/automatic 679cd22f')).toEqual([]);
+  test('other commands that start with auto are unknown commands (D-097)', () => {
+    expect(parse('/automatic 679cd22f')[0]!.json).toMatchObject({
+      kind: 'help',
+      mode: 'bad',
+      topic: 'automatic',
+    });
   });
 
   test('WF-06 routes /auto to telegram_auto() and its reply to Send status', () => {
@@ -1031,7 +1052,7 @@ describe('WF-06 /auto (D-093)', () => {
     expect(next('Auto')).toEqual([['Build auto']]);
     expect(next('Build auto')).toEqual([['Send status']]);
     const query = wf.nodes.find((n) => n.name === 'Auto')!.parameters.query as string;
-    expect(query).toBe('SELECT * FROM telegram_auto($1::bigint, $2, $3::boolean);');
+    expect(query).toBe('SELECT * FROM telegram_auto($1::bigint, video_ref($2), $3::boolean);');
   });
 
   test('answers each result of telegram_auto()', () => {
@@ -1288,7 +1309,7 @@ describe('WF-06 /new (D-058)', () => {
       'Chat này (-100999) không phải chat duyệt; /new chỉ dùng được ở đó.',
     );
     expect(parse(message('/new  '))!.error).toMatch(/^Cách dùng: \/new \[số phút\] <chủ đề>/);
-    expect(parse(message('/newx Mèo'))).toBeUndefined();
+    expect(parse(message('/newx Mèo'))).toMatchObject({ kind: 'help', topic: 'newx' });
   });
 
   test('builds the brief, reading the file as UTF-8 without a byte order mark', async () => {
@@ -1747,7 +1768,7 @@ describe('WF-06 worker choice and /move (D-087)', () => {
     expect(next('Move')).toEqual(['Build move']);
     expect(next('Build move')).toEqual(['Send status']);
     expect(node('Move').parameters.query).toBe(
-      "SELECT * FROM telegram_move($1::bigint, $2, NULLIF($3, ''));",
+      "SELECT * FROM telegram_move($1::bigint, video_ref($2), NULLIF($3, ''));",
     );
   });
 
@@ -2754,8 +2775,12 @@ describe('WF-06 /ideas and idea buttons (D-083)', () => {
     });
   });
 
-  test.each(['/ideasx', '/ideas science', '/ideas kit=A'])('ignores %j', (text) => {
-    expect(parse(command(text))).toEqual([]);
+  test.each([
+    ['/ideasx', 'ideasx'],
+    ['/ideas science', 'ideas'],
+    ['/ideas kit=A', 'ideas'],
+  ])('sends %j to the usage reply (D-097)', (text, topic) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', mode: 'bad', topic });
   });
 
   test('refuses other chats with their id', () => {
@@ -2952,6 +2977,19 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
   const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong']);
+  // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
+  const HIDDEN = [
+    'workers',
+    'brief',
+    'move',
+    'rules',
+    'rule',
+    'say',
+    'unsay',
+    'join',
+    'members',
+    'revoke',
+  ];
 
   test('every line is a valid BotFather entry', () => {
     for (const line of menu) expect(line).toMatch(/^[a-z0-9_]{1,32} - \S.{0,254}$/);
@@ -2965,8 +3003,9 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
       .flatMap((m) => m[1]!.split('|'))
       .filter((name) => !ALIASES.has(name));
     const listed = menu.map((line) => line.split(' - ')[0]);
-    expect(new Set(listed)).toEqual(new Set(parsed));
+    expect(new Set([...listed, ...HIDDEN])).toEqual(new Set(parsed));
     expect(listed).toHaveLength(new Set(listed).size);
+    expect(listed.filter((name) => HIDDEN.includes(name))).toEqual([]);
   });
 });
 
@@ -3051,5 +3090,217 @@ describe('WF-06 /new auto=on (D-096)', () => {
     );
     expect(confirm({ ...SELECTION, auto: false }).text).not.toContain('Tự duyệt');
     expect(confirm(SELECTION).text).not.toContain('Tự duyệt');
+  });
+});
+
+describe('WF-06 /help and usage replies (D-097)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const command = (text: string, chat: string | number = -100, isBot = false): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: isBot }, chat: { id: chat }, text },
+    },
+  });
+  const parse = (item: Item) => runCode(FILE, 'Parse callback', { input: [item] });
+  const build = (text: string, allowed: boolean, chat: string | number = -100) =>
+    runCode(FILE, 'Build help', {
+      input: [{ json: { allowed } }],
+      nodeOutputs: { 'Parse callback': parse(command(text, chat)) },
+    });
+  const reply = (text: string) => build(text, true)[0]!.json.text as string;
+
+  test.each([
+    ['/help', '', 'help'],
+    ['/help@aivideo_bot', '', 'help'],
+    ['/help new', 'new', 'help'],
+    ['/help /new', 'new', 'help'],
+    ['/help NEW', 'new', 'help'],
+  ])('parses %j', (text, topic, mode) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', topic, mode });
+  });
+
+  test.each([['hello'], ['/tmp/file.txt is the path'], ['/nope@other_bot'], ['/ hello']])(
+    'stays silent on %j, which is no command for this bot',
+    (text) => {
+      const out = parse(command(text));
+      if (out.length === 0) return;
+      expect(build(text, true)).toEqual([]);
+    },
+  );
+
+  test('ignores commands sent by a bot', () => {
+    expect(parse(command('/nope', -100, true))).toEqual([]);
+    expect(parse(command('/help', -100, true))).toEqual([]);
+  });
+
+  test('a menu tap in a group (/retry@bot, no id) gets the usage, not silence', () => {
+    expect(reply('/retry@aivideo_bot')).toContain('/retry <');
+  });
+
+  test('a known command with bad arguments gets its usage', () => {
+    expect(reply('/retry')).toMatch(/^Cách dùng: \/retry </);
+    expect(reply('/ideas foo')).toMatch(/^Cách dùng: \/ideas/);
+    expect(reply('/status xyz')).toMatch(/^Cách dùng: \/status/);
+  });
+
+  test('an alias gets the usage of its command', () => {
+    expect(reply('/cho abc xyz')).toMatch(/^Cách dùng: \/pending/);
+  });
+
+  test('an unknown command points to /help', () => {
+    expect(reply('/nope')).toBe('Không có lệnh /nope. Xem /help.');
+    expect(reply('/help nope')).toBe('Không có lệnh /nope. Xem /help.');
+  });
+
+  test('/help groups the commands and tells about last', () => {
+    const text = reply('/help');
+    expect(text).toContain('/new');
+    expect(text).toContain('/revoke');
+    expect(text).toContain('last');
+    expect(text.length).toBeLessThanOrEqual(4096);
+  });
+
+  test('/help <command> shows the usage of that command', () => {
+    expect(reply('/help new')).toContain('kit=');
+    expect(reply('/help auto')).toContain('off');
+  });
+
+  test('has an entry for every command in the BotFather list and the reference table', () => {
+    const doc = readFileSync(
+      fileURLToPath(new URL('../../../ops/telegram-commands.md', import.meta.url)),
+      'utf8',
+    );
+    const names = [...doc.matchAll(/^\| `\/([a-z]+)`(?:, `\/([a-z]+)`)?/gm)].flatMap((m) =>
+      [m[1]!, m[2]].filter((name): name is string => Boolean(name)),
+    );
+    expect(names.length).toBeGreaterThan(10);
+    for (const name of names) {
+      expect(reply(`/help ${name}`), name).toContain(`/${name}`);
+    }
+  });
+
+  test('answers approvers anywhere and anyone in the approval chat, nobody else', () => {
+    expect(build('/help', false)).toEqual([]);
+    expect(build('/nope', false)).toEqual([]);
+    expect(build('/help', false, CHAT)).toHaveLength(1);
+    expect(build('/help', true)).toHaveLength(1);
+  });
+
+  test('a /command as a reply to an approval message stays a note', () => {
+    const token = 'a'.repeat(32);
+    const [out] = parse({
+      json: {
+        message: {
+          message_id: 7,
+          from: { id: 111, is_bot: false },
+          chat: { id: -100 },
+          text: '/nope please rewrite',
+          reply_to_message: {
+            from: { is_bot: true },
+            text: `Script ref:${token}`,
+          },
+        },
+      },
+    });
+    expect(out!.json).toMatchObject({ kind: 'reply', action: 'FEEDBACK', token });
+  });
+
+  test('routes help through the approver check to Send status', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out[0]!.node);
+    expect(next('Members?')).toEqual(['Member error?', 'Help?']);
+    expect(next('Help?')).toEqual(['Can help', 'Selection?']);
+    expect(next('Can help')).toEqual(['Build help']);
+    expect(next('Build help')).toEqual(['Send status']);
+    const node = wf.nodes.find((n) => n.name === 'Can help')!;
+    expect(node.parameters.query).toBe('SELECT telegram_can_help($1::bigint) AS allowed;');
+  });
+});
+
+describe('WF-06 last as a video id (D-097)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const parse = (text: string) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+          },
+        },
+      ],
+    })[0]!.json;
+
+  test.each([
+    ['/status last', 'status'],
+    ['/pending last', 'pending'],
+    ['/retry last', 'retry'],
+    ['/auto last', 'auto'],
+    ['/move last hp-400-g7', 'move'],
+  ])('parses %j', (text, kind) => {
+    expect(parse(text)).toMatchObject({ kind, prefix: 'last' });
+  });
+
+  test('/auto last off turns it off', () => {
+    expect(parse('/auto last off')).toMatchObject({
+      kind: 'auto',
+      prefix: 'last',
+      enable: 'false',
+    });
+  });
+
+  test.each(['Retry', 'Progress', 'Pending', 'Auto', 'Move'])('%s resolves it in SQL', (name) => {
+    const node = workflow(FILE).nodes.find((n) => n.name === name)!;
+    expect(node.parameters.query).toContain('video_ref($2)');
+  });
+});
+
+describe('WF-06 /pending lists stopped videos (D-097)', () => {
+  const build = (rows: Record<string, unknown>[]) =>
+    runCode('wf-06-telegram-callback.json', 'Build status', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'pending', prefix: '', chatId: '-100', messageId: '7' } },
+        ],
+      },
+    })[0]!.json.text as string;
+  const stopped = (type: string) => ({
+    allowed: true,
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 2,
+    title: 'Mèo',
+    type,
+    expires_at: null,
+    reminded: false,
+  });
+
+  test('offers /retry for NEEDS_DECISION, with no deadline or button text', () => {
+    const text = build([stopped('NEEDS_DECISION')]);
+    expect(text).toContain('⛔ 1 video đang dừng');
+    expect(text).toContain('679cd22f v2 · Mèo · NEEDS_DECISION · chạy lại: /retry 679cd22f');
+    expect(text).not.toContain('yêu cầu đang chờ duyệt');
+    expect(text).not.toContain('hạn');
+    expect(text).not.toContain('nút nằm trong');
+  });
+
+  test('points to /status for BLOCKED_PROVIDER, which /retry cannot resume', () => {
+    const text = build([stopped('BLOCKED_PROVIDER')]);
+    expect(text).toContain('BLOCKED_PROVIDER · chi tiết: /status 679cd22f');
+    expect(text).not.toContain('/retry');
+  });
+
+  test('counts approvals and stopped videos apart', () => {
+    const text = build([
+      {
+        ...stopped('SCRIPT'),
+        video_id: '11112222-d1f8-44fe-a9fd-9cdcbaa6325c',
+        expires_at: '2026-11-04T10:00:00Z',
+        reminded: true,
+      },
+      stopped('NEEDS_DECISION'),
+    ]);
+    expect(text).toContain('⏳ 1 yêu cầu đang chờ duyệt');
+    expect(text).toContain('⛔ 1 video đang dừng');
+    expect(text).toContain('Bot sẽ gửi lại 1 yêu cầu');
   });
 });
