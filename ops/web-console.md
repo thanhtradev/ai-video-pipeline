@@ -4,10 +4,12 @@ Run by the user after this PR is merged. Conventions as in [README.md](README.md
 Claude Code runs none of this (CLAUDE.md §3).
 
 What it adds: a page showing what needs you, every video with its steps, workers and the report. It
-is read-only in this PR: approvals and other actions stay on Telegram. Send `/web` to the bot in a
-private chat, open the link on a device on the tailnet, and press Sign in.
+also decides approvals (except the Mac cleanup, which deletes files and stays on Telegram), retries,
+turns automatic approval on and off, and, for the owner, cancels. Send `/web` to the bot in a private
+chat, open the link on a device on the tailnet, and press Sign in.
 
-Data: migration `20261127000100`. It changes no existing table. `/deploy` refuses to run until this
+Data: migrations `20261127000100` and `20261127000200`. They add a trigger on `approver` and change
+no existing table. `/deploy` refuses to run until this
 migration is applied, like any other (D-100), and it does not update the console.
 
 ## 1. Check room on LXC 104
@@ -80,8 +82,15 @@ Without it `/web` answers that the console is not set up.
 
 ## 7. Tailscale policy
 
-`[UNKNOWN]` U-08: if the policy is not allow-all, add each device that opens the console, using
-`lxc-utils:443` as the destination. Each approver needs Tailscale on that device.
+`[UNKNOWN]` U-08, U-24: if the policy is not allow-all:
+
+- add each device that opens the console, with `lxc-utils:443` as the destination. Each approver
+  needs Tailscale on that device;
+- allow `lxc-utils` to reach all three workers on `:8787`, because the console fetches media from
+  them. Without it the page works but says the worker did not answer.
+
+Video seeking needs the workers updated to this commit (`/deploy` or `update-worker.sh`). Before
+that, media plays but cannot seek.
 
 ## 8. Check it
 
@@ -91,6 +100,11 @@ Without it `/web` answers that the console is not set up.
 4. Open the same link again: it says the link was used.
 5. Press Sign out, then reload: it asks you to sign in.
 6. After a page load, confirm no approval request was re-posted on Telegram.
+7. On a low-stakes video, approve a gate on the page. Confirm the pipeline moves on and that the
+   Telegram button then answers that it was already decided. The old message keeps its buttons until
+   someone taps one.
+8. As an approver who is not the owner, confirm Cancel video is not offered.
+9. Open a video with a preview and seek in it.
 
 ## Updating
 

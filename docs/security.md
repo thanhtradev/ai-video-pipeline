@@ -45,7 +45,10 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
   12-hour session in an `HttpOnly; Secure; SameSite=Strict` `__Host-` cookie. Only hashes of the
   tokens are in Postgres. A revoked approver's sessions end for good, even if they are approved again.
 - `aivideo_web` executes `web_*` functions only; it has no table access and cannot issue a login.
-  The service holds no bot token, HMAC key or approval token. Writes need the console's own `Origin`.
+  The service holds no bot token or HMAC key. Approval tokens stay in the database. Worker media
+  tokens reach the service only to fetch a file, and never the browser. Writes need the console's own
+  `Origin`. Actions run the functions the bot runs and are recorded in `audit_log` with
+  `detail.source = 'web'`. The Mac cleanup is not offered, because it deletes files.
 - Sign-in attempts are limited to 10 a minute per client address, other requests to 600.
 
 ## 4. Workspace isolation [PROPOSED]

@@ -1,11 +1,18 @@
 import type pg from 'pg';
 import type {
   Attention,
+  AutoResult,
+  CancelOutcome,
+  CancelPreview,
+  DecideAction,
+  DecideResult,
+  RetryResult,
   Me,
   Report,
   ReportPeriod,
   VideoDetail,
   VideoFilter,
+  VideoMediaList,
   VideoPage,
   WorkerDetail,
   WorkerSummary,
@@ -30,6 +37,16 @@ export interface VideoQuery {
   offset: number;
 }
 
+/** Holds a worker media token: for the service only, never sent to a browser. */
+export interface MediaFileAccess {
+  file: string;
+  kind: 'media' | 'board';
+  job_id: string;
+  token: string;
+  version: number;
+  base_url: string | null;
+}
+
 export interface Store {
   loginConsume: (token: string) => Promise<LoginResult | null>;
   logout: (session: string) => Promise<void>;
@@ -40,6 +57,22 @@ export interface Store {
   workers: (session: string) => Promise<WorkerSummary[]>;
   worker: (session: string, workerId: string) => Promise<WorkerDetail | null>;
   report: (session: string, period: ReportPeriod) => Promise<Report>;
+  decide: (
+    session: string,
+    approvalId: string,
+    action: DecideAction,
+    note: string | null,
+  ) => Promise<DecideResult>;
+  retry: (session: string, videoId: string) => Promise<RetryResult>;
+  auto: (session: string, videoId: string, enable: boolean) => Promise<AutoResult>;
+  cancel: (session: string, videoId: string) => Promise<CancelPreview>;
+  cancelConfirm: (session: string, token: string, confirm: boolean) => Promise<CancelOutcome>;
+  videoMedia: (session: string, videoId: string) => Promise<VideoMediaList | null>;
+  videoMediaFile: (
+    session: string,
+    videoId: string,
+    file: string,
+  ) => Promise<MediaFileAccess | null>;
   ping: () => Promise<void>;
 }
 
@@ -77,6 +110,17 @@ export function createPgStore(pool: pg.Pool): Store {
     workers: (session) => call<WorkerSummary[]>('web_workers', session),
     worker: (session, workerId) => call<WorkerDetail | null>('web_worker', session, workerId),
     report: (session, period) => call<Report>('web_report', session, period),
+    decide: (session, approvalId, action, note) =>
+      call<DecideResult>('web_decide', session, approvalId, action, note),
+    retry: (session, videoId) => call<RetryResult>('web_retry', session, videoId),
+    auto: (session, videoId, enable) => call<AutoResult>('web_auto', session, videoId, enable),
+    cancel: (session, videoId) => call<CancelPreview>('web_cancel', session, videoId),
+    cancelConfirm: (session, token, confirm) =>
+      call<CancelOutcome>('web_cancel_confirm', session, token, confirm),
+    videoMedia: (session, videoId) =>
+      call<VideoMediaList | null>('web_video_media', session, videoId),
+    videoMediaFile: (session, videoId, file) =>
+      call<MediaFileAccess | null>('web_video_media_file', session, videoId, file),
     ping: async () => {
       await pool.query('SELECT 1');
     },

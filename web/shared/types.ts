@@ -143,3 +143,74 @@ export interface Report {
   steps: { step: string; runs: number; median_seconds: number }[];
   approvals: unknown;
 }
+
+export type DecideAction = 'APPROVE' | 'APPROVE_ALL' | 'REJECT' | 'REGENERATE' | 'FEEDBACK';
+
+export interface ActionResult {
+  result: string;
+}
+
+export interface DecideResult extends ActionResult {
+  version: number | null;
+  round: number | null;
+}
+
+export interface RetryResult extends ActionResult {
+  step: string | null;
+  attempt: number | null;
+}
+
+export interface AutoResult extends ActionResult {
+  status: string | null;
+  decided_type: string | null;
+}
+
+export interface CancelItem {
+  ref?: string;
+  video_id: string | null;
+  version: number | null;
+  title?: string | null;
+  status?: string | null;
+  result?: string;
+}
+
+export interface CancelPreview extends ActionResult {
+  token: string | null;
+  expires_at: string | null;
+  items: CancelItem[] | null;
+}
+
+export interface CancelOutcome extends ActionResult {
+  items: CancelItem[] | null;
+}
+
+export interface VoiceTakes {
+  take: number;
+  max_takes: number;
+  /** Null when there are no takes left or no estimate is possible: no more takes from the page. */
+  retake_cost: { amount: number; currency: string } | null;
+}
+
+export interface MediaReview {
+  qa_level: string | null;
+  qa_checks: unknown;
+  metadata: {
+    title?: string;
+    description?: string;
+    tags?: string[];
+    hashtags?: string[];
+  } | null;
+  voice: VoiceTakes | null;
+}
+
+export interface MediaFileRef {
+  file: string;
+  /** The job that made the file: a rewritten file has a new one and the same name. */
+  revision: string;
+}
+
+export interface VideoMediaList {
+  language: string;
+  files: MediaFileRef[];
+  review: MediaReview;
+}

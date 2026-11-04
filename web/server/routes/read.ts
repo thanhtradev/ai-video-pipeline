@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { ApiResponse } from '../../shared/types.js';
-import { UnauthorizedError } from '../errors.js';
 import type { Store } from '../store.js';
+import { readSession } from './session.js';
 
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
@@ -19,8 +19,6 @@ const videoQuery = z.object({
 const videoParams = z.object({ id: z.uuid() });
 const workerParams = z.object({ id: z.string().regex(/^[a-z0-9-]{3,64}$/) });
 const reportQuery = z.object({ period: z.enum(['today', '7d', '30d']).default('today') });
-
-const SESSION_SHAPE = /^[0-9a-f]{64}$/;
 
 function ok<T>(data: T): ApiResponse<T> {
   return { success: true, data };
@@ -39,11 +37,7 @@ export interface ReadRouteOptions {
 export function readRoutes(app: FastifyInstance, options: ReadRouteOptions): void {
   const { store, cookieName } = options;
 
-  function sessionOf(request: FastifyRequest): string {
-    const session = request.cookies[cookieName];
-    if (!session || !SESSION_SHAPE.test(session)) throw new UnauthorizedError();
-    return session;
-  }
+  const sessionOf = (request: FastifyRequest): string => readSession(request, cookieName);
 
   app.get('/api/me', async (request) => ok(await store.me(sessionOf(request))));
 
