@@ -1,0 +1,22 @@
+# Web console on LXC 104 (D-103, ops/web-console.md). Run from the repo root:
+#   docker compose -f ops/web/compose.yml up -d --build
+services:
+  web:
+    image: aivideo-web
+    container_name: aivideo-web
+    build:
+      context: ../..
+      dockerfile: ops/web/Dockerfile
+    restart: unless-stopped
+    env_file: web.env
+    # Only this LXC reaches the port; tailscale serve puts HTTPS in front of it.
+    ports:
+      - '127.0.0.1:8790:8790'
+    mem_limit: 128m
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

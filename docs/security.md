@@ -38,6 +38,16 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
 - Reject if clock skew > 300s, unknown client, bad signature (constant-time compare), or nonce already used (Redis, 10-minute TTL; claimed only after the signature checks out). Covered by `worker/test/unit/hmac.test.ts`.
 - A worker may only report on jobs it has claimed (`job.claimed_by`, enforced in SQL), and only under its own id: `assert_worker_identity` requires login role `aivideo_worker_<worker_id with - as _>`, so a leaked credential cannot act for another worker (D-010).
 
+### Web console (D-103) `[PROPOSED]` until rolled out
+
+- Reached over the tailnet only: `tailscale serve` on LXC 104 in front of a port bound to `127.0.0.1`.
+- Sign-in: `/web` to the bot in a private chat gives a one-use link, valid 5 minutes, that opens a
+  12-hour session in an `HttpOnly; Secure; SameSite=Strict` `__Host-` cookie. Only hashes of the
+  tokens are in Postgres. A revoked approver's sessions end for good, even if they are approved again.
+- `aivideo_web` executes `web_*` functions only; it has no table access and cannot issue a login.
+  The service holds no bot token, HMAC key or approval token. Writes need the console's own `Origin`.
+- Sign-in attempts are limited to 10 a minute per client address, other requests to 600.
+
 ## 4. Workspace isolation [PROPOSED]
 
 - Each job runs in its own directory: `<WORK_ROOT>/videos/{video_id}/v{n}/jobs/{job_id}/`.

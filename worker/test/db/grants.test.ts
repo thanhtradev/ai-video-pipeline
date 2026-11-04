@@ -68,6 +68,7 @@ beforeAll(async () => {
   db = await createTestDb();
   await ensureRole('aivideo_n8n');
   await ensureRole('aivideo_worker');
+  await ensureRole('aivideo_web');
   await ensureWorkerLogin();
   await db.pool.query(await readFile(GRANTS_SQL, 'utf8'));
 

@@ -3235,8 +3235,12 @@ describe('deploy script (ops/n8n/deploy-workflows.sh)', () => {
     expect(new Set(publishOrder)).toEqual(new Set(ids));
   });
 
-  test('the only placeholders are the two the script fills in', () => {
-    const KNOWN = new Set(['REPLACE_WITH_APPROVAL_CHAT_ID', 'REPLACE_WITH_WORKER_URL']);
+  test('the only placeholders are the three the script fills in', () => {
+    const KNOWN = new Set([
+      'REPLACE_WITH_APPROVAL_CHAT_ID',
+      'REPLACE_WITH_WORKER_URL',
+      'REPLACE_WITH_WEB_CONSOLE_URL',
+    ]);
 
     for (const file of files) {
       const found = readFileSync(`${DIR}${file}`, 'utf8').match(/REPLACE_WITH_[A-Z_]+/g) ?? [];
@@ -3478,6 +3482,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy', 'video']);
   // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
   const HIDDEN = [
+    'web',
     'deploy',
     'report',
     'brief',
@@ -3502,7 +3507,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
     const parsed = [...code.matchAll(/\/\^\\\/\(?(?:\?:)?([a-z|]+)/g)]
       .flatMap((m) => m[1]!.split('|'))
       .filter((name) => !ALIASES.has(name));
-    const listed = menu.map((line) => line.split(' - ')[0]);
+    const listed = menu.map((line) => line.split(' - ')[0]!);
     expect(new Set([...listed, ...HIDDEN])).toEqual(new Set(parsed));
     expect(listed).toHaveLength(new Set(listed).size);
     expect(listed.filter((name) => HIDDEN.includes(name))).toEqual([]);
@@ -4493,5 +4498,79 @@ describe('/deploy (D-100)', () => {
     expect(watch.nodes.find((n) => n.name === 'Deploy notices')!.parameters.query).toBe(
       'SELECT * FROM deploy_notices_due();',
     );
+  });
+});
+
+describe('WF-06 /web sign-in link (D-103)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const command = (text: string, type = 'private', isBot = false): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: isBot }, chat: { id: 111, type }, text },
+    },
+  });
+  const parse = (item: Item) => runCode(FILE, 'Parse callback', { input: [item] });
+  const build = (row: Record<string, unknown>) =>
+    runCode(FILE, 'Build web link', {
+      input: [{ json: row }],
+      nodeOutputs: { 'Parse callback': parse(command('/web')) },
+    });
+
+  test.each([['/web'], ['/web@aivideo_bot'], ['/web  ']])('parses %j', (text) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({
+      kind: 'web',
+      userId: '111',
+      chatId: '111',
+      isPrivate: true,
+    });
+  });
+
+  test('tells the database when the chat is not private', () => {
+    expect(parse(command('/web', 'supergroup'))[0]!.json).toMatchObject({
+      kind: 'web',
+      isPrivate: false,
+    });
+  });
+
+  test('ignores a bot', () => {
+    expect(parse(command('/web', 'private', true))).toEqual([]);
+  });
+
+  test('sends one query, whose answer becomes the reply', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((o) => o.map((c) => c.node));
+    expect(next('Parse callback')).toEqual([['Web?']]);
+    expect(next('Web?')).toEqual([['Web login'], ['Brief?']]);
+    expect(next('Web login')).toEqual([['Build web link']]);
+    expect(next('Build web link')).toEqual([['Send status']]);
+    expect(wf.nodes.find((n) => n.name === 'Web login')!.parameters.query).toContain(
+      'telegram_web_login($1::bigint, $2::boolean)',
+    );
+  });
+
+  test('sends the link as a reply', () => {
+    const [out] = build({ result: 'OK', token: 'a'.repeat(64) });
+
+    expect(out!.json).toMatchObject({ chatId: '111', messageId: '7' });
+    expect(out!.json.text).toContain(`REPLACE_WITH_WEB_CONSOLE_URL/login?t=${'a'.repeat(64)}`);
+  });
+
+  test('asks an approver in a group to use a private chat', () => {
+    const [out] = build({ result: 'NOT_PRIVATE', token: null });
+
+    expect(out!.json.text).toMatch(/riêng/);
+    expect(out!.json.text).not.toContain('/login');
+  });
+
+  test('stays silent for someone who is not an approver', () => {
+    expect(build({ result: 'NOT_APPROVER', token: null })).toEqual([]);
+  });
+
+  test('has help text', () => {
+    const inputRow = parse(command('/help web'));
+    const out = runCode(FILE, 'Build help', {
+      input: [{ json: { allowed: true } }],
+      nodeOutputs: { 'Parse callback': inputRow },
+    });
+    expect(out[0]!.json.text).toMatch(/^Cách dùng: \/web/);
   });
 });

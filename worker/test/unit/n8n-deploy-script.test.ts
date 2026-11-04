@@ -229,6 +229,40 @@ describe('full deploy', () => {
     expect(staged.get('wf-14-final-delivery.json')).toContain(WORKER_URL);
   });
 
+  test('fills in the web console URL when it is set (D-103)', () => {
+    const url = 'https://console.example.ts.net';
+    writeFileSync(
+      h.envFile,
+      `APPROVAL_CHAT_ID=${CHAT_ID}\nWORKER_URL=${WORKER_URL}\nWEB_CONSOLE_URL=${url}\n`,
+    );
+
+    const result = run([]);
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(extractedFiles().get('wf-06-telegram-callback.json')).toContain(`'${url}'`);
+  });
+
+  test('deploys without a web console URL, so an existing deploy.env keeps working', () => {
+    const result = run([]);
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(extractedFiles().get('wf-06-telegram-callback.json')).not.toContain(
+      'REPLACE_WITH_WEB_CONSOLE_URL',
+    );
+  });
+
+  test('refuses a web console URL that is not https', () => {
+    writeFileSync(
+      h.envFile,
+      `APPROVAL_CHAT_ID=${CHAT_ID}\nWORKER_URL=${WORKER_URL}\nWEB_CONSOLE_URL=http://console\n`,
+    );
+
+    const result = run([]);
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('WEB_CONSOLE_URL');
+  });
+
   test('copies into a per-run folder named like the backup, readable by the container user', () => {
     const result = run([]);
     expect(result.status, result.stderr).toBe(0);
