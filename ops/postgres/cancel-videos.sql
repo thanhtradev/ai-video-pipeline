@@ -4,7 +4,7 @@
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v ids='4e6f760a 878da929' -v apply=1 -f ops/postgres/cancel-videos.sql
 -- ids: video id prefixes (at least 4 hex characters, as Telegram shows them), separated by spaces
 -- or commas. Each video is independent: an unknown, ambiguous or finished id is reported and
--- skipped. For each other video: pending approvals -> SUPERSEDED, every job not yet SUCCEEDED ->
+-- skipped. For each other video (video_cancel, D-098): pending approvals -> SUPERSEDED, every job not yet SUCCEEDED ->
 -- CANCELLED (job_cancel), /auto cleared, version -> CANCELLED, audit video_cancelled. Nothing is
 -- deleted (files, jobs, approvals and costs stay). A job already running finishes on its worker,
 -- but its result is dropped; credits it already spent are not refunded.
@@ -45,7 +45,6 @@ DECLARE
   v_video_id uuid;
   v_version_id uuid;
   v_status text;
-  v_job uuid;
   v_jobs integer;
 BEGIN
   FOR v_item IN
@@ -76,23 +75,7 @@ BEGIN
       CONTINUE;
     END IF;
 
-    UPDATE approval SET status = 'SUPERSEDED'
-    WHERE video_version_id = v_version_id AND status = 'PENDING';
-    v_jobs := 0;
-    FOR v_job IN
-      SELECT j.id FROM job j
-      WHERE j.video_version_id = v_version_id AND j.status NOT IN ('SUCCEEDED', 'CANCELLED')
-    LOOP
-      IF job_cancel(v_job, c_actor) THEN
-        v_jobs := v_jobs + 1;
-      END IF;
-    END LOOP;
-    UPDATE video_version
-    SET status = 'CANCELLED', auto_approve_by = NULL, auto_approve_at = NULL
-    WHERE id = v_version_id;
-    PERFORM audit(c_actor, 'video_cancelled', 'video_version', v_version_id::text,
-                  jsonb_build_object('prefix', v_prefix, 'from_status', v_status,
-                                     'jobs_cancelled', v_jobs));
+    v_jobs := video_cancel(v_version_id, c_actor, v_prefix);
     INSERT INTO cancel_result VALUES (v_item.n, v_prefix, v_video_id, v_status,
       CASE WHEN c_apply THEN 'CANCELLED' ELSE 'WOULD_CANCEL' END, v_jobs);
   END LOOP;

@@ -15,8 +15,9 @@ new - tập mới: /new [số phút] <chủ đề>
 status - tiến độ các video, hoặc /status <id video>
 pending - gửi lại yêu cầu duyệt, liệt kê video đang dừng
 ideas - ý tưởng video mới theo kit và nhân vật
-auto - tự duyệt tới khi lưu Drive: /auto <id video> [off]
+auto - tự duyệt tới khi lưu Drive: /auto <id video>|all [off]
 retry - chạy lại video bị dừng: /retry <id video>
+cancel - hủy video: /cancel <id video> [id...]
 help - danh sách lệnh và cách dùng
 ```
 
@@ -35,7 +36,8 @@ finished, of any approver (D-097). The reply always shows the id it resolved to.
 | `/new` | `/new [minutes] <topic> [kit=<slug>] [nhanvat=<slug>] [worker=<id>] [auto=on]`, notes on the next lines; full brief as a `.md`/`.txt` file with the command as caption; the draft's Thời lượng button changes the length | approval chat | approvers | D-058, D-066, D-087, D-091, D-096 |
 | `/brief` | `/brief` | approval chat | anyone in it | D-077 |
 | `/retry` | `/retry <id prefix, ≥ 4 chars>` | any chat | approvers | D-056 |
-| `/auto` (alias `/tudong`) | `/auto <id prefix>` turns on automatic approval of every remaining gate (A1, A1b, storyboard, A2, A3; QA WARN approved, FAIL stops; never the Mac cleanup); a gate already waiting is approved at once · `/auto <id prefix> off` | any chat | approvers | D-093 |
+| `/auto` (alias `/tudong`) | `/auto <id prefix>` turns on automatic approval of every remaining gate (A1, A1b, storyboard, A2, A3; QA WARN approved, FAIL stops; never the Mac cleanup); a gate already waiting is approved at once · `/auto <id prefix> off` · `/auto all`: every active video, after a preview and a Confirm button for the sender; videos created later stay manual · `/auto all off`: at once | any chat | approvers | D-093, D-098 |
+| `/cancel` (alias `/huy`) | `/cancel <id prefix> [id prefix…]`, at most 20: a preview, then a Confirm button for the sender, 10 minutes. Nothing is deleted | any chat | owner | D-094, D-098 |
 | `/move` (alias `/chuyen`) | `/move <id prefix> <worker id>` · `/move <id prefix> huy` cancels a waiting move | any chat | owner | D-087 |
 | `/rules` | `/rules [video\|tts\|say]` · `/rules file <scope>` · file captioned `/rules set <scope>` | any chat | approvers | D-059 |
 | `/rule` | `/rule add <video\|tts> <text>` · `/rule del <number>` | any chat | approvers | D-059 |

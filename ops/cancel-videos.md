@@ -1,5 +1,9 @@
 # Cancel a list of videos (D-094)
 
+From Telegram, the owner can do the same with `/cancel <id> [id…]` and its Confirm button (D-098,
+[telegram-confirm.md](telegram-confirm.md)). This script stays for the shell; it needs migration
+`20261125000200`.
+
 Run by the user. Conventions as in [README.md](README.md). **Free.** No migration, no worker
 restart, no n8n change. The script is `ops/postgres/cancel-videos.sql` (owner role).
 
