@@ -34,7 +34,9 @@ gh api repos/thanhtradev/ai-video-pipeline/branches/main/protection
 Backup as in `phase-2b.md` §3, then migrate as in `preview-approval.md` §1; expect
 `20261125000400`. Re-run `ops/postgres/grants.sql`: workers need the `deploy_*` functions, n8n the
 new tables. Then update each worker the usual way with `update-worker.sh`, so `job_start`'s callers
-and the deployer code are in place.
+and the deployer code are in place. On a Mac still holding the old script, that first run can end
+with `worker did not answer http://127.0.0.1:8787/health` although the restart worked (the old script
+checked the wrong address); check `curl http://<tailscale ip>:8787/health`. Later runs use the fix.
 
 ## 3. Install the deployer on every worker
 

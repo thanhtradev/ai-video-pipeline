@@ -11,14 +11,15 @@ Never put credentials in this file.
 | LXC 102 — database | `192.168.1.102`; PostgreSQL only for this project (D-035); mount `/mnt/data/db` |
 | LXC 104 — utility/monitoring | `192.168.1.104`; runs n8n and admin/monitoring tools |
 | NAS | **Interim:** LXC 106 `lxc-nextcloud` is treated as the NAS until a dedicated NAS is bought (user, 2026-10-23, D-033) |
-| Worker 1 | Mac mini M4 — Remotion rendering, heavy tasks |
-| Worker 2 | MacBook Pro M1 — audio, subtitles, QA, light tasks; **offline for now, not in tailnet** (D-034) |
-| Worker 3 | HP ProDesk 400 G7, Core i5-10500, 16 GB RAM, no discrete GPU (user, 2026-10-29); Ubuntu VM on Proxmox, worker id `hp-400-g7` (D-075). **Not set up yet** (U-23) |
+| Worker 1 | Mac mini M4, worker id `mac-mini-m4`, host `macmini`. Live (S-31) |
+| Worker 2 | Mac mini M4, 16 GB / 512 GB (user, 2026-11-03), worker id `mac-mini-m4-02`, SSH alias `macmini2`. Live (S-31) |
+| Worker 3 | HP ProDesk 400 G7, Core i5-10500, 16 GB RAM, no discrete GPU (user, 2026-10-29); Ubuntu VM 223 on Proxmox node `pve-hp400g7`, worker id `hp-400-g7` (D-075). Live (S-31) |
+| MacBook Pro M1 | **Not a worker** (user, 2026-11-04, D-101) |
 | Network | Tailscale in use across the homelab |
 | Source control | Private GitHub repositories; manual production deploys |
 | Notifications/approval | Telegram Bot |
 | Redis | Running on LXC 112 |
-| Claude subscription | Claude Max, used by Claude Code on the Mac workers |
+| Claude subscription | Claude Max, used by Claude Code on every worker |
 
 ## 2. Survey results (read-only, 2026-10-23, via `ssh pve` + `pct exec`, and locally on the Mac mini)
 
@@ -60,6 +61,32 @@ Never put credentials in this file.
 | S-30 | HP Proxmox node `pve-hp400g7` (D-075) | `192.168.1.222` on `vmbr0` (gw `192.168.1.1`), **PVE 9.2.24**, kernel 7.0.2-6-pve, i5-10500 (12 threads), 15 GiB RAM visible; **joined cluster `Homelab`** with `homelab`; no guests yet (cluster VMIDs in use: 101–104, 106–108, 112, 120). Disks: **128 GB NVMe** (root 32G, `local-lvm` thin pool 71 GB free) and a **500 GB HDD** (Seagate ST500DM002) mounted `/mnt/data` as storage `data` (453 GB free). `192.168.1.223` did not answer ping | `ssh pvehp` + `pveversion`, `lscpu`, `free -g`, `lsblk`, `pvesm status`, `pvecm nodes`, `pvesh get /cluster/resources`, `ping`, 2026-10-30 |
 | S-22 | Phase 1 smoke test | Job `simulate` went PENDING → READY → QUEUED (dispatcher) → RUNNING → SUCCEEDED (mac-mini-m4); output SHA-256 matches the file on disk | `audit_log`, `job_attempt`, `shasum -a 256` |
 
+### S-31 Live workers (read-only, 2026-11-04, agent, with the user's permission)
+
+Commands: `sw_vers`, `sysctl hw.memsize`, `qm config 223` and `qm guest exec 223` (HP), tool `--version`, `df -h`, `lsof`/`ss` on port 8787, `launchctl list`/`systemctl`, `git log -1` in `~/aivideo/repo`, single non-secret `worker.env` lines via `grep`, `curl <tailscale ip>:8787/health` from `macmini`.
+
+| Item | `mac-mini-m4` | `mac-mini-m4-02` | `hp-400-g7` |
+|---|---|---|---|
+| `/health` | ok | ok | ok |
+| Host | `macmini` | `macminim416512` | VM 223 `worker-hp-400-g7` |
+| Tailscale address (API binds only this) | `100.71.214.125:8787` | `100.71.122.8:8787` | `100.113.130.42:8787` |
+| LAN address | not surveyed | not surveyed (`192.168.1.25` on en0 when set up, 2026-11-03) | `192.168.1.223` |
+| OS | macOS 27.0.1 | macOS 27.2 | Ubuntu 24.04.5, kernel 6.8.0-147 |
+| CPU / RAM | M4 / 16 GiB | M4 / 16 GiB | 12 vCPU / 13 GiB |
+| Disk | 228 GiB, 43 GiB free | 460 GiB, 413 GiB free | 64 GiB system; 250 GiB `WORK_ROOT` on the HDD, 230 GiB free |
+| Streams | `q:render,q:heavy,q:light` | `q:render,q:heavy,q:light` | `q:render,q:heavy,q:light` |
+| Repo clone | `de93b45`, on `main` | `de93b45`, on `main` | `de93b45`, on `main` |
+| Service last started | 2026-11-04 11:27 UTC+7 | 2026-11-04 11:27 UTC+7 | 2026-11-04 11:27 UTC+7 |
+| Node | 25.8.1 | 25.8.1 | 25.8.1 |
+| ffmpeg | 9.0.2 | 9.0.2 | 6.1.1 |
+| whisper.cpp | Homebrew `whisper-cli` | Homebrew `whisper-cli` | 1.9.5-dev, built in `~/aivideo/models/whisper.cpp`; `WHISPER_THREADS=6` |
+| rclone | 1.75.2 | 1.75.2 | 1.75.2 |
+| Claude Code | 2.1.318 | 2.1.317 | 2.1.314 |
+| Sandbox | macOS | macOS | bubblewrap 0.9.0, AppArmor enabled |
+| `/deploy` deployer unit | not installed | not installed | not installed |
+
+`ops/deploy-command.md` §3 installs the deployer. A point-in-time record: the versions drift with each update.
+
 ## 3. Risks found by the survey
 
 | ID | Risk | Impact | Proposed action (needs approval) |
@@ -75,9 +102,9 @@ Never put credentials in this file.
 | R-12 | vzdump does not back up bind mounts (S-14): Postgres data, Docker app data on LXC 104 (n8n, Vaultwarden, Infisical, …), Nextcloud data | A restored container comes back without its data | Postgres covered by `pg-backup.sh`; n8n by `export:*`; file-level backup of `/mnt/data/docker-utils` and `/mnt/data/nextcloud` still open (target: dedicated NAS, R-01) |
 | R-13 | The worker LaunchAgent and the login Keychain need a console login | After a reboot or power cut the worker stays down until someone logs in at the Mac; Uptime Kuma alerts | Accepted for now. Auto-login conflicts with FileVault; revisit if unattended restarts matter |
 | R-14 | n8n's Redis credential defaults to db 0; the worker reads db 1 | Jobs stay `QUEUED` silently (happened once on 2026-10-24; fixed by setting db 1) | Runbook warning (`ops/README.md` §5); Phase 2: alert on jobs `QUEUED` longer than a threshold |
-| R-06 | Mac mini has **~31 GiB free** | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
-| R-07 | MacBook Pro M1 offline / not in tailnet (D-034) | Single worker: no redundancy; render and light jobs compete on the Mac mini | Accepted for now; concurrency limits set for one machine; join M1 later (U-17) |
-| R-15 | Two workers share one Claude Max plan (D-075, U-14) | Usage limits are hit sooner; script and episode-code jobs wait BLOCKED (`CLAUDE_BLOCK_SECONDS`), never switch model | Watch both worker logs for usage-limit blocks in the first days |
+| R-06 | `mac-mini-m4` has **43 GiB free** of 228 GiB (S-31; ~31 GiB in S-10) | Working area + 30-day retention may not fit | Measure per-video size in Phase 2; set disk-usage alert threshold |
+| R-07 | ~~Single worker, no redundancy~~ — **resolved**: three workers live (S-31). A video stays pinned to its worker (D-074), so a worker going down still stops its own videos until it is back: `/move` copies from the old worker's API (D-087) | — | — |
+| R-15 | Three workers share one Claude Max plan (D-075, U-14) | Usage limits are hit sooner; script and episode-code jobs wait BLOCKED (`CLAUDE_BLOCK_SECONDS`), never switch model | Watch both worker logs for usage-limit blocks in the first days |
 | R-08 | MariaDB is installed (data dir `/mnt/data/db/mysql`) but inactive; not used by the project (D-035); Nextcloud also uses PostgreSQL (S-12), so nothing depends on MariaDB | None for the pipeline | Optional cleanup: uninstall + remove data only after user approval and a backup |
 
 ## 4. Still unknown [UNKNOWN]
@@ -86,7 +113,6 @@ Never put credentials in this file.
 |---|---|---|
 | U-18 | How the Nextcloud public domain is exposed (Cloudflare Tunnel, port forward + reverse proxy, other) | Internet exposure of the archive account |
 | U-05 | How Macs will mount the archive share, mount path | |
-| U-07 | MacBook Pro M1 render tools when it joins (Mac mini: S-26) | Remotion is per-project (installed with the repo) |
 | U-08 | Tailscale ACL policy content; confirm only `macmini` can reach `lxc-nextcloud:8080` | Admin console |
 | U-19 | A client on LXC 101 `lxc-core` (192.168.1.101) connected to `aivideo` as `aivideo_owner` on 2026-10-24 (looks like a DB GUI). New connections from it are now rejected by `pg_hba.conf` | User to identify; add an owner line for it only if it is an admin tool |
 | U-10 | Any backup outside Proxmox (e.g. external tool, HAOS) | S-08 found none on the host |
@@ -96,11 +122,12 @@ Never put credentials in this file.
 | U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) | Telegram can only deliver button presses to a public HTTPS webhook |
 | U-22 | Google Drive archive (D-063): Google One plan and free space of the owner's account, rclone version on the Mac mini, remote name and root folder | Personal Drive has 15 GB free; an archived episode is about 150 MB. Recorded when the owner runs `ops/final-delivery.md` §2 |
 | U-15 | Canonical timezone for reports/retention | |
-| U-23 | HP worker (`hp-400-g7`, D-075): VM LAN and Tailscale addresses, Ubuntu/Node/ffmpeg/whisper/rclone versions, whether AppArmor blocks bwrap, disk size, render and whisper time per episode on CPU | Recorded while running `ops/linux-worker.md` |
-| U-17 | MacBook Pro M1: tailnet name, macOS, RAM, free SSD, tools | Deferred until it joins (D-034) |
+| U-23 | HP worker (`hp-400-g7`, D-075): render and whisper time per episode on CPU | Addresses, versions and disks are in S-31 |
+| U-24 | Whether Uptime Kuma monitors `mac-mini-m4-02` and `hp-400-g7`, and whether the live Tailscale policy lists them | `ops/tailscale/acl-snippet.hujson` covers only `macmini` |
 
 Resolved by survey: U-01 (S-04, S-05), U-02 (S-02), U-06 for Mac mini (S-10), U-16 (S-06).
 Resolved by the rollout (2026-10-24): U-03 (S-17), U-04 (S-21), U-09 (S-18), U-11 (bot + approval chat created; ids kept out of Git), U-13 (S-20), database list (S-15).
+Closed by D-101 (2026-11-04): U-07, U-17.
 
 ## 5. Survey commands (read-only)
 
