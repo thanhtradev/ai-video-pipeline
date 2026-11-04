@@ -27,42 +27,47 @@ docker compose -f ops/web/compose.yml up -d --build
 
 ## 3. Check one real link first
 
-`[UNKNOWN]` until this runs: tests use a fake rclone. On the Mac mini, with the path of a real archived
-video (from the database, `SELECT path FROM archive_record LIMIT 1`):
+`[UNKNOWN]` until this runs: tests use a fake rclone. On the Mac mini, this finds a real archived video
+and only reads Drive:
 
 ```bash
 export RCLONE_CONFIG_PASS="$(security find-generic-password -a aivideo -s aivideo-rclone-config-pass -w)"
-rclone lsjson --stat "aivideo-drive:AI Video Archive/<path>/renders/final_1080p.mp4"
-rclone lsjson --stat "aivideo-drive:AI Video Archive/<path>"
+ROOT="aivideo-drive:AI Video Archive"
+FILE="$(rclone lsf -R --files-only --include 'final_1080p.mp4' "$ROOT" | head -1)"
+echo "Found: $FILE"
+rclone lsjson --stat "$ROOT/$FILE"
+rclone lsjson --stat "$ROOT/${FILE%/renders/final_1080p.mp4}"
 unset RCLONE_CONFIG_PASS
 ```
 
 The file must show an `ID`. Open `https://drive.google.com/file/d/<ID>/view` signed in to the owner's
-account: the video opens. If the folder shows no `ID`, the library works without its Folder link.
+account: the video opens. If the folder shows no `ID`, the library works without its Folder link. An
+empty `Found:` means this login sees no final video, so try another worker.
 
 ## 4. Fill in older videos
 
-Dry run first, then for real, on the Mac mini. Run as one block in `bash`. It reads Drive and writes
-only the ids:
+**Needs §1 and §2 first:** the migration applied and this worker updated, or the tool isn't there yet.
+
+On the Mac mini, a dry run, which writes nothing:
 
 ```bash
-bash <<'SCRIPT'
-set -euo pipefail
-keychain() { security find-generic-password -a aivideo -s "$1" -w; }
-set -a; source ~/aivideo/config/worker.env; set +a
-export DATABASE_URL="postgres://${DB_USER}:$(keychain aivideo-db-password)@${DB_HOST}:5432/${DB_NAME}"
-export RCLONE_CONFIG_PASS="$(keychain aivideo-rclone-config-pass)"
-cd ~/aivideo/repo/worker
-npx tsx src/tools/backfill-drive-ids.ts --dry-run
-SCRIPT
+~/aivideo/repo/ops/launchd/backfill-drive-ids.sh
 ```
 
-Remove `--dry-run` to save. The last line reports `found`, `saved`, `missing` and `failed`, and running
-it again only retries what is still empty.
+Then to save the ids:
+
+```bash
+~/aivideo/repo/ops/launchd/backfill-drive-ids.sh --save
+```
+
+The last line reports `found`, `saved`, `missing` and `failed`, and running it again only retries what
+is still empty.
 
 `[UNKNOWN]`: whether all three workers use the same Drive remote. With scope `drive.file`, rclone sees
 only what its own login created, so a video archived through another login shows under `missing`. Run
-the tool on the worker that archived it. Anything still missing stays listed as "No Drive link yet".
+the script on the Mac worker that archived it. The script is for Macs: on `hp-400-g7`, secrets are
+read differently (`ops/systemd/run-worker.sh`). Anything still missing stays listed as "No Drive link
+yet".
 
 ## 5. Share with other people (optional)
 
