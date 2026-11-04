@@ -2976,9 +2976,10 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy']);
+  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy', 'video']);
   // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
   const HIDDEN = [
+    'report',
     'workers',
     'brief',
     'move',
@@ -3528,7 +3529,7 @@ describe('WF-06 /cancel, /auto all and the Confirm button (D-098)', () => {
     expect(next('Auto all')).toEqual([['Build confirm prompt']]);
     expect(next('Build confirm prompt')).toEqual([['Ask confirm?']]);
     expect(next('Ask confirm?')).toEqual([['Send confirm prompt'], ['Send status']]);
-    expect(next('Confirm?')).toEqual([['Confirm'], ['Selection?']]);
+    expect(next('Confirm?')).toEqual([['Confirm'], ['Report?']]);
     expect(next('Confirm')).toEqual([['Build confirm reply']]);
     expect(next('Build confirm reply')).toEqual([['Answer confirm']]);
     expect(next('Answer confirm')).toEqual([['Confirm settled?']]);
@@ -3552,5 +3553,281 @@ describe('WF-06 /cancel, /auto all and the Confirm button (D-098)', () => {
     expect(help('cancel')).toContain('/cancel <id>');
     expect(help('huy')).toContain('/cancel <id>');
     expect(help('auto')).toContain('/auto all');
+  });
+});
+
+describe('WF-06 /v card and /report (D-099)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const ID = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+  const HEX = ID.replace(/-/g, '');
+  const parse = (text: string) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+          },
+        },
+      ],
+    })[0]!.json;
+  const parseButton = (data: string) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            callback_query: {
+              id: 'q1',
+              data,
+              from: { id: 111 },
+              message: { message_id: 9, chat: { id: -100 }, text: 'card' },
+            },
+          },
+        },
+      ],
+    });
+  const statusRow = {
+    allowed: true,
+    video_id: ID,
+    version: 2,
+    title: 'Mèo',
+    status: 'NEEDS_DECISION',
+    status_since: new Date(Date.now() - 60_000).toISOString(),
+    step: 'tts',
+    step_status: 'FAILED_PERMANENT',
+    step_since: new Date(Date.now() - 60_000).toISOString(),
+    steps_done: 1,
+    steps_total: 2,
+    approval: null,
+    cost: { CRD: 3 },
+    jobs: [],
+  };
+  const card = (rows: Record<string, unknown>[]) =>
+    runCode(FILE, 'Build status', {
+      input: rows.map((json) => ({ json })),
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'status', card: true, prefix: 'last', chatId: '-100', messageId: '7' } },
+        ],
+      },
+    })[0]!.json as Record<string, unknown>;
+
+  test.each([
+    ['/v 679CD22F', '679cd22f'],
+    ['/video 679cd22f', '679cd22f'],
+    ['/v@aivideo_bot last', 'last'],
+  ])('parses %j as a status with a card', (text, prefix) => {
+    expect(parse(text)).toEqual({
+      kind: 'status',
+      card: true,
+      prefix,
+      userId: '111',
+      chatId: '-100',
+      messageId: '7',
+    });
+  });
+
+  test.each(['/v', '/v zz', '/v 679cd22f now'])('sends %j to the usage reply', (text) => {
+    expect(parse(text)).toMatchObject({ kind: 'help', mode: 'bad', topic: 'v' });
+  });
+
+  test('the card has the text of /status <id> and a button per action, bound to the version', () => {
+    const out = card([statusRow]);
+    expect(out.text).toContain('📊 Video 679cd22f v2 · Mèo');
+    expect(out.card).toBe(true);
+    expect(out.retryData).toBe(`v:R:${HEX}:2`);
+    expect(out.autoData).toBe(`v:A:${HEX}:2`);
+    expect(out.pendingData).toBe(`v:P:${HEX}:2`);
+    expect(out.cancelData).toBe(`v:C:${HEX}:2`);
+    for (const key of ['retryData', 'autoData', 'pendingData', 'cancelData']) {
+      expect((out[key] as string).length).toBeLessThanOrEqual(64);
+    }
+  });
+
+  test('no video or a stranger gets the plain reply, with no buttons', () => {
+    expect(card([{}]).card).toBeUndefined();
+    expect(card([{ allowed: false }]).card).toBeUndefined();
+  });
+
+  test('plain /status <id> has no card', () => {
+    const [out] = runCode(FILE, 'Build status', {
+      input: [{ json: statusRow }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'status', prefix: '679cd22f', chatId: '-100', messageId: '7' } },
+        ],
+      },
+    });
+    expect(out!.json.card).toBeUndefined();
+  });
+
+  test.each([
+    ['R', { kind: 'retry' }],
+    ['A', { kind: 'auto', enable: 'true', error: '' }],
+    ['P', { kind: 'pending' }],
+    ['C', { kind: 'cancel', refs: `${ID}@2` }],
+  ])('button %s runs the same command, bound to the version', (action, expected) => {
+    expect(parseButton(`v:${action}:${HEX}:2`)[0]!.json).toMatchObject({
+      ...expected,
+      prefix: `${ID}@2`,
+      fromCard: true,
+      queryId: 'q1',
+      userId: '111',
+      chatId: '-100',
+      messageId: '9',
+    });
+  });
+
+  test.each([`v:X:${HEX}:2`, `v:R:${HEX}`, `v:R:short:2`, `v:R:${HEX}:x`])(
+    'ignores malformed button %s',
+    (data) => {
+      expect(parseButton(data)).toEqual([]);
+    },
+  );
+
+  test.each([
+    ['Build retry', { result: 'NOT_FOUND' }, 'retry'],
+    ['Build auto', { result: 'NOT_FOUND' }, 'auto'],
+  ])('%s tells a stale card to send /v again', (node, row, kind) => {
+    const [out] = runCode(FILE, node, {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [
+          {
+            json: {
+              kind,
+              fromCard: true,
+              prefix: `${ID}@2`,
+              chatId: '-100',
+              messageId: '9',
+            },
+          },
+        ],
+      },
+    });
+    expect(out!.json.text).toBe('Video đã có bản mới; gửi lại /v <id>.');
+  });
+
+  test('re-posting from a card with nothing waiting does not show the raw reference', () => {
+    const [out] = runCode(FILE, 'Build status', {
+      input: [{ json: {} }],
+      nodeOutputs: {
+        'Parse callback': [
+          {
+            json: {
+              kind: 'pending',
+              fromCard: true,
+              prefix: `${ID}@2`,
+              chatId: '-100',
+              messageId: '9',
+            },
+          },
+        ],
+      },
+    });
+    expect(out!.json.text).toBe('Không có yêu cầu nào đang chờ duyệt cho video này.');
+  });
+
+  test('a stale card tells the cancel preview the same', () => {
+    const [out] = runCode(FILE, 'Build confirm prompt', {
+      input: [
+        {
+          json: {
+            result: 'NOTHING',
+            items: [{ ref: `${ID}@2`, video_id: null, result: 'NOT_FOUND' }],
+          },
+        },
+      ],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'cancel', fromCard: true, chatId: '-100', messageId: '9' } },
+        ],
+      },
+    });
+    expect(out!.json.text).toContain('Video đã có bản mới; gửi lại /v <id>.');
+    expect(out!.json.text).not.toContain('@2');
+  });
+
+  test.each([
+    ['/report', 'today'],
+    ['/report today', 'today'],
+    ['/report 7d', '7d'],
+    ['/report@aivideo_bot 30d', '30d'],
+  ])('parses %j', (text, period) => {
+    expect(parse(text)).toMatchObject({ kind: 'report', period, userId: '111' });
+  });
+
+  test.each(['/report 1y', '/report 7d now'])('sends %j to the usage reply', (text) => {
+    expect(parse(text)).toMatchObject({ kind: 'help', mode: 'bad', topic: 'report' });
+  });
+
+  const report = (row: Record<string, unknown>, period = '7d') =>
+    runCode(FILE, 'Build report', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'report', period, chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json.text as string;
+  const reportRow = {
+    allowed: true,
+    period: '7d',
+    since: '2026-11-01T00:00:00Z',
+    created: 4,
+    completed: 3,
+    failed: 1,
+    cancelled: 0,
+    active: 5,
+    stopped: 2,
+    cost: { CRD: 12.345 },
+    minutes: 10,
+    minutes_videos: 3,
+    completed_cost: { CRD: 10 },
+    steps: [{ step: 'render_final', runs: 3, median_seconds: 300 }],
+    approvals: { decided: 6, median_seconds: 720 },
+  };
+
+  test('reports outcomes, cost, cost per minute, slow steps and approval waits', () => {
+    const text = report(reportRow);
+    expect(text).toContain('📈 Báo cáo 7 ngày (từ 07:00 01/11)');
+    expect(text).toContain('Video: 3 xong · 1 lỗi · 0 hủy · 4 mới tạo');
+    expect(text).toContain('Hiện tại: 5 đang chạy, 2 đang dừng');
+    expect(text).toContain('Chi phí đã ghi nhận: 12.35 CRD');
+    expect(text).toContain('1 CRD/phút (3 video, 10 phút)');
+    expect(text).toContain('render_final · 5 phút · 3 lần');
+    expect(text).toContain('Duyệt: 6 lần, chờ trung vị 12 phút');
+  });
+
+  test('says when cost per minute or the rest has no data, and refuses strangers', () => {
+    const text = report({
+      ...reportRow,
+      cost: {},
+      minutes: 0,
+      minutes_videos: 0,
+      completed_cost: {},
+      steps: [],
+      approvals: { decided: 0, median_seconds: null },
+    });
+    expect(text).toContain('Chi phí đã ghi nhận: chưa có');
+    expect(text).toContain('Chi phí mỗi phút: chưa có video nào đo được độ dài');
+    expect(text).toContain('Duyệt: chưa có');
+    expect(report({ allowed: false })).toBe('Bạn không phải approver.');
+  });
+
+  test('routes the card, its answer and the report', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out.map((n) => n.node));
+    expect(next('Build status')).toEqual([['Card buttons?']]);
+    expect(next('Card buttons?')).toEqual([['Send card'], ['Send status']]);
+    expect(next('Send status')).toEqual([['From card?']]);
+    expect(next('Send confirm prompt')).toEqual([['From card?']]);
+    expect(next('From card?')).toEqual([['Answer card'], []]);
+    expect(next('Report?')).toEqual([['Report'], ['Selection?']]);
+    expect(next('Report')).toEqual([['Build report']]);
+    expect(next('Build report')).toEqual([['Send status']]);
+    const node = wf.nodes.find((n) => n.name === 'Report')!;
+    expect(node.parameters.query).toBe('SELECT * FROM telegram_report($1::bigint, $2);');
+    const send = JSON.stringify(wf.nodes.find((n) => n.name === 'Send card')!.parameters);
+    for (const key of ['retryData', 'autoData', 'pendingData', 'cancelData']) {
+      expect(send).toContain(`$json.${key}`);
+    }
   });
 });

@@ -13,6 +13,7 @@ and appears in `/help`. In BotFather: `/setcommands` → choose the bot → past
 ```
 new - tập mới: /new [số phút] <chủ đề>
 status - tiến độ các video, hoặc /status <id video>
+v - chi tiết video kèm nút: /v <id video>
 pending - gửi lại yêu cầu duyệt, liệt kê video đang dừng
 ideas - ý tưởng video mới theo kit và nhân vật
 auto - tự duyệt tới khi lưu Drive: /auto <id video>|all [off]
@@ -30,6 +31,8 @@ finished, of any approver (D-097). The reply always shows the id it resolved to.
 |---|---|---|---|---|
 | `/help` | `/help` · `/help <command>` | any chat | approvers; anyone in the approval chat | D-097 |
 | `/status` | `/status` · `/status <id prefix>` | any chat | approvers | P-017 |
+| `/v` (alias `/video`) | `/v <id prefix>`: the text of `/status <id>` with buttons Chạy lại, Tự duyệt, Gửi lại duyệt, Hủy, bound to that version. The buttons run the same checks as the commands | any chat | approvers | D-099 |
+| `/report` | `/report [today\|7d\|30d]`, today from midnight UTC+7: video outcomes, actual cost, cost per finished minute, slowest steps, approval wait | any chat | approvers | D-099 |
 | `/workers` (alias `/worker`) | `/workers` | any chat | approvers | D-082 |
 | `/pending` (alias `/cho`) | `/pending` · `/pending <id prefix>`; the buttons come again in the approval chat; also lists stopped videos (`NEEDS_DECISION`, `BLOCKED_PROVIDER`) | any chat | approvers | D-090, D-097 |
 | `/ideas` (alias `/ytuong`) | `/ideas [kit=<slug>] [nhanvat=<slug>]` | approval chat | approvers | D-083 |
