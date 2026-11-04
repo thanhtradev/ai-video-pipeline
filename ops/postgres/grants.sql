@@ -5,7 +5,7 @@
 -- Functions are executable by PUBLIC by default; nothing should be.
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
-GRANT USAGE ON SCHEMA public TO aivideo_n8n, aivideo_worker;
+GRANT USAGE ON SCHEMA public TO aivideo_n8n, aivideo_worker, aivideo_web;
 
 -- n8n orchestrates: read, insert and update pipeline tables; never delete or truncate.
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO aivideo_n8n;
@@ -13,6 +13,8 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO aivideo_n8n;
 REVOKE INSERT, UPDATE ON schema_migrations, job_status_transition, video_status_transition,
   stream_config FROM aivideo_n8n;
 REVOKE UPDATE ON audit_log FROM aivideo_n8n;
+-- Web console credentials: reached only through SECURITY DEFINER functions (D-103).
+REVOKE ALL ON web_login, web_session FROM aivideo_n8n;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO aivideo_n8n;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO aivideo_n8n;
 
@@ -43,3 +45,18 @@ GRANT EXECUTE ON FUNCTION
   deploy_preflight_report(text, uuid, text, text, text[], text),
   deploy_target_report(text, uuid, text, boolean, text)
 TO aivideo_worker;
+
+-- The web console touches no table and no telegram_* function: only web_* (D-103). Each resolves the
+-- user from the session token, so this role cannot act as anyone without their session. Issuing a
+-- login (telegram_web_login) stays with n8n.
+GRANT EXECUTE ON FUNCTION
+  web_login_consume(text),
+  web_me(text),
+  web_logout(text),
+  web_attention(text),
+  web_videos(text, text, text, integer, integer),
+  web_video(text, uuid),
+  web_workers(text),
+  web_worker(text, text),
+  web_report(text, text)
+TO aivideo_web;

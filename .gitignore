@@ -24,3 +24,7 @@ coverage/
 
 # n8n deploy values (ops/n8n/README.md)
 ops/n8n/deploy.env
+
+# Playwright output
+web/test-results/
+ops/web/web.env

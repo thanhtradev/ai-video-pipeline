@@ -1,0 +1,10 @@
+# Only what ops/web/Dockerfile copies reaches the build (D-103).
+*
+!package.json
+!package-lock.json
+!worker/package.json
+!remotion/package.json
+!web/
+web/node_modules/
+web/dist/
+web/test-results/

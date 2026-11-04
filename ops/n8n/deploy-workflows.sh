@@ -74,6 +74,9 @@ load_env() {
   set +a
   [[ "${APPROVAL_CHAT_ID:-}" =~ ^-?[0-9]+$ ]] || fail "APPROVAL_CHAT_ID must be the Telegram chat id (integer) in $ENV_FILE"
   [[ "${WORKER_URL:-}" =~ ^https?:// ]] || fail "WORKER_URL must start with http:// or https:// in $ENV_FILE"
+  # Optional (D-103): an existing deploy.env without it keeps working; /web then says it is not set up.
+  WEB_CONSOLE_URL="${WEB_CONSOLE_URL:-}"
+  [[ -z "$WEB_CONSOLE_URL" || "$WEB_CONSOLE_URL" =~ ^https://[^/|]+$ ]] || fail "WEB_CONSOLE_URL must be https://<host>, with no path, in $ENV_FILE"
   PVE_HOST="${PVE_HOST:-pve}"
   LXC_ID="${LXC_ID:-104}"
   N8N_CONTAINER="${N8N_CONTAINER:-n8n}"
@@ -117,7 +120,8 @@ stage_workflows() {
   local file
   while IFS= read -r file; do
     sed -e "s|REPLACE_WITH_APPROVAL_CHAT_ID|$APPROVAL_CHAT_ID|g" \
-      -e "s|REPLACE_WITH_WORKER_URL|$WORKER_URL|g" "$file" > "$STAGE_DIR/$(basename "$file")"
+      -e "s|REPLACE_WITH_WORKER_URL|$WORKER_URL|g" \
+      -e "s|REPLACE_WITH_WEB_CONSOLE_URL|$WEB_CONSOLE_URL|g" "$file" > "$STAGE_DIR/$(basename "$file")"
     chmod 644 "$STAGE_DIR/$(basename "$file")"
   done < <(selected_files | sort -u)
   local leftover
