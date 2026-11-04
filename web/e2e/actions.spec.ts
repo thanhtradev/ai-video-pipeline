@@ -235,3 +235,119 @@ test('the panel fits a phone', async ({ page }) => {
 
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test.describe('a new video', () => {
+  test('is reviewed, then created once, and opens', async ({ page }) => {
+    await signIn(page);
+    await page.getByRole('link', { name: 'Videos', exact: true }).click();
+    await page.getByRole('link', { name: 'New video' }).click();
+    await page.getByLabel('Topic').fill('Vì sao mèo luôn tiếp đất bằng chân');
+    await page.getByLabel('Length').selectOption('6');
+    await page.getByLabel('Notes for the script').fill('Giọng vui');
+    await page.screenshot({ path: `${SCREENSHOTS}/new-video.png`, fullPage: true });
+
+    await page.getByRole('button', { name: 'Review' }).click();
+    await expect(page.getByRole('heading', { name: 'Create this video?' })).toBeVisible();
+    await expect(page.locator('.facts').getByText('6 minutes')).toBeVisible();
+    await page.getByRole('button', { name: 'Create video' }).dblclick();
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Vì sao mèo luôn tiếp đất bằng chân',
+    );
+    const { rows } = await harness.db.pool.query<{ n: number }>(
+      `SELECT count(*)::integer AS n FROM video_version
+       WHERE brief->>'topic' = 'Vì sao mèo luôn tiếp đất bằng chân'`,
+    );
+    expect(rows[0]!.n).toBe(1);
+  });
+
+  test('says why a topic was refused and keeps what was typed', async ({ page }) => {
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+
+    await page.getByLabel('Topic').fill('x');
+    await page.getByRole('button', { name: 'Review' }).click();
+
+    await expect(page.getByRole('alert')).toContainText('topic');
+    await expect(page.getByLabel('Topic')).toHaveValue('x');
+  });
+
+  test('going back to change something creates nothing', async ({ page }) => {
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+    await page.getByLabel('Topic').fill('Đổi ý giữa chừng nhé');
+    await page.getByRole('button', { name: 'Review' }).click();
+
+    await page.getByRole('button', { name: 'Change something' }).click();
+
+    await expect(page.getByLabel('Topic')).toHaveValue('Đổi ý giữa chừng nhé');
+    const { rows } = await harness.db.pool.query<{ n: number }>(
+      `SELECT count(*)::integer AS n FROM video_version WHERE brief->>'topic' = 'Đổi ý giữa chừng nhé'`,
+    );
+    expect(rows[0]!.n).toBe(0);
+  });
+
+  test('a lost answer cannot lead to a second video', async ({ page }) => {
+    const topic = 'Câu trả lời bị mất giữa đường';
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+    await page.getByLabel('Topic').fill(topic);
+    await page.getByRole('button', { name: 'Review' }).click();
+    await expect(page.getByRole('heading', { name: 'Create this video?' })).toBeVisible();
+    // The server creates the video; the answer never reaches the page.
+    await page.route('**/api/videos/draft/*', async (route) => {
+      await route.fetch();
+      await route.abort();
+    });
+    await page.getByRole('button', { name: 'Create video' }).click();
+    await expect(page.getByRole('alert')).toBeVisible();
+    await page.unroute('**/api/videos/draft/*');
+
+    await page.getByRole('button', { name: 'Change something' }).click();
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(topic);
+    const { rows } = await harness.db.pool.query<{ n: number }>(
+      `SELECT count(*)::integer AS n FROM video_version WHERE brief->>'topic' = $1`,
+      [topic],
+    );
+    expect(rows[0]!.n).toBe(1);
+  });
+
+  test('a session ending while typing keeps what was typed', async ({ page }) => {
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+    await page.getByLabel('Topic').fill('Đang gõ dở thì hết phiên');
+    await page.route('**/api/videos/draft', (route) =>
+      route.fulfill({ status: 401, json: { success: false, error: 'not signed in' } }),
+    );
+
+    await page.getByRole('button', { name: 'Review' }).click();
+
+    await expect(page.getByRole('alert')).toContainText('Your session ended');
+    await expect(page.getByLabel('Topic')).toHaveValue('Đang gõ dở thì hết phiên');
+  });
+
+  test('offers only a cast in the language of the kit', async ({ page }) => {
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+
+    await page.getByLabel('Kit').selectOption('whatif-en');
+
+    const casts = await page.getByLabel('Character').locator('option').allTextContents();
+    expect(casts.join(' ')).not.toContain('Chíp');
+    expect(casts.length).toBeGreaterThan(0);
+  });
+
+  test('fits a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 740 });
+    await signIn(page);
+    await page.goto(`${BASE_URL}/videos/new`);
+    await expect(page.getByLabel('Topic')).toBeVisible();
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});

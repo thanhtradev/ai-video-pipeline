@@ -3,6 +3,7 @@ import type { Me } from '../../shared/types';
 import { api, ApiError } from './api';
 import { ErrorNote, Link, Loading } from './components';
 import { SIGNED_OUT_EVENT, usePath } from './hooks';
+import { NewVideoPage } from './pages/NewVideoPage';
 import { Overview } from './pages/Overview';
 import { ReportPage } from './pages/ReportPage';
 import { SignIn } from './pages/SignIn';
@@ -31,6 +32,7 @@ function isCurrent(path: string, to: string): boolean {
 }
 
 function Page({ path, me }: { path: string; me: Me }) {
+  if (path === '/videos/new') return <NewVideoPage />;
   const video = /^\/videos\/([^/]+)$/.exec(path);
   if (video) return <VideoPage key={video[1]!} id={decodeSegment(video[1]!)} me={me} />;
   const worker = /^\/workers\/([^/]+)$/.exec(path);

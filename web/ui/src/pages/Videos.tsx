@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { VideoFilter } from '../../../shared/types';
 import { api } from '../api';
-import { ErrorNote, Loading, VideoRow } from '../components';
+import { ErrorNote, Link, Loading, VideoRow } from '../components';
 import { usePoll } from '../hooks';
 
 const PAGE_SIZE = 50;
@@ -45,6 +45,11 @@ export function Videos() {
   return (
     <section aria-labelledby="videos">
       <h1 id="videos">Videos</h1>
+      <p>
+        <Link to="/videos/new" className="primary-link">
+          New video
+        </Link>
+      </p>
       <div className="filters">
         <label>
           State

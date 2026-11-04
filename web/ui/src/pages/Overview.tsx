@@ -46,7 +46,9 @@ function InProduction() {
       {isLoading && <Loading />}
       {error && <ErrorNote error={error} />}
       {data?.total === 0 && (
-        <p className="quiet">No video is in production. Start one with /new.</p>
+        <p className="quiet">
+          No video is in production. <Link to="/videos/new">Start a new one</Link>.
+        </p>
       )}
       <ul className="video-list">
         {data?.items.map((video) => (

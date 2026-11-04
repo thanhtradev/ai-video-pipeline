@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { ApiResponse } from '../../shared/types.js';
 import type { Store } from '../store.js';
+import { WORKER_ID_SHAPE } from './schemas.js';
 import { readSession } from './session.js';
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -17,7 +18,7 @@ const videoQuery = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 const videoParams = z.object({ id: z.uuid() });
-const workerParams = z.object({ id: z.string().regex(/^[a-z0-9-]{3,64}$/) });
+const workerParams = z.object({ id: z.string().regex(WORKER_ID_SHAPE) });
 const reportQuery = z.object({ period: z.enum(['today', '7d', '30d']).default('today') });
 
 function ok<T>(data: T): ApiResponse<T> {

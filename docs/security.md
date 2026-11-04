@@ -48,7 +48,7 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
   The service holds no bot token or HMAC key. Approval tokens stay in the database. Worker media
   tokens reach the service only to fetch a file, and never the browser. Writes need the console's own
   `Origin`. Actions run the functions the bot runs and are recorded in `audit_log` with
-  `detail.source = 'web'`. The Mac cleanup is not offered, because it deletes files.
+  `detail.source = 'web'`. A new video takes a draft and a confirmation, so a repeat makes one video. The Mac cleanup is not offered, because it deletes files.
 - Sign-in attempts are limited to 10 a minute per client address, other requests to 600.
 
 ## 4. Workspace isolation [PROPOSED]

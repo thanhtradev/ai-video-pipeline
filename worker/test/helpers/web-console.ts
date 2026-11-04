@@ -47,3 +47,45 @@ export async function episodeAtScriptApproval(
   ]);
   return { videoId, versionId, jobId, approvalId: approval.rows[0]!.id, token };
 }
+
+export async function prepareWebRoles(pool: pg.Pool, grantsSql: string): Promise<void> {
+  for (const role of ['aivideo_n8n', 'aivideo_worker', 'aivideo_web']) {
+    // Roles are cluster-wide and other test files may create them concurrently.
+    await pool.query(`
+      DO $$ BEGIN
+        CREATE ROLE ${role} NOLOGIN;
+      EXCEPTION WHEN duplicate_object OR unique_violation THEN NULL;
+      END $$;`);
+  }
+  await pool.query(grantsSql);
+}
+
+export async function webSignIn(pool: pg.Pool, user: number): Promise<string> {
+  const login = await pool.query<{ token: string }>(
+    'SELECT token FROM telegram_web_login($1, true)',
+    [user],
+  );
+  const session = await pool.query<{ session: string }>(
+    'SELECT session FROM web_login_consume($1)',
+    [login.rows[0]!.token],
+  );
+  return session.rows[0]!.session;
+}
+
+/** Calls a function as the web role, as the service does. */
+export async function callAsWeb<T>(pool: pg.Pool, fn: string, ...args: unknown[]): Promise<T> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SET LOCAL ROLE aivideo_web');
+    const placeholders = args.map((_, i) => `$${i + 1}`).join(', ');
+    const result = await client.query<{ value: T }>(`SELECT ${fn}(${placeholders}) AS value`, args);
+    await client.query('COMMIT');
+    return result.rows[0]!.value;
+  } catch (error: unknown) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}

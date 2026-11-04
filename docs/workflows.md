@@ -16,7 +16,7 @@ Claude Code never imports/publishes production workflows.
 
 | ID | Name | Trigger | Responsibility |
 |---|---|---|---|
-| WF-01 | ~~Intake~~ | — | Removed (D-079): every clip starts with `/new` on Telegram (WF-06 → `video_submit()`, D-058) |
+| WF-01 | ~~Intake~~ | — | Removed (D-079): every clip starts with `/new` on Telegram or the web console's New video page (D-103) (WF-06 → `video_submit()`, D-058) |
 | WF-02 | Dispatcher | Every 30 s | `dispatch_all()` → `RPUSH` job ids to Redis. **Implemented:** `n8n/workflows/wf-02-dispatcher.json`. Paid steps are guarded by the worker calling `cost_guard()` (D-045) |
 | WF-03 | ~~Worker Event Handler~~ | — | Removed: workers report via PostgreSQL functions (P-015). Phase 2 reacts to finished jobs from the dispatcher/next-step logic |
 | WF-04 | ~~Cost Guard~~ | — | Replaced by the SQL function `cost_guard()` that the worker calls before every paid request (D-045, `docs/cost-and-providers.md` §3) |

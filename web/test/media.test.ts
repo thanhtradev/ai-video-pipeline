@@ -287,6 +287,44 @@ describe('actions', () => {
     expect(decide.json().data.result).toBe('NOT_FOUND');
   });
 
+  test.each([
+    [{ auto: false }],
+    [{ topic: 'Chủ đề', auto: 'yes' }],
+    [{ topic: 'Chủ đề', auto: false, duration_minutes: 2.5 }],
+    [{ topic: 'Chủ đề', auto: false, kit: 'BAD KIT' }],
+    [{ topic: 'Chủ đề', auto: false, worker: 'x; DROP' }],
+    [{ topic: 'Chủ đề', auto: false, full_brief: 'not from this form' }],
+  ])('a new video refuses bad input: %j', async (payload) => {
+    expect((await post('/api/videos/draft', payload)).statusCode).toBe(400);
+  });
+
+  test('a new video is a draft, then one video, however often it is confirmed', async () => {
+    const draft = await post('/api/videos/draft', {
+      topic: 'Một chủ đề đủ dài',
+      notes: 'Ghi chú',
+      duration_minutes: 6,
+      auto: false,
+    });
+    const { token } = draft.json().data;
+
+    const first = await post(`/api/videos/draft/${token}`, { confirm: true });
+    const second = await post(`/api/videos/draft/${token}`, { confirm: true });
+
+    expect(first.json().data.result).toBe('OK');
+    expect(second.json().data).toMatchObject({
+      result: 'NOT_PENDING',
+      video_id: first.json().data.video_id,
+    });
+  });
+
+  test('a bad topic comes back as a reason, not an error page', async () => {
+    const response = await post('/api/videos/draft', { topic: 'x', auto: false });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.result).toBe('INVALID');
+    expect(response.json().data.error).toBeTruthy();
+  });
+
   test('a note is limited in length', async () => {
     const response = await post('/api/approvals/00000000-0000-4000-8000-000000000000/decide', {
       action: 'FEEDBACK',

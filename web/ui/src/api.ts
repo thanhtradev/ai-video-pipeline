@@ -4,6 +4,9 @@ import type {
   AutoResult,
   CancelOutcome,
   CancelPreview,
+  Catalog,
+  CreateOutcome,
+  NewVideo,
   DecideAction,
   DecideResult,
   RetryResult,
@@ -12,6 +15,7 @@ import type {
   Report,
   ReportPeriod,
   VideoDetail,
+  VideoDraft,
   VideoFilter,
   VideoPage,
   WorkerDetail,
@@ -81,5 +85,9 @@ export const api = {
     post<CancelPreview>(`/api/videos/${encodeURIComponent(id)}/cancel`, {}),
   cancelConfirm: (token: string, confirm: boolean) =>
     post<CancelOutcome>(`/api/cancel/${encodeURIComponent(token)}`, { confirm }),
+  catalog: () => request<Catalog>('/api/catalog'),
+  createDraft: (video: NewVideo) => post<VideoDraft>('/api/videos/draft', video),
+  createDecide: (token: string, confirm: boolean) =>
+    post<CreateOutcome>(`/api/videos/draft/${encodeURIComponent(token)}`, { confirm }),
   report: (period: ReportPeriod) => request<Report>(`/api/report?period=${period}`),
 };

@@ -65,5 +65,8 @@ GRANT EXECUTE ON FUNCTION
   web_cancel(text, uuid),
   web_cancel_confirm(text, text, boolean),
   web_video_media(text, uuid),
-  web_video_media_file(text, uuid, text)
+  web_video_media_file(text, uuid, text),
+  web_catalog(text),
+  web_create_draft(text, jsonb, text, boolean),
+  web_create_decide(text, text, boolean)
 TO aivideo_web;
