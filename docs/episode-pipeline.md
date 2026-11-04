@@ -70,7 +70,8 @@ The script step returns one JSON document (schema in `worker/src/handlers/episod
   starts, `description`, optional `hold_seconds` and `fast`, `sfx[]`).
 
 The worker checks what the schema cannot and retries the step otherwise: shot ids numbered
-`act.n` in order, every MỐC found in its act's narration after the previous one, each act under
+`act.n` in order, every MỐC found in its act's narration in a later sentence than the previous
+one (timing cuts only between sentences; a comma does not end a sentence), each act under
 10000 characters (one TTS request), and, from a full brief, every line present verbatim in it
 (the EP5 brief passes all of these). It then assigns line ids `L001…` in order (never the model)
 and writes `script.json` (the hashed A1 content) and `script.md`. From a full brief in the user's

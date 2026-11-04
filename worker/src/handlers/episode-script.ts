@@ -9,7 +9,7 @@ import { readValidCheckpoint } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { writeAtomic } from './script.js';
 import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
-import { spokenKeys } from '../episode/sentences.js';
+import { splitSentences, spokenKeys } from '../episode/sentences.js';
 import {
   hasVietnameseLetters,
   languageSchema,
@@ -136,7 +136,12 @@ function checkAct(act: EpisodeScript['acts'][number], actNo: number): string[] {
       `act ${actNo} narration is ${narration.length} characters; at most ${ACT_TTS_MAX_CHARS}`,
     );
   }
-  const spoken = ` ${matchKey(narration)} `;
+  const sentenceKeys = act.lines.flatMap(splitSentences).map(matchKey);
+  const spoken = ` ${sentenceKeys.join(' ')} `;
+  const sentenceStarts = sentenceKeys.reduce<number[]>(
+    (starts, key) => [...starts, starts.at(-1)! + key.length + 1],
+    [0],
+  );
   let from = 0;
   act.shots.forEach((shot, index) => {
     const expected = `${actNo}.${index + 1}`;
@@ -144,11 +149,12 @@ function checkAct(act: EpisodeScript['acts'][number], actNo: number): string[] {
     const at = spoken.indexOf(` ${matchKey(shot.moc)} `, from);
     if (at < 0) {
       problems.push(
-        `shot ${shot.id}: MỐC "${shot.moc}" not found in act ${actNo} after the previous shot`,
+        `shot ${shot.id}: MỐC "${shot.moc}" not found in act ${actNo} after the sentence of the previous shot`,
       );
       return;
     }
-    from = at;
+    // Timing cuts only between sentences, so the next shot must start in a later one.
+    from = sentenceStarts.find((start) => start > at) ?? spoken.length;
   });
   return problems;
 }
@@ -251,7 +257,9 @@ const VI_RULES = [
   '  "Quy tắc thứ hai:", "Điều thú vị là:"), no numbered lists of rules; vary how lines begin.',
   '- shots: numbered "<act>.<n>" from 1 within each act. moc (MỐC) is the first few words of the',
   '  narration where the shot starts, copied exactly from a line of the same act; shots follow',
-  '  the narration order. description says framing, action, eye expression and any on-screen',
+  '  the narration order and each starts in a later sentence than the previous shot (a comma does',
+  '  not end a sentence), so no two shots share a moc. description says framing, action, eye',
+  '  expression and any on-screen',
   '  TEXT "…" in Vietnamese; sfx lists sounds and foley; hold_seconds only where the picture',
   '  needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting',
   '  (montages, countdowns), where pauses between sentences are kept to the minimum.',
@@ -277,7 +285,9 @@ const EN_RULES = [
   '  words ("thirty seconds", "two thousand"), as the voice reads them.',
   '- shots: numbered "<act>.<n>" from 1 within each act. moc (MỐC) is the first few words of the',
   '  narration where the shot starts, copied exactly from a line of the same act; shots follow',
-  '  the narration order. description says framing, action, eye expression and any on-screen',
+  '  the narration order and each starts in a later sentence than the previous shot (a comma does',
+  '  not end a sentence), so no two shots share a moc. description says framing, action, eye',
+  '  expression and any on-screen',
   '  TEXT "…" in English; sfx lists sounds and foley; hold_seconds only where the picture',
   '  needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting',
   '  (montages, countdowns), where pauses between sentences are kept to the minimum.',

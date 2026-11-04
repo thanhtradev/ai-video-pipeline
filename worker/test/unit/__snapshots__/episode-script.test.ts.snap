@@ -22,7 +22,9 @@ Rules for every field:
   "Quy tắc thứ hai:", "Điều thú vị là:"), no numbered lists of rules; vary how lines begin.
 - shots: numbered "<act>.<n>" from 1 within each act. moc (MỐC) is the first few words of the
   narration where the shot starts, copied exactly from a line of the same act; shots follow
-  the narration order. description says framing, action, eye expression and any on-screen
+  the narration order and each starts in a later sentence than the previous shot (a comma does
+  not end a sentence), so no two shots share a moc. description says framing, action, eye
+  expression and any on-screen
   TEXT "…" in Vietnamese; sfx lists sounds and foley; hold_seconds only where the picture
   needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting
   (montages, countdowns), where pauses between sentences are kept to the minimum.
@@ -58,7 +60,9 @@ Rules for every field:
   "Quy tắc thứ hai:", "Điều thú vị là:"), no numbered lists of rules; vary how lines begin.
 - shots: numbered "<act>.<n>" from 1 within each act. moc (MỐC) is the first few words of the
   narration where the shot starts, copied exactly from a line of the same act; shots follow
-  the narration order. description says framing, action, eye expression and any on-screen
+  the narration order and each starts in a later sentence than the previous shot (a comma does
+  not end a sentence), so no two shots share a moc. description says framing, action, eye
+  expression and any on-screen
   TEXT "…" in Vietnamese; sfx lists sounds and foley; hold_seconds only where the picture
   needs extra time after the line (gags, emotional beats); fast: true for rapid-fire cutting
   (montages, countdowns), where pauses between sentences are kept to the minimum.

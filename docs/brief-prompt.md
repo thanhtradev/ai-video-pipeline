@@ -38,6 +38,8 @@ HARD RULES (the pipeline rejects the brief otherwise):
 4. Shot ids are <act>.<n>, numbered 1, 2, 3… within each act, without gaps.
 5. Each shot's MỐC (the quoted text) must be copied character-for-character from the START of a
    VOICE line in the same act, and MỐCs must appear in the same order as the lines they point to.
+   Two shots never share a MỐC or a sentence: a shot can only start in a later sentence than the
+   previous shot (a sentence ends at . ! ? … or :, not at a comma).
    Change shot every 1–3 lines.
 6. Each act's narration under 10,000 characters; the whole brief under 30,000 characters.
 7. Length: about 3.2 spoken words per second (6 minutes ≈ 1150 words of narration).

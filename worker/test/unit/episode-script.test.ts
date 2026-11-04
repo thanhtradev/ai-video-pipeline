@@ -164,6 +164,63 @@ describe('checkEpisodeScript', () => {
     );
   });
 
+  describe('a MỐC starts in a later sentence than the previous one, as timing requires', () => {
+    const LONG_SENTENCE = 'Khoảng một trăm ki-lô-mét phía trên mặt đất, không khí gần như hết.';
+    const withShots = (lines: string[], mocs: string[]) =>
+      withAct(0, {
+        lines,
+        shots: mocs.map((moc, i) => ({
+          ...SCRIPT.acts[0]!.shots[0]!,
+          id: `1.${i + 1}`,
+          moc,
+        })),
+      });
+
+    test('rejects the same MỐC twice', () => {
+      const script = withShots(
+        [LONG_SENTENCE, 'Bầu trời lúc này đen thẫm.'],
+        ['Khoảng một trăm ki-lô-mét', 'Khoảng một trăm ki-lô-mét'],
+      );
+      expect(checkEpisodeScript(script, TOPIC_BRIEF)).toContainEqual(
+        expect.stringMatching(/shot 1\.2: MỐC "Khoảng một trăm ki-lô-mét" not found/),
+      );
+    });
+
+    test('rejects two MỐCs inside one sentence', () => {
+      const script = withShots(
+        [LONG_SENTENCE, 'Bầu trời lúc này đen thẫm.'],
+        ['Khoảng một trăm ki-lô-mét', 'không khí gần như hết'],
+      );
+      expect(checkEpisodeScript(script, TOPIC_BRIEF)).toContainEqual(
+        expect.stringMatching(/shot 1\.2: MỐC "không khí gần như hết" not found/),
+      );
+    });
+
+    test('accepts two MỐCs in one line when they are in different sentences', () => {
+      const script = withShots(
+        ['Bạn hoảng. Bạn vỗ tay một cái.'],
+        ['Bạn hoảng', 'Bạn vỗ tay một cái'],
+      );
+      expect(checkEpisodeScript(script, TOPIC_BRIEF)).toEqual([]);
+    });
+
+    test('accepts a repeated phrase when the later sentence holds it again', () => {
+      const script = withShots(
+        ['Trời đen. Trời đen hẳn.', 'Bầu trời lúc này đen thẫm.'],
+        ['Trời đen', 'Trời đen', 'Bầu trời lúc này'],
+      );
+      expect(checkEpisodeScript(script, TOPIC_BRIEF)).toEqual([]);
+    });
+
+    test('accepts a MỐC in the middle of a later sentence', () => {
+      const script = withShots(
+        [LONG_SENTENCE, 'Rồi bầu trời lúc này đen thẫm.'],
+        ['Khoảng một trăm ki-lô-mét', 'bầu trời lúc này'],
+      );
+      expect(checkEpisodeScript(script, TOPIC_BRIEF)).toEqual([]);
+    });
+  });
+
   test('keeps each act within one TTS request (10000 characters)', () => {
     const long = withAct(1, { lines: [...SCRIPT.acts[1]!.lines, 'a'.repeat(400).repeat(25)] });
     expect(checkEpisodeScript(long, TOPIC_BRIEF)).toContainEqual(
