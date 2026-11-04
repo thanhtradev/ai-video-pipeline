@@ -2976,7 +2976,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong']);
+  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy']);
   // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
   const HIDDEN = [
     'workers',
@@ -3209,7 +3209,7 @@ describe('WF-06 /help and usage replies (D-097)', () => {
     const wf = workflow(FILE);
     const next = (name: string) => wf.connections[name]!.main.map((out) => out[0]!.node);
     expect(next('Members?')).toEqual(['Member error?', 'Help?']);
-    expect(next('Help?')).toEqual(['Can help', 'Selection?']);
+    expect(next('Help?')).toEqual(['Can help', 'Cancel?']);
     expect(next('Can help')).toEqual(['Build help']);
     expect(next('Build help')).toEqual(['Send status']);
     const node = wf.nodes.find((n) => n.name === 'Can help')!;
@@ -3302,5 +3302,255 @@ describe('WF-06 /pending lists stopped videos (D-097)', () => {
     expect(text).toContain('⏳ 1 yêu cầu đang chờ duyệt');
     expect(text).toContain('⛔ 1 video đang dừng');
     expect(text).toContain('Bot sẽ gửi lại 1 yêu cầu');
+  });
+});
+
+describe('WF-06 /cancel, /auto all and the Confirm button (D-098)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const ID = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
+  const TOKEN = 'a'.repeat(32);
+  const parse = (text: string) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+          },
+        },
+      ],
+    })[0]!.json;
+  const parseButton = (data: string, userId = 111) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            callback_query: {
+              id: 'q1',
+              data,
+              from: { id: userId },
+              message: { message_id: 9, chat: { id: -100 }, text: 'Hủy?' },
+            },
+          },
+        },
+      ],
+    });
+  const prompt = (kind: string, row: Record<string, unknown>) =>
+    runCode(FILE, 'Build confirm prompt', {
+      input: [{ json: row }],
+      nodeOutputs: { 'Parse callback': [{ json: { kind, chatId: '-100', messageId: '7' } }] },
+    })[0]!.json as Record<string, string | boolean>;
+  const outcome = (row: Record<string, unknown>) =>
+    runCode(FILE, 'Build confirm reply', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'confirm', queryId: 'q1', chatId: '-100', messageId: '9' } },
+        ],
+      },
+    })[0]!.json as Record<string, string | boolean>;
+
+  test.each([
+    ['/cancel 679cd22f', '679cd22f'],
+    ['/huy 679cd22f', '679cd22f'],
+    ['/cancel@aivideo_bot 679CD22F 11112222', '679cd22f 11112222'],
+    ['/cancel last', 'last'],
+  ])('parses %j', (text, refs) => {
+    expect(parse(text)).toMatchObject({ kind: 'cancel', refs, userId: '111' });
+  });
+
+  test.each(['/cancel', '/cancel zz', '/cancel 679cd22f now'])(
+    'sends %j to the usage reply',
+    (text) => {
+      expect(parse(text)).toMatchObject({ kind: 'help', mode: 'bad', topic: 'cancel' });
+    },
+  );
+
+  test.each([
+    ['/auto all', true],
+    ['/auto all off', false],
+    ['/tudong all tat', false],
+  ])('parses %j', (text, enable) => {
+    expect(parse(text)).toMatchObject({ kind: 'auto-all', enable: String(enable) });
+  });
+
+  test('a Confirm button reaches the database; a malformed one does not', () => {
+    expect(parseButton(`cf:A:${TOKEN}`)[0]!.json).toMatchObject({
+      kind: 'confirm',
+      action: 'A',
+      token: TOKEN,
+      userId: '111',
+      queryId: 'q1',
+      messageId: '9',
+    });
+    expect(parseButton(`cf:R:${TOKEN}`)[0]!.json).toMatchObject({ action: 'R' });
+    expect(parseButton(`cf:X:${TOKEN}`)).toEqual([]);
+    expect(parseButton('cf:A:short')).toEqual([]);
+  });
+
+  test('the cancel preview carries both buttons and says what it does', () => {
+    const out = prompt('cancel', {
+      result: 'OK',
+      token: TOKEN,
+      items: [
+        {
+          ref: '679cd22f',
+          video_id: ID,
+          version: 2,
+          title: 'Mèo',
+          status: 'SCRIPTING',
+          result: 'WOULD_CANCEL',
+        },
+        { ref: 'ffffffff', video_id: null, version: null, result: 'NOT_FOUND' },
+        {
+          ref: '11112222',
+          video_id: ID,
+          version: 1,
+          title: 'Cá',
+          status: 'COMPLETED',
+          result: 'ALREADY_COMPLETED',
+        },
+      ],
+    });
+
+    expect(out.ok).toBe(true);
+    expect(out.approve).toBe(`cf:A:${TOKEN}`);
+    expect(out.reject).toBe(`cf:R:${TOKEN}`);
+    expect(out.text).toContain('Hủy 1 video?');
+    expect(out.text).toContain('679cd22f v2 · Mèo · SCRIPTING');
+    expect(out.text).toContain('ffffffff: không tìm thấy');
+    expect(out.text).toContain('11112222: đã COMPLETED');
+    expect(out.text).toContain('credit đã dùng không được hoàn lại');
+  });
+
+  test.each([
+    ['cancel', { result: 'NOT_OWNER' }, 'Chỉ owner mới hủy được video.'],
+    ['cancel', { result: 'TOO_MANY' }, 'Mỗi lần hủy tối đa 20 video.'],
+    ['auto-all', { result: 'NOT_APPROVER' }, 'Bạn không phải approver.'],
+    ['auto-all', { result: 'NOTHING', items: [] }, 'Không có video nào để bật tự duyệt.'],
+  ])('%s %j has no buttons', (kind, row, text) => {
+    const out = prompt(kind, row);
+    expect(out.ok).toBe(false);
+    expect(out.text).toBe(text);
+  });
+
+  test('a cancel with nothing to cancel explains each id', () => {
+    const out = prompt('cancel', {
+      result: 'NOTHING',
+      items: [{ ref: 'ffffffff', video_id: null, result: 'NOT_FOUND' }],
+    });
+    expect(out.ok).toBe(false);
+    expect(out.text).toContain('ffffffff: không tìm thấy');
+  });
+
+  test('the /auto all preview shows count, waiting gates and estimates', () => {
+    const out = prompt('auto-all', {
+      result: 'OK',
+      token: TOKEN,
+      items: [
+        {
+          video_id: ID,
+          version: 2,
+          title: 'Mèo',
+          status: 'AWAITING_SCRIPT_APPROVAL',
+          gate: 'SCRIPT',
+        },
+        { video_id: ID, version: 1, title: 'Cá', status: 'SCRIPTING', gate: null },
+      ],
+      gates: 1,
+      estimates: { CRD: 5.126 },
+      no_estimate: 1,
+    });
+
+    expect(out.ok).toBe(true);
+    expect(out.approve).toBe(`cf:A:${TOKEN}`);
+    expect(out.text).toContain('Bật tự duyệt cho 2 video?');
+    expect(out.text).toContain('1 bước đang chờ sẽ được duyệt ngay');
+    expect(out.text).toContain('5.13 CRD');
+    expect(out.text).toContain('1 video chưa có ước tính');
+    expect(out.text).toContain('video tạo sau vẫn duyệt tay');
+  });
+
+  test('/auto all off answers with the count and no buttons', () => {
+    const out = prompt('auto-all', { result: 'OFF', items: [{}, {}] });
+    expect(out.ok).toBe(false);
+    expect(out.text).toContain('Đã tắt tự duyệt cho 2 video');
+  });
+
+  test('a confirmed cancel reports what happened and removes the buttons', () => {
+    const out = outcome({
+      result: 'OK',
+      action: 'CANCEL',
+      items: [
+        { video_id: ID, version: 2, result: 'CANCELLED' },
+        { video_id: '11112222-d1f8-44fe-a9fd-9cdcbaa6325c', version: 1, result: 'STALE' },
+        { video_id: '33334444-d1f8-44fe-a9fd-9cdcbaa6325c', version: 1, result: 'ERROR' },
+      ],
+    });
+    expect(out.settled).toBe(true);
+    expect(out.answer).toBe('Đã hủy 1 video.');
+    expect(out.editedHtml).toContain('Đã hủy 1 video.');
+    expect(out.editedHtml).toContain('11112222: đã có bản mới, không hủy');
+    expect(out.editedHtml).toContain('33334444: lỗi, xem log');
+  });
+
+  test('a confirmed /auto all reports the gates approved', () => {
+    const out = outcome({
+      result: 'OK',
+      action: 'AUTO_ALL',
+      items: [
+        { video_id: ID, version: 2, result: 'OK', decided_type: 'SCRIPT' },
+        { video_id: ID, version: 1, result: 'OK', decided_type: null },
+      ],
+    });
+    expect(out.answer).toBe('Đã bật tự duyệt cho 2 video.');
+    expect(out.editedHtml).toContain('duyệt luôn 1 bước đang chờ');
+  });
+
+  test.each([
+    ['NOT_REQUESTER', false, 'Chỉ người gửi lệnh mới xác nhận được.'],
+    ['NOT_ALLOWED', false, 'Bạn không còn quyền làm việc này.'],
+    ['REJECTED', true, 'Đã bỏ qua.'],
+    ['EXPIRED', true, 'Đã hết hạn; gửi lại lệnh nếu vẫn cần.'],
+    ['ALREADY', true, 'Yêu cầu này đã xử lý rồi.'],
+    ['NOT_FOUND', true, 'Yêu cầu này đã xử lý rồi.'],
+  ])('%s: settled %s', (result, settled, answer) => {
+    const out = outcome({ result, action: null, items: null });
+    expect(out.settled).toBe(settled);
+    expect(out.answer).toBe(answer);
+  });
+
+  test('routes the commands and the button', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out.map((n) => n.node));
+    expect(next('Cancel?')).toEqual([['Cancel'], ['Auto all?']]);
+    expect(next('Cancel')).toEqual([['Build confirm prompt']]);
+    expect(next('Auto all?')).toEqual([['Auto all'], ['Confirm?']]);
+    expect(next('Auto all')).toEqual([['Build confirm prompt']]);
+    expect(next('Build confirm prompt')).toEqual([['Ask confirm?']]);
+    expect(next('Ask confirm?')).toEqual([['Send confirm prompt'], ['Send status']]);
+    expect(next('Confirm?')).toEqual([['Confirm'], ['Selection?']]);
+    expect(next('Confirm')).toEqual([['Build confirm reply']]);
+    expect(next('Build confirm reply')).toEqual([['Answer confirm']]);
+    expect(next('Answer confirm')).toEqual([['Confirm settled?']]);
+    expect(next('Confirm settled?')).toEqual([['Edit confirm'], []]);
+    const query = (name: string) => wf.nodes.find((n) => n.name === name)!.parameters.query;
+    expect(query('Cancel')).toBe('SELECT * FROM telegram_cancel($1::bigint, $2);');
+    expect(query('Auto all')).toBe('SELECT * FROM telegram_auto_all($1::bigint, $2::boolean);');
+    expect(query('Confirm')).toBe('SELECT * FROM telegram_confirm($1, $2::bigint, $3);');
+  });
+
+  test('/help covers /cancel and /auto all', () => {
+    const help = (text: string) =>
+      runCode(FILE, 'Build help', {
+        input: [{ json: { allowed: true } }],
+        nodeOutputs: {
+          'Parse callback': [
+            { json: { kind: 'help', mode: 'help', topic: text, chatId: '-100', messageId: '7' } },
+          ],
+        },
+      })[0]!.json.text as string;
+    expect(help('cancel')).toContain('/cancel <id>');
+    expect(help('huy')).toContain('/cancel <id>');
+    expect(help('auto')).toContain('/auto all');
   });
 });

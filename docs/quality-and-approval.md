@@ -14,6 +14,8 @@
 
 Never render final without A1 and A2 for the **same version**. An A2 or A3 pre-approved by Render final (D-076) is still a recorded approval of that version's own preview or metadata hash, decided only after a clean QA.
 
+**`/auto all` (D-098):** any approver can turn `/auto` on for every active video that lacks it, after a preview and a Confirm button only they can press. Videos created later stay manual, and the limits below still apply.
+
 **`/auto <id>` (D-093):** any active approver can turn on automatic approval for the current version of a video. Every gate still to come — A1, A1b, storyboard, A2, A3 — is requested as usual (bound to its own payload hash) and approved at once in that approver's name (`approval_auto_decide()`, audit `approval_auto`, actor `auto-approve`); a gate already waiting is approved when the command arrives. QA **WARN is approved**, QA **FAIL** keeps the normal buttons. The **Cleanup** of the Mac copy is **never** automatic. Telegram shows `🤖 … tự duyệt (/auto)` lines (A1, A1b, storyboard) or the preview / thumbnail without buttons (A2, A3). `/new … auto=on` (D-096) turns it on when the video is created, in the name of the approver who presses Tạo. `/auto <id> off` brings the buttons back; an approver deactivated since `/auto` is not used; a new version starts manual. Paid steps after an automatic A1 still pass the budget guard.
 
 ## 2. Approval binding [PROPOSED implementation]
