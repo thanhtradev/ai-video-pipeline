@@ -85,6 +85,65 @@ describe('preview media', () => {
     expect(response.rawPayload).toEqual(MP4);
   });
 
+  test('says it accepts ranges, so a browser can seek (D-103)', async () => {
+    const response = await app.inject({ method: 'GET', url: url('preview.mp4') });
+
+    expect(response.headers['accept-ranges']).toBe('bytes');
+  });
+
+  test.each([
+    ['bytes=0-3', 0, 3],
+    ['bytes=5-', 5, MP4.length - 1],
+    ['bytes=-4', MP4.length - 4, MP4.length - 1],
+    ['bytes=5-100000', 5, MP4.length - 1],
+  ])('serves the range %s', async (range, start, end) => {
+    const response = await app.inject({
+      method: 'GET',
+      url: url('preview.mp4'),
+      headers: { range },
+    });
+
+    expect(response.statusCode).toBe(206);
+    expect(response.headers['content-range']).toBe(`bytes ${start}-${end}/${MP4.length}`);
+    expect(response.headers['content-length']).toBe(String(end - start + 1));
+    expect(response.rawPayload).toEqual(MP4.subarray(start, end + 1));
+  });
+
+  test('answers 416 for a range past the end', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: url('preview.mp4'),
+      headers: { range: `bytes=${MP4.length}-` },
+    });
+
+    expect(response.statusCode).toBe(416);
+    expect(response.headers['content-range']).toBe(`bytes */${MP4.length}`);
+  });
+
+  test.each([['bytes=a-b'], ['items=0-1'], ['bytes=0-1,3-4'], ['bytes=5-2'], ['bytes=-']])(
+    'ignores the unusable range %s and sends the whole file',
+    async (range) => {
+      const response = await app.inject({
+        method: 'GET',
+        url: url('preview.mp4'),
+        headers: { range },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.rawPayload).toEqual(MP4);
+    },
+  );
+
+  test('a wrong token gets 404 even with a range', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: url('preview.mp4', 'c'.repeat(32)),
+      headers: { range: 'bytes=0-1' },
+    });
+
+    expect(response.statusCode).toBe(404);
+  });
+
   test.each([
     ['a wrong token', url('preview.mp4', 'c'.repeat(32))],
     ['no token', `/media/${VIDEO}/1/${QA}/preview.mp4`],

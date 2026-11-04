@@ -58,5 +58,12 @@ GRANT EXECUTE ON FUNCTION
   web_video(text, uuid),
   web_workers(text),
   web_worker(text, text),
-  web_report(text, text)
+  web_report(text, text),
+  web_decide(text, uuid, text, text),
+  web_retry(text, uuid),
+  web_auto(text, uuid, boolean),
+  web_cancel(text, uuid),
+  web_cancel_confirm(text, text, boolean),
+  web_video_media(text, uuid),
+  web_video_media_file(text, uuid, text)
 TO aivideo_web;

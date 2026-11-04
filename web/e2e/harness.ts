@@ -4,6 +4,7 @@ import type { FastifyInstance } from 'fastify';
 import pg from 'pg';
 import { createTestDb, type TestDb } from '../../worker/test/helpers/db.js';
 import { createBatch, createJob, createVideo } from '../../worker/test/helpers/fixtures.js';
+import { episodeAtScriptApproval } from '../../worker/test/helpers/web-console.js';
 import { buildApp } from '../server/app.js';
 import { createPgStore } from '../server/store.js';
 
@@ -14,6 +15,7 @@ const UI_DIR = fileURLToPath(new URL('../dist/ui', import.meta.url));
 const PORT = 8791;
 export const BASE_URL = `http://localhost:${PORT}`;
 export const OWNER = 111;
+export const APPROVER = 222;
 
 const STEPS = ['script', 'tts', 'timing', 'storyboard', 'episode_code', 'render', 'qa', 'archive'];
 
@@ -70,8 +72,9 @@ export async function startHarness(): Promise<Harness> {
   for (const role of ['aivideo_n8n', 'aivideo_worker', 'aivideo_web']) await ensureRole(db, role);
   await db.pool.query(await readFile(GRANTS_SQL, 'utf8'));
   await db.pool.query(
-    `INSERT INTO approver (telegram_user_id, name, is_owner) VALUES ($1, 'Owner', true)`,
-    [OWNER],
+    `INSERT INTO approver (telegram_user_id, name, is_owner)
+     VALUES ($1, 'Owner', true), ($2, 'Approver', false)`,
+    [OWNER, APPROVER],
   );
   await db.pool.query(
     `INSERT INTO worker (id, capabilities, last_seen_at)
@@ -81,10 +84,11 @@ export async function startHarness(): Promise<Harness> {
 
   const batchId = await createBatch(db.pool, 'e2e');
   const done = (count: number): string[] => Array.from({ length: count }, () => 'SUCCEEDED');
-  const approval = await seedVideo(db, 1, batchId, 'Nếu Trái Đất ngừng quay', done(3));
-  await db.pool.query(`SELECT approval_request($1, 'SCRIPT', 'h1', interval '24 hours')`, [
-    approval.versionId,
-  ]);
+  const approval = await episodeAtScriptApproval(
+    db.pool,
+    'e2e-approval',
+    'Nếu Trái Đất ngừng quay',
+  );
   const stopped = await seedVideo(
     db,
     2,

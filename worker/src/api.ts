@@ -7,6 +7,7 @@ import Fastify, {
 import { createReadStream } from 'node:fs';
 import pino, { type Logger } from 'pino';
 import { readBoardPage } from './episode/boards.js';
+import { parseByteRange } from './episode/byte-range.js';
 import { findEpisodeMedia } from './episode/media.js';
 import { exportVideo, VIDEO_ID_PATTERN } from './move/export-video.js';
 import { verifyRequest, type NonceStore } from './security/hmac.js';
@@ -112,10 +113,19 @@ export async function buildApi(options: ApiOptions): Promise<FastifyInstance> {
       const body: ApiResponse<never> = { success: false, error: 'not found' };
       return reply.code(404).send(body);
     }
-    return reply
-      .type(media.contentType)
-      .header('content-length', media.bytes)
-      .send(createReadStream(media.path));
+    reply.type(media.contentType).header('accept-ranges', 'bytes');
+    const range = parseByteRange(request.headers.range, media.bytes);
+    if (range === 'unsatisfiable') {
+      return reply.code(416).header('content-range', `bytes */${media.bytes}`).send();
+    }
+    if (range) {
+      return reply
+        .code(206)
+        .header('content-range', `bytes ${range.start}-${range.end}/${media.bytes}`)
+        .header('content-length', range.end - range.start + 1)
+        .send(createReadStream(media.path, range));
+    }
+    return reply.header('content-length', media.bytes).send(createReadStream(media.path));
   });
 
   app.get<{ Params: { videoId: string }; Querystring: { t?: string } }>(

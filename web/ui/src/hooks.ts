@@ -7,11 +7,19 @@ export interface Polled<T> {
   data: T | null;
   error: ApiError | null;
   isLoading: boolean;
+  /** Fetch again now, keeping what is on screen until the answer arrives. */
+  reload: () => void;
 }
 
 /** Fetches now and every 15 seconds while the tab is visible. `key` restarts it. */
 export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
-  const [state, setState] = useState<Polled<T>>({ data: null, error: null, isLoading: true });
+  const [state, setState] = useState<Omit<Polled<T>, 'reload'>>({
+    data: null,
+    error: null,
+    isLoading: true,
+  });
+  const loadNow = useRef<() => void>(() => undefined);
+  const reload = useCallback(() => loadNow.current(), []);
   const latest = useRef(fetcher);
   latest.current = fetcher;
 
@@ -35,6 +43,7 @@ export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
       if (document.visibilityState === 'visible') void load();
     };
 
+    loadNow.current = () => void load();
     void load();
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void load();
@@ -47,7 +56,7 @@ export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
     };
   }, [key]);
 
-  return state;
+  return { ...state, reload };
 }
 
 export const SIGNED_OUT_EVENT = 'aivideo:signed-out';

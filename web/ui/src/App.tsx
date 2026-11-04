@@ -30,9 +30,9 @@ function isCurrent(path: string, to: string): boolean {
   return to === '/' ? path === '/' : path === to || path.startsWith(`${to}/`);
 }
 
-function Page({ path }: { path: string }) {
+function Page({ path, me }: { path: string; me: Me }) {
   const video = /^\/videos\/([^/]+)$/.exec(path);
-  if (video) return <VideoPage key={video[1]!} id={decodeSegment(video[1]!)} />;
+  if (video) return <VideoPage key={video[1]!} id={decodeSegment(video[1]!)} me={me} />;
   const worker = /^\/workers\/([^/]+)$/.exec(path);
   if (worker) return <WorkerPage key={worker[1]!} id={decodeSegment(worker[1]!)} />;
   if (path === '/') return <Overview />;
@@ -145,7 +145,7 @@ export function App() {
             You are not signed out: the console did not answer. Try again.
           </p>
         )}
-        <Page path={path} />
+        <Page path={path} me={session.me} />
       </main>
     </>
   );

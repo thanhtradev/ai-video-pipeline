@@ -1,6 +1,13 @@
 import type {
   ApiResponse,
   Attention,
+  AutoResult,
+  CancelOutcome,
+  CancelPreview,
+  DecideAction,
+  DecideResult,
+  RetryResult,
+  VideoMediaList,
   Me,
   Report,
   ReportPeriod,
@@ -61,5 +68,18 @@ export const api = {
   video: (id: string) => request<VideoDetail>(`/api/videos/${encodeURIComponent(id)}`),
   workers: () => request<WorkerSummary[]>('/api/workers'),
   worker: (id: string) => request<WorkerDetail>(`/api/workers/${encodeURIComponent(id)}`),
+  media: (id: string) => request<VideoMediaList>(`/api/videos/${encodeURIComponent(id)}/media`),
+  decide: (approvalId: string, action: DecideAction, note?: string) =>
+    post<DecideResult>(`/api/approvals/${encodeURIComponent(approvalId)}/decide`, {
+      action,
+      ...(note === undefined ? {} : { note }),
+    }),
+  retry: (id: string) => post<RetryResult>(`/api/videos/${encodeURIComponent(id)}/retry`, {}),
+  auto: (id: string, enable: boolean) =>
+    post<AutoResult>(`/api/videos/${encodeURIComponent(id)}/auto`, { enable }),
+  cancelPreview: (id: string) =>
+    post<CancelPreview>(`/api/videos/${encodeURIComponent(id)}/cancel`, {}),
+  cancelConfirm: (token: string, confirm: boolean) =>
+    post<CancelOutcome>(`/api/cancel/${encodeURIComponent(token)}`, { confirm }),
   report: (period: ReportPeriod) => request<Report>(`/api/report?period=${period}`),
 };

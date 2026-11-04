@@ -1,10 +1,21 @@
+import type { Me } from '../../../shared/types';
+import { ApprovalPanel } from '../actions/ApprovalPanel';
+import { ActionMessage, useAction } from '../actions/useAction';
+import { VideoActions } from '../actions/VideoActions';
 import { api } from '../api';
+import { MediaPanel } from '../MediaPanel';
 import { ErrorNote, Link, Loading, StateMark, StepStrip } from '../components';
-import { cellState, formatCost, formatTime, gateName, shortId, timeLeft } from '../format';
+import { cellState, formatCost, formatTime, shortId } from '../format';
 import { usePoll } from '../hooks';
 
-export function VideoPage({ id }: { id: string }) {
-  const { data: video, error, isLoading } = usePoll(() => api.video(id), id);
+export function VideoPage({ id, me }: { id: string; me: Me }) {
+  const { data: video, error, isLoading, reload } = usePoll(() => api.video(id), id);
+  const media = usePoll(() => api.media(id), id);
+  const reloadAll = (): void => {
+    reload();
+    media.reload();
+  };
+  const approvalState = useAction(reloadAll);
   if (isLoading) return <Loading />;
   if (!video) {
     return (
@@ -29,19 +40,20 @@ export function VideoPage({ id }: { id: string }) {
       </header>
       {error && <ErrorNote error={error} />}
 
-      {video.approvals.length > 0 && (
-        <section className="approval-panel" aria-labelledby="approvals">
-          <h2 id="approvals">Waiting for approval</h2>
-          <ul>
-            {video.approvals.map((approval) => (
-              <li key={approval.approval_id}>
-                {gateName(approval.type)}, {timeLeft(approval.expires_at)}. Approve it in the
-                Telegram chat for now.
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <ActionMessage state={approvalState} />
+      {video.approvals.map((approval) => (
+        <ApprovalPanel
+          key={approval.approval_id}
+          approval={approval}
+          state={approvalState}
+          voice={media.data?.review.voice ?? null}
+          language={media.data?.language ?? 'vi'}
+        />
+      ))}
+
+      <MediaPanel videoId={video.video_id} media={media.data} error={media.error} />
+
+      <VideoActions video={video} me={me} onChanged={reloadAll} />
 
       <dl className="facts">
         <dt>Video id</dt>

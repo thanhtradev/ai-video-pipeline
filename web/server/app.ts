@@ -12,7 +12,9 @@ import pino, { type Logger } from 'pino';
 import { ZodError } from 'zod';
 import type { ApiResponse } from '../shared/types.js';
 import { UnauthorizedError } from './errors.js';
+import { actionRoutes } from './routes/actions.js';
 import { authRoutes } from './routes/auth.js';
+import { mediaRoutes } from './routes/media.js';
 import { readRoutes } from './routes/read.js';
 import type { Store } from './store.js';
 
@@ -100,6 +102,8 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
     loginPerMinute: options.loginPerMinute ?? LOGINS_PER_MINUTE,
   });
   readRoutes(app, { store, cookieName: SESSION_COOKIE });
+  actionRoutes(app, { store, cookieName: SESSION_COOKIE });
+  mediaRoutes(app, { store, cookieName: SESSION_COOKIE });
 
   if (uiDir) await app.register(fastifyStatic, { root: uiDir, wildcard: false });
 
