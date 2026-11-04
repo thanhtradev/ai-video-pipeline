@@ -64,6 +64,53 @@ async function clear(): Promise<void> {
 }
 
 describe('telegram_pending', () => {
+  test('lists a stopped video with no open request after the requests (D-097)', async () => {
+    await clear();
+    const open = await video();
+    await request(open.versionId, 'SCRIPT');
+    const stopped = await video();
+    await db.pool.query(`UPDATE video_version SET status = 'NEEDS_DECISION' WHERE id = $1`, [
+      stopped.versionId,
+    ]);
+    const blocked = await video();
+    await db.pool.query(`UPDATE video_version SET status = 'BLOCKED_PROVIDER' WHERE id = $1`, [
+      blocked.versionId,
+    ]);
+
+    const rows = await pending(OWNER);
+
+    expect(rows).toEqual([
+      expect.objectContaining({ video_id: open.videoId, type: 'SCRIPT', reminded: true }),
+      expect.objectContaining({
+        allowed: true,
+        video_id: stopped.videoId,
+        version: 1,
+        type: 'NEEDS_DECISION',
+        expires_at: null,
+        reminded: false,
+      }),
+      expect.objectContaining({ video_id: blocked.videoId, type: 'BLOCKED_PROVIDER' }),
+    ]);
+    expect((await pending(OWNER, stopped.videoId.slice(0, 8))).map((r) => r.type)).toEqual([
+      'NEEDS_DECISION',
+    ]);
+    await db.pool.query(`UPDATE video_version SET status = 'CANCELLED' WHERE id = ANY($1)`, [
+      [stopped.versionId, blocked.versionId],
+    ]);
+  });
+
+  test('a stopped video with an open request is listed once, as the request', async () => {
+    await clear();
+    const { videoId, versionId } = await video();
+    await request(versionId, 'SCRIPT');
+    await db.pool.query(`UPDATE video_version SET status = 'NEEDS_DECISION' WHERE id = $1`, [
+      versionId,
+    ]);
+
+    expect((await pending(OWNER, videoId.slice(0, 8))).map((r) => r.type)).toEqual(['SCRIPT']);
+    await db.pool.query(`UPDATE video_version SET status = 'CANCELLED' WHERE id = $1`, [versionId]);
+  });
+
   test('answers strangers with a single refusal row and changes nothing', async () => {
     await clear();
     const { versionId } = await video();
