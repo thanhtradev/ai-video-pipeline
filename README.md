@@ -26,9 +26,9 @@ brief → script + storyboard → [APPROVE] → assets → preview 720p + thumbn
 | n8n | Orchestration, workflow control | LXC 104 `[CONFIRMED]` |
 | PostgreSQL | Source of truth | LXC 102 `[CONFIRMED]` has PostgreSQL |
 | Redis | Queue + coordination | LXC 112, Redis 7.0.15 `[CONFIRMED]`; AOF + `maxmemory` + ACL users (2026-10-24) |
-| Worker service | Runs AI, audio, QA, render tasks | Mac mini M4 (only active worker); MacBook Pro M1 offline for now (D-034) |
-| Remotion | Video composition | On Mac workers |
-| Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | Mac workers |
+| Worker service | Runs AI, audio, QA, render tasks | `mac-mini-m4`, `mac-mini-m4-02`, `hp-400-g7` (D-101, `docs/infrastructure.md` S-31) |
+| Remotion | Video composition | On every worker |
+| Claude Code CLI | All LLM work (script, storyboard, metadata) + Remotion code, headless, restricted workspace | On every worker |
 | TTS API | The only external paid API | ITERA TTS (ElevenLabs `eleven_v3` via a reseller, D-040/D-043); API surveyed (S-24); money price per credit `[UNKNOWN]` (U-20) |
 | Telegram Bot | Approvals, status, alerts, reports | — |
 | NAS | Archive | Interim: LXC 106 Nextcloud, WebDAV via tailnet `lxc-nextcloud:8080` (D-033, D-036); dedicated NAS planned |

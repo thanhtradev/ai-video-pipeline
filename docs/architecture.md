@@ -24,8 +24,8 @@ Everything in this file is `[PROPOSED]` unless stated otherwise.
                                         │              │ pull (consumer group)
                          ┌──────────────┴──────────────▼───────────────┐
                          │ Worker service (Tailscale only)             │
-                         │  Mac mini M4: render, heavy                 │
-                         │  MacBook Pro M1: light (offline now, D-034) │
+                         │  mac-mini-m4, mac-mini-m4-02, hp-400-g7:    │
+                         │    all streams (D-101)                      │
                          │  → AI provider APIs, Remotion, ffmpeg,      │
                          │    Claude Code CLI (sandboxed workspace)    │
                          └──────────────┬──────────────────────────────┘
@@ -69,7 +69,7 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 4. **Assets** — bounded parallel jobs: `tts` (paid API, cost guard), `visuals` (code-only: Claude Code + Remotion templates, D-020), `music/sfx` (free royalty-free library, license per track, D-021).
 5. **Subtitles** — from script + actual audio (alignment) → SRT + VTT.
 6. **Preview 720p** + **thumbnail/metadata** — `render_preview` job on Mac mini M4; `thumbnail` (Remotion still) and `metadata` (Claude Code) jobs in parallel (D-026).
-7. **Automated QA** — `qa` job on `q:light` (Mac mini M4 while M1 is offline, D-034) (`docs/quality-and-approval.md`).
+7. **Automated QA** — `qa` job on `q:light` (`docs/quality-and-approval.md`).
 8. **Preview approval** — Telegram, includes thumbnail + metadata; QA failures → user decides.
 9. **Final 1080p** — `render_final` job.
 10. **Archive** — copy to NAS, verify file count/size/checksum, write manifest → `COMPLETED`.
@@ -85,7 +85,7 @@ State machine details: `docs/job-lifecycle.md`. Cost: `docs/cost-and-providers.m
 - **Video affinity (D-074):** the first `job_start` of a video pins it to that worker (`video.worker_id`), because steps read earlier steps' files from the worker's local `WORK_ROOT`. Later jobs of the video go to the worker's own list `q:<stream>:w:<worker id>` (the list name is what `dispatch_all()` returns as `stream`); the worker reads it before the shared `q:<stream>`. Per-stream limits apply per worker list. n8n fetches a video's media from its worker (`worker.api_url`). The `/new` draft can pin the video to a chosen worker up front, and the owner can move a video with `/move`: the new worker copies the video folder from the old worker's `/transfer` endpoint, checks every checkpoint, and only then is the video re-pinned (D-087).
 - **Worker API:** `GET /health` (public, for Uptime Kuma) and `GET /capabilities` (HMAC-signed) on the Tailscale interface.
 
-Streams: `q:render` (M4), `q:heavy` (M4), `q:light` (M1 preferred; M4 takes it when it has no render/heavy work, D-027). While M1 is offline, the Mac mini M4 consumes all streams (D-034).
+Streams: `q:render`, `q:heavy`, `q:light`. Every live worker consumes all three, highest priority first (D-101, `docs/infrastructure.md` S-31).
 
 ## 6. Cross-cutting design rules
 

@@ -43,5 +43,6 @@ npm ci
 (cd remotion && npx remotion browser ensure)
 launchctl kickstart -k "gui/$(id -u)/$LABEL"
 API_PORT="$(grep '^API_PORT=' "$AIVIDEO_ROOT/config/worker.env" | cut -d= -f2- || true)"
-wait_healthy "http://127.0.0.1:${API_PORT:-8787}/health"
+API_HOST="$(grep '^API_HOST=' "$AIVIDEO_ROOT/config/worker.env" | cut -d= -f2- || true)"
+wait_healthy "http://${API_HOST:-127.0.0.1}:${API_PORT:-8787}/health"
 echo "worker restarted from $(git rev-parse --short HEAD); log: $AIVIDEO_ROOT/logs/worker.log"

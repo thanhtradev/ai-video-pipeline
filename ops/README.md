@@ -171,6 +171,12 @@ The worker loads code once at start, so **restart it only from an up-to-date `ma
 **Check**: `curl http://<tailscale ip>:8787/health` returns `{"status":"ok","workerId":"<WORKER_ID>"}`;
 `tail ~/aivideo/logs/worker.log` shows `worker ready`.
 
+**`connect EHOSTUNREACH <LAN host>` in the log while `nc` over SSH works** is macOS Local Network
+privacy blocking the launchd-started `node`, not a firewall (seen on `mac-mini-m4-02`, 2026-11-03).
+System Settings → Privacy & Security → Local Network → allow `node`, then
+`launchctl kickstart -k gui/$(id -u)/com.aivideo.worker`. It may need granting again after a Node
+version change, since the binary path changes.
+
 A **Linux worker** (Proxmox VM, systemd, bubblewrap) follows [linux-worker.md](linux-worker.md) instead
 (D-075).
 

@@ -284,4 +284,16 @@ describe('update-worker.sh', () => {
     expect(script).toContain('git pull --ff-only');
     expect(script).toContain('wait_healthy');
   });
+
+  // Live workers bind only their Tailscale address, so a fixed 127.0.0.1 never answers.
+  test.each(['launchd', 'systemd'])('%s checks health on the API_HOST it binds', (service) => {
+    const script = readFileSync(
+      fileURLToPath(new URL(`../../../ops/${service}/update-worker.sh`, import.meta.url)),
+      'utf8',
+    );
+    expect(script).toContain(`grep '^API_HOST='`);
+    expect(script).toContain(
+      'wait_healthy "http://${API_HOST:-127.0.0.1}:${API_PORT:-8787}/health"',
+    );
+  });
 });
