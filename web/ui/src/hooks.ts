@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ApiError } from './api';
 
 const POLL_MS = 15_000;
@@ -11,8 +11,11 @@ export interface Polled<T> {
   reload: () => void;
 }
 
-/** Fetches now and every 15 seconds while the tab is visible. `key` restarts it. */
-export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
+/**
+ * Fetches now and every 15 seconds while the tab is visible. `key` restarts it. With `isLive` false it
+ * fetches only when `key` changes, for data that rarely does.
+ */
+export function usePoll<T>(fetcher: () => Promise<T>, key: string, isLive = true): Polled<T> {
   const [state, setState] = useState<Omit<Polled<T>, 'reload'>>({
     data: null,
     error: null,
@@ -45,6 +48,11 @@ export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
 
     loadNow.current = () => void load();
     void load();
+    if (!isLive) {
+      return () => {
+        isCurrent = false;
+      };
+    }
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void load();
     }, POLL_MS);
@@ -54,9 +62,18 @@ export function usePoll<T>(fetcher: () => Promise<T>, key: string): Polled<T> {
       window.clearInterval(timer);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [key]);
+  }, [key, isLive]);
 
   return { ...state, reload };
+}
+
+export function useDebounced<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(value), delayMs);
+    return () => window.clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
 }
 
 export const SIGNED_OUT_EVENT = 'aivideo:signed-out';
@@ -70,6 +87,31 @@ function subscribeToLocation(onChange: () => void): () => void {
     window.removeEventListener('popstate', onChange);
     window.removeEventListener(NAVIGATE_EVENT, onChange);
   };
+}
+
+export function useSearchParams(): URLSearchParams {
+  const search = useSyncExternalStore(subscribeToLocation, () => window.location.search);
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
+/** Changes the address without adding to the browser's history, and tells whoever reads it. */
+export function replaceUrl(url: string): void {
+  window.history.replaceState(null, '', url);
+  window.dispatchEvent(new Event(NAVIGATE_EVENT));
+}
+
+/**
+ * The offset of a paged list, back to 0 when `filterKey` changes. Derived, not reset by an effect,
+ * which would first fetch the new filter at the old offset.
+ */
+export function usePageOffset(filterKey: string): [number, (offset: number) => void] {
+  const [page, setPage] = useState({ filterKey, offset: 0 });
+  const offset = page.filterKey === filterKey ? page.offset : 0;
+  const setOffset = useCallback(
+    (next: number) => setPage({ filterKey, offset: next }),
+    [filterKey],
+  );
+  return [offset, setOffset];
 }
 
 export function usePath(): string {

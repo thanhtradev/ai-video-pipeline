@@ -8,6 +8,8 @@ import type {
   CreateOutcome,
   DecideAction,
   DecideResult,
+  Library,
+  LibraryGroupBy,
   RetryResult,
   Me,
   Report,
@@ -50,6 +52,13 @@ export interface MediaFileAccess {
   base_url: string | null;
 }
 
+export interface LibraryQuery {
+  group: LibraryGroupBy;
+  search: string;
+  limit: number;
+  offset: number;
+}
+
 export interface Store {
   loginConsume: (token: string) => Promise<LoginResult | null>;
   logout: (session: string) => Promise<void>;
@@ -84,6 +93,7 @@ export interface Store {
     auto: boolean,
   ) => Promise<VideoDraft>;
   createDecide: (session: string, token: string, confirm: boolean) => Promise<CreateOutcome>;
+  library: (session: string, query: LibraryQuery) => Promise<Library>;
   ping: () => Promise<void>;
 }
 
@@ -137,6 +147,8 @@ export function createPgStore(pool: pg.Pool): Store {
       call<VideoDraft>('web_create_draft', session, JSON.stringify(brief), workerId, auto),
     createDecide: (session, token, confirm) =>
       call<CreateOutcome>('web_create_decide', session, token, confirm),
+    library: (session, query) =>
+      call<Library>('web_library', session, query.group, query.search, query.limit, query.offset),
     ping: async () => {
       await pool.query('SELECT 1');
     },

@@ -20,6 +20,45 @@ function fake(responses: (args: readonly string[], input?: string) => string) {
 }
 
 describe('rclone target', () => {
+  test('reads the Drive id of a file without changing its sharing (D-104)', async () => {
+    const { calls, target } = fake(() => JSON.stringify({ Path: 'final.mp4', ID: 'file_id-123' }));
+
+    expect(await target.remoteId!('2026/10/v/renders/final.mp4')).toBe('file_id-123');
+    expect(calls.map((c) => c.args)).toEqual([
+      ['lsjson', '--stat', `${ROOT}/2026/10/v/renders/final.mp4`],
+    ]);
+  });
+
+  test('reads ids through its own short-timeout runner, not the upload one', async () => {
+    const uploads: (readonly string[])[] = [];
+    const lookups: (readonly string[])[] = [];
+    const target = createRcloneTarget({
+      root: ROOT,
+      run: async (args) => {
+        uploads.push(args);
+        return '';
+      },
+      lookupRun: async (args) => {
+        lookups.push(args);
+        return JSON.stringify({ ID: 'an-id' });
+      },
+    });
+
+    expect(await target.remoteId!('x')).toBe('an-id');
+    expect(uploads).toEqual([]);
+    expect(lookups).toHaveLength(1);
+  });
+
+  test('has no id for a path that is gone, or a listing without one', async () => {
+    const gone = fake(() => {
+      throw new RcloneError('not found', 3);
+    });
+    const noId = fake(() => JSON.stringify({ Path: 'final.mp4' }));
+
+    expect(await gone.target.remoteId!('x')).toBeNull();
+    expect(await noId.target.remoteId!('x')).toBeNull();
+  });
+
   test('maps the archive operations to rclone commands under the root', async () => {
     const { calls, target } = fake((args) => {
       if (args[0] === 'lsjson' && args[1] === '-R')

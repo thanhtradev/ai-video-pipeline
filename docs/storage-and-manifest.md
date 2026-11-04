@@ -101,3 +101,9 @@ Record `seed` only when the provider supports it. No secrets.
 | Restore test | Monthly and before upgrades; first one in Phase 1 (D-031) |
 
 Current backup state: `[UNKNOWN]` (U-10).
+
+## Drive ids and the video library (D-104)
+
+The `archive` job records the Drive ids of `renders/final_1080p.mp4` and the version folder in its
+result, and `archive_record` takes them when the record is made. Reading them changes no sharing, and
+failing to read them does not fail the job. Older videos: `ops/video-library.md`.

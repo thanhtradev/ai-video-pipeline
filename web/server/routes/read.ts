@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import type { ApiResponse } from '../../shared/types.js';
+import { LIBRARY_PAGE_SIZE, type ApiResponse } from '../../shared/types.js';
 import type { Store } from '../store.js';
 import { WORKER_ID_SHAPE } from './schemas.js';
 import { readSession } from './session.js';
@@ -8,6 +8,8 @@ import { readSession } from './session.js';
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 const MAX_SEARCH_LENGTH = 200;
+// The largest value of the functions' integer parameter.
+const MAX_OFFSET = 2_147_483_647;
 
 const videoQuery = z.object({
   state: z
@@ -15,10 +17,16 @@ const videoQuery = z.object({
     .default('all'),
   search: z.string().max(MAX_SEARCH_LENGTH).default(''),
   limit: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
-  offset: z.coerce.number().int().min(0).default(0),
+  offset: z.coerce.number().int().min(0).max(MAX_OFFSET).default(0),
 });
 const videoParams = z.object({ id: z.uuid() });
 const workerParams = z.object({ id: z.string().regex(WORKER_ID_SHAPE) });
+const libraryQuery = z.object({
+  group: z.enum(['kit', 'character']).default('kit'),
+  search: z.string().max(MAX_SEARCH_LENGTH).default(''),
+  limit: z.coerce.number().int().min(1).max(LIBRARY_PAGE_SIZE).default(LIBRARY_PAGE_SIZE),
+  offset: z.coerce.number().int().min(0).max(MAX_OFFSET).default(0),
+});
 const reportQuery = z.object({ period: z.enum(['today', '7d', '30d']).default('today') });
 
 function ok<T>(data: T): ApiResponse<T> {
@@ -53,6 +61,11 @@ export function readRoutes(app: FastifyInstance, options: ReadRouteOptions): voi
     const session = sessionOf(request);
     const video = await store.video(session, videoParams.parse(request.params).id);
     return video ? ok(video) : notFound(reply);
+  });
+
+  app.get('/api/library', async (request) => {
+    const session = sessionOf(request);
+    return ok(await store.library(session, libraryQuery.parse(request.query)));
   });
 
   app.get('/api/workers', async (request) => ok(await store.workers(sessionOf(request))));

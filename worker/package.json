@@ -8,7 +8,8 @@
     "test:watch": "vitest",
     "start": "tsx src/main.ts",
     "migrate": "dbmate --migrations-dir ../db/migrations --no-dump-schema up",
-    "archive:selftest": "tsx src/tools/archive-selftest.ts"
+    "archive:selftest": "tsx src/tools/archive-selftest.ts",
+    "drive:backfill": "tsx src/tools/backfill-drive-ids.ts"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.534",

@@ -3479,10 +3479,11 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   );
   const menu = /## BotFather menu[\s\S]*?```\n([\s\S]*?)```/.exec(doc)![1]!.trim().split('\n');
   // Aliases WF-06 accepts but the menu does not list.
-  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy', 'video']);
+  const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy', 'video', 'thuvien']);
   // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
   const HIDDEN = [
     'web',
+    'library',
     'deploy',
     'report',
     'brief',
@@ -4539,7 +4540,7 @@ describe('WF-06 /web sign-in link (D-103)', () => {
     const wf = workflow(FILE);
     const next = (name: string) => wf.connections[name]!.main.map((o) => o.map((c) => c.node));
     expect(next('Parse callback')).toEqual([['Web?']]);
-    expect(next('Web?')).toEqual([['Web login'], ['Brief?']]);
+    expect(next('Web?')).toEqual([['Web login'], ['Library?']]);
     expect(next('Web login')).toEqual([['Build web link']]);
     expect(next('Build web link')).toEqual([['Send status']]);
     expect(wf.nodes.find((n) => n.name === 'Web login')!.parameters.query).toContain(
@@ -4572,5 +4573,126 @@ describe('WF-06 /web sign-in link (D-103)', () => {
       nodeOutputs: { 'Parse callback': inputRow },
     });
     expect(out[0]!.json.text).toMatch(/^Cách dùng: \/web/);
+  });
+});
+
+describe('WF-06 /library (D-104)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const TELEGRAM_LIMIT = 4096;
+  const command = (text: string, isBot = false): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: isBot }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (item: Item) => runCode(FILE, 'Parse callback', { input: [item] });
+  const row = (over: Record<string, unknown> = {}): Item => ({
+    json: {
+      allowed: true,
+      group_slug: 'whatif',
+      group_label: 'Nếu bạn…',
+      group_total: 1,
+      video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+      title: 'Nếu Trái Đất ngừng quay',
+      file_url: 'https://drive.google.com/file/d/abc/view',
+      ...over,
+    },
+  });
+  const build = (rows: Item[], text = '/library') =>
+    runCode(FILE, 'Build library', {
+      input: rows,
+      nodeOutputs: { 'Parse callback': parse(command(text)) },
+    });
+
+  test.each([
+    ['/library', '', ''],
+    ['/thuvien', '', ''],
+    ['/library@aivideo_bot', '', ''],
+    ['/library kit=science', 'science', ''],
+    ['/library nhanvat=chip-en', '', 'chip-en'],
+    ['/library kit=whatif nhanvat=chip', 'whatif', 'chip'],
+  ])('parses %j', (text, kit, character) => {
+    expect(parse(command(text))[0]!.json).toMatchObject({
+      kind: 'library',
+      userId: '111',
+      chatId: '-100',
+      kit,
+      characterSet: character,
+    });
+  });
+
+  test('ignores a bot', () => {
+    expect(parse(command('/library', true))).toEqual([]);
+  });
+
+  test('bad arguments get the usage', () => {
+    const inputRow = parse(command('/library hello'));
+    const out = runCode(FILE, 'Build help', {
+      input: [{ json: { allowed: true } }],
+      nodeOutputs: { 'Parse callback': inputRow },
+    });
+    expect(out[0]!.json.text).toMatch(/^Cách dùng: \/library/);
+  });
+
+  test('one query, whose answer becomes the reply', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((o) => o.map((c) => c.node));
+    expect(next('Library?')).toEqual([['Library'], ['Brief?']]);
+    expect(next('Library')).toEqual([['Build library']]);
+    expect(next('Build library')).toEqual([['Send status']]);
+    expect(wf.nodes.find((n) => n.name === 'Library')!.parameters.query).toContain(
+      "telegram_library($1::bigint, NULLIF($2, ''), NULLIF($3, ''))",
+    );
+  });
+
+  test('stays silent for someone who is not an approver', () => {
+    expect(build([{ json: { allowed: false } }])).toEqual([]);
+  });
+
+  test('lists the title and link under the group, with its count', () => {
+    const [out] = build([row({ group_total: 12 })]);
+    const text = out!.json.text as string;
+
+    expect(out!.json).toMatchObject({ chatId: '-100', messageId: '7' });
+    expect(text).toContain('Nếu bạn… (12)');
+    expect(text).toContain('Nếu Trái Đất ngừng quay');
+    expect(text).toContain('https://drive.google.com/file/d/abc/view');
+  });
+
+  test('says when a video has no link yet, and names a group with no kit', () => {
+    const [out] = build([row({ group_slug: null, group_label: null, file_url: null })]);
+
+    expect(out!.json.text).toContain('Khác');
+    expect(out!.json.text).toContain('chưa có link');
+    expect(out!.json.text).toContain('/v_679cd22f');
+  });
+
+  test('says when nothing was found', () => {
+    const [out] = build([row({ video_id: null, group_total: 0 })]);
+
+    expect(out!.json.text).toMatch(/Chưa có video/);
+  });
+
+  test('stays under the Telegram limit at the worst case, and says what it left out', () => {
+    const rows = Array.from({ length: 100 }, (_, index) =>
+      row({
+        group_slug: `kit-${index % 10}`,
+        group_label: 'Một nhóm có tên rất dài '.repeat(4),
+        group_total: 500,
+        title: 'Một tiêu đề rất dài với nhiều chữ '.repeat(20),
+        file_url: `https://drive.google.com/file/d/${'x'.repeat(60)}/view`,
+      }),
+    );
+
+    const [out] = build(rows);
+    const text = out!.json.text as string;
+
+    expect(text.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+    expect(text).toMatch(/còn nữa/);
+  });
+
+  test('points to the page for the full list', () => {
+    const [out] = build([row()]);
+
+    expect(out!.json.text).toContain('/web');
   });
 });

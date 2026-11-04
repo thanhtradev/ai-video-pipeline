@@ -29,6 +29,8 @@ export interface ArchiveTarget {
   hash: (remotePath: string) => Promise<FileDigest>;
   /** Renames; fails if the destination exists. */
   move: (fromPath: string, toPath: string) => Promise<void>;
+  /** Optional: the target's own id of a file or folder, for a link to it; null if it has none. */
+  remoteId?: (remotePath: string) => Promise<string | null>;
 }
 
 export interface WebdavOptions {
