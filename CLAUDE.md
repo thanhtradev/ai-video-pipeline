@@ -33,7 +33,7 @@ When a real value is surveyed, update `docs/infrastructure.md` with the date and
 
 ## 3. Things you must NOT do
 
-- Do not deploy to production; do not import/edit/activate production n8n workflows.
+- Do not deploy to production; do not import/edit/activate production n8n workflows. Never send `/deploy` or run the deployer: `/deploy` is the owner's own action on Telegram (D-100).
 - Do not connect to and change configuration of production machines (Proxmox, LXC, NAS, Mac workers) unless the task says so explicitly and the user approved it.
 - Do not call paid AI APIs (image, video, TTS, music, LLM API) unless the task explicitly allows it and the cost guard approved it.
 - Do not delete files, data, tables, queues, or archives. If deletion is needed → warn and ask for approval.
@@ -47,8 +47,8 @@ When a real value is surveyed, update `docs/infrastructure.md` with the date and
 1. Work on a dedicated branch; changes go through a PR on the private GitHub repo. Never push directly to `main`.
 2. Write tests first (TDD), run tests, review before opening a PR.
 3. n8n workflows are versioned as JSON exports in the repo; the user imports and publishes them with
-   `ops/n8n/deploy-workflows.sh` (never an agent).
-4. Database migrations are versioned files with a rollback plan; never run them against production from an agent.
+   `ops/n8n/deploy-workflows.sh` or the owner's `/deploy` on Telegram (never an agent).
+4. Database migrations are versioned files with a rollback plan; never run them against production from an agent. `/deploy` does not run them either.
 5. Commits follow Conventional Commits: `feat|fix|refactor|docs|test|chore|perf|ci: ...`.
 6. Before committing: `npm run format:check && npm run typecheck && npm test` (needs `npm run infra:up`).
    Tests use only the local `docker-compose.test.yml` containers — never a production host.

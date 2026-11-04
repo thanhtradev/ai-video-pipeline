@@ -1,0 +1,16 @@
+# One poll of /deploy (D-100), started by aivideo-deployer.timer. Install as in
+# ops/deploy-command.md; the macOS counterpart is ops/launchd/com.aivideo.deployer.plist.
+[Unit]
+Description=AI video pipeline deployer
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=aivideo
+Group=aivideo
+WorkingDirectory=/home/aivideo/aivideo/repo/worker
+Environment=AIVIDEO_ROOT=/home/aivideo/aivideo
+ExecStart=/home/aivideo/aivideo/repo/ops/systemd/run-deployer.sh
+StandardOutput=append:/home/aivideo/aivideo/logs/deployer.log
+StandardError=append:/home/aivideo/aivideo/logs/deployer.log

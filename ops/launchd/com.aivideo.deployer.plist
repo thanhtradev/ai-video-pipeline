@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchAgent of the deployer (D-100): one poll of /deploy every 30 s. Install as in
+  ops/deploy-command.md, which replaces /Users/aivideo with the real home and prepends the Node
+  binary directory to PATH, as for com.aivideo.worker.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.aivideo.deployer</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/aivideo/aivideo/repo/ops/launchd/run-deployer.sh</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>AIVIDEO_ROOT</key>
+    <string>/Users/aivideo/aivideo</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>30</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/aivideo/aivideo/logs/deployer.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/aivideo/aivideo/logs/deployer.log</string>
+</dict>
+</plist>

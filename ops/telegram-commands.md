@@ -42,6 +42,7 @@ finished, of any approver (D-097). The reply always shows the id it resolved to.
 | `/auto` (alias `/tudong`) | `/auto <id prefix>` turns on automatic approval of every remaining gate (A1, A1b, storyboard, A2, A3; QA WARN approved, FAIL stops; never the Mac cleanup); a gate already waiting is approved at once · `/auto <id prefix> off` · `/auto all`: every active video, after a preview and a Confirm button for the sender; videos created later stay manual · `/auto all off`: at once | any chat | approvers | D-093, D-098 |
 | `/cancel` (alias `/huy`) | `/cancel <id prefix> [id prefix…]`, at most 20: a preview, then a Confirm button for the sender, 10 minutes. Nothing is deleted | any chat | owner | D-094, D-098 |
 | `/move` (alias `/chuyen`) | `/move <id prefix> <worker id>` · `/move <id prefix> huy` cancels a waiting move | any chat | owner | D-087 |
+| `/deploy` | `/deploy`, no arguments: updates the workers and n8n to `origin/main` after a preflight and a Confirm button; refused if a migration is missing; `/deploy` again shows the one in progress | any chat; messages go to the approval chat | owner | D-100 |
 | `/rules` | `/rules [video\|tts\|say]` · `/rules file <scope>` · file captioned `/rules set <scope>` | any chat | approvers | D-059 |
 | `/rule` | `/rule add <video\|tts> <text>` · `/rule del <number>` | any chat | approvers | D-059 |
 | `/say`, `/unsay` | `/say <term> = <spoken>` · `/unsay <term>` | any chat | approvers | D-059 |

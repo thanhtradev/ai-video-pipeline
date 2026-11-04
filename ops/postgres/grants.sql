@@ -38,5 +38,8 @@ GRANT EXECUTE ON FUNCTION
   video_move_claim(text, integer),
   video_move_token_valid(text, uuid, text),
   video_move_complete(uuid, text),
-  video_move_fail(uuid, text, text)
+  video_move_fail(uuid, text, text),
+  deploy_poll(text, boolean),
+  deploy_preflight_report(text, uuid, text, text, text[], text),
+  deploy_target_report(text, uuid, text, boolean, text)
 TO aivideo_worker;
