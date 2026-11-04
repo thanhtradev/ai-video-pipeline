@@ -127,7 +127,7 @@ else, so a new worker is these steps and nothing more:
 
 The worker loads code once at start, so **restart it only from an up-to-date `main`**:
 `~/aivideo/repo/ops/launchd/update-worker.sh` (fetch, `git pull --ff-only`, `npm ci`, Chrome,
-`launchctl kickstart`, `/health`). Development happens in another checkout
+`launchctl kickstart`, `/health`), or the owner's `/deploy` on Telegram ([deploy-command.md](deploy-command.md)). Development happens in another checkout
 (`~/remote-dev/AIVIdeo/ai-video-pipeline`), never in `~/aivideo/repo`.
 
 1. Clone and build (the `gh` CLI is logged in to the private repo):

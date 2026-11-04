@@ -1,0 +1,11 @@
+# Runs aivideo-deployer.service every 30 s (D-100). A run still going delays the next one.
+[Unit]
+Description=AI video pipeline deployer, every 30 s
+
+[Timer]
+OnBootSec=60s
+OnUnitInactiveSec=30s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

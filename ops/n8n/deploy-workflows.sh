@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Imports and publishes the n8n workflows of n8n/workflows/ on LXC 104 with the n8n CLI inside the
-# container (D-068). Run by the user from the dev Mac; Claude Code never runs it (CLAUDE.md §3).
+# container (D-068). Run by the user from the dev Mac, or by the deployer after the owner confirms
+# /deploy on Telegram (D-100). Claude Code never runs it (CLAUDE.md §3).
 #
 #   ops/n8n/deploy-workflows.sh [--dry-run] [--no-publish] [wf-06 wf-13 ...]
 #

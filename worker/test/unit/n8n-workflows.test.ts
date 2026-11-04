@@ -2979,6 +2979,7 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   const ALIASES = new Set(['ytuong', 'chuyen', 'cho', 'tudong', 'huy', 'video']);
   // Commands that work and appear in /help, kept out of the menu so it stays short (D-097).
   const HIDDEN = [
+    'deploy',
     'report',
     'workers',
     'brief',
@@ -3820,7 +3821,7 @@ describe('WF-06 /v card and /report (D-099)', () => {
     expect(next('Send status')).toEqual([['From card?']]);
     expect(next('Send confirm prompt')).toEqual([['From card?']]);
     expect(next('From card?')).toEqual([['Answer card'], []]);
-    expect(next('Report?')).toEqual([['Report'], ['Selection?']]);
+    expect(next('Report?')).toEqual([['Report'], ['Deploy?']]);
     expect(next('Report')).toEqual([['Build report']]);
     expect(next('Build report')).toEqual([['Send status']]);
     const node = wf.nodes.find((n) => n.name === 'Report')!;
@@ -3829,5 +3830,170 @@ describe('WF-06 /v card and /report (D-099)', () => {
     for (const key of ['retryData', 'autoData', 'pendingData', 'cancelData']) {
       expect(send).toContain(`$json.${key}`);
     }
+  });
+});
+
+describe('/deploy (D-100)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const WATCH = 'wf-08-watchdog.json';
+  const SHA = 'a'.repeat(40);
+  const TOKEN = 'c'.repeat(32);
+  const parse = (text: string) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+          },
+        },
+      ],
+    })[0]!.json;
+  const reply = (row: Record<string, unknown>) =>
+    runCode(FILE, 'Build deploy', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [{ json: { kind: 'deploy', chatId: '-100', messageId: '7' } }],
+      },
+    })[0]!.json.text as string;
+  const notice = (row: Record<string, unknown>) =>
+    runCode(WATCH, 'Build deploy message', { input: [{ json: row }] })[0]!.json as Record<
+      string,
+      string | boolean
+    >;
+
+  test('parses /deploy, which takes no arguments', () => {
+    expect(parse('/deploy')).toMatchObject({ kind: 'deploy', userId: '111' });
+    expect(parse('/deploy@aivideo_bot')).toMatchObject({ kind: 'deploy' });
+    expect(parse('/deploy abc123')).toMatchObject({ kind: 'help', mode: 'bad', topic: 'deploy' });
+  });
+
+  test('answers each result of telegram_deploy()', () => {
+    expect(reply({ result: 'NOT_OWNER' })).toBe('Chỉ owner mới deploy được.');
+    expect(reply({ result: 'OK' })).toContain('Đang kiểm tra origin/main');
+    const open = reply({
+      result: 'OPEN',
+      status: 'RUNNING',
+      sha: SHA,
+      targets: [
+        { target: 'mac-mini-m4', status: 'DONE' },
+        { target: 'hp-400-g7', status: 'DRAINING' },
+      ],
+    });
+    expect(open).toContain('aaaaaaa');
+    expect(open).toContain('mac-mini-m4: DONE');
+    expect(open).toContain('hp-400-g7: DRAINING');
+  });
+
+  test('the confirm message shows what would go out, with both buttons', () => {
+    const out = notice({
+      kind: 'CONFIRM',
+      status: 'AWAITING_CONFIRM',
+      sha: SHA,
+      commits: 'abc feat: x',
+      token: TOKEN,
+      targets: [],
+      workers: ['mac-mini-m4', 'hp-400-g7'],
+      offline: ['mac-mini-m4-02'],
+    });
+    expect(out.ask).toBe(true);
+    expect(out.approve).toBe(`cf:A:${TOKEN}`);
+    expect(out.reject).toBe(`cf:R:${TOKEN}`);
+    expect(out.text).toContain('aaaaaaa');
+    expect(out.text).toContain('abc feat: x');
+    expect(out.text).toContain('mac-mini-m4, hp-400-g7, n8n');
+    expect(out.text).toContain('Bỏ qua: mac-mini-m4-02');
+    expect(out.text).toContain('khi worker rảnh');
+  });
+
+  test('a refusal for missing migrations names them and says what to do', () => {
+    const out = notice({
+      kind: 'FINISHED',
+      status: 'REFUSED',
+      sha: SHA,
+      missing: ['20261125000400'],
+      detail: null,
+    });
+    expect(out.ask).toBe(false);
+    expect(out.text).toContain('20261125000400');
+    expect(out.text).toContain('migration');
+  });
+
+  test('a refusal for another reason shows it', () => {
+    const out = notice({
+      kind: 'FINISHED',
+      status: 'REFUSED',
+      detail: 'ssh pve failed',
+      missing: [],
+    });
+    expect(out.text).toContain('ssh pve failed');
+  });
+
+  test('a finished rollout lists each target; a failed one shows the output', () => {
+    const done = notice({
+      kind: 'FINISHED',
+      status: 'SUCCEEDED',
+      sha: SHA,
+      targets: [
+        { target: 'mac-mini-m4', status: 'DONE', detail: '' },
+        { target: 'n8n', status: 'DONE', detail: 'workflows unchanged' },
+        { target: 'hp-400-g7', status: 'SKIPPED', detail: 'offline' },
+      ],
+    });
+    expect(done.text).toContain('✅ Deploy xong aaaaaaa');
+    expect(done.text).toContain('hp-400-g7: SKIPPED (offline)');
+
+    const failed = notice({
+      kind: 'FINISHED',
+      status: 'FAILED',
+      sha: SHA,
+      targets: [
+        { target: 'mac-mini-m4', status: 'FAILED', detail: 'npm ci failed' },
+        { target: 'n8n', status: 'CANCELLED', detail: null },
+      ],
+    });
+    expect(failed.text).toContain('❌ Deploy lỗi');
+    expect(failed.text).toContain('npm ci failed');
+    expect(failed.text).toContain('n8n: CANCELLED');
+  });
+
+  test('a cancelled request says so', () => {
+    expect(notice({ kind: 'FINISHED', status: 'CANCELLED', sha: SHA }).text).toContain(
+      'Đã hủy deploy',
+    );
+  });
+
+  test('the Confirm button answers for a deploy', () => {
+    const [out] = runCode(FILE, 'Build confirm reply', {
+      input: [{ json: { result: 'OK', action: 'DEPLOY', items: [] } }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'confirm', queryId: 'q', chatId: '-1', messageId: '9' } },
+        ],
+      },
+    });
+    expect(out!.json.answer).toBe('Đã bắt đầu deploy; có thông báo khi xong.');
+    expect(out!.json.settled).toBe(true);
+  });
+
+  test('routes the command and the notices', () => {
+    const wf = workflow(FILE);
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out.map((n) => n.node));
+    expect(next('Deploy?')).toEqual([['Deploy'], ['Selection?']]);
+    expect(next('Deploy')).toEqual([['Build deploy']]);
+    expect(next('Build deploy')).toEqual([['Send status']]);
+    expect(wf.nodes.find((n) => n.name === 'Deploy')!.parameters.query).toBe(
+      'SELECT * FROM telegram_deploy($1::bigint);',
+    );
+
+    const watch = workflow(WATCH);
+    const after = (name: string) =>
+      watch.connections[name]!.main.map((out) => out.map((n) => n.node));
+    expect(after('Every minute')).toEqual([['Run watchdog', 'Deploy notices']]);
+    expect(after('Deploy notices')).toEqual([['Build deploy message']]);
+    expect(after('Build deploy message')).toEqual([['Ask deploy?']]);
+    expect(after('Ask deploy?')).toEqual([['Send deploy confirm'], ['Send deploy notice']]);
+    expect(watch.nodes.find((n) => n.name === 'Deploy notices')!.parameters.query).toBe(
+      'SELECT * FROM deploy_notices_due();',
+    );
   });
 });

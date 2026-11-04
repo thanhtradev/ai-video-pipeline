@@ -50,6 +50,8 @@ X-Signature: hex(HMAC-SHA256(key_of(client_id), method + "\n" + path + "\n" + ti
 
 `[CONFIRMED]`: Claude Code never deploys to production or edits production workflows directly; code changes go through branch/PR, tests, and review.
 
+`[PROPOSED]` `/deploy` (D-100): the owner can roll `origin/main` out to the workers and n8n from Telegram, after a preflight and a Confirm button only they can press. It takes no argument, so only code already on `main` can be installed; it never runs migrations; every step is in `deploy_request` / `deploy_target` and `audit_log`. A stolen owner Telegram account can therefore deploy `main`, but cannot choose what is deployed. That rests on `main` accepting changes only through reviewed PRs: branch protection is `[UNKNOWN]`, see `ops/deploy-command.md`. The deployer holds only the worker's database login, and the update scripts it runs get no database URL or other secret in their environment. The Mac mini deployer also has an SSH key for Proxmox, because `deploy-workflows.sh` needs it; keep it in `~/.ssh`, which the episode agent's settings and OS sandbox both deny (`worker/src/episode/agent-settings.ts`, `worker/src/episode/sandbox.ts`). Claude Code never sends `/deploy` and never runs the deployer.
+
 **Implemented (2a)** for text steps (`worker/src/claude/claude-cli.ts`): `claude -p` with `--tools ""`
 (no tools), `--strict-mcp-config` (no MCP servers), `--setting-sources project`, the pipeline deny-list
 `ops/claude/pipeline-settings.json`, `--no-session-persistence`, a JSON schema, a timeout, and a child
