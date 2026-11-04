@@ -5,10 +5,10 @@ Claude Code runs none of this (CLAUDE.md §3).
 
 What it adds: a page showing what needs you, every video with its steps, workers and the report. It
 also decides approvals (except the Mac cleanup, which deletes files and stays on Telegram), retries,
-turns automatic approval on and off, and, for the owner, cancels. Send `/web` to the bot in a private
+turns automatic approval on and off, creates videos, and, for the owner, cancels. Send `/web` to the bot in a private
 chat, open the link on a device on the tailnet, and press Sign in.
 
-Data: migrations `20261127000100` and `20261127000200`. They add a trigger on `approver` and change
+Data: migrations `20261127000100` to `20261127000300`. They add a trigger on `approver` and change
 no existing table. `/deploy` refuses to run until this
 migration is applied, like any other (D-100), and it does not update the console.
 
@@ -105,6 +105,8 @@ that, media plays but cannot seek.
    someone taps one.
 8. As an approver who is not the owner, confirm Cancel video is not offered.
 9. Open a video with a preview and seek in it.
+10. Create a video on the page and cancel it from its page before it costs anything. A full brief
+    from a file still goes through `/new` on Telegram.
 
 ## Updating
 

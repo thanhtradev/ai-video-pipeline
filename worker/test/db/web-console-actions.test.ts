@@ -2,7 +2,13 @@ import { readFile } from 'node:fs/promises';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/db.js';
 import { createBatch, createVideo, versionStatus } from '../helpers/fixtures.js';
-import { episodeAtScriptApproval, type ScriptApproval } from '../helpers/web-console.js';
+import {
+  callAsWeb,
+  episodeAtScriptApproval,
+  prepareWebRoles,
+  webSignIn,
+  type ScriptApproval,
+} from '../helpers/web-console.js';
 
 // Web console actions (D-103). Each calls what the bot calls, with the user from the session.
 
@@ -14,47 +20,13 @@ let db: TestDb;
 let ownerSession: string;
 let approverSession: string;
 
-async function ensureRole(role: string): Promise<void> {
-  await db.pool.query(`
-    DO $$ BEGIN
-      CREATE ROLE ${role} NOLOGIN;
-    EXCEPTION WHEN duplicate_object OR unique_violation THEN NULL;
-    END $$;`);
-}
-
-async function signIn(user: number): Promise<string> {
-  const login = await db.pool.query<{ token: string }>(
-    'SELECT token FROM telegram_web_login($1, true)',
-    [user],
-  );
-  const session = await db.pool.query<{ session: string }>(
-    'SELECT session FROM web_login_consume($1)',
-    [login.rows[0]!.token],
-  );
-  return session.rows[0]!.session;
-}
-
-async function callWeb<T>(fn: string, ...args: unknown[]): Promise<T> {
-  const client = await db.pool.connect();
-  try {
-    await client.query('BEGIN');
-    await client.query('SET LOCAL ROLE aivideo_web');
-    const placeholders = args.map((_, i) => `$${i + 1}`).join(', ');
-    const result = await client.query<{ value: T }>(`SELECT ${fn}(${placeholders}) AS value`, args);
-    await client.query('COMMIT');
-    return result.rows[0]!.value;
-  } catch (error: unknown) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-}
+const callWeb = <T>(fn: string, ...args: unknown[]): Promise<T> =>
+  callAsWeb<T>(db.pool, fn, ...args);
+const signIn = (user: number): Promise<string> => webSignIn(db.pool, user);
 
 beforeAll(async () => {
   db = await createTestDb();
-  for (const role of ['aivideo_n8n', 'aivideo_worker', 'aivideo_web']) await ensureRole(role);
-  await db.pool.query(await readFile(GRANTS_SQL, 'utf8'));
+  await prepareWebRoles(db.pool, await readFile(GRANTS_SQL, 'utf8'));
   await db.pool.query(
     `INSERT INTO approver (telegram_user_id, name, is_owner)
      VALUES ($1, 'owner', true), ($2, 'approver', false)`,

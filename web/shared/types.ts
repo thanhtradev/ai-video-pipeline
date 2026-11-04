@@ -214,3 +214,45 @@ export interface VideoMediaList {
   files: MediaFileRef[];
   review: MediaReview;
 }
+
+export interface CatalogOption {
+  slug: string;
+  label: string;
+  language: string;
+  is_default: boolean;
+}
+
+export interface Catalog {
+  kits: CatalogOption[];
+  characters: CatalogOption[];
+  workers: { id: string; online: boolean }[];
+  minutes: number[];
+}
+
+export interface NewVideo {
+  topic: string;
+  duration_minutes?: number;
+  notes?: string;
+  kit?: string;
+  character_set?: string;
+  worker?: string;
+  auto: boolean;
+}
+
+/** What the database stored, which may differ from the form: it can swap the cast (D-092). */
+export interface VideoDraft extends ActionResult {
+  token: string | null;
+  expires_at: string | null;
+  error: string | null;
+  brief: { topic?: string; duration_minutes?: number; notes?: string } | null;
+  selection: {
+    kit?: { label: string };
+    character_set?: { label: string };
+    auto?: boolean;
+  } | null;
+}
+
+export interface CreateOutcome extends ActionResult {
+  video_id: string | null;
+  error?: string;
+}

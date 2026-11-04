@@ -4,6 +4,8 @@ import type {
   AutoResult,
   CancelOutcome,
   CancelPreview,
+  Catalog,
+  CreateOutcome,
   DecideAction,
   DecideResult,
   RetryResult,
@@ -11,6 +13,7 @@ import type {
   Report,
   ReportPeriod,
   VideoDetail,
+  VideoDraft,
   VideoFilter,
   VideoMediaList,
   VideoPage,
@@ -73,6 +76,14 @@ export interface Store {
     videoId: string,
     file: string,
   ) => Promise<MediaFileAccess | null>;
+  catalog: (session: string) => Promise<Catalog>;
+  createDraft: (
+    session: string,
+    brief: Record<string, unknown>,
+    workerId: string | null,
+    auto: boolean,
+  ) => Promise<VideoDraft>;
+  createDecide: (session: string, token: string, confirm: boolean) => Promise<CreateOutcome>;
   ping: () => Promise<void>;
 }
 
@@ -121,6 +132,11 @@ export function createPgStore(pool: pg.Pool): Store {
       call<VideoMediaList | null>('web_video_media', session, videoId),
     videoMediaFile: (session, videoId, file) =>
       call<MediaFileAccess | null>('web_video_media_file', session, videoId, file),
+    catalog: (session) => call<Catalog>('web_catalog', session),
+    createDraft: (session, brief, workerId, auto) =>
+      call<VideoDraft>('web_create_draft', session, JSON.stringify(brief), workerId, auto),
+    createDecide: (session, token, confirm) =>
+      call<CreateOutcome>('web_create_decide', session, token, confirm),
     ping: async () => {
       await pool.query('SELECT 1');
     },
