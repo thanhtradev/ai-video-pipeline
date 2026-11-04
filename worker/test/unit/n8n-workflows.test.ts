@@ -633,6 +633,10 @@ describe('WF-06 /status (P-017)', () => {
     approval: null,
     cost: { CRD: 2817 },
     jobs: null,
+    worker_id: 'hp-400-g7',
+    worker_online: true,
+    state_group: 'RUNNING',
+    total: 1,
   };
   const status = (rows: Record<string, unknown>[], prefix = '') =>
     runCode('wf-06-telegram-callback.json', 'Build status', {
@@ -644,11 +648,11 @@ describe('WF-06 /status (P-017)', () => {
 
   test('lists active videos with their step, time in step and progress', () => {
     const out = status([video]);
-    expect(out.text).toContain('📊 1 video đang chạy');
-    expect(out.text).toContain('679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
-    expect(out.text).toContain(
-      'GENERATING_ASSETS · episode_code running 12 phút · agent lượt 1/3 · 4/5 job xong',
-    );
+    expect(out.text).toContain('📊 1 video · ▶ 1 chạy');
+    expect(out.text).toContain('▶ ĐANG CHẠY');
+    expect(out.text).toContain('/v_679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
+    expect(out.text).toContain('🖥 hp-400-g7 · episode_code 12 phút · agent lượt 1/3 · 4/5 job');
+    expect(out.text).not.toContain('8 ký tự');
     expect(out).toMatchObject({ chatId: '-100', messageId: '5' });
   });
 
@@ -696,7 +700,9 @@ describe('WF-06 /status (P-017)', () => {
       '679cd22f',
     );
 
-    expect(out.text).toContain('📊 Video 679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?');
+    expect(out.text).toContain(
+      '📊 Video 679cd22f v1 · Nếu bạn nghe được suy nghĩ của mèo?\n🖥 Worker: /worker_hp_400_g7 🟢\nTrạng thái:',
+    );
     expect(out.text).toContain('✓ script · 1 phút');
     expect(out.text).toContain('✓ timing · 22 phút · 2 lần chạy');
     expect(out.text).toContain('▶ episode_code · 12 phút · đang kiểm tra (lượt 2/3)');
@@ -740,7 +746,8 @@ describe('WF-06 /workers (D-082)', () => {
 
   test.each([
     ['/workersx', 'workersx'],
-    ['/workers mac', 'workers'],
+    ['/workers x', 'workers'],
+    ['/worker mac mini', 'worker'],
   ])('sends %j to the usage reply (D-097)', (text, topic) => {
     expect(parse(command(text))[0]!.json).toMatchObject({ kind: 'help', mode: 'bad', topic });
   });
@@ -754,7 +761,7 @@ describe('WF-06 /workers (D-082)', () => {
     ]);
     expect(wf.connections['Workers?']!.main.map((out) => out[0]!.node)).toEqual([
       'Workers',
-      'Pending?',
+      'Worker detail?',
     ]);
     expect(wf.connections['Workers']!.main[0]).toEqual([
       expect.objectContaining({ node: 'Build status' }),
@@ -796,11 +803,13 @@ describe('WF-06 /workers (D-082)', () => {
     expect(out.text).toContain('🖥 2 worker');
     expect(out.text).toContain('🔴 hp-400-g7 · offline 15 phút\nrảnh');
     expect(out.text).toContain('🟢 mac-mini-m4 · online · 2 job đang chờ');
-    expect(out.text).toContain('▶ 679cd22f v1 · Mèo nghĩ gì?');
+    expect(out.text).toContain('Chi tiết: /worker_hp_400_g7');
+    expect(out.text).toContain('Chi tiết: /worker_mac_mini_m4');
+    expect(out.text).toContain('▶ /v_679cd22f v1 · Mèo nghĩ gì?');
     expect(out.text).toContain(
       'render_episode · 12 phút · lần 2 · đang render 1800 khung hình · GENERATING_ASSETS',
     );
-    expect(out.text).toContain('Chi tiết: /status <8 ký tự đầu của id>');
+    expect(out.text).not.toContain('8 ký tự');
   });
 
   test('says when no worker has reported and refuses strangers', () => {
@@ -857,7 +866,7 @@ describe('WF-06 /pending (D-090)', () => {
     expect(node.parameters.options).toEqual({
       queryReplacement: '={{ [$json.userId, $json.prefix] }}',
     });
-    expect(wf.connections['Workers?']!.main[1]).toEqual([
+    expect(wf.connections['Worker detail?']!.main[1]).toEqual([
       expect.objectContaining({ node: 'Pending?' }),
     ]);
     expect(wf.connections['Pending?']!.main.map((out) => out[0]!.node)).toEqual([
@@ -893,9 +902,9 @@ describe('WF-06 /pending (D-090)', () => {
 
     expect(out).toMatchObject({ chatId: '-100', messageId: '7' });
     expect(out.text).toContain('⏳ 2 yêu cầu đang chờ duyệt');
-    expect(out.text).toContain('679cd22f v2 · Mèo nghĩ gì? · STORYBOARD · hạn 17:00 04/11');
+    expect(out.text).toContain('/v_679cd22f v2 · Mèo nghĩ gì? · STORYBOARD · hạn 17:00 04/11');
     expect(out.text).toContain(
-      '11112222 v1 · ? · CLEANUP · hạn 08:30 09/11 · nút nằm trong tin báo hoàn tất',
+      '/v_11112222 v1 · ? · CLEANUP · hạn 08:30 09/11 · nút nằm trong tin báo hoàn tất',
     );
     expect(out.text).toContain('Bot sẽ gửi lại 1 yêu cầu kèm nút trong khoảng 30 giây.');
   });
@@ -949,7 +958,7 @@ describe('WF-06 /retry (D-056)', () => {
   test('answers each result of telegram_retry()', () => {
     const id = '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c';
     expect(reply({ result: 'RETRIED', video_id: id, step: 'episode_code', attempt: 3 })).toEqual({
-      text: 'Đang chạy lại bước episode_code của video 679cd22f (lần 3). Tiến độ: /status 679cd22f',
+      text: 'Đang chạy lại bước episode_code của video 679cd22f (lần 3). Tiến độ: /status_679cd22f',
       chatId: '-100',
       messageId: '6',
     });
@@ -989,7 +998,7 @@ describe('WF-06 /retry (D-056)', () => {
         ],
       },
     })[0]!.json as { text: string };
-    expect(out.text).toContain('Chạy lại bước lỗi: /retry 679cd22f');
+    expect(out.text).toContain('Chạy lại bước lỗi: /retry_679cd22f');
   });
 });
 
@@ -1070,7 +1079,7 @@ describe('WF-06 /auto (D-093)', () => {
     expect(on.text).toContain('🤖 Đã bật tự duyệt cho video 679cd22f v1');
     expect(on.text).toContain('Đã duyệt luôn bước storyboard đang chờ.');
     expect(on.text).toContain('xóa bản trên Mac vẫn hỏi owner');
-    expect(on.text).toContain('Tắt: /auto 679cd22f off');
+    expect(on.text).toContain('Tắt: /auto_679cd22f_off');
     const plain = reply(
       { prefix: '679cd22f', enable: 'true', error: '' },
       { result: 'OK', video_id: id, version: 1, status: 'SCRIPTING', decided_type: null },
@@ -1798,7 +1807,7 @@ describe('WF-06 worker choice and /move (D-087)', () => {
     const row = { video_id: id, from_worker: 'mac-mini-m4', to_worker: 'hp-400-g7' };
 
     expect(reply({ ...row, result: 'REQUESTED', busy: false })).toBe(
-      'Đang chuyển video 679cd22f từ mac-mini-m4 sang hp-400-g7: hp-400-g7 sẽ copy file từ mac-mini-m4 khi rảnh. Video tạm dừng trong lúc chuyển; có thông báo khi xong. Hủy: /move 679cd22f huy',
+      'Đang chuyển video 679cd22f từ mac-mini-m4 sang hp-400-g7: hp-400-g7 sẽ copy file từ mac-mini-m4 khi rảnh. Video tạm dừng trong lúc chuyển; có thông báo khi xong. Hủy: /move_679cd22f_huy',
     );
     expect(reply({ ...row, result: 'REQUESTED', busy: true })).toMatch(
       /^Sẽ chuyển video 679cd22f từ mac-mini-m4 sang hp-400-g7 khi bước đang chạy xong/,
@@ -1859,7 +1868,7 @@ describe('WF-06 worker choice and /move (D-087)', () => {
       },
     })[0]!.json as { text: string };
 
-    expect(out.text).toContain('↪ 679cd22f: mac-mini-m4 → hp-400-g7 · đang copy (lần 2)');
+    expect(out.text).toContain('↪ /v_679cd22f: mac-mini-m4 → hp-400-g7 · đang copy (lần 2)');
   });
 });
 
@@ -2624,7 +2633,7 @@ describe('WF-08 Watchdog', () => {
       });
 
     expect(run([failed])[0]!.json.text).toContain(
-      'Video abcdef12 v1 cần bạn quyết định: bước script lỗi: Error: script does not match the schema',
+      'Video abcdef12 v1 cần bạn quyết định: bước script lỗi: Error: script does not match the schema\nChạy lại: /retry_abcdef12 · Chi tiết: /v_abcdef12',
     );
     expect(run([failed])).toEqual([]);
   });
@@ -2636,7 +2645,7 @@ describe('WF-08 Watchdog', () => {
 
     expect(run([])).toEqual([]);
     expect(run(['12345678-0000-0000-0000-000000000000'])[0]!.json.text).toContain(
-      'bị chặn do giới hạn nhà cung cấp (đang chờ, không tự đổi nhà cung cấp): 12345678',
+      'bị chặn do giới hạn nhà cung cấp (đang chờ, không tự đổi nhà cung cấp): /v_12345678',
     );
     expect(run(['12345678-0000-0000-0000-000000000000'])).toEqual([]);
     expect(run([])[0]!.json.text).toContain('Không còn video nào bị');
@@ -2652,7 +2661,7 @@ describe('WF-08 Watchdog', () => {
     const stalled = [{ video_id: 'abcdef12-0000-0000-0000-000000000000', worker_id: 'hp-400-g7' }];
 
     expect(run(stalled)[0]!.json.text).toContain(
-      'Video đang chờ worker mất kết nối (file nằm trên máy đó): abcdef12 (hp-400-g7)',
+      'Video đang chờ worker mất kết nối (file nằm trên máy đó): /v_abcdef12 (hp-400-g7)',
     );
     expect(run(stalled)).toEqual([]);
     expect(run([])[0]!.json.text).toContain('Không còn video nào chờ worker mất kết nối');
@@ -2713,6 +2722,496 @@ describe('WF-08 Watchdog', () => {
     });
 
     expect(out[0]!.json.text).toContain('/move <id> <worker>');
+  });
+
+  test('state saved before D-102 does not alert again when the links are added', () => {
+    const blocked = '12345678-0000-0000-0000-000000000000';
+    const staticData = {
+      lastBlocked: '12345678',
+      lastStalled: 'abcdef12 (hp-400-g7)',
+      lastDecisions: ['Video abcdef12 v1 cần bạn quyết định: bước script lỗi: boom'],
+    };
+    const out = runCode('wf-08-watchdog.json', 'Build alert', {
+      input: [
+        {
+          json: {
+            summary: {
+              ...summary([blocked]).json.summary,
+              stalled_pinned: [
+                { video_id: 'abcdef12-0000-0000-0000-000000000000', worker_id: 'hp-400-g7' },
+              ],
+              needs_decision: [
+                {
+                  video_id: 'abcdef12-0000-0000-0000-000000000000',
+                  version: 1,
+                  step: 'script',
+                  error: 'boom',
+                },
+              ],
+            },
+          },
+        },
+      ],
+      staticData,
+    });
+
+    expect(out).toEqual([]);
+  });
+});
+
+describe('WF-06 one-tap commands (D-102)', () => {
+  const command = (text: string): Item => ({
+    json: {
+      message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+    },
+  });
+  const parse = (text: string) =>
+    runCode('wf-06-telegram-callback.json', 'Parse callback', { input: [command(text)] })[0]!.json;
+
+  test.each([
+    ['/v_679cd22f', '/v 679cd22f'],
+    ['/v_679cd22f@aivideo_bot', '/v@aivideo_bot 679cd22f'],
+    ['/status_679cd22f', '/status 679cd22f'],
+    ['/retry_679cd22f', '/retry 679cd22f'],
+    ['/retry_679CD22F@aivideo_bot', '/retry@aivideo_bot 679CD22F'],
+    ['/pending_679cd22f', '/pending 679cd22f'],
+    ['/auto_679cd22f_off', '/auto 679cd22f off'],
+    ['/move_679cd22f_huy', '/move 679cd22f huy'],
+    ['/worker_hp_400_g7', '/worker hp-400-g7'],
+    ['/worker_mac_mini_m4_02@aivideo_bot', '/worker@aivideo_bot mac-mini-m4-02'],
+  ])('%j runs the same as %j', (tap, typed) => {
+    expect(parse(tap)).toEqual(parse(typed));
+    expect(parse(tap).kind).not.toBe('help');
+  });
+
+  test.each([
+    ['/auto_679cd22f', 'auto_679cd22f'],
+    ['/cancel_679cd22f', 'cancel_679cd22f'],
+    ['/huy_679cd22f', 'huy_679cd22f'],
+    ['/move_679cd22f_hp_400_g7', 'move_679cd22f_hp_400_g7'],
+    ['/retry_zzzz', 'retry_zzzz'],
+    ['/retry_679', 'retry_679'],
+    ['/v_', 'v_'],
+    ['/unknown_679cd22f', 'unknown_679cd22f'],
+  ])('%j has no tap form and gets the unknown command reply', (text, topic) => {
+    expect(parse(text)).toMatchObject({ kind: 'help', mode: 'bad', topic });
+  });
+
+  test('a tap keeps the sender, so the same permission checks apply', () => {
+    expect(parse('/retry_679cd22f')).toMatchObject({ kind: 'retry', userId: '111' });
+  });
+
+  test('every suggested video command is tappable: no id after a space', () => {
+    const typed = /\/(?:retry|status|v|pending|auto|move) \$\{/;
+    for (const [file, wf] of workflows) {
+      for (const node of wf.nodes) {
+        const code = String(node.parameters.jsCode ?? '');
+        expect(typed.test(code), `${file} / ${node.name}`).toBe(false);
+      }
+    }
+  });
+
+  test('every tap form fits a Telegram command (32 characters, no hyphen)', () => {
+    for (const worker of ['mac-mini-m4', 'mac-mini-m4-02', 'hp-400-g7']) {
+      const out = runCode('wf-06-telegram-callback.json', 'Build status', {
+        input: [{ json: { allowed: true, worker_id: worker, online: true, jobs: [], waiting: 0 } }],
+        nodeOutputs: {
+          'Parse callback': [{ json: { kind: 'workers', chatId: '-100', messageId: '7' } }],
+        },
+      })[0]!.json as { text: string };
+      expect(out.text).toMatch(/\/worker_[a-z0-9_]{1,25}(\s|$)/);
+    }
+    expect('auto_679cd22f_off'.length).toBeLessThanOrEqual(32);
+  });
+
+  test('Build move suggests the tap form to cancel', () => {
+    const reply = (row: Record<string, unknown>) =>
+      (
+        runCode('wf-06-telegram-callback.json', 'Build move', {
+          input: [{ json: row }],
+          nodeOutputs: {
+            'Parse callback': [
+              { json: { kind: 'move', prefix: '679cd22f', chatId: '-100', messageId: '7' } },
+            ],
+          },
+        })[0]!.json as { text: string }
+      ).text;
+    const row = {
+      video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+      from_worker: 'mac-mini-m4',
+      to_worker: 'hp-400-g7',
+    };
+    expect(reply({ ...row, result: 'ALREADY_MOVING' })).toContain('Hủy: /move_679cd22f_huy');
+  });
+
+  test('a video created from a draft links its card in the edited message', () => {
+    const out = runCode('wf-06-telegram-callback.json', 'Build reply', {
+      input: [
+        {
+          json: {
+            result: 'OK',
+            video_id: '302209bf-d1f8-44fe-a9fd-9cdcbaa6325c',
+          },
+        },
+      ],
+      nodeOutputs: {
+        'Parse callback': [
+          {
+            json: {
+              kind: 'button',
+              approval: 'intake',
+              action: 'APPROVE',
+              chatId: '-100',
+              messageId: '7',
+              queryId: 'q',
+              messageText: 'Nháp',
+            },
+          },
+        ],
+      },
+    })[0]!.json as { answer: string; editedHtml: string };
+    expect(out.answer).toBe(
+      'Đã tạo video 302209bf: đang viết kịch bản, yêu cầu duyệt A1 sẽ đến sau.',
+    );
+    expect(out.editedHtml).toContain('/v_302209bf');
+  });
+});
+
+describe('WF-06 /status groups and /worker detail (D-102)', () => {
+  const WF = 'wf-06-telegram-callback.json';
+  const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+  const build = (rows: Record<string, unknown>[], parsed: Record<string, unknown>) =>
+    (
+      runCode(WF, 'Build status', {
+        input: rows.map((json) => ({ json })),
+        nodeOutputs: {
+          'Parse callback': [{ json: { chatId: '-100', messageId: '7', ...parsed } }],
+        },
+      })[0]!.json as { text: string }
+    ).text;
+  const base = {
+    allowed: true,
+    video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+    version: 2,
+    title: 'Vì sao trời xanh',
+    status: 'GENERATING_ASSETS',
+    status_since: minutesAgo(30),
+    step: 'render_episode',
+    step_status: 'RUNNING',
+    step_since: minutesAgo(12),
+    progress: null,
+    steps_done: 7,
+    steps_total: 11,
+    approval: null,
+    cost: {},
+    jobs: null,
+    worker_id: 'mac-mini-m4-02',
+    worker_online: true,
+    state_group: 'RUNNING',
+    total: 4,
+  };
+  const video = (id: string, over: Record<string, unknown>) => ({
+    ...base,
+    video_id: `${id}-d1f8-44fe-a9fd-9cdcbaa6325c`,
+    ...over,
+  });
+  const list = [
+    video('679cd22f', {
+      status: 'NEEDS_DECISION',
+      step: 'episode_code',
+      step_status: 'FAILED_PERMANENT',
+      worker_id: 'hp-400-g7',
+      state_group: 'STOPPED',
+    }),
+    video('b10cced0', {
+      status: 'BLOCKED_PROVIDER',
+      step: 'tts',
+      step_status: 'BLOCKED',
+      worker_id: 'mac-mini-m4',
+      worker_online: false,
+      state_group: 'STOPPED',
+    }),
+    video('a1b2c3d4', {
+      version: 1,
+      title: 'Nếu Mặt Trăng biến mất',
+      approval: 'A2 until 2026-11-05 07:30 UTC',
+      worker_id: 'mac-mini-m4',
+      state_group: 'APPROVAL',
+    }),
+    video('0f9e8d7c', { version: 1, title: 'Lỗ đen', state_group: 'RUNNING' }),
+    video('55556666', {
+      version: 1,
+      title: 'Chưa chạy',
+      step: 'script',
+      step_status: 'READY',
+      steps_done: 0,
+      worker_id: null,
+      worker_online: null,
+      state_group: 'WAITING',
+    }),
+  ];
+
+  test('groups the list, most urgent first, and hides empty groups', () => {
+    const text = build(
+      list.map((row) => ({ ...row, total: list.length })),
+      { kind: 'status', prefix: '' },
+    );
+
+    expect(text).toBe(
+      [
+        '📊 5 video · ⛔ 2 dừng · ⏳ 1 chờ duyệt · ▶ 1 chạy · 🕒 1 chờ',
+        '',
+        '⛔ CẦN XỬ LÝ',
+        '/v_679cd22f v2 · Vì sao trời xanh',
+        '🖥 hp-400-g7 · NEEDS_DECISION',
+        '✗ episode_code · /retry_679cd22f',
+        '/v_b10cced0 v2 · Vì sao trời xanh',
+        '🖥 mac-mini-m4 🔴 · BLOCKED_PROVIDER',
+        '⏸ tts',
+        '',
+        '⏳ CHỜ DUYỆT',
+        '/v_a1b2c3d4 v1 · Nếu Mặt Trăng biến mất',
+        '🖥 mac-mini-m4 · A2, hạn 14:30 05/11',
+        '',
+        '▶ ĐANG CHẠY',
+        '/v_0f9e8d7c v1 · Lỗ đen',
+        '🖥 mac-mini-m4-02 · render_episode 12 phút · 7/11 job',
+        '',
+        '🕒 ĐANG CHỜ',
+        '/v_55556666 v1 · Chưa chạy',
+        '🖥 chưa gán · GENERATING_ASSETS · script ready 12 phút · 0/11 job',
+      ].join('\n'),
+    );
+  });
+
+  test('omits empty groups from the header and the body', () => {
+    const text = build(
+      [list[3]!].map((row) => ({ ...row, total: 1 })),
+      {
+        kind: 'status',
+        prefix: '',
+      },
+    );
+    expect(text.split('\n')[0]).toBe('📊 1 video · ▶ 1 chạy');
+    expect(text).not.toContain('CẦN XỬ LÝ');
+  });
+
+  test('says how many are hidden when the list is cut', () => {
+    const text = build([{ ...list[3]!, total: 27 }], { kind: 'status', prefix: '' });
+    expect(text.split('\n')[0]).toBe('📊 hiện 1/27 video · ▶ 1 chạy');
+  });
+
+  test('cuts long titles in the list but not in the detail', () => {
+    const title = 'Một tiêu đề rất dài '.repeat(5);
+    const row = { ...list[3]!, title, total: 1 };
+    expect(build([row], { kind: 'status', prefix: '' })).toContain(`${title.slice(0, 40)}…`);
+    expect(build([row], { kind: 'status', prefix: '0f9e8d7c' })).toContain(title);
+  });
+
+  test('the detail shows an offline or missing worker', () => {
+    expect(build([{ ...list[1]! }], { kind: 'status', prefix: 'b10cced0' })).toContain(
+      '🖥 Worker: /worker_mac_mini_m4 🔴',
+    );
+    expect(build([{ ...list[4]! }], { kind: 'status', prefix: '55556666' })).toContain(
+      '🖥 Worker: chưa gán',
+    );
+  });
+
+  test('/pending links stopped videos, with /retry only where it can work', () => {
+    const text = build(
+      [
+        {
+          allowed: true,
+          video_id: list[0]!.video_id,
+          version: 2,
+          title: 'A',
+          type: 'NEEDS_DECISION',
+        },
+        {
+          allowed: true,
+          video_id: list[1]!.video_id,
+          version: 2,
+          title: 'B',
+          type: 'BLOCKED_PROVIDER',
+        },
+      ],
+      { kind: 'pending', prefix: '' },
+    );
+    expect(text).toContain('/v_679cd22f v2 · A · NEEDS_DECISION · chạy lại: /retry_679cd22f');
+    expect(text).toContain('/v_b10cced0 v2 · B · BLOCKED_PROVIDER');
+    expect(text).not.toContain('/retry_b10cced0');
+  });
+
+  test('routes /worker <id> to telegram_worker_detail() and its reply to Build status', () => {
+    const wf = workflow(WF);
+    const node = wf.nodes.find((n) => n.name === 'Worker detail')!;
+    expect(node.parameters.query).toBe('SELECT * FROM telegram_worker_detail($1::bigint, $2);');
+    expect(node.parameters.options).toEqual({
+      queryReplacement: '={{ [$json.userId, $json.worker] }}',
+    });
+    expect(wf.connections['Worker detail?']!.main[0]).toEqual([
+      expect.objectContaining({ node: 'Worker detail' }),
+    ]);
+    expect(wf.connections['Worker detail']!.main[0]).toEqual([
+      expect.objectContaining({ node: 'Build status' }),
+    ]);
+  });
+
+  test.each([
+    ['/worker hp-400-g7', 'hp-400-g7'],
+    ['/workers HP-400-G7', 'hp-400-g7'],
+    ['/worker@aivideo_bot mac-mini-m4-02', 'mac-mini-m4-02'],
+  ])('parses %j as worker detail', (text, worker) => {
+    const out = runCode(WF, 'Parse callback', {
+      input: [
+        {
+          json: {
+            message: { message_id: 7, from: { id: 111, is_bot: false }, chat: { id: -100 }, text },
+          },
+        },
+      ],
+    })[0]!.json;
+    expect(out).toEqual({
+      kind: 'worker',
+      worker,
+      userId: '111',
+      chatId: '-100',
+      messageId: '7',
+    });
+  });
+
+  const workerRow = {
+    allowed: true,
+    worker_id: 'hp-400-g7',
+    online: true,
+    last_seen_at: '2026-11-05T07:30:00Z',
+    last_idle_at: '2026-11-05T07:02:00Z',
+    capabilities: ['q:render', 'q:light'],
+    jobs: [
+      {
+        video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+        version: 2,
+        title: 'Vì sao trời xanh',
+        video_status: 'GENERATING_ASSETS',
+        step: 'render_episode',
+        attempts: 1,
+        started: minutesAgo(12),
+        progress: { stage: 'render', frames: 5400 },
+      },
+    ],
+    waiting: 4,
+    moves: [],
+    videos: [
+      {
+        video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+        version: 2,
+        status: 'GENERATING_ASSETS',
+        approval: null,
+      },
+      {
+        video_id: 'a1b2c3d4-d1f8-44fe-a9fd-9cdcbaa6325c',
+        version: 1,
+        status: 'WAITING_APPROVAL',
+        approval: 'A2',
+      },
+    ],
+    videos_total: 3,
+    stats: {
+      succeeded: 31,
+      failed: 2,
+      completed: 2,
+      slowest: [
+        { step: 'render_episode', median_seconds: 840 },
+        { step: 'tts', median_seconds: 45 },
+      ],
+    },
+  };
+  const detail = (row: Record<string, unknown>) =>
+    build([row], { kind: 'worker', worker: 'hp-400-g7' });
+
+  test('details one worker: live state, its videos and its last 24 hours', () => {
+    expect(detail(workerRow)).toBe(
+      [
+        '🟢 hp-400-g7 · online',
+        'Heartbeat: 14:30 05/11 · Rảnh lần cuối: 14:02 05/11',
+        'Khả năng: q:render, q:light',
+        '',
+        '▶ Đang chạy',
+        '/v_679cd22f v2 · Vì sao trời xanh',
+        'render_episode · 12 phút · đang render 5400 khung hình · GENERATING_ASSETS',
+        '',
+        '📌 3 video trên máy này · 4 job đang chờ',
+        '/v_679cd22f v2 · GENERATING_ASSETS',
+        '/v_a1b2c3d4 v1 · chờ A2',
+        '… và 1 video nữa',
+        '',
+        '📈 24 giờ: 31 bước xong · 2 lỗi · 2 video hoàn tất',
+        'Chậm nhất: render_episode 14 phút, tts 45 giây',
+      ].join('\n'),
+    );
+  });
+
+  test('an idle worker with no history says so', () => {
+    const text = detail({
+      ...workerRow,
+      online: false,
+      last_seen_at: minutesAgo(15),
+      last_idle_at: null,
+      capabilities: [],
+      jobs: [],
+      waiting: 0,
+      videos: [],
+      videos_total: 0,
+      stats: { succeeded: 0, failed: 0, completed: 0, slowest: [] },
+    });
+    expect(text).toContain('🔴 hp-400-g7 · offline 15 phút');
+    expect(text).toContain('Rảnh, không chạy job nào.');
+    expect(text).toContain('📌 Không có video nào trên máy này');
+    expect(text).toContain('📈 24 giờ: 0 bước xong · 0 lỗi · 0 video hoàn tất');
+    expect(text).not.toContain('Chậm nhất');
+    expect(text).not.toContain('Khả năng');
+    expect(text).not.toContain('Rảnh lần cuối');
+  });
+
+  test('shows open moves', () => {
+    const text = detail({
+      ...workerRow,
+      moves: [
+        {
+          video_id: '679cd22f-d1f8-44fe-a9fd-9cdcbaa6325c',
+          from_worker: 'mac-mini-m4',
+          to_worker: 'hp-400-g7',
+          status: 'COPYING',
+          attempts: 2,
+        },
+      ],
+    });
+    expect(text).toContain('↪ /v_679cd22f: mac-mini-m4 → hp-400-g7 · đang copy (lần 2)');
+  });
+
+  test('answers an unknown worker and refuses strangers', () => {
+    expect(build([{}], { kind: 'worker', worker: 'raspberry' })).toBe(
+      'Không có worker raspberry. Danh sách: /workers',
+    );
+    expect(build([{ allowed: false }], { kind: 'worker', worker: 'hp-400-g7' })).toBe(
+      'Bạn không phải approver.',
+    );
+  });
+
+  test('/help explains the worker detail and the tap forms', () => {
+    const help = (mode: string, topic: string) =>
+      (
+        runCode(WF, 'Build help', {
+          input: [{ json: { allowed: true } }],
+          nodeOutputs: {
+            'Parse callback': [
+              { json: { kind: 'help', mode, topic, chatId: '-100', messageId: '7' } },
+            ],
+          },
+        })[0]!.json as { text: string }
+      ).text;
+    expect(help('help', 'worker')).toContain('/worker <worker>');
+    expect(help('help', '')).toContain('/retry_679cd22f');
   });
 });
 
@@ -2981,7 +3480,6 @@ describe('BotFather command list (ops/telegram-commands.md)', () => {
   const HIDDEN = [
     'deploy',
     'report',
-    'workers',
     'brief',
     'move',
     'rules',
@@ -3279,15 +3777,15 @@ describe('WF-06 /pending lists stopped videos (D-097)', () => {
   test('offers /retry for NEEDS_DECISION, with no deadline or button text', () => {
     const text = build([stopped('NEEDS_DECISION')]);
     expect(text).toContain('⛔ 1 video đang dừng');
-    expect(text).toContain('679cd22f v2 · Mèo · NEEDS_DECISION · chạy lại: /retry 679cd22f');
+    expect(text).toContain('/v_679cd22f v2 · Mèo · NEEDS_DECISION · chạy lại: /retry_679cd22f');
     expect(text).not.toContain('yêu cầu đang chờ duyệt');
     expect(text).not.toContain('hạn');
     expect(text).not.toContain('nút nằm trong');
   });
 
-  test('points to /status for BLOCKED_PROVIDER, which /retry cannot resume', () => {
+  test('only links the card for BLOCKED_PROVIDER, which /retry cannot resume', () => {
     const text = build([stopped('BLOCKED_PROVIDER')]);
-    expect(text).toContain('BLOCKED_PROVIDER · chi tiết: /status 679cd22f');
+    expect(text).toContain('/v_679cd22f v2 · Mèo · BLOCKED_PROVIDER');
     expect(text).not.toContain('/retry');
   });
 
