@@ -125,8 +125,9 @@ the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
    (0.15 s in `fast` shots); a shot's `hold_seconds` follows its last sentence; shots start at
    the sentence where their MỐC is spoken; 1.5 s end card.
 6. `timing.json` and `captions.json` in the reference shapes (the kit's `time.ts` reads them),
-   `timeline.md` for people. A cut louder than floor + 20 dB, or a MỐC never spoken, fails the
-   job permanently (re-running cannot change it).
+   `timeline.md` for people. A cut louder than floor + 20 dB (never below the voiced threshold
+   + 6 dB: on a very quiet floor, under -72 dB, a real pause can lie above floor + 20), or a MỐC
+   never spoken, fails the job permanently (re-running cannot change it).
 7. `voice.m4a`: the voice at -14 LUFS (`worker/src/media/loudness.ts`, as the delivered video) for
    the voice approval, with a `media_token` in the checkpoint.
 
