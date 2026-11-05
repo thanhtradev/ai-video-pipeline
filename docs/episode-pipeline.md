@@ -199,7 +199,7 @@ Chrome cannot start inside that sandbox, so the agent never renders (D-054). The
 render of agent-written code under its own profile `ops/claude/episode-render.sb` (loopback only,
 writes only in the workspace) via `remotion/scripts/episode-gates.mjs`:
 
-1. typecheck; 2. the SFX script (fails on any ambience bed or room tone, `amb_*` / `*room_tone*`, D-069); 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
+1. typecheck; 2. the SFX script (fails on any ambience bed or room tone, `amb_*` / `*room_tone*`, D-069; a kit of `style: horror` may ship up to 3 `amb_*` files with a peak under 0.5, D-111); 3. storyboard pages (`board/page-NN.jpg`, 12 shots per page at
 55 % of each shot; a missing audio file fails here); 4. the audio mix: the `Episode` composition
 rendered with the `wav` codec (no screenshots, about 1.5 min for a 6-minute episode) into
 `board/mix.wav`, which the worker encodes to `mix.m4a` at -14 LUFS for the storyboard request
@@ -215,7 +215,7 @@ it is written after every agent turn and gate run, so a retry (worker restart, a
 resume first re-copies the worker-owned `kit/` from the current repo, so a kit or catalog fix shipped
 by a worker update reaches a stuck job; a changed kit runs the gates again, and follow-up turns the
 agent spent on a kit typecheck error (`kit/…: error TS…`, which it cannot fix) are given back, as
-for a Chrome crash (D-108). The step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
+for a Chrome crash (D-111). The step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
 during the board, mix or QA render (`Page crashed!`, `Target closed`) first fails the attempt
 retryable and the retry re-runs the gates; when Chrome crashes again on the same code, the code
 triggers a Chrome bug and the agent gets it as a failed check with a hint (`CHROME_ABORT_HINT`,
@@ -303,7 +303,7 @@ polls `final_due()` every 30 s:
 
 1. A finished `render_final` gets `qa_final` (§9's checks on `final.mp4` at the size the render reports) and
    `metadata` (q:light): Claude writes the title (≤ 100 characters), description, 5–15 tags (under
-   450 characters together), 1–3 hashtags and picks `thumbnail_shot`. Captions are burned in, so the
+   450 characters together), 1–3 hashtags and picks `thumbnail_shot`. Captions are burned in (not in a `style: horror` kit, D-111), so the
    prompt lists the shots with a caption-free pause and the worker grabs the middle of that pause
    (else 60 % into the shot). A failed QA or metadata job → `NEEDS_DECISION` as usual.
 2. Both done → `AWAITING_METADATA_APPROVAL`; A3 is bound to the SHA-256 of the metadata, the

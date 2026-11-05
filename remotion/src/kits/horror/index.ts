@@ -2,4 +2,5 @@
 // pieces (Stage, ui, grade, lang, sets-home, sets-school) come from the whatif kit unchanged.
 export * from './props-horror';
 export * from './sets-horror';
-export { C, GRADE } from './theme';
+export * from './ui-horror';
+export { C, GRADE, POST } from './theme';

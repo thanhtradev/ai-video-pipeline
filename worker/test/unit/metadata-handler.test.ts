@@ -122,6 +122,19 @@ function context(input: unknown = INPUT): HandlerContext {
 }
 
 describe('metadata handler', () => {
+  test('the horror kit gets dark-thumbnail rules and no captions sentence (D-111)', async () => {
+    await createMetadataHandler(deps())(
+      context({ ...INPUT, kit: 'horror', character_set: 'bong' }),
+    );
+    const request = requests[0]!;
+    expect(request.systemPrompt).toContain('horror YouTube channel told in silhouettes');
+    expect(request.prompt).toContain('There are no captions in the video.');
+    expect(request.prompt).toContain("NÓ's two eyes");
+    expect(request.prompt).toContain('#chuyệnkểlại');
+    expect(request.prompt).not.toContain('Captions are burned into the video');
+    expect(request.prompt).not.toContain('clear face');
+  });
+
   test('writes the metadata and grabs the chosen shot as the thumbnail', async () => {
     const result = await createMetadataHandler(deps())(context());
 

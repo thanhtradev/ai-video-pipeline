@@ -13,6 +13,8 @@ export type KitEntry = {
   readonly episodeDeps: readonly string[];
   /** Video size of the kit's episodes (D-080). */
   readonly frame: { readonly width: number; readonly height: number };
+  /** Which script, metadata and sound rules apply (D-111); `cartoon` when absent. */
+  readonly style?: string;
   readonly modules: ModuleMap;
 };
 export type CharacterSetEntry = {

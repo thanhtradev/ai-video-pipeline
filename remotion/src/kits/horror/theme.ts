@@ -24,7 +24,10 @@ export const GRADE = {
   dusk: { set: 'saturate(0.8) brightness(0.9)', side: 'saturate(0.65) brightness(0.9)' },
   night: { set: 'saturate(0.6) brightness(0.72)', side: 'saturate(0.5) brightness(0.75)' },
   dread: {
-    set: 'saturate(0.35) brightness(0.6) contrast(1.15)',
-    side: 'saturate(0.3) brightness(0.65)',
+    set: 'saturate(0.35) brightness(0.5) contrast(1.2)',
+    side: 'saturate(0.3) brightness(0.55)',
   },
 } as const;
+
+/** Post stack levels chosen by the owner on the style-v2 samples (D-111). */
+export const POST = { grain: 0.26, vignette: 0.7 } as const;

@@ -245,10 +245,11 @@ describe('a button that changes nothing (D-092)', () => {
     const science = await cycle(drafted.token!, 'character_set');
     expect(science.selection!.character_set).toMatchObject({
       slug: 'chip-science',
-      next_slug: 'mun',
+      next_slug: 'bong',
     });
-    const mun = await cycle(drafted.token!, 'character_set');
-    expect(mun.selection!.character_set).toMatchObject({ slug: 'mun', next_slug: 'chip' });
+    // Mùn is disabled (D-111): the cycle skips it and lands on Bóng
+    const bong = await cycle(drafted.token!, 'character_set');
+    expect(bong.selection!.character_set).toMatchObject({ slug: 'bong', next_slug: 'chip' });
   });
 });
 
@@ -353,10 +354,10 @@ describe('kit picker (D-109)', () => {
     expect((await options(drafted.token!, 'character_set')).options!.map((o) => o.slug)).toEqual([
       'chip',
       'chip-science',
-      'mun',
+      'bong',
     ]);
-    expect((await pick(drafted.token!, 'character_set', 'mun')).brief).toMatchObject({
-      character_set: 'mun',
+    expect((await pick(drafted.token!, 'character_set', 'bong')).brief).toMatchObject({
+      character_set: 'bong',
     });
   });
 });

@@ -254,3 +254,73 @@ export const hospitalHall = (f: number, o: { flicker?: number } = {}): SetLayers
   fg: <rect x={-200} y={-300} width={180} height={2600} fill="#0f1220" />,
   glow: { x: 700, y: 160, r: 520, color: '#d8e2dc', a: 0.18 },
 });
+
+/** Rented bedroom at night: bed, a wardrobe, a mirror, the gap under the door lit from outside. */
+export const bedroomNight = (
+  f: number,
+  o: { gap?: number; phone?: number; mirror?: boolean } = {},
+): SetLayers => ({
+  sky: '#0f1220',
+  far: (
+    <g>
+      <Wall y1={1380} top="#2c2f3c" bottom="#20232e" skirt="#181a24" />
+      <Door x={1180} y={1380} color="#2a2420" w={180} h={370} />
+      <rect
+        x={1180 - 90}
+        y={1372}
+        width={180}
+        height={8}
+        fill="#ffd9a8"
+        opacity={0.5 + 0.5 * (o.gap ?? 0.6)}
+      />
+      {o.mirror === false ? null : <Mirror x={380} y={1050} />}
+      <rect x={-300} y={560} width={260} height={820} rx={6} fill="#1c1a22" />
+    </g>
+  ),
+  bg: (
+    <g>
+      <TileFloor y0={1380} color="#232430" line="#00000040" />
+      <Bed x={560} y={1430} blanket="#3a3f52" />
+      {o.phone ? (
+        <ellipse cx={560} cy={1200} rx={220} ry={120} fill="#9fb8d8" opacity={0.12 * o.phone} />
+      ) : null}
+    </g>
+  ),
+  fg: <rect x={-200} y={-300} width={160} height={2600} fill="#0b0c11" />,
+  glow: { x: 1180, y: 1380, r: 420, color: C.lampGlow, a: 0.28 * (o.gap ?? 0.6) + 0.1 },
+});
+
+/** Stairwell of an old block: landings, a rail, one bulb above that may be dead. */
+export const stairwell = (f: number, o: { bulb?: number } = {}): SetLayers => ({
+  sky: '#0f1220',
+  far: (
+    <g>
+      <Wall y1={1380} top="#2a2d3a" bottom="#1f222c" skirt="#171923" />
+      {[0, 1, 2].map((i) => (
+        <path
+          key={i}
+          d={`M${-600 + i * 700} 1380 L${-300 + i * 700} 1380 L${-300 + i * 700} 900 L${-600 + i * 700} 900 Z`}
+          fill="#232634"
+        />
+      ))}
+      <path d="M-700 1000 L1700 760" stroke="#3a3d4a" strokeWidth={10} />
+      <circle
+        cx={520}
+        cy={220}
+        r={30}
+        fill={o.bulb ? '#ffe2a6' : '#3a3a40'}
+        opacity={o.bulb ? 0.7 + 0.3 * Math.abs(Math.sin(f / 2.1)) : 1}
+      />
+    </g>
+  ),
+  bg: (
+    <g>
+      <TileFloor y0={1380} color="#22242e" line="#00000040" />
+      {Array.from({ length: 6 }, (_, i) => (
+        <rect key={i} x={900 + i * 120} y={1380 - i * 60} width={900} height={60} fill="#1d1f29" />
+      ))}
+    </g>
+  ),
+  fg: <rect x={-240} y={-300} width={160} height={2600} fill="#0b0c11" />,
+  glow: { x: 520, y: 220, r: 700, color: C.lampGlow, a: 0.4 * (o.bulb ?? 0) + 0.05 },
+});

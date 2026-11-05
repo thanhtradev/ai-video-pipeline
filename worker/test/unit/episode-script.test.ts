@@ -368,6 +368,28 @@ describe('episode script handler', () => {
     expect(whatif!.systemPrompt).not.toContain('[curious]');
   });
 
+  test('the horror kit asks for a first-person witness account without the cartoon rules (D-111)', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    const brief = { ...TOPIC_BRIEF, kit: 'horror', character_set: 'bong' };
+    await handler(context({ brief, language: 'vi' }));
+    await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
+
+    const [horror, whatif] = requests;
+    expect(horror!.systemPrompt).toMatch(/witness's account, told in the first person/);
+    expect(horror!.systemPrompt).not.toContain('the fun, the cost');
+    expect(horror!.prompt).toContain('Open cold on the one wrong detail');
+    expect(horror!.prompt).toContain('[long pause]');
+    expect(horror!.prompt).toContain('Shots are long (6–15 s each)');
+    expect(horror!.prompt).not.toContain('Nothing frightening');
+    expect(horror!.prompt).not.toContain('eye');
+    expect(horror!.prompt).not.toContain('hoodie colour');
+    expect(horror!.prompt).not.toContain('call-to-action last');
+
+    expect(whatif!.systemPrompt).toContain('the fun, the cost');
+    expect(whatif!.prompt).toContain('Nothing frightening or graphic on screen.');
+    expect(whatif!.prompt).toContain('hoodie colour');
+  });
+
   test('links a series episode or a follow-up to the earlier video (D-083)', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     const id = '6b0c8f8e-1111-4222-8333-444455556666';

@@ -1,6 +1,7 @@
-// "Kinh dị" kit (D-106): synthesized horror SFX (no recorded samples, deterministic by seed), built
-// on the whatif synth library. Events are short; the only loop is tied to walking on screen. No
-// ambience beds and no room tone (D-069). Run directly it writes every sound:
+// "Kinh dị" kit (D-106, style v2 D-111): synthesized horror SFX (no recorded samples, deterministic
+// by seed), built on the whatif synth library. Events are short; loops are tied to walking on
+// screen; the `amb_*` ambiences are the one exception to D-069, allowed in this kit only, quiet
+// (peak ≤ AMB_PEAK) and low-passed. Run directly it writes every sound:
 // node horror-sfx.mjs <output dir>
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -102,6 +103,110 @@ const stingLow = () => {
   return filt(s, 'lp', 300);
 };
 
+/** Flip-flops dragged along a corridor: slow, soft, with the room around them. */
+const flipflopsSlowLoop = () =>
+  loopify(
+    (d) => steps(d, 1.15, 29, { f: 700, low: 60, hard: 0.25, jitter: 0.08, verbMix: 0.4 }),
+    4.6,
+  );
+/** One breath close to the microphone: in, hold, out. */
+const breathNear = (seed = 30) => {
+  const r = rng(seed);
+  const dur = 1.6;
+  const s = buffer(dur);
+  const lp = biquad('lp', 900, 0.7);
+  for (let i = 0; i < s.length; i++) {
+    const t = i / SR;
+    const g = Math.exp(-((t - 0.35) ** 2) / 0.03) * 0.7 + Math.exp(-((t - 1.15) ** 2) / 0.05);
+    s[i] = lp(nz(r)) * g * env(t, 0.05, 0.2, dur) * 0.6;
+  }
+  return s;
+};
+/** Three slow knocks on wood. */
+const knockThree = () => {
+  const s = buffer(2.4);
+  for (const at of [0.1, 0.9, 1.7]) add(s, thud(0.22, 140, 31, 0.3, 1200), at, 0.9);
+  return verb(s, 0.3, 1.3);
+};
+/** Static burst for a glitch frame: short, band-limited, hard start. */
+const staticBurst = (seed = 32) => {
+  const r = rng(seed);
+  const dur = 0.25;
+  const s = buffer(dur);
+  const bp = biquad('bp', 1800, 0.8);
+  for (let i = 0; i < s.length; i++) {
+    const t = i / SR;
+    s[i] = bp(nz(r)) * (t < 0.01 ? t / 0.01 : 1) * Math.exp(-t * 14);
+  }
+  return filt(s, 'lp', 3500);
+};
+/** Old TV hiss, under a second, low-passed. */
+const tvHissShort = (seed = 33) => {
+  const r = rng(seed);
+  const dur = 0.9;
+  const s = buffer(dur);
+  for (let i = 0; i < s.length; i++) s[i] = nz(r) * env(i / SR, 0.05, 0.3, dur) * 0.5;
+  return filt(filt(s, 'lp', 2200), 'hp', 300);
+};
+
+/** Peak every ambience is normalised to: quiet by construction (the gates check it too). */
+export const AMB_PEAK = 0.35;
+const normalise = (s, peak = AMB_PEAK) => {
+  let m = 0;
+  for (const x of s) m = Math.max(m, Math.abs(x));
+  return m > 0 ? s.map((x) => (x / m) * peak) : s;
+};
+/** Low drone: three detuned partials around 58 Hz with a slow swell, low-passed at 180 Hz. */
+const ambDroneLowLoop = () =>
+  normalise(
+    loopify((d) => {
+      const s = buffer(d);
+      for (let i = 0; i < s.length; i++) {
+        const t = i / SR;
+        const swell = 0.7 + 0.3 * Math.sin((t / d) * TAU);
+        s[i] =
+          (Math.sin(TAU * 58 * t) +
+            0.6 * Math.sin(TAU * 58.7 * t + 1) +
+            0.4 * Math.sin(TAU * 87 * t)) *
+          swell;
+      }
+      return filt(s, 'lp', 180);
+    }, 8),
+  );
+/** Far wind: slow band-limited noise below 500 Hz. */
+const ambWindFarLoop = () =>
+  normalise(
+    loopify((d) => {
+      const r = rng(34);
+      const s = buffer(d);
+      const bp = biquad('bp', 260, 1.4);
+      for (let i = 0; i < s.length; i++) {
+        const t = i / SR;
+        s[i] = bp(nz(r)) * (0.6 + 0.4 * Math.sin((t / d) * TAU * 2 + 1));
+      }
+      return filt(s, 'lp', 480);
+    }, 8),
+  );
+/** Sparse night insects: a few low chirps, low-passed so they never read as hiss. */
+const ambInsectsLoop = () =>
+  normalise(
+    loopify((d) => {
+      const r = rng(35);
+      const s = buffer(d);
+      for (let k = 0; k < d * 3; k++) {
+        const at = r() * d;
+        const f0 = 900 + r() * 500;
+        for (let i = 0; i < SR * 0.08; i++) {
+          const t = i / SR;
+          const idx = Math.floor((at + t) * SR);
+          if (idx < s.length)
+            s[idx] += Math.sin(TAU * f0 * t) * Math.sin((t / 0.08) * Math.PI) * 0.3;
+        }
+      }
+      return filt(s, 'lp', 1600);
+    }, 8),
+  );
+
 /** Every horror sound by file name (`sfx/<name>.wav`). */
 export const gen = {
   door_creak: doorCreak,
@@ -114,6 +219,14 @@ export const gen = {
   water_drip: () => waterDrip(),
   bell_far: bellFar,
   sting_low: stingLow,
+  flipflops_slow_loop: flipflopsSlowLoop,
+  breath_near: () => breathNear(),
+  knock_three: knockThree,
+  static_burst: () => staticBurst(),
+  tv_hiss_short: () => tvHissShort(),
+  amb_drone_low_loop: ambDroneLowLoop,
+  amb_wind_far_loop: ambWindFarLoop,
+  amb_insects_loop: ambInsectsLoop,
 };
 
 export {
@@ -132,6 +245,10 @@ export {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const outDir = process.argv[2] ?? join(process.cwd(), 'sfx-out');
   for (const [name, make] of Object.entries(gen)) {
-    writeWav(join(outDir, `${name}.wav`), make(), name.includes('_loop') ? 0.45 : 0.6);
+    writeWav(
+      join(outDir, `${name}.wav`),
+      make(),
+      name.startsWith('amb_') ? AMB_PEAK : name.includes('_loop') ? 0.45 : 0.6,
+    );
   }
 }

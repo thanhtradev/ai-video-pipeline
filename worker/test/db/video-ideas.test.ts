@@ -124,7 +124,7 @@ describe('telegram_ideas', () => {
     expect(rows).toEqual([
       { result: 'QUEUED', kit: 'whatif', character_set: 'chip' },
       { result: 'QUEUED', kit: 'science', character_set: 'chip-science' },
-      { result: 'QUEUED', kit: 'horror', character_set: 'mun' },
+      { result: 'QUEUED', kit: 'horror', character_set: 'bong' },
     ]);
   });
 

@@ -17,6 +17,13 @@ export const AGENT_DOC = 'AGENT.md';
 export const PROMPT_DOC = 'prompt.md';
 
 const slug = z.string().regex(/^[a-z0-9-]{2,40}$/);
+/**
+ * A kit's style decides the prompts and gates around the episode (D-111): `cartoon` is the
+ * animated hero channel (captions, hook and call-to-action, no ambience); `horror` is a first-person
+ * witness account in silhouettes (no captions, quiet ambience allowed, nothing is "fun").
+ */
+export const kitStyleSchema = z.enum(['cartoon', 'horror']);
+export type KitStyle = z.infer<typeof kitStyleSchema>;
 const relPath = z.string().regex(/^[A-Za-z0-9_./-]+$/);
 const modules = z.record(z.string().regex(/^[a-z][a-z0-9-]*$/), relPath);
 const kitSchema = z.object({
@@ -29,6 +36,8 @@ const kitSchema = z.object({
   frame: frameSchema,
   /** Language of the kit's video content (D-092); catalog_option.language mirrors it. */
   language: languageSchema.default('vi'),
+  /** Which script, metadata and sound rules apply (D-111). */
+  style: kitStyleSchema.default('cartoon'),
   modules,
 });
 const characterSetSchema = z.object({
@@ -74,6 +83,8 @@ export interface ResolvedSelection {
   readonly frame: Frame;
   /** Language of the video content (D-092). */
   readonly language: Language;
+  /** Prompt and gate rules of the kit (D-111). */
+  readonly style: KitStyle;
   /** Telegram labels (Vietnamese). */
   readonly labels: { readonly kit: string; readonly characterSet: string };
 }
@@ -133,6 +144,7 @@ export function resolveSelection(selection: Selection): ResolvedSelection {
     characterPrompts: [`${set.dir}/${PROMPT_DOC}`],
     frame: kit.frame,
     language: kit.language,
+    style: kit.style,
     labels: { kit: kit.label, characterSet: set.label },
   };
 }

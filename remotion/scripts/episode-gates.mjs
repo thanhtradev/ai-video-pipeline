@@ -18,7 +18,7 @@ import {
   renderStill,
   selectComposition,
 } from '@remotion/renderer';
-import { ambienceBeds } from './sfx-rules.mjs';
+import { ambienceBeds, ambienceProblems } from './sfx-rules.mjs';
 
 const ws = process.argv[2];
 if (!ws || !existsSync(join(ws, 'src', 'index.ts'))) {
@@ -58,6 +58,17 @@ function typecheck() {
   return { ok: r.status === 0, output: tail(`${r.stdout}${r.stderr}`) };
 }
 
+/** The kit's style (workspace kit/style.json, written by the worker): sound policy per kit (D-111). */
+function kitStyle() {
+  const file = join(ws, 'kit', 'style.json');
+  if (!existsSync(file)) return { allowAmbience: false };
+  try {
+    return { allowAmbience: JSON.parse(readFileSync(file, 'utf8')).style === 'horror' };
+  } catch {
+    return { allowAmbience: false };
+  }
+}
+
 function sfx() {
   const out = join(ws, 'public', 'sfx');
   mkdirSync(out, { recursive: true });
@@ -66,8 +77,17 @@ function sfx() {
     .filter((f) => f.endsWith('.wav'))
     .sort();
   const output = tail(`${r.stdout}${r.stderr}`);
-  const beds = ambienceBeds(files);
-  if (beds.length === 0) return { ok: r.status === 0, files, output };
+  const style = kitStyle();
+  const beds = ambienceBeds(files, style);
+  if (beds.length === 0) {
+    const problems = style.allowAmbience ? ambienceProblems(out, files) : [];
+    if (problems.length === 0) return { ok: r.status === 0, files, output };
+    return {
+      ok: false,
+      files,
+      output: `Ambience limits of this kit: ${problems.join('; ')}. Fix sfx/generate-sfx.mjs.\n${output}`,
+    };
+  }
   return {
     ok: false,
     files,
