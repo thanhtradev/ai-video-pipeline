@@ -1392,7 +1392,7 @@ describe('WF-06 /new (D-058)', () => {
     expect(out.text).toContain('Kit: Nếu bạn… · Nhân vật: Chíp (BẠN)');
     expect(out).toMatchObject({
       edit: false,
-      kitButton: 'Kit → Khoa học',
+      kitButton: 'Kit: Nếu bạn… ▾',
       kitData: `in:K:${token}`,
       castButton: 'Nhân vật → Chíp Khoa học',
       castData: `in:C:${token}`,
@@ -1513,23 +1513,24 @@ describe('WF-06 /new (D-058)', () => {
         },
       },
     });
+    // Kit opens a picker since D-109; Nhân vật still cycles.
+    expect(
+      runCode('wf-06-telegram-callback.json', 'Parse callback', {
+        input: [callback(`in:K:${token}`)],
+      })[0]!.json,
+    ).toMatchObject({ kind: 'intake-options', setKind: 'kit' });
     const parsed = runCode('wf-06-telegram-callback.json', 'Parse callback', {
-      input: [callback(`in:K:${token}`)],
+      input: [callback(`in:C:${token}`)],
     })[0]!.json;
     expect(parsed).toEqual({
       kind: 'intake-set',
-      setKind: 'kit',
+      setKind: 'character_set',
       queryId: 'q9',
       userId: '111',
       chatId: CHAT,
       messageId: '13',
       token,
     });
-    expect(
-      runCode('wf-06-telegram-callback.json', 'Parse callback', {
-        input: [callback(`in:C:${token}`)],
-      })[0]!.json,
-    ).toMatchObject({ setKind: 'character_set' });
     expect(
       runCode('wf-06-telegram-callback.json', 'Parse callback', {
         input: [callback(`a1:K:${token}`)],
@@ -1561,7 +1562,7 @@ describe('WF-06 /new (D-058)', () => {
       chatId: CHAT,
       messageId: '13',
       queryId: 'q9',
-      kitButton: 'Kit → Nếu bạn…',
+      kitButton: 'Kit: Khoa học ▾',
     });
     expect(edited.text).toContain('Kit: Khoa học · Nhân vật: Chíp (BẠN)');
 
@@ -3314,7 +3315,7 @@ describe('WF-06 /ideas and idea buttons (D-083)', () => {
     expect(next('Ideas?')).toEqual(['Ideas ok?', 'Retry?']);
     expect(next('Ideas ok?')).toEqual(['Ideas', 'Build ideas reply']);
     expect(next('Build ideas reply')).toEqual(['Send status']);
-    expect(next('Selection?')).toEqual(['Cycle selection', 'Idea pick?']);
+    expect(next('Selection?')).toEqual(['Cycle selection', 'Options?']);
     expect(next('Idea pick?')).toEqual(['Pick idea', 'Decide']);
     expect(next('Pick idea')).toEqual(['Build confirmation']);
     expect(next('Send confirmation')).toEqual(['Idea button?']);
@@ -4694,5 +4695,217 @@ describe('WF-06 /library (D-104)', () => {
     const [out] = build([row()]);
 
     expect(out!.json.text).toContain('/web');
+  });
+});
+
+describe('WF-06 kit picker (D-109)', () => {
+  const FILE = 'wf-06-telegram-callback.json';
+  const wf = workflow(FILE);
+  const CHAT = '-1001234567890';
+  const token = 'e'.repeat(32);
+  const node = (name: string) => wf.nodes.find((n) => n.name === name)!;
+  const parse = (data: string, message: Record<string, unknown>) =>
+    runCode(FILE, 'Parse callback', {
+      input: [
+        {
+          json: {
+            callback_query: {
+              id: 'q7',
+              data,
+              from: { id: 111 },
+              message: { message_id: 21, chat: { id: CHAT }, ...message },
+            },
+          },
+        },
+      ],
+    });
+  const draftMessage = { reply_to_message: { message_id: 13, chat: { id: CHAT } } };
+
+  test('the Kit button opens the picker instead of cycling', () => {
+    expect(parse(`in:K:${token}`, {})[0]!.json).toEqual({
+      kind: 'intake-options',
+      setKind: 'kit',
+      queryId: 'q7',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '21',
+      token,
+    });
+    // the other draft buttons still cycle
+    expect(parse(`in:C:${token}`, {})[0]!.json).toMatchObject({ kind: 'intake-set' });
+  });
+
+  test('a picker button carries the kit and the draft message it replies to', () => {
+    expect(parse(`in:k:${token}:whatif-en`, draftMessage)[0]!.json).toEqual({
+      kind: 'intake-pick',
+      setKind: 'kit',
+      slug: 'whatif-en',
+      queryId: 'q7',
+      userId: '111',
+      chatId: CHAT,
+      messageId: '13',
+      pickerMessageId: '21',
+      token,
+    });
+    // without the reply link, the picker itself becomes the draft message and stays
+    expect(parse(`in:k:${token}:horror`, {})[0]!.json).toMatchObject({
+      messageId: '21',
+      pickerMessageId: '',
+    });
+    expect(parse(`in:k:${token}:Bad Slug`, draftMessage)).toEqual([]);
+    expect(parse(`a1:k:${token}:horror`, draftMessage)).toEqual([]);
+  });
+
+  test('routes the picker and the pick, and deletes the picker after the answer', () => {
+    const next = (name: string) => wf.connections[name]!.main.map((out) => out[0]?.node);
+    expect(next('Options?')).toEqual(['Kit options', 'Pick?']);
+    expect(next('Kit options')).toEqual(['Build picker']);
+    expect(next('Build picker')).toEqual(['Picker ok?']);
+    expect(next('Picker ok?')).toEqual(['Send picker', 'Answer closed draft']);
+    expect(next('Send picker')).toEqual(['Answer picker']);
+    expect(next('Pick?')).toEqual(['Pick selection', 'Idea pick?']);
+    expect(next('Pick selection')).toEqual(['Build confirmation']);
+    expect(next('Answer selection')).toEqual(['Picker?']);
+    expect(next('Answer closed draft')).toEqual(['Picker?']);
+    expect(next('Picker?')).toEqual(['Delete picker', undefined]);
+    expect(node('Kit options').parameters.query).toMatch(
+      /FROM telegram_intake_options\(\$1, \$2::bigint, \$3\)/,
+    );
+    expect(node('Pick selection').parameters.query).toMatch(
+      /FROM telegram_intake_pick\(\$1, \$2::bigint, \$3, \$4\)/,
+    );
+    expect(node('Send picker').parameters).toMatchObject({
+      replyMarkup: 'inlineKeyboard',
+      inlineKeyboard: '={{ $json.keyboard }}',
+      additionalFields: { reply_to_message_id: '={{ $json.messageId }}' },
+    });
+    expect(node('Delete picker').parameters).toMatchObject({
+      operation: 'deleteMessage',
+      messageId: "={{ $('Build confirmation').first().json.pickerMessageId }}",
+    });
+    // Picker? must not touch Build confirmation when the picker itself was refused
+    expect(
+      (node('Picker?').parameters.conditions as { conditions: { leftValue: string }[] })
+        .conditions[0]!.leftValue,
+    ).toContain("$('Build confirmation').isExecuted");
+  });
+
+  test('builds one button per kit, two per row, the current one ticked', () => {
+    const parsed = parse(`in:K:${token}`, {})[0]!.json;
+    const [out] = runCode(FILE, 'Build picker', {
+      input: [
+        {
+          json: {
+            result: 'DRAFT',
+            options: [
+              { slug: 'whatif', label: 'Nếu bạn…', current: true },
+              { slug: 'science', label: 'Khoa học', current: false },
+              { slug: 'whatif-en', label: 'What if… (EN)', current: false },
+            ],
+          },
+        },
+      ],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+    });
+    expect(out!.json).toMatchObject({ ok: true, chatId: CHAT, messageId: '21', queryId: 'q7' });
+    expect(out!.json.text).toBe('Chọn kit cho tập mới:');
+    expect(out!.json.keyboard).toEqual({
+      rows: [
+        {
+          row: {
+            buttons: [
+              { text: '✅ Nếu bạn…', additionalFields: { callback_data: `in:k:${token}:whatif` } },
+              { text: 'Khoa học', additionalFields: { callback_data: `in:k:${token}:science` } },
+            ],
+          },
+        },
+        {
+          row: {
+            buttons: [
+              {
+                text: 'What if… (EN)',
+                additionalFields: { callback_data: `in:k:${token}:whatif-en` },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    for (const row of (
+      out!.json.keyboard as {
+        rows: { row: { buttons: { additionalFields: { callback_data: string } }[] } }[];
+      }
+    ).rows) {
+      for (const button of row.row.buttons) {
+        expect(Buffer.byteLength(button.additionalFields.callback_data)).toBeLessThanOrEqual(64);
+      }
+    }
+
+    const closed = runCode(FILE, 'Build picker', {
+      input: [{ json: { result: 'EXPIRED' } }],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+    })[0]!.json;
+    expect(closed).toMatchObject({ ok: false, queryId: 'q7', alert: true });
+    expect(closed.text).toBe('Bản nháp đã hết hạn; gửi /new lại.');
+    expect(closed.keyboard).toBeUndefined();
+  });
+
+  test('a pick edits the draft message and names the picker to delete', () => {
+    const parsed = parse(`in:k:${token}:science`, draftMessage)[0]!.json;
+    const confirm = (row: Record<string, unknown>) =>
+      runCode(FILE, 'Build confirmation', {
+        input: [{ json: row }],
+        nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+      })[0]!.json;
+    const picked = confirm({
+      result: 'DRAFT',
+      token,
+      expires_at: '2026-11-05T06:00:00Z',
+      brief: { topic: 'Mèo' },
+      has_voice: null,
+      selection: {
+        kit: { slug: 'science', label: 'Khoa học', next_slug: 'whatif-en', next_label: 'What if' },
+        character_set: { slug: 'chip', label: 'Chíp (BẠN)', next_slug: 'mun', next_label: 'Mùn' },
+      },
+    });
+    expect(picked).toMatchObject({
+      edit: true,
+      chatId: CHAT,
+      messageId: '13',
+      pickerMessageId: '21',
+      queryId: 'q7',
+      kitButton: 'Kit: Khoa học ▾',
+      kitData: `in:K:${token}`,
+    });
+    expect(picked.text).toContain('Kit: Khoa học · Nhân vật: Chíp (BẠN)');
+
+    // the same kit again: a toast, no edit, the picker still goes away
+    expect(confirm({ result: 'UNCHANGED' })).toMatchObject({
+      edit: false,
+      alert: false,
+      pickerMessageId: '21',
+      text: 'Vẫn là kit này.',
+    });
+    expect(
+      confirm({ result: 'INVALID', error: 'invalid brief: unknown kit "anime"' }),
+    ).toMatchObject({
+      edit: false,
+      pickerMessageId: '21',
+      text: 'Kit này không còn dùng được.',
+    });
+    expect(confirm({ result: 'NOT_PENDING' })).toMatchObject({
+      edit: false,
+      pickerMessageId: '21',
+      text: 'Bản nháp đã được quyết định rồi.',
+    });
+    // a stranger's tap never removes the owner's picker
+    expect(confirm({ result: 'NOT_APPROVER' })).toMatchObject({
+      edit: false,
+      pickerMessageId: '',
+      text: 'Bạn không phải approver.',
+    });
+    expect(node('Answer closed draft').parameters.additionalFields).toMatchObject({
+      show_alert: '={{ $json.alert ?? true }}',
+    });
   });
 });

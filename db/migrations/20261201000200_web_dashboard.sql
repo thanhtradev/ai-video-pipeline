@@ -1,6 +1,6 @@
 -- migrate:up
 
--- Web console dashboard (D-108): one read for the home page. A period is whole Asia/Ho_Chi_Minh
+-- Web console dashboard (D-110): one read for the home page. A period is whole Asia/Ho_Chi_Minh
 -- days: today, or the last 7 or 30 days ending today, so the per-day rows line up with the
 -- calendar (telegram_report's 7d and 30d are rolling windows; today is the same in both).
 -- started, completed and failed follow telegram_report: created_at of the current version, and

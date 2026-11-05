@@ -9,7 +9,7 @@ turns automatic approval on and off, creates videos, and, for the owner, cancels
 chat, open the link on a device on the tailnet, and press Sign in.
 
 Data: migrations `20261127000100` to `20261127000300`, `20261128000100` (library, D-104) and
-`20261201000100` (dashboard, D-109). They add a trigger on `approver` and change no existing table. `/deploy` refuses to run until this
+`20261201000100` (kit picker, D-109) and `20261201000200` (dashboard, D-110). They add a trigger on `approver` and change no existing table. `/deploy` refuses to run until this
 migration is applied, like any other (D-100), and it does not update the console.
 
 ## 1. Check room on LXC 104
@@ -116,7 +116,7 @@ that, media plays but cannot seek.
 git pull && docker compose -f ops/web/compose.yml up -d --build
 ```
 
-A release that adds a migration (the dashboard, `20261201000100`, is one) needs step 3 first:
+A release that adds a migration (the dashboard, `20261201000200`, is one) needs step 3 first:
 back up, migrate, then `grants.sql`. Until then the page answers with an error on the home page
 and the other pages keep working.
 
