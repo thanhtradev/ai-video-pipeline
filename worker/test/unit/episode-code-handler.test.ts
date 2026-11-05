@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import pino from 'pino';
@@ -49,6 +49,15 @@ const TEXT_FAIL: GateReport = {
     sharp: 1,
     blur: 0,
     rows: [{ kind: 'html', side: 't16', text: 'NHỚ CHI TIẾT NÀY', from: 2310, to: 2380 }],
+  },
+};
+/** The workspace's own kit does not compile: a catalog gap the agent cannot fix (b8bb6e14). */
+const KIT_FAIL: GateReport = {
+  ok: false,
+  typecheck: {
+    ok: false,
+    output:
+      "kit/characters/mun/cast.tsx(22,33): error TS2307: Cannot find module '../chip/cast' or its corresponding type declarations.",
   },
 };
 const CHROME_CRASH: GateReport = {
@@ -503,6 +512,43 @@ describe('episode_code handler', () => {
     expect(turns).toHaveLength(4);
     expect(turns[3]!.prompt).toMatch(/1 sharp texts are partly outside[\s\S]*NHỚ CHI TIẾT NÀY/);
     expect(result.result).toMatchObject({ turns: 4 });
+  });
+
+  test('a retry after a worker update refreshes the kit, gates again and gives back the wasted turns', async () => {
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: gates(KIT_FAIL) }))(context()),
+    ).rejects.toThrow(/Cannot find module/);
+    expect(turns).toHaveLength(3);
+    // The fixed catalog copies a file the stale workspace lacks.
+    await rm(join(workDir, 'ws', 'kit/characters/chip/cast.tsx'));
+
+    const result = await createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL, PASS) }))(
+      context(INPUT, 2),
+    );
+
+    expect(existsSync(join(workDir, 'ws', 'kit/characters/chip/cast.tsx'))).toBe(true);
+    expect(turns).toHaveLength(4);
+    expect(turns[3]!.prompt).toMatch(/NHỚ CHI TIẾT NÀY/);
+    expect(turns[3]!.resumeSessionId).toBe('session-1');
+    expect(result.result).toMatchObject({ turns: 4 });
+  });
+
+  test('a retry with an unchanged kit does not run the gates again', async () => {
+    let runs = 0;
+    const counting: GateRunner = async (ws, signal) => {
+      runs++;
+      return gates(FAIL)(ws, signal);
+    };
+    await expect(createEpisodeCodeHandler(deps({ gates: counting }))(context())).rejects.toThrow(
+      PermanentJobError,
+    );
+    expect(runs).toBe(3);
+
+    await expect(
+      createEpisodeCodeHandler(deps({ gates: counting }))(context(INPUT, 2)),
+    ).rejects.toThrow(PermanentJobError);
+    expect(runs).toBe(3);
+    expect(turns).toHaveLength(3);
   });
 
   test('a render error thrown by the episode code still goes to the agent', async () => {

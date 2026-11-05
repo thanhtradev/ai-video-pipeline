@@ -86,6 +86,12 @@ const BROWSER_CRASH = /Page crashed!|Target closed|browser crashed|Session close
 /** True when the text (a gate error, or a prompt quoting one) shows Chrome itself crashing. */
 export const isBrowserCrash = (text: string): boolean => BROWSER_CRASH.test(text);
 
+/** A typecheck error inside the worker-owned kit/ (a catalog gap), which the agent cannot fix. */
+const KIT_FAULT = /^kit\/\S+\(\d+,\d+\): error TS\d+/m;
+
+/** True when the text (a gate failure, or a prompt quoting one) blames the kit, not the agent. */
+export const isKitFault = (text: string): boolean => KIT_FAULT.test(text);
+
 /**
  * A Chrome crash told to the agent once it repeats on the same code (the code triggers a Chrome
  * bug). Worded so that it does not match BROWSER_CRASH: the turn is not given back as wasted.

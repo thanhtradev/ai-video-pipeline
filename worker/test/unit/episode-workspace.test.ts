@@ -8,6 +8,7 @@ import { LEGACY_SHIMS } from '../../src/episode/legacy-kit.js';
 import {
   keepPreviousWorkspace,
   prepareWorkspace,
+  refreshKit,
   type WorkspaceSources,
 } from '../../src/episode/workspace.js';
 
@@ -43,6 +44,26 @@ describe('keepPreviousWorkspace', () => {
 
     // Nothing to keep: a no-op.
     await keepPreviousWorkspace(root, 'ws', 3);
+  });
+});
+
+describe('refreshKit', () => {
+  test('re-copies the kit of an existing workspace from the current repo, nothing else', async () => {
+    const ws = join(root, 'ws');
+    const sel = await prepareWorkspace(ws, sources);
+    const cast = join(ws, 'kit/characters/chip/cast.tsx');
+    const original = await readFile(cast, 'utf8');
+    // A worker update changed the catalog after the first attempt built this workspace.
+    await writeFile(cast, '// stale\n');
+    await writeFile(join(ws, 'src/episode/Episode.tsx'), 'export const Episode = () => null;\n');
+
+    expect(await refreshKit(ws, sel)).toBe(true);
+
+    expect(await readFile(cast, 'utf8')).toBe(original);
+    expect(await readFile(join(ws, 'src/episode/Episode.tsx'), 'utf8')).toBe(
+      'export const Episode = () => null;\n',
+    );
+    expect(await refreshKit(ws, sel)).toBe(false);
   });
 });
 
