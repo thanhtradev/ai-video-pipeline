@@ -95,7 +95,7 @@ Model `eleven_v4` (1 credit/char, ≤ 10000 chars per request), Vietnamese voice
 `47rM9DW5VmjOw23BVHWi`: registered by migration `20261028000200`, then made the one enabled TTS
 model by `ops/postgres/itera-tts.sql`. One request
 per act: an act's lines joined with newlines, tags included. `eleven_v4` honours the audio tags
-(`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The A1 estimate counts the same text.
+(`[punchy]`, `[short pause]`, `[as Grandpa, cheerful]` …) [CONFIRMED by the user, 2026-10-26]. The science kit's prompt asks for a tag on most lines (D-107). The A1 estimate counts the same text.
 
 The owner's pronunciation table (D-059) replaces each term (case-sensitive, whole word, never inside
 an audio tag) by how it is said, in the TTS text only: `TikTok = tích tốc` makes the voice say

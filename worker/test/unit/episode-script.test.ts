@@ -356,6 +356,18 @@ describe('episode script handler', () => {
     expect(request.prompt).toContain('"character_set": "chip-science"');
   });
 
+  test('science kit asks for emotion audio tags on most lines; whatif does not (D-107)', async () => {
+    const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
+    const brief = { ...TOPIC_BRIEF, kit: 'science', character_set: 'chip-science' };
+    await handler(context({ brief, language: 'vi' }));
+    await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
+
+    const [science, whatif] = requests;
+    expect(science!.systemPrompt).toMatch(/most lines start with an ElevenLabs audio tag/);
+    expect(science!.systemPrompt).toContain('[curious]');
+    expect(whatif!.systemPrompt).not.toContain('[curious]');
+  });
+
   test('links a series episode or a follow-up to the earlier video (D-083)', async () => {
     const handler = createEpisodeScriptHandler({ claude: stub(SCRIPT), rules: noRules });
     const id = '6b0c8f8e-1111-4222-8333-444455556666';
