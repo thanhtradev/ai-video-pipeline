@@ -44,7 +44,8 @@ what is wrong.
 - `src/episode/kit.tsx` (episode characters and components), `sets.tsx`, `shots/act*.tsx` (one
   component per shot, registered in a `Record<string, ShotDef>`), `audio.tsx`, `Episode.tsx`.
 - `Episode` renders every shot of `SHOTS` as a `<Sequence from={s.from} durationInFrames={s.to - s.from}>`
-  and adds `<Captions speaking={speakingAt} yAt={() => 886} size={50} />` and the audio layer. Every
+  and adds `<Captions speaking={speakingAt} yAt={() => 886} size={50} />` (unless the kit rules
+  below say the episode has no captions) and the audio layer. Every
   shot in `src/data/timing.json` must have its own visual; never leave a shot empty.
 - Import timeline queries from `src/time.ts` only. `kit/episodes/*/time.ts` belong to other episodes: never
   call their `L`/`at`/`line`/`shot`/`useShot`. Kit components themselves can be imported freely.

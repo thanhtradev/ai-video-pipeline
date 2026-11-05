@@ -1,69 +1,78 @@
 import React from 'react';
 import { AbsoluteFill, Folder, Still } from 'remotion';
-import { HorrorCastSheet } from '../../characters/mun/CastSheet';
-import { Ba, Mun, NguoiLa } from '../../characters/mun/cast';
+import { HorrorCastSheet } from '../../characters/bong/CastSheet';
+import { Nguoi, No, Toi } from '../../characters/bong/cast';
 import { SetStage } from '../whatif/SetStage';
 import { WIDE } from '../whatif/Stage';
-import type { CaptionLine } from '../whatif/timeline-types';
-import { Captions } from '../whatif/ui';
 import type { SetLayers } from '../whatif/sets';
 import {
   abandonedHouse,
   banyanShrine,
+  bedroomNight,
   dormCorridor,
   FLOOR,
   hospitalHall,
   riceFieldNight,
+  stairwell,
   villageNight,
 } from './sets-horror';
+import { POST } from './theme';
+import { flickerGain, Glitch, HorrorPost, TitleCard } from './ui-horror';
 
 /**
- * Review stills of the "Kinh dị" night sets (D-106): one still per set with Mùn and the lamp, a
- * Vietnamese caption, and the cast sheet.
+ * Review stills of the "Kinh dị" kit (style v2, D-111): one still per night set with TÔI and NÓ
+ * through the post stack, the cast sheet, a glitch frame and the title card.
  * `npx remotion still src/channels.ts HorrorSet-villageNight out.png`
  */
+const dim = (set: SetLayers, f: number): SetLayers =>
+  set.glow ? { ...set, glow: { ...set.glow, a: (set.glow.a ?? 0.5) * 0.8 * flickerGain(f) } } : set;
+
 const SETS: Readonly<Record<string, (f: number) => SetLayers>> = {
   villageNight: (f) => villageNight(f),
-  abandonedHouse: (f) => abandonedHouse(f, { doorOpen: 0.4 }),
-  dormCorridor: (f) => dormCorridor(f, { lastOpen: 0.5 }),
+  abandonedHouse: (f) => abandonedHouse(f, { doorOpen: 0.3, peel: 0.5 }),
+  dormCorridor: (f) => dormCorridor(f, { lastOpen: 0.25 }),
   riceFieldNight: (f) => riceFieldNight(f, { will: 3 }),
   banyanShrine: (f) => banyanShrine(f, { bucket: 0.5 }),
   hospitalHall: (f) => hospitalHall(f),
+  bedroomNight: (f) => bedroomNight(f, { gap: 0.8 }),
+  stairwell: (f) => stairwell(f, { bulb: 1 }),
 };
 
-const LINE: CaptionLine = {
-  from: 0,
-  to: 60,
-  words: [
-    ['Đêm', 'đêm', 0, 10],
-    ['đó,', 'đó', 10, 20],
-    ['Mùn', 'mùn', 20, 30],
-    ['nghe', 'nghe', 30, 40],
-    ['ai', 'ai', 40, 50],
-    ['gọi…', 'gọi', 50, 60],
-  ],
-};
+const F = 9;
 
-const SetSample: React.FC<{ set: string }> = ({ set }) => {
+const SetSample: React.FC<{ set: string; glitch?: boolean }> = ({ set, glitch = false }) => {
   const build = SETS[set] ?? SETS.villageNight!;
-  return (
-    <AbsoluteFill>
+  const shot = (
+    <HorrorPost f={F}>
       <SetStage
-        set={build(0)}
+        set={dim(build(F), F)}
         cam={WIDE}
-        f={0}
+        f={F}
+        vignette={POST.vignette}
         actors={
           <>
-            <NguoiLa x={1500} y={FLOOR} t={0} />
-            <Mun x={520} y={FLOOR} t={0} />
-            <Ba x={860} y={FLOOR} t={0} facing={-1} />
+            <No x={1480} y={FLOOR} t={F} />
+            <Toi x={520} y={FLOOR} t={F} facing={1} />
+            <Nguoi k={1} x={800} y={FLOOR} t={F} facing={-1} />
           </>
         }
       />
-      <Captions speaking={() => LINE} />
+    </HorrorPost>
+  );
+  return (
+    <AbsoluteFill style={{ background: '#000' }}>
+      {glitch ? (
+        <Glitch f={F} at={F - 2} frames={6}>
+          {shot}
+        </Glitch>
+      ) : (
+        shot
+      )}
     </AbsoluteFill>
   );
 };
+
+const Title: React.FC = () => <TitleCard text="Phòng cuối dãy" f={40} />;
 
 export const HorrorCompositions: React.FC = () => (
   <Folder name="Horror">
@@ -77,6 +86,14 @@ export const HorrorCompositions: React.FC = () => (
         defaultProps={{ set: id }}
       />
     ))}
+    <Still
+      id="HorrorGlitch"
+      component={SetSample}
+      width={1920}
+      height={1080}
+      defaultProps={{ set: 'dormCorridor', glitch: true }}
+    />
+    <Still id="HorrorTitle" component={Title} width={1920} height={1080} />
     <Still id="HorrorCast" component={HorrorCastSheet} width={1920} height={1080} />
   </Folder>
 );

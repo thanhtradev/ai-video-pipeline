@@ -46,7 +46,7 @@ Runs on the `q:light` stream (`qa` job), result in `qa/qa-report.json` with each
 | Content | Every asset used in the render has a checksum in the manifest; `UNVERIFIED` license assets are listed |
 | Metadata | Title/description/tags (Vietnamese) present, lengths within limits |
 
-**Implemented for episodes (D-057):** `qa_preview` checks the 720p preview: format, size, duration against the timeline, loudness, SRT validity (FAIL); black and silent stretches (WARN). `qa_final` runs the same checks on the 1080p file before A3 (D-062); the archive adds a VTT next to the SRT. Not yet: line length and reading speed, script diff, asset licences.
+**Implemented for episodes (D-057):** `qa_preview` checks the 720p preview: format, size, duration against the timeline, loudness, SRT validity (FAIL); black and silent stretches (WARN; expected in the horror kit, whose episodes have black-out beats and long silences, D-111). `qa_final` runs the same checks on the 1080p file before A3 (D-062); the archive adds a VTT next to the SRT. Not yet: line length and reading speed, script diff, asset licences.
 
 - `FAIL` → video `NEEDS_DECISION`; user chooses: fix (new version or re-run a specific step), accept the risk, or cancel. **Never** auto-retry QA until it "passes".
 - `WARN` → shown in A2.

@@ -158,6 +158,29 @@ describe('kit / character catalog', () => {
     expect(text).not.toContain('Nếu bạn…?');
   });
 
+  test('the horror kit has the horror style and the Bóng cast; the others are cartoon (D-111)', async () => {
+    const sel = resolveSelection({ kit: 'horror', characterSet: 'bong' });
+    expect(sel).toMatchObject({
+      kit: 'horror',
+      characterSet: 'bong',
+      hero: 'TÔI',
+      style: 'horror',
+    });
+    expect(sel.modules.cast).toBe('characters/bong/cast');
+    expect(sel.characterDocs).toEqual(['characters/bong/AGENT.md']);
+    expect(sel.labels).toEqual({ kit: 'Kinh dị', characterSet: 'Bóng' });
+    expect(resolveSelection({}).style).toBe('cartoon');
+    expect(resolveSelection({ kit: 'science' }).style).toBe('cartoon');
+    expect(resolveSelection({ kit: 'whatif-en' }).style).toBe('cartoon');
+
+    const text = await channelDescription(sel);
+    expect(text).toContain('first person');
+    expect(text).toContain('NO burned-in captions');
+    expect(text).toContain('TÔI');
+    expect(text).not.toContain('MÙN');
+    expect(text).not.toContain('Nothing frightening');
+  });
+
   test('every kit has a language; the Vietnamese kits stay Vietnamese', () => {
     expect(resolveSelection({}).language).toBe('vi');
     expect(resolveSelection({ kit: 'science' }).language).toBe('vi');

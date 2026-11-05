@@ -8,6 +8,7 @@ import { rulesPrompt, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
 import { resolveInside } from '../storage/workspace.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
+import type { KitStyle } from '../episode/catalog.js';
 import { channelDescription, selectionOf } from '../episode/channel-prompt.js';
 import type { Language } from '../episode/language.js';
 
@@ -93,11 +94,13 @@ export function thumbnailFrame(
 const previousSchema = z.object({ metadata: METADATA_SCHEMA });
 
 /** The channel is described by its kit and character set (D-066). */
-function systemPrompt(channel: string, language: Language): string {
+function systemPrompt(channel: string, language: Language, style: KitStyle = 'cartoon'): string {
   return [
-    language === 'en'
-      ? 'You write the publishing metadata of one episode of an international English animated YouTube channel.'
-      : 'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel.',
+    style === 'horror'
+      ? 'You write the publishing metadata of one episode of a Vietnamese horror YouTube channel told in silhouettes.'
+      : language === 'en'
+        ? 'You write the publishing metadata of one episode of an international English animated YouTube channel.'
+        : 'You write the publishing metadata of one episode of a Vietnamese animated YouTube channel.',
     channel,
     language === 'en'
       ? 'The metadata is in English. Reply only with the JSON object required by the schema.'
@@ -160,6 +163,7 @@ function buildPrompt(
   revision: { previous: VideoMetadata; feedback: string } | null,
   clean: readonly string[],
   language: Language,
+  style: KitStyle = 'cartoon',
 ): string {
   const acts = script.acts.map((act, i) =>
     [
@@ -170,14 +174,27 @@ function buildPrompt(
   );
   return [
     'Write the YouTube metadata for the finished episode below:',
-    '- title: what the episode asks, in the channel voice, at most 100 characters, no < or >.',
-    '- description: 2 opening lines that make people watch, then a short summary without',
-    '  spoilers of the ending, then a question to the viewers for the comments. No links.',
-    ...TAG_RULES[language],
-    '- thumbnail_shot: the id of the shot whose picture makes the best thumbnail (a clear face',
-    '  or the key moment, readable at a small size). Captions are burned into the video; the',
-    `  shots with a moment without captions are ${clean.length > 0 ? clean.join(', ') : 'none'}:`,
-    '  prefer one of them.',
+    ...(style === 'horror'
+      ? [
+          '- title: the one wrong detail of the story, quiet and specific, no clickbait, at most 100',
+          '  characters, no < or >.',
+          "- description: 2 opening lines in the narrator's voice, then a short summary without",
+          '  the ending, then a question to the viewers about whether they would have stayed. No links.',
+          ...TAG_RULES[language].map((rule) => rule.replace('#nếubạn', '#chuyệnkểlại')),
+          '- thumbnail_shot: the id of the shot whose picture makes the best thumbnail: dark, one',
+          "  light source, a silhouette and, if any shot has them, NÓ's two eyes; readable at a small",
+          '  size. There are no captions in the video.',
+        ]
+      : [
+          '- title: what the episode asks, in the channel voice, at most 100 characters, no < or >.',
+          '- description: 2 opening lines that make people watch, then a short summary without',
+          '  spoilers of the ending, then a question to the viewers for the comments. No links.',
+          ...TAG_RULES[language],
+          '- thumbnail_shot: the id of the shot whose picture makes the best thumbnail (a clear face',
+          '  or the key moment, readable at a small size). Captions are burned into the video; the',
+          `  shots with a moment without captions are ${clean.length > 0 ? clean.join(', ') : 'none'}:`,
+          '  prefer one of them.',
+        ]),
     '- Never invent facts that are not in the episode.',
     '',
     ...rulesPrompt(rules),
@@ -236,8 +253,13 @@ export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
         revision,
         captionFreeShots(timing),
         selection.language,
+        selection.style,
       ),
-      systemPrompt: systemPrompt(await channelDescription(selection), selection.language),
+      systemPrompt: systemPrompt(
+        await channelDescription(selection),
+        selection.language,
+        selection.style,
+      ),
       jsonSchema: METADATA_JSON_SCHEMA,
       cwd: workDir,
       signal,
