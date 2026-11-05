@@ -52,7 +52,8 @@ export type Item =
   | 'corn'
   | 'thumb'
   | 'cane'
-  | 'chalk';
+  | 'chalk'
+  | 'oilLamp';
 type P = { x: number; y: number };
 
 export type CharacterProps = {
@@ -339,6 +340,26 @@ const Item: React.FC<{ item: Item; p: P; fx: number; mode: 'solid' | 'line' }> =
       );
     case 'chalk':
       return g(<rect x={-4} y={-30} width={10} height={34} rx={4} fill={f('#f4f2ea')} {...st} />);
+    case 'oilLamp':
+      // Hand-held oil lamp (horror kit): handle loop in the hand, glass chimney and brass base
+      // hanging below, one warm static glow (no animated dashes, D-088).
+      return g(
+        <g {...st}>
+          {line ? null : <circle cx={0} cy={48} r={78} fill="#f0a856" opacity={0.16} />}
+          <path
+            d="M-14 0 Q0 -24 14 0"
+            stroke={line ? '#fff' : '#8a6a32'}
+            strokeWidth={5}
+            fill="none"
+            strokeLinecap="round"
+          />
+          <rect x={-18} y={0} width={36} height={14} rx={5} fill={f('#b08a3e')} />
+          <path d="M-20 14 L20 14 L14 72 L-14 72 Z" fill={f('#ffe9b0')} opacity={line ? 1 : 0.85} />
+          {line ? null : <ellipse cx={0} cy={46} rx={6} ry={13} fill="#ffd36a" />}
+          <rect x={-26} y={72} width={52} height={18} rx={7} fill={f('#b08a3e')} />
+          <rect x={-18} y={90} width={36} height={10} rx={5} fill={f('#7a5d2a')} />
+        </g>,
+      );
     default:
       return null;
   }
