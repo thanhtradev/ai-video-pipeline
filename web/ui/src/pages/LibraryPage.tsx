@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LIBRARY_PAGE_SIZE, type LibraryGroupBy, type LibraryItem } from '../../../shared/types';
 import { api } from '../api';
-import { ErrorNote, Link, Loading, Pager } from '../components';
+import { Card, EmptyState, ErrorNote, Link, Loading, PageHeader, Pager } from '../components';
 import { formatDuration, formatTime, shortId } from '../format';
 import { replaceUrl, useDebounced, usePageOffset, usePoll, useSearchParams } from '../hooks';
 
@@ -22,10 +22,19 @@ const STATUS_NOTE: Readonly<Record<string, string>> = {
 function LibraryRow({ item }: { item: LibraryItem }) {
   return (
     <li className="library-row">
-      <Link to={`/videos/${item.video_id}`} className="video-title">
-        <span lang={item.language}>{item.title ?? shortId(item.video_id)}</span>
-      </Link>
-      <span className="library-links">
+      <div className="list-main">
+        <Link to={`/videos/${item.video_id}`}>
+          <span lang={item.language}>{item.title ?? shortId(item.video_id)}</span>
+        </Link>
+        <span className="cell-sub">
+          {STATUS_NOTE[item.status] ? (
+            <span className="warn">{STATUS_NOTE[item.status]}, </span>
+          ) : null}
+          {item.duration_seconds ? `${formatDuration(item.duration_seconds)}, ` : ''}
+          {formatTime(item.archived_at)}
+        </span>
+      </div>
+      <span className="list-side">
         {item.file_url ? (
           <a href={item.file_url} target="_blank" rel="noopener noreferrer">
             Open in Drive
@@ -38,13 +47,6 @@ function LibraryRow({ item }: { item: LibraryItem }) {
             Folder
           </a>
         )}
-      </span>
-      <span className="note">
-        {STATUS_NOTE[item.status] ? (
-          <span className="warn">{STATUS_NOTE[item.status]}, </span>
-        ) : null}
-        {item.duration_seconds ? `${formatDuration(item.duration_seconds)}, ` : ''}
-        {formatTime(item.archived_at)}
       </span>
     </li>
   );
@@ -69,11 +71,11 @@ export function LibraryPage() {
   }
 
   return (
-    <section aria-labelledby="library">
-      <h1 id="library">Library</h1>
-      <p className="note library-note">
-        Links open only for Google accounts with access to the archive folder on Drive.
-      </p>
+    <>
+      <PageHeader
+        title="Library"
+        lead="Archived videos on Drive. Links open only for Google accounts with access to the archive folder."
+      />
       <div className="filters">
         <div className="segmented" role="group" aria-label="Group by">
           {GROUPINGS.map((option) => (
@@ -102,11 +104,14 @@ export function LibraryPage() {
       {isLoading && <Loading />}
       {error && <ErrorNote error={error} />}
       {data?.total === 0 && (
-        <p className="quiet">
-          {search === ''
-            ? 'Videos appear here once they are archived on Drive.'
-            : 'No video matches. Clear the search.'}
-        </p>
+        <EmptyState
+          title={search === '' ? 'Nothing archived yet' : 'No video matches'}
+          hint={
+            search === ''
+              ? 'Videos appear here once they are archived on Drive.'
+              : 'Clear the search.'
+          }
+        />
       )}
       {data?.groups.map((entry) => {
         const items = data.items.filter((item) => item.group_slug === entry.slug);
@@ -114,14 +119,13 @@ export function LibraryPage() {
         const heading = `${entry.label ?? OTHER_GROUP} (${entry.count})`;
         const headingId = `library-group-${entry.slug ?? 'other'}`;
         return (
-          <section key={headingId} className="library-group" aria-labelledby={headingId}>
-            <h2 id={headingId}>{heading}</h2>
-            <ul className="video-list">
+          <Card key={headingId} id={headingId} title={heading} className="library-group">
+            <ul className="list">
               {items.map((item) => (
                 <LibraryRow key={item.video_id} item={item} />
               ))}
             </ul>
-          </section>
+          </Card>
         );
       })}
       {data && (
@@ -135,6 +139,6 @@ export function LibraryPage() {
           onChange={setOffset}
         />
       )}
-    </section>
+    </>
   );
 }

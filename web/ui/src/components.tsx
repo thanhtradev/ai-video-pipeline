@@ -1,7 +1,15 @@
 import type { ReactNode } from 'react';
 import type { StateGroup, StripCell, VideoSummary } from '../../shared/types';
 import { ApiError } from './api';
-import { cellState, formatCost, gateName, GROUP_LABEL, shortId, timeLeft } from './format';
+import {
+  cellState,
+  formatCost,
+  formatTime,
+  gateName,
+  GROUP_LABEL,
+  shortId,
+  timeLeft,
+} from './format';
 import { useLinkHandler } from './hooks';
 
 export function Link({
@@ -21,6 +29,112 @@ export function Link({
   );
 }
 
+export function PageHeader({
+  title,
+  lead,
+  actions,
+}: {
+  title: string;
+  lead?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <header className="page-header">
+      <div className="page-header-text">
+        <h1>{title}</h1>
+        {lead && <p className="page-lead">{lead}</p>}
+      </div>
+      {actions && <div className="page-actions">{actions}</div>}
+    </header>
+  );
+}
+
+export type Tone = 'approval' | 'stopped' | 'running' | 'ok';
+
+export function Card({
+  title,
+  action,
+  tone,
+  className,
+  children,
+  id,
+}: {
+  title?: string;
+  action?: ReactNode;
+  tone?: Tone;
+  className?: string;
+  children: ReactNode;
+  id?: string;
+}) {
+  const classes = ['card', tone ? `card-${tone}` : '', className ?? ''].join(' ').trim();
+  const headingId =
+    id ?? (title ? `card-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined);
+  return (
+    <section className={classes} aria-labelledby={headingId}>
+      {(title || action) && (
+        <div className="card-head">
+          {title && <h2 id={headingId}>{title}</h2>}
+          {action}
+        </div>
+      )}
+      {children}
+    </section>
+  );
+}
+
+export function StatTile({
+  label,
+  value,
+  hint,
+  to,
+  tone,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: ReactNode;
+  to?: string;
+  tone?: Tone;
+}) {
+  const className = ['tile', tone ? `tile-${tone}` : ''].join(' ').trim();
+  const body = (
+    <>
+      <span className="tile-value">{value}</span>
+      <span className="tile-label">{label}</span>
+      {hint && <span className="tile-hint">{hint}</span>}
+    </>
+  );
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {body}
+      </Link>
+    );
+  }
+  return <div className={className}>{body}</div>;
+}
+
+export function Badge({ group }: { group: StateGroup }) {
+  return <span className={`badge badge-${group.toLowerCase()}`}>{GROUP_LABEL[group]}</span>;
+}
+
+export function EmptyState({
+  title,
+  hint,
+  action,
+}: {
+  title: string;
+  hint?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="empty">
+      <p className="empty-title">{title}</p>
+      {hint && <p>{hint}</p>}
+      {action}
+    </div>
+  );
+}
+
 /** One cell per pipeline step, in order: where a video is, readable at a glance. */
 export function StepStrip({ cells }: { cells: StripCell[] }) {
   if (cells.length === 0) return <span className="strip-empty">No steps yet</span>;
@@ -36,10 +150,6 @@ export function StepStrip({ cells }: { cells: StripCell[] }) {
       ))}
     </span>
   );
-}
-
-export function StateMark({ group }: { group: StateGroup }) {
-  return <span className={`state state-${group.toLowerCase()}`}>{GROUP_LABEL[group]}</span>;
 }
 
 function videoNote(video: VideoSummary): string {
@@ -62,13 +172,18 @@ export function VideoRow({ video }: { video: VideoSummary }) {
         <StepStrip cells={video.strip} />
       </div>
       <div className="video-state">
-        <StateMark group={video.state_group} />
+        <Badge group={video.state_group} />
         <span className="note">{videoNote(video)}</span>
       </div>
       <div className="video-meta">
-        <span className="id">{shortId(video.video_id)}</span>
+        <span>
+          <span className="id">{shortId(video.video_id)}</span>
+          {video.kit ? ` · ${video.kit}` : ''}
+        </span>
         <span>{video.worker_id ?? 'No worker yet'}</span>
-        <span>{formatCost(video.cost)}</span>
+        <span>
+          {formatCost(video.cost)} · {formatTime(video.created_at)}
+        </span>
       </div>
     </li>
   );
@@ -84,9 +199,11 @@ export function ErrorNote({ error }: { error: ApiError }) {
 
 export function Loading() {
   return (
-    <p className="quiet" aria-live="polite">
-      Loading
-    </p>
+    <div className="skeleton" aria-live="polite" aria-label="Loading">
+      <span />
+      <span />
+      <span />
+    </div>
   );
 }
 

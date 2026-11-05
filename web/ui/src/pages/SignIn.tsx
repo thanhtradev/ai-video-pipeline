@@ -39,22 +39,30 @@ export function SignIn({
 
   return (
     <main className="sign-in">
-      <h1>Video pipeline</h1>
-      {token && !error ? (
-        <button type="button" className="primary" disabled={isBusy} onClick={() => void signIn()}>
-          {isBusy ? 'Signing in' : 'Sign in'}
-        </button>
-      ) : (
-        <p role={error ? 'alert' : undefined}>
-          {error ??
-            'To sign in, send /web to the bot in a private chat and open the link it sends.'}
-        </p>
-      )}
-      {isSignedIn && (
-        <p>
-          <Link to="/">Go to the overview</Link>
-        </p>
-      )}
+      <div className="card">
+        <span className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            VP
+          </span>
+          Video pipeline
+        </span>
+        <h1>Sign in</h1>
+        {token && !error ? (
+          <button type="button" className="primary" disabled={isBusy} onClick={() => void signIn()}>
+            {isBusy ? 'Signing in' : 'Sign in'}
+          </button>
+        ) : (
+          <p role={error ? 'alert' : undefined}>
+            {error ??
+              'To sign in, send /web to the bot in a private chat and open the link it sends.'}
+          </p>
+        )}
+        {isSignedIn && (
+          <p>
+            <Link to="/">Go to the dashboard</Link>
+          </p>
+        )}
+      </div>
     </main>
   );
 }

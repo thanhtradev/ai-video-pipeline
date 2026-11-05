@@ -67,95 +67,99 @@ export function MediaPanel({
   if (isEmpty) return null;
 
   return (
-    <section className="media" aria-labelledby="media-heading">
-      <h2 id="media-heading">Review material</h2>
-      {qaLevel && (
-        <p>
-          Quality check: <strong className={`qa-${qaLevel.toLowerCase()}`}>{qaLevel}</strong>
-        </p>
-      )}
-      {problems.length > 0 && (
-        <ul className="plain">
-          {problems.map((check) => (
-            <li key={check.name} className={`qa-${check.level.toLowerCase()}`}>
-              {check.name}: {check.detail}
-            </li>
-          ))}
-        </ul>
-      )}
-      {metadata && (
-        <div className="media-item" lang={data.language}>
-          <p className="media-label" lang="en">
-            Title and description for publishing
-          </p>
+    <section className="card media" aria-labelledby="media-heading">
+      <div className="card-head">
+        <h2 id="media-heading">Review material</h2>
+      </div>
+      <div className="media-grid">
+        {qaLevel && (
           <p>
-            <strong>{metadata.title}</strong>
+            Quality check: <strong className={`qa-${qaLevel.toLowerCase()}`}>{qaLevel}</strong>
           </p>
-          <p className="prose">{metadata.description}</p>
-          {metadata.tags && <p className="note">{metadata.tags.join(', ')}</p>}
-          {metadata.hashtags && <p className="note">{metadata.hashtags.join(' ')}</p>}
-        </div>
-      )}
-      {has('final.mp4') && (
-        <figure className="media-item">
-          <figcaption>Final video</figcaption>
-          <video key={urlOf('final.mp4')} controls preload="metadata" src={urlOf('final.mp4')} />
-        </figure>
-      )}
-      {has('preview.mp4') && (
-        <figure className="media-item">
-          <figcaption>Preview</figcaption>
-          <video
-            key={urlOf('preview.mp4')}
-            controls
-            preload="metadata"
-            src={urlOf('preview.mp4')}
-          />
-        </figure>
-      )}
-      {has('thumbnail.jpg') && (
-        <figure className="media-item">
-          <figcaption>Thumbnail</figcaption>
-          <img src={urlOf('thumbnail.jpg')} alt="Thumbnail of the video" loading="lazy" />
-        </figure>
-      )}
-      {pages.length > 0 && (
-        <div className="media-item">
-          <p className="media-label">Storyboard</p>
-          <div className="pages">
-            {pages.map((page, index) => (
-              <img
-                key={page}
-                src={urlOf(page)}
-                alt={`Storyboard page ${index + 1}`}
-                loading="lazy"
-                width={1280}
-                height={720}
-              />
+        )}
+        {problems.length > 0 && (
+          <ul className="plain">
+            {problems.map((check) => (
+              <li key={check.name} className={`qa-${check.level.toLowerCase()}`}>
+                {check.name}: {check.detail}
+              </li>
             ))}
+          </ul>
+        )}
+        {metadata && (
+          <div className="media-item" lang={data.language}>
+            <p className="media-label" lang="en">
+              Title and description for publishing
+            </p>
+            <p>
+              <strong>{metadata.title}</strong>
+            </p>
+            <p className="prose">{metadata.description}</p>
+            {metadata.tags && <p className="note">{metadata.tags.join(', ')}</p>}
+            {metadata.hashtags && <p className="note">{metadata.hashtags.join(' ')}</p>}
           </div>
-        </div>
-      )}
-      {has('mix.m4a') && (
-        <figure className="media-item">
-          <figcaption>Sound mix</figcaption>
-          <audio key={urlOf('mix.m4a')} controls preload="none" src={urlOf('mix.m4a')} />
-        </figure>
-      )}
-      {has('voice.m4a') && (
-        <figure className="media-item">
-          <figcaption>Voice</figcaption>
-          <audio key={urlOf('voice.m4a')} controls preload="none" src={urlOf('voice.m4a')} />
-        </figure>
-      )}
-      {has('script.md') && (
-        <div className="media-item">
-          <p className="media-label">Script</p>
-          <div lang={data.language}>
-            <ScriptText url={urlOf('script.md')} />
+        )}
+        {has('final.mp4') && (
+          <figure className="media-item">
+            <figcaption>Final video</figcaption>
+            <video key={urlOf('final.mp4')} controls preload="metadata" src={urlOf('final.mp4')} />
+          </figure>
+        )}
+        {has('preview.mp4') && (
+          <figure className="media-item">
+            <figcaption>Preview</figcaption>
+            <video
+              key={urlOf('preview.mp4')}
+              controls
+              preload="metadata"
+              src={urlOf('preview.mp4')}
+            />
+          </figure>
+        )}
+        {has('thumbnail.jpg') && (
+          <figure className="media-item">
+            <figcaption>Thumbnail</figcaption>
+            <img src={urlOf('thumbnail.jpg')} alt="Thumbnail of the video" loading="lazy" />
+          </figure>
+        )}
+        {pages.length > 0 && (
+          <div className="media-item">
+            <p className="media-label">Storyboard</p>
+            <div className="pages">
+              {pages.map((page, index) => (
+                <img
+                  key={page}
+                  src={urlOf(page)}
+                  alt={`Storyboard page ${index + 1}`}
+                  loading="lazy"
+                  width={1280}
+                  height={720}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {has('mix.m4a') && (
+          <figure className="media-item">
+            <figcaption>Sound mix</figcaption>
+            <audio key={urlOf('mix.m4a')} controls preload="none" src={urlOf('mix.m4a')} />
+          </figure>
+        )}
+        {has('voice.m4a') && (
+          <figure className="media-item">
+            <figcaption>Voice</figcaption>
+            <audio key={urlOf('voice.m4a')} controls preload="none" src={urlOf('voice.m4a')} />
+          </figure>
+        )}
+        {has('script.md') && (
+          <div className="media-item">
+            <p className="media-label">Script</p>
+            <div lang={data.language}>
+              <ScriptText url={urlOf('script.md')} />
+            </div>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

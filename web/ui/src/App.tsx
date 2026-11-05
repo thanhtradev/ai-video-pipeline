@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Me } from '../../shared/types';
 import { api, ApiError } from './api';
-import { ErrorNote, Link, Loading } from './components';
+import { Card, ErrorNote, Link, Loading, PageHeader } from './components';
 import { SIGNED_OUT_EVENT, usePath } from './hooks';
 import { LibraryPage } from './pages/LibraryPage';
 import { NewVideoPage } from './pages/NewVideoPage';
@@ -11,14 +11,7 @@ import { SignIn } from './pages/SignIn';
 import { VideoPage } from './pages/VideoPage';
 import { Videos } from './pages/Videos';
 import { WorkerPage, Workers } from './pages/Workers';
-
-const NAV = [
-  { to: '/', label: 'Overview' },
-  { to: '/videos', label: 'Videos' },
-  { to: '/library', label: 'Library' },
-  { to: '/workers', label: 'Workers' },
-  { to: '/report', label: 'Report' },
-] as const;
+import { Shell } from './shell/Shell';
 
 /** A truncated pasted link can hold a broken escape; the API then refuses the id with a message. */
 function decodeSegment(segment: string): string {
@@ -27,10 +20,6 @@ function decodeSegment(segment: string): string {
   } catch {
     return segment;
   }
-}
-
-function isCurrent(path: string, to: string): boolean {
-  return to === '/' ? path === '/' : path === to || path.startsWith(`${to}/`);
 }
 
 function Page({ path, me }: { path: string; me: Me }) {
@@ -45,12 +34,14 @@ function Page({ path, me }: { path: string; me: Me }) {
   if (path === '/workers') return <Workers />;
   if (path === '/report') return <ReportPage />;
   return (
-    <section>
-      <h1>Page not found</h1>
-      <p>
-        <Link to="/">Go to the overview</Link>
-      </p>
-    </section>
+    <>
+      <PageHeader title="Page not found" />
+      <Card>
+        <p>
+          <Link to="/">Go to the dashboard</Link>
+        </p>
+      </Card>
+    </>
   );
 }
 
@@ -98,11 +89,13 @@ export function App() {
   if (session.kind === 'error') {
     return (
       <main className="sign-in">
-        <h1>Video pipeline</h1>
-        <ErrorNote error={session.error} />
-        <button type="button" onClick={() => setAttempt(attempt + 1)}>
-          Try again
-        </button>
+        <Card>
+          <h1>Video pipeline</h1>
+          <ErrorNote error={session.error} />
+          <button type="button" onClick={() => setAttempt(attempt + 1)}>
+            Try again
+          </button>
+        </Card>
       </main>
     );
   }
@@ -120,38 +113,13 @@ export function App() {
   };
 
   return (
-    <>
-      <a className="skip" href="#content">
-        Skip to content
-      </a>
-      <header className="topbar">
-        <span className="brand">Video pipeline</span>
-        <nav aria-label="Main">
-          {NAV.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={isCurrent(path, item.to) ? 'nav-link nav-current' : 'nav-link'}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <span className="who">
-          {session.me.name}
-          <button type="button" className="text-button" onClick={() => void signOut()}>
-            Sign out
-          </button>
-        </span>
-      </header>
-      <main id="content" className="content">
-        {signOutFailed && (
-          <p className="error-note" role="alert">
-            You are not signed out: the console did not answer. Try again.
-          </p>
-        )}
-        <Page path={path} me={session.me} />
-      </main>
-    </>
+    <Shell path={path} me={session.me} onSignOut={() => void signOut()}>
+      {signOutFailed && (
+        <p className="error-note" role="alert">
+          You are not signed out: the console did not answer. Try again.
+        </p>
+      )}
+      <Page path={path} me={session.me} />
+    </Shell>
   );
 }

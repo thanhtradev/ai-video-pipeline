@@ -1,7 +1,8 @@
 import { api } from '../api';
-import { ErrorNote, Link, Loading, VideoRow } from '../components';
+import { Card, EmptyState, ErrorNote, Link, Loading, PageHeader, VideoRow } from '../components';
 import { formatCost, gateName, shortId, timeLeft } from '../format';
 import { usePoll } from '../hooks';
+import { WorkerTiles } from './Workers';
 
 function NeedsYou() {
   const { data, error, isLoading } = usePoll(api.attention, 'attention');
@@ -9,10 +10,10 @@ function NeedsYou() {
   if (!data) return error ? <ErrorNote error={error} /> : null;
   const count = data.approvals.length + data.stopped.length;
   return (
-    <section className="needs-you" aria-labelledby="needs-you">
-      <h1 id="needs-you">
-        {count === 0 ? 'Nothing needs you' : `${count} ${count === 1 ? 'needs' : 'need'} you`}
-      </h1>
+    <Card
+      id="needs-you"
+      title={count === 0 ? 'Nothing needs you' : `${count} ${count === 1 ? 'needs' : 'need'} you`}
+    >
       {error && <ErrorNote error={error} />}
       {count === 0 && <p className="quiet">Approvals and stopped videos appear here.</p>}
       <ul className="queue">
@@ -31,7 +32,7 @@ function NeedsYou() {
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
@@ -41,14 +42,14 @@ function InProduction() {
     'active',
   );
   return (
-    <section aria-labelledby="in-production">
-      <h2 id="in-production">In production</h2>
+    <Card id="in-production" title="In production">
       {isLoading && <Loading />}
       {error && <ErrorNote error={error} />}
       {data?.total === 0 && (
-        <p className="quiet">
-          No video is in production. <Link to="/videos/new">Start a new one</Link>.
-        </p>
+        <EmptyState
+          title="No video is in production"
+          action={<Link to="/videos/new">Start a new one</Link>}
+        />
       )}
       <ul className="video-list">
         {data?.items.map((video) => (
@@ -60,7 +61,7 @@ function InProduction() {
           <Link to="/videos?state=active">See all {data.total} in production</Link>
         </p>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -68,41 +69,47 @@ function Today() {
   const workers = usePoll(api.workers, 'workers');
   const report = usePoll(() => api.report('today'), 'today');
   const online = workers.data?.filter((worker) => worker.online) ?? [];
-  const offline = workers.data?.filter((worker) => !worker.online) ?? [];
   return (
-    <aside className="today" aria-label="Today">
-      <h2>Workers</h2>
-      {workers.error && <ErrorNote error={workers.error} />}
-      {workers.data && (
-        <p>
-          <Link to="/workers">
-            {online.length} of {workers.data.length} online
-          </Link>
-          {offline.length > 0 && (
-            <span className="warn"> {offline.map((w) => w.worker_id).join(', ')} offline</span>
-          )}
-        </p>
-      )}
-      <h2>Today</h2>
-      {report.error && <ErrorNote error={report.error} />}
-      {report.data && (
-        <p>
-          {report.data.completed} finished, {report.data.created} started, {report.data.failed}{' '}
-          failed. <Link to="/report">{formatCost(report.data.cost)}</Link>
-        </p>
-      )}
-    </aside>
+    <>
+      <Card
+        title="Workers"
+        action={
+          workers.data && (
+            <Link to="/workers">
+              {online.length} of {workers.data.length} online
+            </Link>
+          )
+        }
+      >
+        {workers.error && <ErrorNote error={workers.error} />}
+        {workers.data && <WorkerTiles workers={workers.data} isCompact />}
+      </Card>
+      <Card title="Today" action={<Link to="/report">Report</Link>}>
+        {report.error && <ErrorNote error={report.error} />}
+        {report.data && (
+          <p>
+            {report.data.completed} finished, {report.data.created} started, {report.data.failed}{' '}
+            failed. {formatCost(report.data.cost)}
+          </p>
+        )}
+      </Card>
+    </>
   );
 }
 
 export function Overview() {
   return (
-    <div className="overview">
-      <div className="overview-main">
-        <NeedsYou />
-        <InProduction />
+    <>
+      <PageHeader title="Dashboard" />
+      <div className="grid">
+        <div className="span-8">
+          <NeedsYou />
+          <InProduction />
+        </div>
+        <div className="span-4">
+          <Today />
+        </div>
       </div>
-      <Today />
-    </div>
+    </>
   );
 }

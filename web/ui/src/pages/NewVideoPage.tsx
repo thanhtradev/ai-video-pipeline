@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import type { Catalog, CatalogOption, NewVideo, VideoDraft } from '../../../shared/types';
 import { api, ApiError } from '../api';
-import { ErrorNote, Link, Loading } from '../components';
+import { Card, ErrorNote, Link, Loading, PageHeader } from '../components';
 import { navigate, SIGNED_OUT_EVENT } from '../hooks';
 
 const AUTOMATIC = '';
@@ -99,8 +99,7 @@ function NewVideoForm({ catalog }: { catalog: Catalog }) {
 
   if (draft) {
     return (
-      <section aria-labelledby="review-heading">
-        <h2 id="review-heading">Create this video?</h2>
+      <Card id="review-heading" title="Create this video?" tone="running">
         {failure && (
           <p className="error-note" role="alert">
             {failure}
@@ -145,7 +144,7 @@ function NewVideoForm({ catalog }: { catalog: Catalog }) {
             Change something
           </button>
         </div>
-      </section>
+      </Card>
     );
   }
 
@@ -156,92 +155,111 @@ function NewVideoForm({ catalog }: { catalog: Catalog }) {
           {failure}
         </p>
       )}
-      <label>
-        Topic
-        <input
-          name="topic"
-          lang={language}
-          required
-          maxLength={500}
-          autoComplete="off"
-          value={topic}
-          onChange={(event) => setTopic(event.target.value)}
-        />
-      </label>
-      <label>
-        Notes for the script (optional)
-        <textarea
-          name="notes"
-          lang={language}
-          maxLength={2000}
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-        />
-      </label>
-      <div className="field-pair">
-        <label>
-          Kit
-          <select name="kit" value={kit} onChange={(event) => setKit(event.target.value)}>
-            {catalog.kits.map((option) => (
-              <option key={option.slug} value={option.slug}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Character
-          <select
-            name="character"
-            value={characterShown}
-            onChange={(event) => setCharacter(event.target.value)}
-          >
-            {characters.map((option) => (
-              <option key={option.slug} value={option.slug}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Length
-          <select
-            name="minutes"
-            value={minutes}
-            onChange={(event) => setMinutes(event.target.value)}
-          >
-            <option value={AUTOMATIC}>Automatic, about 6 minutes</option>
-            {catalog.minutes.map((value) => (
-              <option key={value} value={value}>
-                {value} minutes
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Worker
-          <select name="worker" value={worker} onChange={(event) => setWorker(event.target.value)}>
-            <option value={AUTOMATIC}>Automatic</option>
-            {catalog.workers.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.online ? option.id : `${option.id} (offline)`}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <label className="check">
-        <input type="checkbox" checked={auto} onChange={(event) => setAuto(event.target.checked)} />
-        <span>
-          Approve every gate automatically. A QA failure still stops the video, and the Mac cleanup
-          is never automatic.
-        </span>
-      </label>
-      <p className="note">A full brief from a file still goes through /new on Telegram.</p>
+      <Card title="What">
+        <div className="form-section">
+          <label>
+            Topic
+            <input
+              name="topic"
+              lang={language}
+              required
+              maxLength={500}
+              autoComplete="off"
+              value={topic}
+              onChange={(event) => setTopic(event.target.value)}
+            />
+          </label>
+          <label>
+            Notes for the script (optional)
+            <textarea
+              name="notes"
+              lang={language}
+              maxLength={2000}
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+            />
+          </label>
+        </div>
+      </Card>
+      <Card title="How">
+        <div className="form-section">
+          <div className="field-pair">
+            <label>
+              Kit
+              <select name="kit" value={kit} onChange={(event) => setKit(event.target.value)}>
+                {catalog.kits.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Character
+              <select
+                name="character"
+                value={characterShown}
+                onChange={(event) => setCharacter(event.target.value)}
+              >
+                {characters.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Length
+              <select
+                name="minutes"
+                value={minutes}
+                onChange={(event) => setMinutes(event.target.value)}
+              >
+                <option value={AUTOMATIC}>Automatic, about 6 minutes</option>
+                {catalog.minutes.map((value) => (
+                  <option key={value} value={value}>
+                    {value} minutes
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Worker
+              <select
+                name="worker"
+                value={worker}
+                onChange={(event) => setWorker(event.target.value)}
+              >
+                <option value={AUTOMATIC}>Automatic</option>
+                {catalog.workers.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.online ? option.id : `${option.id} (offline)`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={auto}
+              onChange={(event) => setAuto(event.target.checked)}
+            />
+            <span>
+              Approve every gate automatically. A QA failure still stops the video, and the Mac
+              cleanup is never automatic.
+            </span>
+          </label>
+          <p className="note">A full brief from a file still goes through /new on Telegram.</p>
+        </div>
+      </Card>
       <div className="button-row">
         <button type="submit" className="primary" disabled={isBusy || topic.trim() === ''}>
           {isBusy ? 'Checking' : 'Review'}
         </button>
+        <Link to="/videos" className="text-button">
+          Back to videos
+        </Link>
       </div>
     </form>
   );
@@ -274,14 +292,11 @@ export function NewVideoPage() {
   }, []);
 
   return (
-    <section aria-labelledby="new-video">
-      <h1 id="new-video">New video</h1>
+    <>
+      <PageHeader title="New video" />
       {!catalog && !error && <Loading />}
       {error && <ErrorNote error={error} />}
       {catalog && <NewVideoForm catalog={catalog} />}
-      <p>
-        <Link to="/videos">Back to videos</Link>
-      </p>
-    </section>
+    </>
   );
 }
