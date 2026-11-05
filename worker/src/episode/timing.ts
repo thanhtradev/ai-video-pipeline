@@ -39,6 +39,10 @@ const END_CARD = 1.5;
 const FIRST_FRAME = 3;
 /** A cut louder than this above the floor is in speech (reference check_cuts.py). */
 const CUT_LIMIT_DB = 20;
+/** …and never below the voiced threshold + this: on a very quiet floor (clean TTS, under -72 dB)
+ * the -52 dB voiced minimum would otherwise sit above floor + 20, and a real pause between
+ * sentences (a breath, a reverb tail) would be chosen as a silence, then fail the cut check. */
+const CUT_ABOVE_VOICED_DB = CUT_LIMIT_DB - VOICED_ABOVE_FLOOR_DB;
 
 export interface TimingShot {
   id: string;
@@ -82,6 +86,16 @@ export function noiseFloor(db: readonly number[]): number {
   const sound = db.filter((v) => v > DIGITAL_SILENCE_DB).sort((x, y) => x - y);
   const percentile = sound[Math.floor(sound.length * FLOOR_PERCENTILE)] ?? DIGITAL_SILENCE_DB;
   return Math.min(percentile, FLOOR_CEILING_DB);
+}
+
+/** Level above which a frame counts as speech. */
+function voicedThreshold(floor: number): number {
+  return Math.max(floor + VOICED_ABOVE_FLOOR_DB, VOICED_MIN_DB);
+}
+
+/** Level above which a cut is in speech: floor + 20 dB, or just above the voiced threshold. */
+function cutLimit(floor: number): number {
+  return Math.max(floor + CUT_LIMIT_DB, voicedThreshold(floor) + CUT_ABOVE_VOICED_DB);
 }
 
 interface Span {
@@ -372,14 +386,8 @@ export function buildTiming(input: TimingInput) {
   const { sentences, words, shots, db } = input;
   const n = sentences.length;
   const floor = noiseFloor(db);
-  const threshold = Math.max(floor + VOICED_ABOVE_FLOOR_DB, VOICED_MIN_DB);
-  const cuts = findCuts(
-    sentences,
-    roughSpans(sentences, words),
-    db,
-    threshold,
-    floor + CUT_LIMIT_DB,
-  );
+  const threshold = voicedThreshold(floor);
+  const cuts = findCuts(sentences, roughSpans(sentences, words), db, threshold, cutLimit(floor));
   const src = sourceFrames(cuts);
 
   const firsts = shotStarts(sentences, shots);
@@ -492,16 +500,17 @@ export function buildTiming(input: TimingInput) {
 
 export type EpisodeTiming = ReturnType<typeof buildTiming>['timing'];
 
-/** Cuts that land in speech: level around each cut > floor + 20 dB (reference check_cuts.py). */
+/** Cuts that land in speech: level around each cut above cutLimit (reference check_cuts.py). */
 export function checkCuts(timing: EpisodeTiming, db: readonly number[]): string[] {
   const floor = noiseFloor(db);
+  const limit = cutLimit(floor);
   const level = (frame: number) => frameLevel(db, frame);
   return timing.lines.flatMap((line, i) => {
     const prev = timing.lines[i - 1];
     // The start of the file and a one-breath join are not cuts.
     const head = prev?.joinNext || line.src[0] === 0 ? floor : level(line.src[0]);
     const tail = line.joinNext ? floor : level(line.src[1]);
-    if (head <= floor + CUT_LIMIT_DB && tail <= floor + CUT_LIMIT_DB) return [];
+    if (head <= limit && tail <= limit) return [];
     const fmt = (v: number) => `${v - floor >= 0 ? '+' : ''}${(v - floor).toFixed(1)}`;
     return [`${line.id} start ${fmt(head)} dB, end ${fmt(tail)} dB above floor: ${line.text}`];
   });

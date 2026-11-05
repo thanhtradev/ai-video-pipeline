@@ -246,6 +246,18 @@ describe('buildTiming', () => {
     };
     expect(checkCuts(moved, db)).toEqual([expect.stringMatching(/^S001 start .* end \+60\.0 dB/)]);
   });
+
+  test('a pause quieter than the voiced minimum passes the cut check on a very quiet floor', () => {
+    // A clean TTS take: room floor -85 dB, so the voiced threshold is the -52 dB minimum, far above
+    // floor + 20 dB. The breath between the sentences (-58 dB) is a real pause, not speech.
+    const quiet = db.map((v, k) => {
+      if (v > -40) return v;
+      return k >= 150 && k < 210 ? -58 : -85;
+    });
+    const { timing } = run({ db: quiet });
+    expect(timing.lines.map((l) => l.joinNext)).toEqual([false, false, false]);
+    expect(checkCuts(timing, quiet)).toEqual([]);
+  });
 });
 
 describe('EP5 regression (reference episode)', () => {

@@ -125,8 +125,9 @@ the reference `build_timing.py` + `check_cuts.py` (`worker/src/episode/`):
    (0.15 s in `fast` shots); a shot's `hold_seconds` follows its last sentence; shots start at
    the sentence where their MỐC is spoken; 1.5 s end card.
 6. `timing.json` and `captions.json` in the reference shapes (the kit's `time.ts` reads them),
-   `timeline.md` for people. A cut louder than floor + 20 dB, or a MỐC never spoken, fails the
-   job permanently (re-running cannot change it).
+   `timeline.md` for people. A cut louder than floor + 20 dB (never below the voiced threshold
+   + 6 dB: on a very quiet floor, under -72 dB, a real pause can lie above floor + 20), or a MỐC
+   never spoken, fails the job permanently (re-running cannot change it).
 7. `voice.m4a`: the voice at -14 LUFS (`worker/src/media/loudness.ts`, as the delivered video) for
    the voice approval, with a `media_token` in the checkpoint.
 
@@ -210,8 +211,11 @@ tool shows images) with the gate report; turn 3 only if gates still fail. All tu
 limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace stays for an interactive
 session. `agent-turns.json` keeps prompts, replies and usage, and is the step's checkpoint (D-056):
 it is written after every agent turn and gate run, so a retry (worker restart, a gate crash,
-`/retry` on Telegram) resumes the same session where it stopped. The limit counts all attempts. The
-step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
+`/retry` on Telegram) resumes the same session where it stopped. The limit counts all attempts. A
+resume first re-copies the worker-owned `kit/` from the current repo, so a kit or catalog fix shipped
+by a worker update reaches a stuck job; a changed kit runs the gates again, and follow-up turns the
+agent spent on a kit typecheck error (`kit/…: error TS…`, which it cannot fix) are given back, as
+for a Chrome crash (D-108). The step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
 during the board, mix or QA render (`Page crashed!`, `Target closed`) first fails the attempt
 retryable and the retry re-runs the gates; when Chrome crashes again on the same code, the code
 triggers a Chrome bug and the agent gets it as a failed check with a hint (`CHROME_ABORT_HINT`,
