@@ -251,3 +251,112 @@ describe('a button that changes nothing (D-092)', () => {
     expect(mun.selection!.character_set).toMatchObject({ slug: 'mun', next_slug: 'chip' });
   });
 });
+
+// Kit picker (D-109): the Kit button no longer cycles; it opens a message with one button per
+// enabled kit (telegram_intake_options), and a tap sets that kit (telegram_intake_pick).
+interface OptionsRow {
+  result: string;
+  options: { slug: string; label: string; current: boolean }[] | null;
+}
+
+async function options(token: string, kind: string, user = OWNER): Promise<OptionsRow> {
+  const result = await db.pool.query<OptionsRow>(
+    'SELECT * FROM telegram_intake_options($1, $2, $3)',
+    [token, user, kind],
+  );
+  return result.rows[0]!;
+}
+
+async function pick(token: string, kind: string, slug: string, user = OWNER): Promise<DraftRow> {
+  const result = await db.pool.query<DraftRow>(
+    'SELECT * FROM telegram_intake_pick($1, $2, $3, $4)',
+    [token, user, kind, slug],
+  );
+  return result.rows[0]!;
+}
+
+describe('kit picker (D-109)', () => {
+  test('lists every enabled kit in catalog order and marks the current one', async () => {
+    const drafted = await draft({ topic: 'Bíp ơi, tại sao có gió?' });
+    const listed = await options(drafted.token!, 'kit');
+    expect(listed.result).toBe('DRAFT');
+    expect(listed.options).toEqual([
+      { slug: 'whatif', label: 'Nếu bạn…', current: true },
+      { slug: 'science', label: 'Khoa học', current: false },
+      { slug: 'whatif-en', label: 'What if… (EN)', current: false },
+      { slug: 'horror', label: 'Kinh dị', current: false },
+    ]);
+
+    await db.pool.query(`UPDATE catalog_option SET enabled = false WHERE slug = 'horror'`);
+    expect((await options(drafted.token!, 'kit')).options!.map((o) => o.slug)).toEqual([
+      'whatif',
+      'science',
+      'whatif-en',
+    ]);
+    await db.pool.query(`UPDATE catalog_option SET enabled = true WHERE slug = 'horror'`);
+  });
+
+  test('a pick sets the kit and pairs the cast by language; the same kit is UNCHANGED', async () => {
+    const drafted = await draft({ topic: 'Bíp ơi, tại sao có sấm?' });
+
+    const horror = await pick(drafted.token!, 'kit', 'horror');
+    expect(horror.result).toBe('DRAFT');
+    expect(horror.token).toBe(drafted.token);
+    expect(horror.brief).toMatchObject({ kit: 'horror', character_set: 'chip' });
+    expect(horror.selection!.kit.slug).toBe('horror');
+
+    const english = await pick(drafted.token!, 'kit', 'whatif-en');
+    expect(english.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
+    expect((await options(drafted.token!, 'kit')).options).toContainEqual({
+      slug: 'whatif-en',
+      label: 'What if… (EN)',
+      current: true,
+    });
+
+    const same = await pick(drafted.token!, 'kit', 'whatif-en');
+    expect(same.result).toBe('UNCHANGED');
+    expect(same.brief).toMatchObject({ kit: 'whatif-en' });
+
+    // the Nhân vật cycle button still works after a pick
+    expect((await cycle(drafted.token!, 'character_set')).result).toBe('UNCHANGED');
+    const created = await decideWith(db.pool, drafted.token!, 'APPROVE', null);
+    expect(created.result).toBe('OK');
+    expect((await pick(drafted.token!, 'kit', 'whatif')).result).toBe('NOT_PENDING');
+    expect((await options(drafted.token!, 'kit')).result).toBe('NOT_PENDING');
+  });
+
+  test('refuses strangers, unknown drafts, bad kinds and unknown or disabled slugs', async () => {
+    const drafted = await draft({ topic: 'Bíp ơi, tại sao có cầu vồng?' });
+    expect((await options(drafted.token!, 'kit', STRANGER)).result).toBe('NOT_APPROVER');
+    expect((await pick(drafted.token!, 'kit', 'horror', STRANGER)).result).toBe('NOT_APPROVER');
+    expect((await options('0'.repeat(32), 'kit')).result).toBe('NOT_FOUND');
+    expect((await pick('0'.repeat(32), 'kit', 'horror')).result).toBe('NOT_FOUND');
+    await expect(options(drafted.token!, 'worker')).rejects.toThrow(/invalid kind/);
+    await expect(pick(drafted.token!, 'worker', 'huy')).rejects.toThrow(/invalid kind/);
+
+    const unknown = await pick(drafted.token!, 'kit', 'anime');
+    expect(unknown.result).toBe('INVALID');
+    expect(unknown.error).toMatch(/unknown kit "anime"/);
+    await db.pool.query(`UPDATE catalog_option SET enabled = false WHERE slug = 'horror'`);
+    expect((await pick(drafted.token!, 'kit', 'horror')).result).toBe('INVALID');
+    await db.pool.query(`UPDATE catalog_option SET enabled = true WHERE slug = 'horror'`);
+    expect((await pick(drafted.token!, 'kit', 'whatif')).result).toBe('UNCHANGED');
+  });
+
+  test('the picker also lists casts of the kit language', async () => {
+    const drafted = await draft({ topic: 'What if the sun went out?', kit: 'whatif-en' });
+    expect((await options(drafted.token!, 'character_set')).options).toEqual([
+      { slug: 'chip-en', label: expect.any(String), current: true },
+    ]);
+    const vi = await pick(drafted.token!, 'kit', 'science');
+    expect(vi.brief).toMatchObject({ kit: 'science', character_set: 'chip' });
+    expect((await options(drafted.token!, 'character_set')).options!.map((o) => o.slug)).toEqual([
+      'chip',
+      'chip-science',
+      'mun',
+    ]);
+    expect((await pick(drafted.token!, 'character_set', 'mun')).brief).toMatchObject({
+      character_set: 'mun',
+    });
+  });
+});
