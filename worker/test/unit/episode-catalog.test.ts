@@ -1,7 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { CatalogError, loadCatalog, resolveSelection } from '../../src/episode/catalog.js';
+import {
+  CATALOG_PATH,
+  CatalogError,
+  loadCatalog,
+  resolveSelection,
+} from '../../src/episode/catalog.js';
 import { channelDescription, selectionOf } from '../../src/episode/channel-prompt.js';
 import { hasVietnameseLetters } from '../../src/episode/language.js';
+
+const REMOTION_SRC = join(dirname(CATALOG_PATH), 'src');
 
 describe('kit / character catalog', () => {
   test('loads remotion/catalog.json with defaults that exist', () => {
@@ -97,6 +106,26 @@ describe('kit / character catalog', () => {
     expect(text).toContain("One little 'if'… a whole different life.");
     expect(text).toMatch(/Western/);
     expect(hasVietnameseLetters(text)).toBe(false);
+  });
+
+  test('every cast a kit can use imports only from directories copied into its workspace', () => {
+    // A cast file that reaches into another cast ("../chip/cast") must find it in ws/kit, else the
+    // episode typecheck fails on the worker (video b8bb6e14, 2026-11-05: horror lacked characters/chip).
+    const catalog = loadCatalog();
+    const importedDirs = (dir: string) => {
+      const source = readFileSync(join(REMOTION_SRC, dir, 'cast.tsx'), 'utf8');
+      return [...source.matchAll(/from '\.\.\/([^/'.][^/']*)\/[^']*'/g)].map(
+        (m) => `${dir.split('/')[0]}/${m[1]}`,
+      );
+    };
+    for (const kit of Object.keys(catalog.kits)) {
+      for (const [characterSet, set] of Object.entries(catalog.characterSets)) {
+        const sel = resolveSelection({ kit, characterSet });
+        for (const dep of importedDirs(set.dir)) {
+          expect(sel.dirs, `${kit} + ${characterSet} needs ${dep}`).toContain(dep);
+        }
+      }
+    }
   });
 
   test('the horror kit is its own Vietnamese channel with night sets and the Mùn cast (D-106)', async () => {
