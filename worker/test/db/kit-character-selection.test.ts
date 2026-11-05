@@ -303,7 +303,7 @@ describe('kit picker (D-109)', () => {
     expect(horror.result).toBe('DRAFT');
     expect(horror.token).toBe(drafted.token);
     expect(horror.brief).toMatchObject({ kit: 'horror', character_set: 'chip' });
-    expect(horror.selection!.kit.slug).toBe('horror');
+    expect(horror.selection!.kit!.slug).toBe('horror');
 
     const english = await pick(drafted.token!, 'kit', 'whatif-en');
     expect(english.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
