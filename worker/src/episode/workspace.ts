@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import {
   cp,
@@ -169,6 +170,42 @@ export async function prepareWorkspace(
 }
 
 /** Text files the agent wrote, for the secret scan and the job outputs. */
+/** One digest over the paths and contents of every file under dir (empty when it is missing). */
+async function treeDigest(dir: string): Promise<string> {
+  if (!existsSync(dir)) return '';
+  const hash = createHash('sha256');
+  for (const file of await listFiles(dir, dir)) {
+    hash
+      .update(file)
+      .update('\0')
+      .update(await readFile(join(dir, file)))
+      .update('\0');
+  }
+  return hash.digest('hex');
+}
+
+/**
+ * Re-copies the worker-owned kit/ of an existing workspace from the current repo: a worker update
+ * after the first attempt (a catalog or kit fix) then reaches a resumed job. The agent's files are
+ * untouched. True when any kit file changed, so the caller runs the gates again.
+ */
+export async function refreshKit(ws: string, selection: ResolvedSelection): Promise<boolean> {
+  const kitDir = join(ws, 'kit');
+  const before = await treeDigest(kitDir);
+  for (const dir of new Set(selection.dirs)) {
+    await mkdir(dirname(join(kitDir, dir)), { recursive: true });
+    await cp(join(KIT_SRC, dir), join(kitDir, dir), {
+      recursive: true,
+      force: true,
+      filter: isKitSource,
+    });
+  }
+  await writeActiveModules(ws, selection.modules);
+  const changed = before !== (await treeDigest(kitDir));
+  if (changed) await writeFile(join(ws, 'FILES.md'), await fileIndex(ws));
+  return changed;
+}
+
 export async function agentFiles(ws: string): Promise<string[]> {
   const lists = await Promise.all(AGENT_WRITABLE.map((part) => listFiles(join(ws, part), ws)));
   return lists.flat();

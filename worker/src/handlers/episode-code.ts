@@ -10,6 +10,7 @@ import { selectionOf } from '../episode/channel-prompt.js';
 import {
   browserCrash,
   isBrowserCrash,
+  isKitFault,
   describeFailures,
   gateReportSchema,
   type GateReport,
@@ -22,6 +23,7 @@ import {
   containsSecret,
   keepPreviousWorkspace,
   prepareWorkspace,
+  refreshKit,
 } from '../episode/workspace.js';
 import type { LoudnessNormalizer } from '../media/loudness.js';
 import { rulesMarkdown, type RulesSource } from '../rules/channel-rules.js';
@@ -209,8 +211,11 @@ async function runTurns(
   const settingsPath = join(context.workDir, SETTINGS);
   const deadline = Date.now() + (deps.limitMs ?? AGENT_LIMIT_MS) - saved.agentMs;
   let state = saved;
-  // An older worker showed the agent Chrome crashes it could not fix: those turns are given back.
-  const wasted = saved.turns.filter((turn, i) => i > 0 && isBrowserCrash(turn.prompt)).length;
+  // Turns in which the agent was shown what it could not fix (an older worker's Chrome crashes, a
+  // kit that does not compile, D-108) are given back.
+  const wasted = saved.turns.filter(
+    (turn, i) => i > 0 && (isBrowserCrash(turn.prompt) || isKitFault(turn.prompt)),
+  ).length;
   const maxTurns = MAX_FOLLOW_UPS + 1 + wasted;
   const save = () =>
     writeFileAtomic(join(context.workDir, TURNS_LOG), `${JSON.stringify(state, null, 1)}\n`);
@@ -313,9 +318,20 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
 
     // The clip's kit and character set (D-066); an unknown slug fails the job, never falls back.
     const selection = selectionOf(input);
-    const saved = await savedState(context);
+    let saved = await savedState(context);
     if (saved) {
       context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');
+      // A worker update since the first attempt (a kit or catalog fix, D-108) reaches the
+      // workspace here; a changed kit means the last gate report no longer applies.
+      if (await refreshKit(join(workDir, WORKSPACE), selection)) {
+        context.logger.info('kit refreshed from the current repo: running the gates again');
+        const n = saved.turns.length;
+        saved = {
+          ...saved,
+          gatedHash: null,
+          turns: saved.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates: null } : turn)),
+        };
+      }
     } else {
       const rules = await deps.rules();
       context.logger.info({ rulesVersion: rules.version }, 'episode workspace');
