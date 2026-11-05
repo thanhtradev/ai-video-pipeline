@@ -20,6 +20,11 @@
   --ok: #1f7a4d;
   --focus: #0a6f8f;
   --accent: #0a6f8f;
+  /* Chart series, validated for colour-blind separation on the light card. */
+  --chart-completed: #1f7a4d;
+  --chart-started: #2a6fd6;
+  --chart-failed: #bb2d24;
+  --chart-grid: #e3e9ee;
   --radius: 10px;
   --radius-small: 6px;
   --shadow: 0 1px 2px rgb(23 36 47 / 6%);
@@ -50,6 +55,10 @@
     --ok: #4cc38a;
     --focus: #4ebedf;
     --accent: #4ebedf;
+    --chart-completed: #36a26e;
+    --chart-started: #4f90e8;
+    --chart-failed: #dd5f55;
+    --chart-grid: #2a3b4b;
     --shadow: 0 1px 2px rgb(0 0 0 / 30%);
   }
 }

@@ -71,5 +71,6 @@ GRANT EXECUTE ON FUNCTION
   web_catalog(text),
   web_create_draft(text, jsonb, text, boolean),
   web_create_decide(text, text, boolean),
-  web_library(text, text, text, integer, integer)
+  web_library(text, text, text, integer, integer),
+  web_dashboard(text, text)
 TO aivideo_web;

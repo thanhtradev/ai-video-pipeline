@@ -80,4 +80,9 @@ export function readRoutes(app: FastifyInstance, options: ReadRouteOptions): voi
     const session = sessionOf(request);
     return ok(await store.report(session, reportQuery.parse(request.query).period));
   });
+
+  app.get('/api/dashboard', async (request) => {
+    const session = sessionOf(request);
+    return ok(await store.dashboard(session, reportQuery.parse(request.query).period));
+  });
 }

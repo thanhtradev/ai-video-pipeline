@@ -141,7 +141,50 @@ export interface Report {
   minutes_videos: number;
   completed_cost: Cost;
   steps: { step: string; runs: number; median_seconds: number }[];
-  approvals: unknown;
+  approvals: { decided: number; median_seconds: number | null };
+}
+
+export interface DashboardDay {
+  /** YYYY-MM-DD in Asia/Ho_Chi_Minh. */
+  day: string;
+  started: number;
+  completed: number;
+  failed: number;
+  cost: Cost;
+}
+
+export interface DashboardKit {
+  /** Null for a kit no longer in the catalog. */
+  slug: string | null;
+  label: string | null;
+  started: number;
+  completed: number;
+  cost: Cost;
+}
+
+export interface DashboardFailure {
+  video_id: string;
+  version: number;
+  title: string | null;
+  kit: string | null;
+  step: string;
+  status: string;
+  error: string | null;
+  failed_at: string;
+  attempts: number;
+  /** True when web_retry would accept the video. */
+  can_retry: boolean;
+}
+
+export type StatusCounts = Record<'stopped' | 'approval' | 'running' | 'waiting' | 'done', number>;
+
+export interface Dashboard {
+  period: ReportPeriod;
+  since: string;
+  days: DashboardDay[];
+  kits: DashboardKit[];
+  failures: DashboardFailure[];
+  status_counts: StatusCounts;
 }
 
 export type DecideAction = 'APPROVE' | 'APPROVE_ALL' | 'REJECT' | 'REGENERATE' | 'FEEDBACK';

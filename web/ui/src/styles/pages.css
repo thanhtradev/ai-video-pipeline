@@ -32,8 +32,13 @@
   }
 }
 
-.grid > .card {
+.grid > .card,
+.grid > .summary {
   margin-top: 0;
+}
+
+.grid .grid {
+  margin-bottom: 0.75rem;
 }
 
 .queue-item {
@@ -455,6 +460,8 @@
 .chart {
   width: 100%;
   height: 220px;
+  /* The chart measures its box after the first paint; nothing leaks out meanwhile. */
+  overflow: hidden;
 }
 
 .chart-note {

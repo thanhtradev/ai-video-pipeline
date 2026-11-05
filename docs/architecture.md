@@ -51,7 +51,9 @@ Monitoring: Beszel + Uptime Kuma (Docker on LXC 104) watch n8n, Postgres, Redis,
 
 **Web console (D-103)** `[PROPOSED]` until rolled out: a small service on LXC 104 for reading and acting on the
 pipeline from a browser. It calls `web_*` SQL functions only, holds no state, and does not go through
-n8n. It fetches media from each video's worker with the token from the database. Runbook: `ops/web-console.md`.
+n8n. It fetches media from each video's worker with the token from the database. Its home page is a
+dashboard (D-109): tiles, charts per day, the failed steps, and the quick actions a gate allows.
+Runbook: `ops/web-console.md`.
 
 ## 3. Core data model [PROPOSED]
 

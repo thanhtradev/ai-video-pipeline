@@ -59,7 +59,7 @@ Runs on the `q:light` stream (`qa` job), result in `qa/qa-report.json` with each
 | Approval | A1, A2, ad-hoc decisions |
 | Status | Video started, preview done, completed; batch completed |
 | Alert | Provider quota exhausted/error, worker offline, stuck job, archive verify failure, security failure (bad signature), backup failure |
-| Report | Daily: videos by state, cost, cost per finished minute |
+| Report | Daily: videos by state, cost, cost per finished minute; also the web dashboard (D-109) |
 
 Every message includes a short `video_id` + version for cross-reference. No secrets or sensitive paths.
 Anti-spam: group repeated alerts (same cause) within a time window.

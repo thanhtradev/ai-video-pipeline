@@ -6,6 +6,7 @@ import type {
   CancelPreview,
   Catalog,
   CreateOutcome,
+  Dashboard,
   NewVideo,
   DecideAction,
   DecideResult,
@@ -101,4 +102,5 @@ export const api = {
     return request<Library>(`/api/library?${params.toString()}`);
   },
   report: (period: ReportPeriod) => request<Report>(`/api/report?period=${period}`),
+  dashboard: (period: ReportPeriod) => request<Dashboard>(`/api/dashboard?period=${period}`),
 };

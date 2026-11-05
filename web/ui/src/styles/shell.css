@@ -57,6 +57,8 @@
 }
 
 .content {
+  /* A grid item: without this a wide table would stretch the page instead of scrolling. */
+  min-width: 0;
   padding: 1.25rem 1rem calc(var(--tabbar-h) + 1.5rem);
   max-width: 80rem;
   width: 100%;

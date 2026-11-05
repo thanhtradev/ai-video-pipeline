@@ -305,6 +305,7 @@ describe('sessions', () => {
       ['web_workers', bad],
       ['web_worker', bad, 'mac-mini-m4'],
       ['web_report', bad, 'today'],
+      ['web_dashboard', bad, 'today'],
     ];
     for (const [fn, ...args] of calls) {
       await expect(callWeb(fn, ...args), fn).rejects.toMatchObject({ code: INVALID_SESSION });

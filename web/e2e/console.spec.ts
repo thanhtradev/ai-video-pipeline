@@ -26,7 +26,21 @@ async function expectNoSideways(page: Page): Promise<void> {
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
-  expect(overflow).toBeLessThanOrEqual(0);
+  // Names what sticks out, so a failure says where to look.
+  const wide = await page.evaluate(() =>
+    [...document.querySelectorAll('body *')]
+      .filter(
+        (el) =>
+          el.scrollWidth > el.clientWidth + 1 ||
+          el.getBoundingClientRect().right > window.innerWidth,
+      )
+      .slice(0, 12)
+      .map(
+        (el) =>
+          `${el.tagName}.${el.className} ${el.scrollWidth}/${el.clientWidth} r=${Math.round(el.getBoundingClientRect().right)} ov=${getComputedStyle(el).overflowX} parent=${el.parentElement?.className}`,
+      ),
+  );
+  expect(overflow, wide.join('\n')).toBeLessThanOrEqual(0);
 }
 
 test('opening the link does not use it up; signing in needs a press', async ({ page, context }) => {
@@ -108,15 +122,14 @@ test('without a session the page says how to sign in', async ({ page }) => {
   await expect(page.getByText('send /web to the bot')).toBeVisible();
 });
 
-test('the overview shows what needs a person and what is in production', async ({ page }) => {
+test('the dashboard shows what needs a person and what is in production', async ({ page }) => {
   await signIn(page);
 
   await expect(page.getByRole('heading', { name: '2 need you' })).toBeVisible();
   await expect(page.getByText('Approve script')).toBeVisible();
   await expect(page.getByText('Stopped: NEEDS_DECISION')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'In production' })).toBeVisible();
-  await expect(page.getByRole('img', { name: '5 of 8 steps done' })).toBeVisible();
-  await expect(page.getByRole('link', { name: '1 of 2 online' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /In production/ })).toContainText('3');
+  await expect(page.getByRole('link', { name: /Workers online/ })).toContainText('1 of 2');
   await page.screenshot({ path: `${SCREENSHOTS}/overview-desktop.png`, fullPage: true });
 });
 
@@ -157,7 +170,9 @@ test('an unknown video says so and links back', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Back to videos' })).toBeVisible();
 });
 
-test('workers and the report are reachable', async ({ page }) => {
+test('workers are reachable and the old report address lands on the dashboard', async ({
+  page,
+}) => {
   await signIn(page);
   await page.getByRole('link', { name: 'Workers', exact: true }).click();
   await expect(page.locator('.worker')).toHaveCount(2);
@@ -166,13 +181,8 @@ test('workers and the report are reachable', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Last 24 hours' })).toBeVisible();
 
   await page.goto(`${BASE_URL}/report`);
-  await page.getByRole('button', { name: '7 days' }).click();
-  await expect(page.getByRole('button', { name: '7 days' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await expect(page.getByText('In production now')).toBeVisible();
-  await page.screenshot({ path: `${SCREENSHOTS}/report-desktop.png`, fullPage: true });
+  await expect(page).toHaveURL(`${BASE_URL}/`);
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 });
 
 test('signing out ends the session', async ({ page }) => {
@@ -215,7 +225,6 @@ test.describe('at phone width', () => {
       '/library',
       '/workers',
       '/workers/mac-mini-m4',
-      '/report',
     ]) {
       await page.goto(`${BASE_URL}${path}`);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

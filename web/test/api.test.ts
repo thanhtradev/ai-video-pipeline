@@ -202,6 +202,7 @@ describe('reads', () => {
     '/api/workers',
     '/api/workers/mac-mini-m4',
     '/api/report',
+    '/api/dashboard',
   ];
 
   test.each(ROUTES)('%s needs a session', async (url) => {
@@ -268,6 +269,24 @@ describe('reads', () => {
     });
   });
 
+  test('the dashboard answers one row per day and the status totals', async () => {
+    const cookie = await session();
+
+    const response = await get('/api/dashboard?period=7d', cookie);
+
+    expect(response.statusCode).toBe(200);
+    const { data } = response.json();
+    expect(data.period).toBe('7d');
+    expect(data.days).toHaveLength(7);
+    expect(data.days[0]).toMatchObject({ started: expect.any(Number), cost: expect.any(Object) });
+    expect(data.status_counts).toMatchObject({
+      stopped: expect.any(Number),
+      done: expect.any(Number),
+    });
+    expect(Array.isArray(data.failures)).toBe(true);
+    expect(Array.isArray(data.kits)).toBe(true);
+  });
+
   test.each([
     ['/api/videos?state=nonsense'],
     ['/api/videos?limit=0'],
@@ -276,6 +295,7 @@ describe('reads', () => {
     ['/api/videos/not-a-uuid'],
     ['/api/workers/bad%20worker'],
     ['/api/report?period=year'],
+    ['/api/dashboard?period=year'],
   ])('refuses bad input: %s', async (url) => {
     expect((await get(url, await session())).statusCode).toBe(400);
   });

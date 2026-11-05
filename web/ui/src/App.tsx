@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import type { Me } from '../../shared/types';
 import { api, ApiError } from './api';
 import { Card, ErrorNote, Link, Loading, PageHeader } from './components';
-import { SIGNED_OUT_EVENT, usePath } from './hooks';
+import { navigate, SIGNED_OUT_EVENT, usePath } from './hooks';
 import { LibraryPage } from './pages/LibraryPage';
 import { NewVideoPage } from './pages/NewVideoPage';
-import { Overview } from './pages/Overview';
-import { ReportPage } from './pages/ReportPage';
+import { Dashboard } from './pages/Dashboard';
 import { SignIn } from './pages/SignIn';
 import { VideoPage } from './pages/VideoPage';
 import { Videos } from './pages/Videos';
@@ -22,17 +21,23 @@ function decodeSegment(segment: string): string {
   }
 }
 
+/** The Report page became part of the dashboard; an old link still lands somewhere useful. */
+function RedirectHome() {
+  useEffect(() => navigate('/'), []);
+  return null;
+}
+
 function Page({ path, me }: { path: string; me: Me }) {
   if (path === '/videos/new') return <NewVideoPage />;
   const video = /^\/videos\/([^/]+)$/.exec(path);
   if (video) return <VideoPage key={video[1]!} id={decodeSegment(video[1]!)} me={me} />;
   const worker = /^\/workers\/([^/]+)$/.exec(path);
   if (worker) return <WorkerPage key={worker[1]!} id={decodeSegment(worker[1]!)} />;
-  if (path === '/') return <Overview />;
+  if (path === '/') return <Dashboard />;
   if (path === '/videos') return <Videos />;
   if (path === '/library') return <LibraryPage />;
   if (path === '/workers') return <Workers />;
-  if (path === '/report') return <ReportPage />;
+  if (path === '/report') return <RedirectHome />;
   return (
     <>
       <PageHeader title="Page not found" />
