@@ -77,6 +77,7 @@ describe('chip-science migration', () => {
       { slug: 'chip', label: 'Chíp (BẠN)' },
       { slug: 'chip-science', label: 'Chíp Khoa học' },
       { slug: 'chip-en', label: 'Chip (YOU, EN)' },
+      { slug: 'mun', label: 'Mùn' },
     ]);
     expect(await slugs(versionId, token)).toEqual({
       version: 'chip-science',

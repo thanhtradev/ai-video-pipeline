@@ -124,6 +124,7 @@ describe('telegram_ideas', () => {
     expect(rows).toEqual([
       { result: 'QUEUED', kit: 'whatif', character_set: 'chip' },
       { result: 'QUEUED', kit: 'science', character_set: 'chip-science' },
+      { result: 'QUEUED', kit: 'horror', character_set: 'mun' },
     ]);
   });
 
@@ -154,7 +155,7 @@ describe('ideas_daily', () => {
     const first = await db.pool.query<{ n: number }>(`SELECT ideas_daily('2026-11-02') AS n`);
     const again = await db.pool.query<{ n: number }>(`SELECT ideas_daily('2026-11-02') AS n`);
     const next = await db.pool.query<{ n: number }>(`SELECT ideas_daily('2026-11-03') AS n`);
-    expect([first.rows[0]!.n, again.rows[0]!.n, next.rows[0]!.n]).toEqual([2, 0, 2]);
+    expect([first.rows[0]!.n, again.rows[0]!.n, next.rows[0]!.n]).toEqual([3, 0, 3]);
   });
 });
 

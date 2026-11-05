@@ -99,8 +99,39 @@ describe('kit / character catalog', () => {
     expect(hasVietnameseLetters(text)).toBe(false);
   });
 
+  test('the horror kit is its own Vietnamese channel with night sets and the Mùn cast (D-106)', async () => {
+    const sel = resolveSelection({ kit: 'horror', characterSet: 'mun' });
+    expect(sel).toMatchObject({ kit: 'horror', characterSet: 'mun', hero: 'MÙN' });
+    expect(sel.language).toBe('vi');
+    expect(sel.frame).toEqual({ width: 1920, height: 1080 });
+    // The whatif code is copied for its shared modules, but its docs ("Nothing frightening") are not.
+    expect(sel.dirs).toEqual(
+      expect.arrayContaining(['kits/whatif', 'kits/horror', 'characters/mun']),
+    );
+    expect(sel.kitDocs).toEqual(['kits/horror/AGENT.md']);
+    expect(sel.kitPrompts).toEqual(['kits/horror/prompt.md']);
+    expect(sel.characterDocs).toEqual(['characters/mun/AGENT.md']);
+    expect(sel.modules).toMatchObject({
+      theme: 'kits/horror/theme',
+      sets: 'kits/horror/sets-horror',
+      props: 'kits/horror/props-horror',
+      'sets-home': 'kits/whatif/sets-home',
+      cast: 'characters/mun/cast',
+    });
+    expect(sel.labels).toEqual({ kit: 'Kinh dị', characterSet: 'Mùn' });
+
+    const text = await channelDescription(sel);
+    expect(text).toMatch(/^Landscape 16:9 \(1920×1080\) episodes\./);
+    expect(text).toContain('MÙN');
+    expect(text).toContain('no blood');
+    expect(text).toContain('NGƯỜI LẠ');
+    expect(text).not.toContain('Nothing frightening');
+    expect(text).not.toContain('Nếu bạn…?');
+  });
+
   test('every kit has a language; the Vietnamese kits stay Vietnamese', () => {
     expect(resolveSelection({}).language).toBe('vi');
     expect(resolveSelection({ kit: 'science' }).language).toBe('vi');
+    expect(resolveSelection({ kit: 'horror' }).language).toBe('vi');
   });
 });

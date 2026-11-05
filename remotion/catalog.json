@@ -85,6 +85,30 @@
         "grade": "kits/whatif/grade",
         "qa": "kits/whatif/qa/TextBoundsQA"
       }
+    },
+    "horror": {
+      "label": "Kinh dị",
+      "dir": "kits/horror",
+      "referenceEpisode": "episodes/ep5",
+      "episodeDeps": ["kits/whatif", "characters/mun"],
+      "frame": {
+        "width": 1920,
+        "height": 1080
+      },
+      "language": "vi",
+      "modules": {
+        "theme": "kits/horror/theme",
+        "lang": "kits/whatif/lang",
+        "ui": "kits/whatif/ui",
+        "stage": "kits/whatif/Stage",
+        "set-stage": "kits/whatif/SetStage",
+        "sets": "kits/horror/sets-horror",
+        "sets-home": "kits/whatif/sets-home",
+        "sets-school": "kits/whatif/sets-school",
+        "props": "kits/horror/props-horror",
+        "grade": "kits/whatif/grade",
+        "qa": "kits/whatif/qa/TextBoundsQA"
+      }
     }
   },
   "characterSets": {
@@ -110,6 +134,14 @@
       "hero": "YOU",
       "modules": {
         "cast": "characters/chip-en/cast"
+      }
+    },
+    "mun": {
+      "label": "Mùn",
+      "dir": "characters/mun",
+      "hero": "MÙN",
+      "modules": {
+        "cast": "characters/mun/cast"
       }
     }
   }

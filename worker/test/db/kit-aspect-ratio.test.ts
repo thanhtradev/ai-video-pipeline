@@ -46,9 +46,11 @@ describe('aspect ratio by kit', () => {
       { kind: 'character_set', slug: 'chip', aspect_ratio: null },
       { kind: 'character_set', slug: 'chip-science', aspect_ratio: null },
       { kind: 'character_set', slug: 'chip-en', aspect_ratio: null },
+      { kind: 'character_set', slug: 'mun', aspect_ratio: null },
       { kind: 'kit', slug: 'whatif', aspect_ratio: '16:9' },
       { kind: 'kit', slug: 'science', aspect_ratio: '9:16' },
       { kind: 'kit', slug: 'whatif-en', aspect_ratio: '16:9' },
+      { kind: 'kit', slug: 'horror', aspect_ratio: '16:9' },
     ]);
     await expect(
       db.pool.query(`UPDATE catalog_option SET aspect_ratio = NULL WHERE slug = 'science'`),

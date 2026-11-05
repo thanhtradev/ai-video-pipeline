@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 // fonts.ts loads web fonts through document.fonts at import time; there is no DOM here.
 vi.mock('./whatif/fonts', () => ({ FONT: 'Baloo 2', HAND: 'Patrick Hand' }));
 import { CATALOG } from '../catalog';
+import * as horror from './horror/theme';
 import * as science from './science/theme';
 import * as whatifEn from './whatif-en/theme';
 import { frameSpec, LANDSCAPE, PORTRAIT } from './whatif/theme';
@@ -15,6 +16,7 @@ const THEMES: Record<string, { W: number; H: number }> = {
   whatif,
   science,
   'whatif-en': whatifEn,
+  horror,
 };
 
 describe('kit frames', () => {

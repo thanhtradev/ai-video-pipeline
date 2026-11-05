@@ -1,0 +1,11 @@
+export const gen: Readonly<Record<string, () => Float32Array>>;
+export function doorCreak(): Float32Array;
+export function floorboard(): Float32Array;
+export function footstepsSlowLoop(): Float32Array;
+export function windGust(dur?: number, seed?: number): Float32Array;
+export function whisper(dur?: number, seed?: number): Float32Array;
+export function lampFlicker(): Float32Array;
+export function heartbeatSlow(): Float32Array;
+export function waterDrip(seed?: number): Float32Array;
+export function bellFar(): Float32Array;
+export function stingLow(): Float32Array;

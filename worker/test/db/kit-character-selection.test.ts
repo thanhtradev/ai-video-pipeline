@@ -121,6 +121,11 @@ describe('Telegram draft buttons', () => {
     const english = await cycle(drafted.token!, 'kit');
     expect(english.brief).toMatchObject({ kit: 'whatif-en', character_set: 'chip-en' });
 
+    // the horror kit is Vietnamese (D-106): the English cast gives way to the first Vietnamese one
+    const horror = await cycle(drafted.token!, 'kit');
+    expect(horror.brief).toMatchObject({ kit: 'horror', character_set: 'chip' });
+    expect(horror.selection!.kit).toMatchObject({ slug: 'horror', next_slug: 'whatif' });
+
     // the last cycle wraps to the first option, with a Vietnamese cast again
     const wrapped = await cycle(drafted.token!, 'kit');
     expect(wrapped.brief).toMatchObject({ kit: 'whatif', character_set: 'chip' });
@@ -240,7 +245,9 @@ describe('a button that changes nothing (D-092)', () => {
     const science = await cycle(drafted.token!, 'character_set');
     expect(science.selection!.character_set).toMatchObject({
       slug: 'chip-science',
-      next_slug: 'chip',
+      next_slug: 'mun',
     });
+    const mun = await cycle(drafted.token!, 'character_set');
+    expect(mun.selection!.character_set).toMatchObject({ slug: 'mun', next_slug: 'chip' });
   });
 });
