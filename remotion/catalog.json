@@ -90,7 +90,7 @@
       "label": "Kinh dị",
       "dir": "kits/horror",
       "referenceEpisode": "episodes/ep5",
-      "episodeDeps": ["kits/whatif", "characters/mun"],
+      "episodeDeps": ["kits/whatif", "characters/mun", "characters/chip"],
       "frame": {
         "width": 1920,
         "height": 1080
