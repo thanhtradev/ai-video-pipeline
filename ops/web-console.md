@@ -8,8 +8,8 @@ also decides approvals (except the Mac cleanup, which deletes files and stays on
 turns automatic approval on and off, creates videos, and, for the owner, cancels. Send `/web` to the bot in a private
 chat, open the link on a device on the tailnet, and press Sign in.
 
-Data: migrations `20261127000100` to `20261127000300`. They add a trigger on `approver` and change
-no existing table. `/deploy` refuses to run until this
+Data: migrations `20261127000100` to `20261127000300`, `20261128000100` (library, D-104) and
+`20261201000100` (kit picker, D-109) and `20261201000200` (dashboard, D-110). They add a trigger on `approver` and change no existing table. `/deploy` refuses to run until this
 migration is applied, like any other (D-100), and it does not update the console.
 
 ## 1. Check room on LXC 104
@@ -96,7 +96,9 @@ that, media plays but cannot seek.
 
 1. Send `/web` in the approval group: it refuses and sends no link.
 2. Send `/web` in a private chat, open the link, press Sign in.
-3. Compare the overview with `/status` and `/workers` on Telegram: same videos and states.
+3. Compare the dashboard with `/status`, `/workers` and `/report` on Telegram: same videos, states
+   and today's counts (7 and 30 days differ by design: the page counts whole days, the bot rolling
+   windows).
 4. Open the same link again: it says the link was used.
 5. Press Sign out, then reload: it asks you to sign in.
 6. After a page load, confirm no approval request was re-posted on Telegram.
@@ -113,6 +115,10 @@ that, media plays but cannot seek.
 ```bash
 git pull && docker compose -f ops/web/compose.yml up -d --build
 ```
+
+A release that adds a migration (the dashboard, `20261201000200`, is one) needs step 3 first:
+back up, migrate, then `grants.sql`. Until then the page answers with an error on the home page
+and the other pages keep working.
 
 ## Rollback
 

@@ -101,6 +101,20 @@ export async function startHarness(): Promise<Harness> {
     ...done(5),
     'RUNNING',
   ]);
+  // Recorded costs and a finished attempt on the failed step, so the dashboard has numbers.
+  await db.pool.query(
+    `INSERT INTO cost_entry (video_version_id, kind, units, unit_price, amount, currency, created_at)
+     VALUES ($1, 'ACTUAL', 1, 1.25, 1.25, 'CRD', now()),
+            ($2, 'ACTUAL', 1, 0.5, 0.5, 'CRD', now() - interval '1 day')`,
+    [stopped.versionId, running.versionId],
+  );
+  await db.pool.query(
+    `INSERT INTO job_attempt (job_id, attempt_no, worker_id, status, error, started_at, finished_at)
+     SELECT id, 1, 'mac-mini-m4', 'FAILED_PERMANENT', last_error, now() - interval '10 minutes',
+            now() - interval '5 minutes'
+     FROM job WHERE video_version_id = $1 AND status = 'FAILED_PERMANENT'`,
+    [stopped.versionId],
+  );
 
   const url = new URL(db.url);
   url.searchParams.set('options', '-c role=aivideo_web');

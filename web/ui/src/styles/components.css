@@ -151,6 +151,8 @@ a.tile:hover {
 }
 
 .table-wrap {
+  /* Positioned, so a hidden label inside the table cannot stretch the page past the wrapper. */
+  position: relative;
   overflow-x: auto;
   margin: 0 -1.1rem;
   padding: 0 1.1rem;
@@ -188,6 +190,10 @@ a.tile:hover {
 
 .table .num {
   text-align: right;
+  white-space: nowrap;
+}
+
+.table .cell-sub {
   white-space: nowrap;
 }
 

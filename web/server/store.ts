@@ -6,6 +6,7 @@ import type {
   CancelPreview,
   Catalog,
   CreateOutcome,
+  Dashboard,
   DecideAction,
   DecideResult,
   Library,
@@ -69,6 +70,7 @@ export interface Store {
   workers: (session: string) => Promise<WorkerSummary[]>;
   worker: (session: string, workerId: string) => Promise<WorkerDetail | null>;
   report: (session: string, period: ReportPeriod) => Promise<Report>;
+  dashboard: (session: string, period: ReportPeriod) => Promise<Dashboard>;
   decide: (
     session: string,
     approvalId: string,
@@ -131,6 +133,7 @@ export function createPgStore(pool: pg.Pool): Store {
     workers: (session) => call<WorkerSummary[]>('web_workers', session),
     worker: (session, workerId) => call<WorkerDetail | null>('web_worker', session, workerId),
     report: (session, period) => call<Report>('web_report', session, period),
+    dashboard: (session, period) => call<Dashboard>('web_dashboard', session, period),
     decide: (session, approvalId, action, note) =>
       call<DecideResult>('web_decide', session, approvalId, action, note),
     retry: (session, videoId) => call<RetryResult>('web_retry', session, videoId),

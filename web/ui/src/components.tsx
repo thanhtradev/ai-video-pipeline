@@ -93,7 +93,7 @@ export function StatTile({
   value: ReactNode;
   hint?: ReactNode;
   to?: string;
-  tone?: Tone;
+  tone?: Tone | undefined;
 }) {
   const className = ['tile', tone ? `tile-${tone}` : ''].join(' ').trim();
   const body = (
