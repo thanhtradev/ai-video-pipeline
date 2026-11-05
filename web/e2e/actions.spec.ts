@@ -25,7 +25,7 @@ test.afterAll(async () => {
 async function signIn(page: Page, user = OWNER): Promise<void> {
   await page.goto(await loginLink(harness, user));
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 }
 
 async function newVideo(topic: string): Promise<{ videoId: string; versionId: string }> {
@@ -240,7 +240,7 @@ test.describe('a new video', () => {
   test('is reviewed, then created once, and opens', async ({ page }) => {
     await signIn(page);
     await page.getByRole('link', { name: 'Videos', exact: true }).click();
-    await page.getByRole('link', { name: 'New video' }).click();
+    await page.locator('#content').getByRole('link', { name: 'New video' }).click();
     await page.getByLabel('Topic').fill('Vì sao mèo luôn tiếp đất bằng chân');
     await page.getByLabel('Length').selectOption('6');
     await page.getByLabel('Notes for the script').fill('Giọng vui');

@@ -41,7 +41,7 @@ export function ApprovalPanel({
   };
 
   return (
-    <section className="approval-panel" aria-labelledby={titleId}>
+    <section className="card card-approval approval-panel" aria-labelledby={titleId}>
       <h2 id={titleId}>
         {gateName(approval.type)}: waiting for approval, {timeLeft(approval.expires_at)}
       </h2>

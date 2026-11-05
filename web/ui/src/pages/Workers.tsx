@@ -1,37 +1,57 @@
+import type { WorkerSummary } from '../../../shared/types';
 import { api } from '../api';
-import { ErrorNote, Link, Loading } from '../components';
+import { Card, EmptyState, ErrorNote, Link, Loading, PageHeader } from '../components';
 import { formatDuration, formatTime, shortId } from '../format';
 import { usePoll } from '../hooks';
+
+export function WorkerTile({ worker }: { worker: WorkerSummary }) {
+  return (
+    <li className={worker.online ? 'worker-tile worker' : 'worker-tile worker worker-offline'}>
+      <div className="worker-tile-head">
+        <span className={worker.online ? 'dot dot-on' : 'dot dot-off'} aria-hidden="true" />
+        <Link to={`/workers/${worker.worker_id}`}>{worker.worker_id}</Link>
+      </div>
+      <span className={worker.online ? 'note' : 'note warn'}>
+        {worker.online ? 'Online' : `Offline, last seen ${formatTime(worker.last_seen_at)}`}
+      </span>
+      <span>
+        {worker.jobs.length === 0
+          ? 'Idle'
+          : worker.jobs
+              .map((job) => `${job.step} on ${job.title ?? shortId(job.video_id)}`)
+              .join(', ')}
+      </span>
+      <span className="note">{worker.waiting} steps waiting</span>
+    </li>
+  );
+}
+
+export function WorkerTiles({
+  workers,
+  isCompact = false,
+}: {
+  workers: WorkerSummary[];
+  isCompact?: boolean;
+}) {
+  return (
+    <ul className={isCompact ? 'worker-grid worker-compact' : 'worker-grid'}>
+      {workers.map((worker) => (
+        <WorkerTile key={worker.worker_id} worker={worker} />
+      ))}
+    </ul>
+  );
+}
 
 export function Workers() {
   const { data, error, isLoading } = usePoll(api.workers, 'workers');
   return (
-    <section aria-labelledby="workers">
-      <h1 id="workers">Workers</h1>
+    <>
+      <PageHeader title="Workers" />
       {isLoading && <Loading />}
       {error && <ErrorNote error={error} />}
-      {data?.length === 0 && <p className="quiet">No worker has reported in yet.</p>}
-      <ul className="worker-list">
-        {data?.map((worker) => (
-          <li key={worker.worker_id} className={worker.online ? 'worker' : 'worker worker-offline'}>
-            <Link to={`/workers/${worker.worker_id}`} className="video-title">
-              {worker.worker_id}
-            </Link>
-            <span className="note">
-              {worker.online ? 'Online' : `Offline, last seen ${formatTime(worker.last_seen_at)}`}
-            </span>
-            <span>
-              {worker.jobs.length === 0
-                ? 'Idle'
-                : worker.jobs
-                    .map((job) => `${job.step} on ${job.title ?? shortId(job.video_id)}`)
-                    .join(', ')}
-            </span>
-            <span className="note">{worker.waiting} steps waiting</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+      {data?.length === 0 && <EmptyState title="No worker has reported in yet" />}
+      {data && data.length > 0 && <WorkerTiles workers={data} />}
+    </>
   );
 }
 
@@ -40,25 +60,32 @@ export function WorkerPage({ id }: { id: string }) {
   if (isLoading) return <Loading />;
   if (!worker) {
     return (
-      <section>
-        <h1>{id}</h1>
+      <>
+        <PageHeader title={id} />
         {error && <ErrorNote error={error} />}
         <p>
           <Link to="/workers">Back to workers</Link>
         </p>
-      </section>
+      </>
     );
   }
   return (
     <article>
-      <h1>{worker.worker_id}</h1>
+      <PageHeader
+        title={worker.worker_id}
+        lead={
+          <>
+            {worker.online ? (
+              <span className="ok">Online</span>
+            ) : (
+              <span className="warn">Offline</span>
+            )}
+            , last seen {formatTime(worker.last_seen_at)}
+          </>
+        }
+      />
       {error && <ErrorNote error={error} />}
-      <p>
-        {worker.online ? 'Online' : <span className="warn">Offline</span>}, last seen{' '}
-        {formatTime(worker.last_seen_at)}
-      </p>
-      <section aria-labelledby="running">
-        <h2 id="running">Running now</h2>
+      <Card title="Running now">
         {worker.jobs.length === 0 && <p className="quiet">Nothing is running on this worker.</p>}
         <ul className="plain">
           {worker.jobs.map((job) => (
@@ -68,9 +95,9 @@ export function WorkerPage({ id }: { id: string }) {
             </li>
           ))}
         </ul>
-      </section>
-      <section aria-labelledby="pinned">
-        <h2 id="pinned">Videos on this worker ({worker.videos_total})</h2>
+      </Card>
+      <Card title={`Videos on this worker (${worker.videos_total})`}>
+        {worker.videos.length === 0 && <p className="quiet">No video is pinned here.</p>}
         <ul className="plain">
           {worker.videos.map((video) => (
             <li key={video.video_id}>
@@ -81,9 +108,8 @@ export function WorkerPage({ id }: { id: string }) {
             </li>
           ))}
         </ul>
-      </section>
-      <section aria-labelledby="day">
-        <h2 id="day">Last 24 hours</h2>
+      </Card>
+      <Card title="Last 24 hours">
         <p>
           {worker.stats.completed} videos finished, {worker.stats.succeeded} steps succeeded,{' '}
           {worker.stats.failed} failed.
@@ -96,7 +122,7 @@ export function WorkerPage({ id }: { id: string }) {
               .join(', ')}
           </p>
         )}
-      </section>
+      </Card>
     </article>
   );
 }

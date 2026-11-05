@@ -15,7 +15,11 @@ test.afterAll(async () => {
 async function signIn(page: Page): Promise<void> {
   await page.goto(await loginLink(harness));
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+}
+
+function stateChip(page: Page, label: string) {
+  return page.getByRole('group', { name: 'State' }).getByRole('button', { name: label });
 }
 
 async function expectNoSideways(page: Page): Promise<void> {
@@ -34,7 +38,7 @@ test('opening the link does not use it up; signing in needs a press', async ({ p
   await preview.close();
   await page.getByRole('button', { name: 'Sign in' }).click();
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 need you');
+  await expect(page.getByRole('heading', { name: '2 need you' })).toBeVisible();
   expect(new URL(page.url()).search).toBe('');
 });
 
@@ -42,7 +46,7 @@ test('a used link explains what to do', async ({ page, browser }) => {
   const link = await loginLink(harness);
   await page.goto(link);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 
   const other = await browser.newPage();
   await other.goto(link);
@@ -56,12 +60,12 @@ test('an old link does not sign you out', async ({ page }) => {
   const link = await loginLink(harness);
   await page.goto(link);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 
   await page.goto(link);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('alert')).toContainText('already used');
-  await page.getByRole('link', { name: 'Go to the overview' }).click();
+  await page.getByRole('link', { name: 'Go to the dashboard' }).click();
 
   await expect(page.getByRole('heading', { name: '2 need you' })).toBeVisible();
 });
@@ -94,7 +98,7 @@ test('the link from the overview opens the same list it counted', async ({ page 
 
   await page.goto(`${BASE_URL}/videos?state=stopped`);
 
-  await expect(page.getByLabel('State')).toHaveValue('stopped');
+  await expect(stateChip(page, 'Stopped')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.video-row')).toHaveCount(1);
 });
 
@@ -120,11 +124,11 @@ test('videos can be filtered and searched', async ({ page }) => {
   await signIn(page);
   await page.getByRole('link', { name: 'Videos', exact: true }).click();
 
-  await page.getByLabel('State').selectOption('stopped');
+  await stateChip(page, 'Stopped').click();
   await expect(page.locator('.video-row')).toHaveCount(1);
   await expect(page.locator('.video-row')).toContainText('Vì sao bầu trời màu xanh');
 
-  await page.getByLabel('State').selectOption('all');
+  await stateChip(page, 'All').click();
   await expect(page.locator('.video-row')).toHaveCount(3);
   await page.getByLabel('Search by title or id').fill('GIỌT NƯỚC');
   await expect(page.locator('.video-row')).toHaveCount(1);
@@ -161,7 +165,7 @@ test('workers and the report are reachable', async ({ page }) => {
   await page.getByRole('link', { name: 'mac-mini-m4' }).click();
   await expect(page.getByRole('heading', { name: 'Last 24 hours' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Report' }).click();
+  await page.goto(`${BASE_URL}/report`);
   await page.getByRole('button', { name: '7 days' }).click();
   await expect(page.getByRole('button', { name: '7 days' })).toHaveAttribute(
     'aria-pressed',
@@ -206,7 +210,9 @@ test.describe('at phone width', () => {
 
     for (const path of [
       '/videos',
+      '/videos/new',
       `/videos/${harness.videos.stopped}`,
+      '/library',
       '/workers',
       '/workers/mac-mini-m4',
       '/report',

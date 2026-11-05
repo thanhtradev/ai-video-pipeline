@@ -1,0 +1,308 @@
+/* Tokens, reset and type. The palette is the one the console had; cards and the sidebar add to it. */
+
+:root {
+  --paper: #e9eef2;
+  --surface: #f6f8fa;
+  --card: #ffffff;
+  --ink: #17242f;
+  --muted: #566875;
+  --line: #c6d1d9;
+  --line-soft: #dde4ea;
+  --approval: #b45f00;
+  --approval-soft: #fbead6;
+  --stopped: #bb2d24;
+  --stopped-soft: #f9dedc;
+  --running: #0a6f8f;
+  --running-soft: #d9eef4;
+  --done: #3f5a6c;
+  --done-soft: #dfe6eb;
+  --waiting: #cfd8df;
+  --ok: #1f7a4d;
+  --focus: #0a6f8f;
+  --accent: #0a6f8f;
+  --radius: 10px;
+  --radius-small: 6px;
+  --shadow: 0 1px 2px rgb(23 36 47 / 6%);
+  --sidebar-w: 14.5rem;
+  --tabbar-h: 3.75rem;
+  --font: 'Archivo Variable', system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #16212b;
+    --surface: #1d2b37;
+    --card: #1d2b37;
+    --ink: #e4ebf0;
+    --muted: #9aacb9;
+    --line: #34475a;
+    --line-soft: #2a3b4b;
+    --approval: #f0a23c;
+    --approval-soft: #3d2d12;
+    --stopped: #f0766c;
+    --stopped-soft: #44221f;
+    --running: #4ebedf;
+    --running-soft: #163745;
+    --done: #8aa6b9;
+    --done-soft: #273846;
+    --waiting: #33465a;
+    --ok: #4cc38a;
+    --focus: #4ebedf;
+    --accent: #4ebedf;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-stretch: 90%;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+
+h3 {
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.18em;
+  text-decoration-color: var(--muted);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+ul,
+ol,
+dl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+dd {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button,
+input,
+select {
+  min-height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--card);
+  padding: 0 0.75rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--card);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+  border-color: var(--focus);
+}
+
+button {
+  cursor: pointer;
+  font-weight: 550;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+
+button:disabled {
+  cursor: default;
+  color: var(--muted);
+}
+
+.primary,
+.primary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-small);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.primary svg,
+.primary-link svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+}
+
+.primary:hover:not(:disabled),
+.primary-link:hover {
+  border-color: var(--ink);
+  opacity: 0.9;
+}
+
+.primary:disabled {
+  opacity: 0.55;
+  color: var(--paper);
+}
+
+.danger {
+  color: var(--stopped);
+  border-color: var(--stopped);
+}
+
+.text-button {
+  border: 0;
+  background: none;
+  min-height: 2.25rem;
+  padding: 0;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.text-button:hover {
+  border: 0;
+}
+
+.quiet,
+.note {
+  color: var(--muted);
+}
+
+.note {
+  font-size: 0.875rem;
+}
+
+.warn {
+  color: var(--stopped);
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.id {
+  font-feature-settings: 'tnum';
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+.error-note {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-small);
+  background: var(--stopped-soft);
+  color: var(--stopped);
+  font-weight: 600;
+}
+
+.outcome {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-small);
+  background: var(--running-soft);
+  font-weight: 600;
+}
+
+.prose {
+  max-width: 68ch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  left: -100vw;
+}
+
+.skip:focus {
+  left: 1rem;
+  top: 0.5rem;
+  background: var(--card);
+  padding: 0.5rem 0.75rem;
+  z-index: 10;
+}

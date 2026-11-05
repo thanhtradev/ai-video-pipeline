@@ -81,7 +81,10 @@ export function VideoActions({
   };
 
   return (
-    <section className="video-actions" aria-label="Video actions">
+    <section className="card" aria-labelledby="video-actions">
+      <div className="card-head">
+        <h2 id="video-actions">Actions</h2>
+      </div>
       <ActionMessage state={state} />
       {confirmingAuto && (
         <div className="confirm-box">

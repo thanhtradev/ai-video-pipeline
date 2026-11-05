@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { VideoFilter } from '../../../shared/types';
 import { api } from '../api';
-import { ErrorNote, Link, Loading, Pager, VideoRow } from '../components';
-import { useDebounced, usePageOffset, usePoll } from '../hooks';
+import { EmptyState, ErrorNote, Link, Loading, PageHeader, Pager, VideoRow } from '../components';
+import { replaceUrl, useDebounced, usePageOffset, usePoll, useSearchParams } from '../hooks';
 
 const PAGE_SIZE = 50;
 const SEARCH_DELAY_MS = 300;
@@ -17,13 +17,14 @@ const FILTERS: readonly { value: VideoFilter; label: string }[] = [
   { value: 'done', label: 'Finished' },
 ];
 
-function filterFromUrl(): VideoFilter {
-  const wanted = new URLSearchParams(window.location.search).get('state');
+function filterOf(params: URLSearchParams): VideoFilter {
+  const wanted = params.get('state');
   return FILTERS.find((filter) => filter.value === wanted)?.value ?? 'all';
 }
 
 export function Videos() {
-  const [state, setState] = useState<VideoFilter>(filterFromUrl);
+  // The address holds the filter, so a link from the dashboard and a reload show the same list.
+  const state = filterOf(useSearchParams());
   const [typed, setTyped] = useState('');
   const search = useDebounced(typed.trim(), SEARCH_DELAY_MS);
   const [offset, setOffset] = usePageOffset(`${state}|${search}`);
@@ -33,30 +34,33 @@ export function Videos() {
     `${state}|${search}|${offset}`,
   );
 
+  function chooseState(value: VideoFilter): void {
+    replaceUrl(value === 'all' ? '/videos' : `/videos?state=${value}`);
+  }
+
   return (
-    <section aria-labelledby="videos">
-      <h1 id="videos">Videos</h1>
-      <p>
-        <Link to="/videos/new" className="primary-link">
-          New video
-        </Link>
-      </p>
+    <>
+      <PageHeader
+        title="Videos"
+        actions={
+          <Link to="/videos/new" className="primary-link">
+            New video
+          </Link>
+        }
+      />
       <div className="filters">
-        <label>
-          State
-          <select
-            value={state}
-            onChange={(event) => {
-              setState(event.target.value as VideoFilter);
-            }}
-          >
-            {FILTERS.map((filter) => (
-              <option key={filter.value} value={filter.value}>
-                {filter.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="chips" role="group" aria-label="State">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              aria-pressed={state === filter.value}
+              onClick={() => chooseState(filter.value)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
         <label className="grow">
           Search by title or id
           <input
@@ -72,7 +76,7 @@ export function Videos() {
       {isLoading && <Loading />}
       {error && <ErrorNote error={error} />}
       {data?.total === 0 && (
-        <p className="quiet">No video matches. Clear the search or change the state.</p>
+        <EmptyState title="No video matches" hint="Clear the search or choose another state." />
       )}
       <ul className="video-list">
         {data?.items.map((video) => (
@@ -90,6 +94,6 @@ export function Videos() {
           onChange={setOffset}
         />
       )}
-    </section>
+    </>
   );
 }
