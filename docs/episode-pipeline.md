@@ -206,9 +206,13 @@ rendered with the `wav` codec (no screenshots, about 1.5 min for a 6-minute epis
 `board/mix.wav`, which the worker encodes to `mix.m4a` at -14 LUFS for the storyboard request
 (D-071); 5. text-out-of-frame scan of the whole episode
 (every 10th frame, 0 sharp hits allowed); then a scan of the agent's files for secret values.
+The run after turn 1 is a draft (`--draft`, report `mixDeferred`) that skips step 4: the review turn
+does not use the mix. A passing draft is never reused and never finishes the job, so every
+successful job ends on a full run (D-114).
 
-Turns (one session, resumed): turn 1 writes; turn 2 always reviews the storyboard pages (the Read
-tool shows images) with the gate report; turn 3 only if gates still fail. All turns share a 90-minute
+Turns (one session, resumed): turn 1 writes; turn 2 reviews the storyboard pages (the Read tool shows
+images) with the gate report; turn 3 only if gates still fail, or if the review could not happen yet
+because no run had rendered pages (D-114). All turns share a 90-minute
 limit. Gates failing after the last turn → `NEEDS_DECISION`; the workspace stays for an interactive
 session. `agent-turns.json` keeps prompts, replies and usage, and is the step's checkpoint (D-056):
 it is written after every agent turn and gate run, so a retry (worker restart, a gate crash,
@@ -237,8 +241,11 @@ Measured: the gates took about 1.5 min on EP5 (7 pages, 1200 samples) before the
 (D-071). From the worker log of 2026-11-02/03, a gate run now takes 5–12 min on a 6–7 min episode
 and ran 2–3 times per `episode_code` job (D-089). `gates.json` records each step's wall time
 (`ms`: typecheck, sfx, bundle, board, mix, textBounds) and the worker logs it with `episode gates`.
-A turn that changed no file in `src/episode/` or `sfx/` (usually the storyboard review) reuses
-the last report instead of running the gates again; a Chrome crash report is never reused. A 3-shot mini episode went
+A turn that changed no file in `src/episode/` or `sfx/` reuses the last report instead of running the
+gates again; a Chrome crash report and a passing draft are never reused. From the mac-mini-m4 log read
+on 2026-11-07 (18 gate runs in 9 jobs), the review turn changed code in every job and a gate run has
+median steps of textBounds 177 s, mix 91 s, board 12 s, bundle 6 s; agent turn 1 has a median of
+26.6 min and is the largest cost (D-114). The worker logs workspace setup as `prepareMs`. A 3-shot mini episode went
 through the whole step (macOS `say` voice → whisper timing → real agent → gates) in under 6 min.
 
 **Episodes coded before the kit split (D-064).** Their code imports `kit/ep1/theme`,
