@@ -3,6 +3,10 @@
 Run by the user after this PR is merged. Conventions as in [README.md](README.md). **Free.**
 No worker restart.
 
+**2026-11-06 (D-112):** the first rollout sent the picker without buttons (n8n 2.40.5 drops an
+object-valued keyboard expression). The fix is only in WF-06: run §2 again, then §3. The migration
+of §1 is unchanged and already applied.
+
 What it changes: the `/new` confirmation's **Kit → …** button (which cycled to the next kit on
 each press) becomes **Kit: <kit> ▾**. Pressing it sends a new message "Chọn kit cho tập mới:"
 with one button per enabled kit (the current one ticked), as a reply to the draft. Tapping a kit
@@ -28,14 +32,17 @@ Backup as in `phase-2b.md` §3, then migrate as in `preview-approval.md` §1; ex
 - Press Kit again and tap **Kinh dị** → toast "Vẫn là kit này.", picker gone, draft unchanged.
 - Tap **Hủy**, press Kit on the old draft → alert "Bản nháp đã được quyết định rồi.".
 
-Two things this PR could not verify without Telegram; if either fails, note it in the PR:
+One thing this PR could not verify without Telegram; if it fails, note it in the PR:
 
-- **Dynamic keyboard.** "Send picker" gives the Telegram node its whole `inlineKeyboard` as one
-  expression (`{{ $json.keyboard }}`). If n8n rejects it ("rows" undefined or similar), open the
-  node, switch Inline Keyboard to Expression and paste `{{ $json.keyboard }}`, then re-export.
 - **Reply link.** The pick finds the draft message through `callback_query.message.reply_to_message`.
   If the draft is not updated but the picker turns into the draft (and stays), that field was
   missing: the fallback worked, report it so the message id can be stored on the draft instead.
+
+The keyboard itself is verified: "Send picker" holds a fixed grid of 4 buttons (two rows of two)
+read from "Build picker", checked against n8n 2.40.5 and a mock Bot API (D-112). When a kit is
+added or disabled, the Kit button answers "Danh sách kit (N) không khớp bố cục nút (4); cần cập
+nhật WF-06." until the grid and `PICKER_SLOTS` in "Build picker" are edited to the new count and
+WF-06 is deployed again.
 
 ## Rollback
 
