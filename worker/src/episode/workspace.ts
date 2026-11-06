@@ -36,8 +36,12 @@ const KIT_MARK = '<!-- KIT -->';
 const CHARACTERS_MARK = '<!-- CHARACTERS -->';
 const REFERENCE_MARK = '<!-- REFERENCE -->';
 const FRAME_MARK = '<!-- FRAME -->';
-/** Unit tests and type shims of the kit are not copied into the agent's workspace. */
-const isKitSource = (path: string) => !/\.test\.tsx?$/.test(path);
+/**
+ * Unit tests and Remotion Studio files are not copied into the agent's workspace. Review stills
+ * (`*Sample.tsx`) and Studio roots (`*Root.tsx`) may import any kit or cast, so they would not
+ * compile in a pairing that lacks those (video f401f3bf); episode code never uses them.
+ */
+const isKitSource = (path: string) => !/(\.test\.tsx?|Sample\.tsx|Root\.tsx)$/.test(path);
 /** Paths the agent may write, relative to the workspace. */
 export const AGENT_WRITABLE = ['src/episode', 'sfx'] as const;
 export const GATES_SCRIPT = join(REMOTION_DIR, 'scripts', 'episode-gates.mjs');
@@ -194,7 +198,7 @@ async function treeDigest(dir: string): Promise<string> {
 /**
  * Re-copies the worker-owned kit/ of an existing workspace from the current repo: a worker update
  * after the first attempt (a catalog or kit fix) then reaches a resumed job. The agent's files are
- * untouched. True when any kit file changed, so the caller runs the gates again.
+ * untouched. True when any kit file changed or was removed, so the caller runs the gates again.
  */
 export async function refreshKit(ws: string, selection: ResolvedSelection): Promise<boolean> {
   const kitDir = join(ws, 'kit');
@@ -207,6 +211,9 @@ export async function refreshKit(ws: string, selection: ResolvedSelection): Prom
       filter: isKitSource,
     });
   }
+  // A copy never deletes: a file an older worker copied and the filter now leaves out must go.
+  const leftOut = (await listFiles(kitDir, kitDir)).filter((file) => !isKitSource(file));
+  await Promise.all(leftOut.map((file) => rm(join(kitDir, file))));
   await writeActiveModules(ws, selection);
   const changed = before !== (await treeDigest(kitDir));
   if (changed) await writeFile(join(ws, 'FILES.md'), await fileIndex(ws));

@@ -174,7 +174,8 @@ rules.md                the owner's channel rules from Telegram (D-059), read-on
 FILES.md                every file with its size (the CLI has no Glob/Grep tools)
 kit/                    read-only copy of remotion/src parts at the same paths: rig/ (Character), kits/<kit>/ (style,
                         QA, SFX synthesis), characters/<set>/ (cast), episodes/<ref>/ (the kit's reference episode);
-                        kit/active/<name>.ts re-exports the selected modules (theme, ui, sets, cast, rig, …)
+                        kit/active/<name>.ts re-exports the selected modules (theme, ui, sets, cast, rig, …);
+                        unit tests and Studio-only files (`*Sample.tsx`, `*Root.tsx`) are left out (D-113)
 src/index.ts, Root.tsx  compositions Episode, EpisodeBoard (storyboard), EpisodeQA (text bounds)
 src/time.ts, data/      timeline queries over timing.json / captions.json from the timing job
 src/episode/            the agent writes here; Episode.tsx exports `Episode`
@@ -215,7 +216,11 @@ it is written after every agent turn and gate run, so a retry (worker restart, a
 resume first re-copies the worker-owned `kit/` from the current repo, so a kit or catalog fix shipped
 by a worker update reaches a stuck job; a changed kit runs the gates again, and follow-up turns the
 agent spent on a kit typecheck error (`kit/…: error TS…`, which it cannot fix) are given back, as
-for a Chrome crash (D-111). The step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
+for a Chrome crash (D-111). Before any agent turn, on a fresh run, a resume or a revision, the worker
+compiles `kit/` alone (`checkKit`); a kit that does not compile fails the job permanently without
+starting the agent (D-113). A file in a kit or cast directory must compile with every kit and cast,
+unless it is named `*Sample.tsx` or `*Root.tsx`; `worker/test/unit/episode-kit-matrix.test.ts` compiles
+every pairing in the catalog as a workspace. The step and `render_episode` wait (`BLOCKED`) while Remotion's Chrome is not installed. A Chrome crash
 during the board, mix or QA render (`Page crashed!`, `Target closed`) first fails the attempt
 retryable and the retry re-runs the gates; when Chrome crashes again on the same code, the code
 triggers a Chrome bug and the agent gets it as a failed check with a hint (`CHROME_ABORT_HINT`,
