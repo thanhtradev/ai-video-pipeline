@@ -229,8 +229,9 @@ during the board, mix or QA render (`Page crashed!`, `Target closed`) first fail
 retryable and the retry re-runs the gates; when Chrome crashes again on the same code, the code
 triggers a Chrome bug and the agent gets it as a failed check with a hint (`CHROME_ABORT_HINT`,
 never the raw crash text; D-088). Follow-up turns an older worker spent on a Chrome crash do not
-count toward the three turns (job 476042c2, 2026-10-27). The QA scan opens a fresh browser every 20
-samples; 100 per browser crashed Chrome (a V8 fatal check) on one episode, 2026-10-27.
+count toward the three turns (job 476042c2, 2026-10-27). The QA scan opens a fresh browser every 60
+samples; a range that crashes Chrome is split and tried again, down to 20, before the crash counts
+(D-115). 100 per browser crashed Chrome (a V8 fatal check) on one episode, 2026-10-27, while 20 passed.
 
 The board and QA compositions last as long as the episode: Remotion drops any `<Sequence>` that
 starts after its composition ends. The reference `check-text-bounds.mjs` used a composition one
