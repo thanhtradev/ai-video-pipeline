@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { createTestDb, runDbmate, type TestDb } from '../helpers/db.js';
+import { createTestDb, dbmateTimeoutMs, runDbmate, type TestDb } from '../helpers/db.js';
 import { OWNER } from '../helpers/episode-flow.js';
 
 // D-078: the science character set `bip` becomes `chip-science` ("Chíp Khoa học"); briefs, drafts
@@ -58,46 +58,50 @@ async function characterSetOption(): Promise<{ slug: string; label: string }[]> 
 }
 
 describe('chip-science migration', () => {
-  test('renames the option and rewrites existing briefs, drafts and job inputs', async () => {
-    await rollbackRename();
-    const brief = { format: 'episode', topic: 'Tại sao?', kit: 'science', character_set: 'bip' };
-    const submitted = await db.pool.query<{ version_id: string }>(
-      'SELECT * FROM video_submit($1, $2::jsonb)',
-      ['rename-1', JSON.stringify(brief)],
-    );
-    const versionId = submitted.rows[0]!.version_id;
-    const drafted = await db.pool.query<{ token: string }>(
-      'SELECT * FROM telegram_intake_draft($1, $2, $3::jsonb)',
-      [OWNER, '-1001234567890', JSON.stringify(brief)],
-    );
-    const token = drafted.rows[0]!.token;
+  test(
+    'renames the option and rewrites existing briefs, drafts and job inputs',
+    async () => {
+      await rollbackRename();
+      const brief = { format: 'episode', topic: 'Tại sao?', kit: 'science', character_set: 'bip' };
+      const submitted = await db.pool.query<{ version_id: string }>(
+        'SELECT * FROM video_submit($1, $2::jsonb)',
+        ['rename-1', JSON.stringify(brief)],
+      );
+      const versionId = submitted.rows[0]!.version_id;
+      const drafted = await db.pool.query<{ token: string }>(
+        'SELECT * FROM telegram_intake_draft($1, $2, $3::jsonb)',
+        [OWNER, '-1001234567890', JSON.stringify(brief)],
+      );
+      const token = drafted.rows[0]!.token;
 
-    await runDbmate(db.url, ['up']);
-    expect(await characterSetOption()).toEqual([
-      { slug: 'chip', label: 'Chíp (BẠN)' },
-      { slug: 'chip-science', label: 'Chíp Khoa học' },
-      { slug: 'chip-en', label: 'Chip (YOU, EN)' },
-      { slug: 'mun', label: 'Mùn' },
-      { slug: 'bong', label: 'Bóng' },
-    ]);
-    expect(await slugs(versionId, token)).toEqual({
-      version: 'chip-science',
-      scriptBrief: 'chip-science',
-      draft: 'chip-science',
-    });
+      await runDbmate(db.url, ['up']);
+      expect(await characterSetOption()).toEqual([
+        { slug: 'chip', label: 'Chíp (BẠN)' },
+        { slug: 'chip-science', label: 'Chíp Khoa học' },
+        { slug: 'chip-en', label: 'Chip (YOU, EN)' },
+        { slug: 'mun', label: 'Mùn' },
+        { slug: 'bong', label: 'Bóng' },
+      ]);
+      expect(await slugs(versionId, token)).toEqual({
+        version: 'chip-science',
+        scriptBrief: 'chip-science',
+        draft: 'chip-science',
+      });
 
-    await rollbackRename();
-    expect(await characterSetOption()).toEqual([
-      { slug: 'chip', label: 'Chíp (BẠN)' },
-      { slug: 'bip', label: 'Bíp' },
-    ]);
-    expect(await slugs(versionId, token)).toEqual({
-      version: 'bip',
-      scriptBrief: 'bip',
-      draft: 'bip',
-    });
-    await runDbmate(db.url, ['up']);
-  });
+      await rollbackRename();
+      expect(await characterSetOption()).toEqual([
+        { slug: 'chip', label: 'Chíp (BẠN)' },
+        { slug: 'bip', label: 'Bíp' },
+      ]);
+      expect(await slugs(versionId, token)).toEqual({
+        version: 'bip',
+        scriptBrief: 'bip',
+        draft: 'bip',
+      });
+      await runDbmate(db.url, ['up']);
+    },
+    dbmateTimeoutMs(2 * ROLLBACKS + 2),
+  );
 
   test('the old slug is no longer accepted', async () => {
     await expect(

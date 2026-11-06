@@ -32,6 +32,14 @@ export async function runDbmate(url: string, args: string[]): Promise<string> {
   return stdout;
 }
 
+/** Generous per-process budget: each dbmate run starts npx, and CI runners are slow. */
+const MS_PER_DBMATE_RUN = 2_000;
+
+/** A test's timeout for this many dbmate runs: rollback loops grow with every new migration. */
+export function dbmateTimeoutMs(runs: number): number {
+  return runs * MS_PER_DBMATE_RUN;
+}
+
 export async function createTestDb(): Promise<TestDb> {
   const name = `t_${randomBytes(6).toString('hex')}`;
   const admin = new pg.Client({ connectionString: ADMIN_URL });
