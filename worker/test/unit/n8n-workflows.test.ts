@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
+import { loadCatalog } from '../../src/episode/catalog.js';
 
 // Static checks of the n8n exports (n8n/workflows) and behaviour tests of their Code nodes, run
 // with stubbed n8n globals. The real import/run is the user's rollout step.
@@ -4720,6 +4721,15 @@ describe('WF-06 kit picker (D-109)', () => {
       ],
     });
   const draftMessage = { reply_to_message: { message_id: 13, chat: { id: CHAT } } };
+  // The grid in Send picker has one slot per kit in remotion/catalog.json (the enabled kits of
+  // catalog_option mirror it, worker/test/db/video-language.test.ts).
+  const PICKER_SLOTS = Object.keys(loadCatalog().kits).length;
+  const PICKER_OPTIONS = [
+    { slug: 'whatif', label: 'Nếu bạn…', current: true },
+    { slug: 'science', label: 'Khoa học', current: false },
+    { slug: 'whatif-en', label: 'What if… (EN)', current: false },
+    { slug: 'horror', label: 'Kinh dị', current: false },
+  ];
 
   test('the Kit button opens the picker instead of cycling', () => {
     expect(parse(`in:K:${token}`, {})[0]!.json).toEqual({
@@ -4774,11 +4784,28 @@ describe('WF-06 kit picker (D-109)', () => {
     expect(node('Pick selection').parameters.query).toMatch(
       /FROM telegram_intake_pick\(\$1, \$2::bigint, \$3, \$4\)/,
     );
-    expect(node('Send picker').parameters).toMatchObject({
-      replyMarkup: 'inlineKeyboard',
-      inlineKeyboard: '={{ $json.keyboard }}',
-      additionalFields: { reply_to_message_id: '={{ $json.messageId }}' },
+    // n8n 2.40 turns an expression that yields an object into a string before the Telegram node
+    // reads it (D-112), so the keyboard is a fixed grid of scalar expressions: one slot per
+    // enabled kit, two per row, read from Build picker's flat `buttons` list.
+    const send = node('Send picker').parameters as {
+      replyMarkup: string;
+      inlineKeyboard: {
+        rows: { row: { buttons: { text: string; additionalFields: unknown }[] } }[];
+      };
+      additionalFields: unknown;
+    };
+    expect(send.replyMarkup).toBe('inlineKeyboard');
+    expect(send.additionalFields).toMatchObject({ reply_to_message_id: '={{ $json.messageId }}' });
+    const slots = send.inlineKeyboard.rows.flatMap((r) => r.row.buttons);
+    expect(slots).toHaveLength(PICKER_SLOTS);
+    slots.forEach((slot, i) => {
+      expect(slot).toEqual({
+        text: `={{ $json.buttons[${i}].text }}`,
+        additionalFields: { callback_data: `={{ $json.buttons[${i}].data }}` },
+      });
     });
+    for (const row of send.inlineKeyboard.rows)
+      expect(row.row.buttons.length).toBeLessThanOrEqual(2);
     expect(node('Delete picker').parameters).toMatchObject({
       operation: 'deleteMessage',
       messageId: "={{ $('Build confirmation').first().json.pickerMessageId }}",
@@ -4790,55 +4817,23 @@ describe('WF-06 kit picker (D-109)', () => {
     ).toContain("$('Build confirmation').isExecuted");
   });
 
-  test('builds one button per kit, two per row, the current one ticked', () => {
+  test('builds one button per kit in catalog order, the current one ticked', () => {
     const parsed = parse(`in:K:${token}`, {})[0]!.json;
     const [out] = runCode(FILE, 'Build picker', {
-      input: [
-        {
-          json: {
-            result: 'DRAFT',
-            options: [
-              { slug: 'whatif', label: 'Nếu bạn…', current: true },
-              { slug: 'science', label: 'Khoa học', current: false },
-              { slug: 'whatif-en', label: 'What if… (EN)', current: false },
-            ],
-          },
-        },
-      ],
+      input: [{ json: { result: 'DRAFT', options: PICKER_OPTIONS } }],
       nodeOutputs: { 'Parse callback': [{ json: parsed }] },
     });
     expect(out!.json).toMatchObject({ ok: true, chatId: CHAT, messageId: '21', queryId: 'q7' });
     expect(out!.json.text).toBe('Chọn kit cho tập mới:');
-    expect(out!.json.keyboard).toEqual({
-      rows: [
-        {
-          row: {
-            buttons: [
-              { text: '✅ Nếu bạn…', additionalFields: { callback_data: `in:k:${token}:whatif` } },
-              { text: 'Khoa học', additionalFields: { callback_data: `in:k:${token}:science` } },
-            ],
-          },
-        },
-        {
-          row: {
-            buttons: [
-              {
-                text: 'What if… (EN)',
-                additionalFields: { callback_data: `in:k:${token}:whatif-en` },
-              },
-            ],
-          },
-        },
-      ],
-    });
-    for (const row of (
-      out!.json.keyboard as {
-        rows: { row: { buttons: { additionalFields: { callback_data: string } }[] } }[];
-      }
-    ).rows) {
-      for (const button of row.row.buttons) {
-        expect(Buffer.byteLength(button.additionalFields.callback_data)).toBeLessThanOrEqual(64);
-      }
+    expect(out!.json.keyboard).toBeUndefined();
+    expect(out!.json.buttons).toEqual([
+      { text: '✅ Nếu bạn…', data: `in:k:${token}:whatif` },
+      { text: 'Khoa học', data: `in:k:${token}:science` },
+      { text: 'What if… (EN)', data: `in:k:${token}:whatif-en` },
+      { text: 'Kinh dị', data: `in:k:${token}:horror` },
+    ]);
+    for (const button of out!.json.buttons as { data: string }[]) {
+      expect(Buffer.byteLength(button.data)).toBeLessThanOrEqual(64);
     }
 
     const closed = runCode(FILE, 'Build picker', {
@@ -4847,7 +4842,22 @@ describe('WF-06 kit picker (D-109)', () => {
     })[0]!.json;
     expect(closed).toMatchObject({ ok: false, queryId: 'q7', alert: true });
     expect(closed.text).toBe('Bản nháp đã hết hạn; gửi /new lại.');
-    expect(closed.keyboard).toBeUndefined();
+    expect(closed.buttons).toBeUndefined();
+  });
+
+  test('refuses the picker when the enabled kits no longer fit the fixed grid', () => {
+    // A kit added or disabled by a migration changes the count; the grid in Send picker must be
+    // edited with it (D-112), so the button says so instead of sending a broken keyboard.
+    const parsed = parse(`in:K:${token}`, {})[0]!.json;
+    const [out] = runCode(FILE, 'Build picker', {
+      input: [{ json: { result: 'DRAFT', options: PICKER_OPTIONS.slice(0, 3) } }],
+      nodeOutputs: { 'Parse callback': [{ json: parsed }] },
+    });
+    expect(out!.json).toMatchObject({ ok: false, queryId: 'q7', alert: true });
+    expect(out!.json.text).toBe(
+      `Danh sách kit (3) không khớp bố cục nút (${PICKER_SLOTS}); cần cập nhật WF-06.`,
+    );
+    expect(out!.json.buttons).toBeUndefined();
   });
 
   test('a pick edits the draft message and names the picker to delete', () => {
