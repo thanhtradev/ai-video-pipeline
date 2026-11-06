@@ -157,6 +157,7 @@ function deps(overrides: Partial<EpisodeCodeDeps> = {}): EpisodeCodeDeps {
     loudness,
     agent: agent(),
     gates: gates(PASS),
+    kitCheck: async () => ({ ok: true, output: '' }),
     secrets: [SECRET],
     rules: async () => ({ ...NO_RULES, video: [{ id: 1, text: 'Không dùng nhạc nền.' }] }),
     browserReady: () => true,
@@ -531,6 +532,52 @@ describe('episode_code handler', () => {
     expect(turns[3]!.prompt).toMatch(/NHỚ CHI TIẾT NÀY/);
     expect(turns[3]!.resumeSessionId).toBe('session-1');
     expect(result.result).toMatchObject({ turns: 4 });
+  });
+
+  test('a kit that does not compile fails before any agent turn (f401f3bf)', async () => {
+    // Arrange
+    const output = "kit/kits/science/x.tsx(3,29): error TS2307: Cannot find module '../y'.";
+    let gateRuns = 0;
+    const counting: GateRunner = async (ws, signal) => {
+      gateRuns++;
+      return gates(PASS)(ws, signal);
+    };
+    const handler = createEpisodeCodeHandler(
+      deps({ gates: counting, kitCheck: async () => ({ ok: false, output }) }),
+    );
+
+    // Act
+    const failure = handler(context({ ...INPUT, kit: 'science', character_set: 'chip' }));
+
+    // Assert
+    await expect(failure).rejects.toThrow(PermanentJobError);
+    await expect(failure).rejects.toThrow(/science \+ chip.*TS2307/s);
+    expect(turns).toHaveLength(0);
+    expect(gateRuns).toBe(0);
+  });
+
+  test('a resumed job checks the refreshed kit before spending another turn', async () => {
+    // Arrange: the first attempt ended on failed gates, and the worker update did not fix the kit.
+    await expect(createEpisodeCodeHandler(deps({ gates: gates(FAIL) }))(context())).rejects.toThrow(
+      PermanentJobError,
+    );
+    const before = turns.length;
+    const seen: string[] = [];
+
+    // Act
+    const failure = createEpisodeCodeHandler(
+      deps({
+        kitCheck: async (ws) => {
+          seen.push(ws);
+          return { ok: false, output: 'kit/a.ts(1,1): error TS2307: nope' };
+        },
+      }),
+    )(context(INPUT, 2));
+
+    // Assert
+    await expect(failure).rejects.toThrow(/TS2307/);
+    expect(seen).toEqual([await realpath(join(workDir, 'ws'))]);
+    expect(turns).toHaveLength(before);
   });
 
   test('a retry with an unchanged kit does not run the gates again', async () => {

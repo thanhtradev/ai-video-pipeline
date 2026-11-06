@@ -12,7 +12,7 @@ import { createJobStore } from './db/job-store.js';
 import { createRulesSource } from './db/rules-store.js';
 import { createRcloneRunner, createRcloneTarget } from './archive/rclone-target.js';
 import { createWebdavTarget } from './archive/webdav-target.js';
-import { createGateRunner } from './episode/gates.js';
+import { checkKit, createGateRunner } from './episode/gates.js';
 import { chromeInstalled, NODE_MODULES } from './episode/workspace.js';
 import { createEpisodeCodeHandler } from './handlers/episode-code.js';
 import { createEpisodeScriptHandler, routeScriptJobs } from './handlers/episode-script.js';
@@ -188,6 +188,7 @@ function buildHandlers(
           runtimeRoot: config.runtimeRoot,
           env: renderEnv(config),
         }),
+        kitCheck: checkKit,
         secrets: agentSecrets(config),
         rules,
         browserReady: chromeInstalled,

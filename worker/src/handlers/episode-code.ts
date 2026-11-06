@@ -15,6 +15,7 @@ import {
   gateReportSchema,
   type GateReport,
   type GateRunner,
+  type KitChecker,
 } from '../episode/gates.js';
 import { withLanguageGate } from '../episode/language-gate.js';
 import type { Language } from '../episode/language.js';
@@ -57,6 +58,7 @@ const WORKSPACE = 'ws';
 const SETTINGS = 'agent-settings.json';
 const TURNS_LOG = 'agent-turns.json';
 const MIX = 'mix.m4a';
+const KIT_ERROR_CHARS = 1500;
 export const NO_CHROME =
   "Remotion's Chrome is not installed: run `npx remotion browser ensure` in remotion/ (ops/episode-pipeline.md)";
 
@@ -76,6 +78,8 @@ type Input = z.infer<typeof inputSchema>;
 export interface EpisodeCodeDeps {
   agent: AgentRunner;
   gates: GateRunner;
+  /** Compiles the worker-owned kit before any agent turn. */
+  kitCheck: KitChecker;
   /** Secret values the agent's files must never contain (e.g. the Claude token). */
   secrets: readonly string[];
   /** The owner's channel rules (D-059): rules.md of a new workspace. */
@@ -347,6 +351,13 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
       });
     }
     const realWs = await realpath(join(workDir, WORKSPACE));
+    const kit = await deps.kitCheck(realWs, context.signal);
+    if (!kit.ok) {
+      throw new PermanentJobError(
+        `kit ${selection.kit} + ${selection.characterSet} does not compile, agent not started; ` +
+          `needs a repo fix, then /retry: ${kit.output.slice(0, KIT_ERROR_CHARS)}`,
+      );
+    }
     await writeFile(
       join(workDir, SETTINGS),
       `${JSON.stringify(agentSettings(realWs, deps.runtimeRoot), null, 1)}\n`,

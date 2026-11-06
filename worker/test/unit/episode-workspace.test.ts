@@ -65,9 +65,40 @@ describe('refreshKit', () => {
     );
     expect(await refreshKit(ws, sel)).toBe(false);
   });
+
+  test('removes a review file an older worker copied, so a retry compiles', async () => {
+    // Arrange: a workspace built before review files were left out (video f401f3bf).
+    const ws = join(root, 'ws');
+    const sel = await prepareWorkspace(ws, { ...sources, selection: { kit: 'science' } });
+    const sample = join(ws, 'kit/kits/science/PortraitSample.tsx');
+    await writeFile(sample, "import '../../characters/chip-science/cast';\n");
+
+    // Act
+    const changed = await refreshKit(ws, sel);
+
+    // Assert
+    expect(changed).toBe(true);
+    expect(existsSync(sample)).toBe(false);
+    expect(await readFile(join(ws, 'FILES.md'), 'utf8')).not.toContain('PortraitSample');
+    expect(await refreshKit(ws, sel)).toBe(false);
+  });
 });
 
 describe('prepareWorkspace', () => {
+  test('leaves out review files, which import casts the pairing does not copy', async () => {
+    // Act
+    const ws = join(root, 'ws');
+    await prepareWorkspace(ws, {
+      ...sources,
+      selection: { kit: 'science', characterSet: 'chip-science' },
+    });
+
+    // Assert
+    expect(existsSync(join(ws, 'kit/kits/science/PortraitSample.tsx'))).toBe(false);
+    expect(existsSync(join(ws, 'kit/characters/chip-science/ChipScienceRoot.tsx'))).toBe(false);
+    expect(existsSync(join(ws, 'kit/kits/science/theme.ts'))).toBe(true);
+  });
+
   test('copies the rig, the default kit, cast and reference episode, and writes kit/active', async () => {
     const ws = join(root, 'ws');
     const sel = await prepareWorkspace(ws, sources);

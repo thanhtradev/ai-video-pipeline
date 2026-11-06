@@ -1,14 +1,21 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { execFile } from 'node:child_process';
+import { readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { promisify } from 'node:util';
 import { z } from 'zod';
 import { runSandboxedNode } from './sandbox.js';
-import { GATES_SCRIPT } from './workspace.js';
+import { GATES_SCRIPT, NODE_MODULES } from './workspace.js';
 
 // Worker gates on the agent's workspace (docs/episode-pipeline.md §6): the agent's own claims are
 // not trusted. remotion/scripts/episode-gates.mjs runs agent-written code, so it runs sandboxed.
 
 const GATES_TIMEOUT_MS = 45 * 60 * 1000;
 const REPORT_ROWS = 30;
+const runFile = promisify(execFile);
+const TSC = join(NODE_MODULES, 'typescript', 'bin', 'tsc');
+const KIT_CHECK_CONFIG = 'kit-check.tsconfig.json';
+const KIT_CHECK_TIMEOUT_MS = 5 * 60 * 1000;
+const KIT_CHECK_MAX_OUTPUT = 4 * 1024 * 1024;
 
 const stepSchema = z.object({ ok: z.boolean(), error: z.string().optional() }).loose();
 export const gateReportSchema = z
@@ -79,6 +86,43 @@ export function createGateRunner(options: GateRunnerOptions): GateRunner {
     return gateReportSchema.parse(JSON.parse(await readFile(join(ws, 'gates.json'), 'utf8')));
   };
 }
+
+export interface KitCheck {
+  readonly ok: boolean;
+  /** tsc's errors; empty when the kit compiles. */
+  readonly output: string;
+}
+export type KitChecker = (ws: string, signal: AbortSignal) => Promise<KitCheck>;
+
+/** An error from a tsc that ran and exited non-zero, not one that was killed or never started. */
+const isTscFailure = (err: unknown): err is { stdout: string; stderr: string } =>
+  err instanceof Error && 'code' in err && typeof err.code === 'number';
+
+/**
+ * Compiles only the worker-owned kit/ of a workspace, before any agent turn: the agent cannot fix a
+ * kit error, so it must not cost a first turn to find one. This runs repo code only, so it needs no
+ * sandbox. The config sits next to the workspace, out of the agent's sight. An abort or timeout
+ * throws, so the job can run again; only a real compile error is a result.
+ */
+export const checkKit: KitChecker = async (ws, signal) => {
+  const config = join(dirname(ws), KIT_CHECK_CONFIG);
+  await writeFile(
+    config,
+    `${JSON.stringify({ extends: join(ws, 'tsconfig.json'), include: [join(ws, 'kit')] })}\n`,
+  );
+  try {
+    await runFile(process.execPath, [TSC, '-p', config], {
+      cwd: ws,
+      signal,
+      timeout: KIT_CHECK_TIMEOUT_MS,
+      maxBuffer: KIT_CHECK_MAX_OUTPUT,
+    });
+    return { ok: true, output: '' };
+  } catch (err) {
+    if (!isTscFailure(err)) throw err;
+    return { ok: false, output: `${err.stdout}${err.stderr}` };
+  }
+};
 
 /** Remotion's errors when Chrome itself dies (e.g. a V8 fatal check), not the episode code. */
 const BROWSER_CRASH = /Page crashed!|Target closed|browser crashed|Session closed/i;
