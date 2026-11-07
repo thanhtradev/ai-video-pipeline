@@ -2,7 +2,7 @@ import { rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { MUSIC_STYLES } from '../../../remotion/src/props.js';
-import type { ClaudeRunner } from '../claude/claude-cli.js';
+import { claudeSummary, type ClaudeRunner } from '../claude/claude-cli.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
 
 // Phase 2a `script` step: Claude Code writes the Vietnamese script + storyboard for one
@@ -136,7 +136,7 @@ export function createScriptHandler(deps: ScriptHandlerDeps): JobHandler {
     await writeAtomic(join(workDir, 'script.json'), `${JSON.stringify(script, null, 2)}\n`);
     await writeAtomic(join(workDir, 'script.md'), toMarkdown(script));
 
-    const claude = { duration_ms: reply.durationMs, num_turns: reply.numTurns, usage: reply.usage };
+    const claude = claudeSummary(reply);
     logger.info({ claude, sceneCount: script.scenes.length, totalSeconds }, 'script written');
     return {
       outputs: ['script.json', 'script.md'],

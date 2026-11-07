@@ -120,10 +120,11 @@ function agent(
     return {
       sessionId: 'session-1',
       text: 'done',
-      isError: false,
       numTurns: 5,
       durationMs: 1000,
-      usage: null,
+      usage: { input_tokens: 10, output_tokens: 100, cache_read_input_tokens: 2000 },
+      costUsd: 0.5,
+      models: ['claude-opus-5-5'],
     };
   };
 }
@@ -256,6 +257,22 @@ describe('episode_code handler', () => {
       { stage: 'agent', turn: 2, of: 3 },
       { stage: 'gates', turn: 2, of: 3 },
     ]);
+  });
+
+  test('reports the Claude usage of every agent turn (Q-004)', async () => {
+    const result = await createEpisodeCodeHandler(deps())(context());
+
+    expect(result.result.claude).toEqual({
+      // Per turn: on --resume the CLI's figure may cover the whole session, so it is not summed.
+      turn_costs_usd: [0.5, 0.5],
+      usage: {
+        input_tokens: 20,
+        output_tokens: 200,
+        cache_read_input_tokens: 4000,
+        cache_creation_input_tokens: 0,
+      },
+      models: ['claude-opus-5-5'],
+    });
   });
 
   test('gives the agent the gate failures and stops once they pass', async () => {

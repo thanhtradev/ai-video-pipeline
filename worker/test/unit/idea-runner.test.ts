@@ -51,7 +51,7 @@ function runner(store: IdeaStore, claude: ClaudeRunner) {
 
 const reply =
   (output: unknown): ClaudeRunner =>
-  async () => ({ output, durationMs: 1, numTurns: 1, usage: null });
+  async () => ({ output, durationMs: 1, numTurns: 1, usage: null, costUsd: null, models: [] });
 
 describe('idea runner', () => {
   test('does nothing when no request is due', async () => {
@@ -82,7 +82,14 @@ describe('idea runner', () => {
     let seen: AbortSignal | undefined;
     const capturing: ClaudeRunner = async (request) => {
       seen = request.signal;
-      return { output: { ideas: [IDEA] }, durationMs: 1, numTurns: 1, usage: null };
+      return {
+        output: { ideas: [IDEA] },
+        durationMs: 1,
+        numTurns: 1,
+        usage: null,
+        costUsd: null,
+        models: [],
+      };
     };
     await runner(store, capturing)(controller.signal);
     expect(seen).toBe(controller.signal);

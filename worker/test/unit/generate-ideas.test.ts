@@ -64,7 +64,7 @@ beforeEach(async () => {
 function stub(output: unknown): ClaudeRunner {
   return async (request) => {
     requests.push(request);
-    return { output, durationMs: 500, numTurns: 1, usage: null };
+    return { output, durationMs: 500, numTurns: 1, usage: null, costUsd: null, models: [] };
   };
 }
 

@@ -1,5 +1,6 @@
 import { ProviderBlockedError } from '../runner.js';
 import { AUTH_FAILURE, runClaudeProcess, USAGE_LIMIT } from './claude-cli.js';
+import { runCost, usageOf, type RunCost } from './usage.js';
 
 // Headless Claude Code as a coding agent (episode code, D-053/D-054): tools allowed by the
 // per-job settings file (permissions + macOS sandbox), no MCP servers, only project settings, the
@@ -18,11 +19,10 @@ export interface AgentTurn {
   signal: AbortSignal;
 }
 
-export interface AgentTurnResult {
+export interface AgentTurnResult extends RunCost {
   sessionId: string;
   /** The agent's final message. */
   text: string;
-  isError: boolean;
   numTurns: number | null;
   durationMs: number | null;
   usage: Record<string, unknown> | null;
@@ -67,6 +67,8 @@ interface Envelope {
   num_turns?: unknown;
   duration_ms?: unknown;
   usage?: unknown;
+  total_cost_usd?: unknown;
+  modelUsage?: unknown;
 }
 
 const numberOrNull = (value: unknown): number | null => (typeof value === 'number' ? value : null);
@@ -113,16 +115,18 @@ export function createAgentCli(options: AgentCliOptions): AgentRunner {
     if (failed || typeof envelope?.session_id !== 'string') {
       throw new Error(`agent exited with code ${code}: ${(text || stderr).slice(-STDERR_TAIL)}`);
     }
+    // An error turn (e.g. an API error) can exit 0. It is not a normal turn: the job retries it
+    // within its bounded attempts, resuming the last good session from the checkpoint.
+    if (envelope.is_error === true) {
+      throw new Error(`agent turn failed: ${text.slice(-STDERR_TAIL)}`);
+    }
     return {
       sessionId: envelope.session_id,
       text,
-      isError: envelope.is_error === true,
       numTurns: numberOrNull(envelope.num_turns),
       durationMs: numberOrNull(envelope.duration_ms),
-      usage:
-        typeof envelope.usage === 'object' && envelope.usage !== null
-          ? (envelope.usage as Record<string, unknown>)
-          : null,
+      usage: usageOf(envelope.usage),
+      ...runCost(envelope),
     };
   };
 }

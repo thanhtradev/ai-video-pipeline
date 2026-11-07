@@ -4,6 +4,7 @@ import { readFile, realpath, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 import type { AgentRunner } from '../claude/agent-cli.js';
+import { sumUsage } from '../claude/usage.js';
 import { agentSettings } from '../episode/agent-settings.js';
 import type { ResolvedSelection } from '../episode/catalog.js';
 import { selectionOf } from '../episode/channel-prompt.js';
@@ -113,7 +114,16 @@ async function freshWorkspacePath(workDir: string, attemptNo: number): Promise<s
 
 const turnSchema = z.object({
   prompt: z.string(),
-  result: z.object({ sessionId: z.string(), durationMs: z.number().nullable().optional() }).loose(),
+  result: z
+    .object({
+      sessionId: z.string(),
+      durationMs: z.number().nullable().optional(),
+      // Absent in checkpoints from before the usage report (Q-004).
+      costUsd: z.number().nullable().optional(),
+      usage: z.record(z.string(), z.unknown()).nullable().optional(),
+      models: z.array(z.string()).optional(),
+    })
+    .loose(),
   /** Null until the gates ran after this turn. */
   gates: z.object({ ok: z.boolean(), failures: z.array(z.string()) }).nullable(),
 });
@@ -172,6 +182,18 @@ async function savedState(context: HandlerContext): Promise<AgentState | null> {
     return null;
   }
   return parsed.data.turns.length > 0 ? parsed.data : null;
+}
+
+/**
+ * What the agent turns used (Q-004). The CLI's cost is kept per turn: on `--resume` its figure may
+ * cover the whole session so far, which a sum would count twice.
+ */
+function claudeUsage(turns: AgentState['turns']) {
+  return {
+    turn_costs_usd: turns.map((turn) => turn.result.costUsd ?? null),
+    usage: sumUsage(turns.map((turn) => turn.result.usage)),
+    models: [...new Set(turns.flatMap((turn) => turn.result.models ?? []))].sort(),
+  };
 }
 
 const firstPrompt = (referenceEpisode: string) =>
@@ -417,6 +439,7 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
         turns: turns.length,
         session_id: sessionId,
         agent_ms: agentMs,
+        claude: claudeUsage(turns),
         board_pages: pages.map((p) => `${WORKSPACE}/${p}`),
         // Capability for GET /boards/… (D-055): only Postgres readers (n8n) learn it.
         board_token: randomBytes(16).toString('hex'),

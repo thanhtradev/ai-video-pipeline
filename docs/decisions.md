@@ -148,7 +148,7 @@
 | ID | Question | Impact | Priority |
 |---|---|---|---|
 | Q-002 | Remaining: reporting currency; whether to add a daily cap later | Cost reports | Medium |
-| Q-004 | Remaining: how much Max usage does one video consume? The worker logs Claude Code usage per script job (2a) (U-14) | Throughput | Medium |
+| Q-004 | Remaining: how much Max usage does one video consume? Every Claude step's job result now has a `claude` field (tokens, models, and the CLI's API list-price estimate `total_cost_usd`); `ops/postgres/claude-usage.sql` reports it per step and per video. Open until about 10 videos are measured (U-14) | Throughput, Claude API overflow | Medium |
 | Q-013 | n8n currently uses SQLite in regular mode (S-05). Move n8n to PostgreSQL and/or queue mode? | Reliability, backup | Medium |
 | Q-017 | Remaining from the survey risks: dedicated NAS and backup target for bind-mount data (R-01, R-12); narrowing the Tailscale ACL from allow-all (U-08). Redis persistence and Postgres/Redis access are settled (D-037, D-038) | Reliability | Medium |
 | Q-016 | Phase 4 short film needs an image/video generation source — **deferred to Phase 4** | Phase 4 | Low |

@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { claudeChildEnv, createClaudeCli, type ClaudeRunner } from '../../src/claude/claude-cli.js';
+import { createAgentCli } from '../../src/claude/agent-cli.js';
+import {
+  claudeChildEnv,
+  claudeSummary,
+  createClaudeCli,
+  type ClaudeRunner,
+} from '../../src/claude/claude-cli.js';
 import { ProviderBlockedError } from '../../src/runner.js';
 
 const FAKE_CLAUDE = fileURLToPath(new URL('../fixtures/fake-claude.mjs', import.meta.url));
@@ -47,6 +53,24 @@ describe('claude cli', () => {
 
     expect(result.output).toMatchObject({ title: 'Bầu trời xanh' });
     expect(result).toMatchObject({ durationMs: 1234, numTurns: 1, usage: { output_tokens: 42 } });
+  });
+
+  test('returns the CLI cost estimate and the models that ran (Q-004)', async () => {
+    const result = await run('structured');
+
+    expect(result).toMatchObject({ costUsd: 0.0123, models: ['claude-test-model'] });
+  });
+
+  test('summarizes a reply for the job result', async () => {
+    const result = await run('structured');
+
+    expect(claudeSummary(result)).toEqual({
+      duration_ms: 1234,
+      num_turns: 1,
+      usage: { output_tokens: 42 },
+      cost_usd: 0.0123,
+      models: ['claude-test-model'],
+    });
   });
 
   test('falls back to JSON in the result text', async () => {
@@ -180,5 +204,48 @@ describe('claude cli', () => {
     setTimeout(() => controller.abort('CANCELLED'), 100);
 
     await expect(pending).rejects.toThrow(/aborted/);
+  });
+});
+
+describe('agent cli', () => {
+  const agent = () =>
+    createAgentCli({
+      bin: FAKE_CLAUDE,
+      model: 'claude-test-model',
+      blockSeconds: 3600,
+      env: { PATH: process.env.PATH ?? '', HOME: '/Users/test' },
+    });
+  const turn = (mode: string) => ({
+    prompt: `MODE:${mode}\nWrite the episode.`,
+    cwd,
+    settingsPath: '/tmp/agent-settings.json',
+    timeoutMs: 5_000,
+    signal: new AbortController().signal,
+  });
+
+  test('returns the session, the usage and the CLI cost estimate', async () => {
+    const result = await agent()(turn('agent'));
+
+    expect(result).toMatchObject({
+      sessionId: 'sess-1',
+      text: 'done',
+      usage: { output_tokens: 42 },
+      costUsd: 0.0123,
+      models: ['claude-test-model'],
+    });
+  });
+
+  test('an error turn that exits 0 fails instead of counting as a normal turn', async () => {
+    const error = await agent()(turn('agent-error')).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(ProviderBlockedError);
+    expect((error as Error).message).toMatch(/agent turn failed.*API Error: 500/s);
+  });
+
+  test('a usage limit still blocks the job', async () => {
+    const error = await agent()(turn('usage-limit')).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ProviderBlockedError);
   });
 });

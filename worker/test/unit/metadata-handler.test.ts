@@ -98,7 +98,15 @@ function deps(
   return {
     claude: async (request) => {
       requests.push(request);
-      return { output, durationMs: 1000, numTurns: 1, usage: null, text: '' } as never;
+      return {
+        output,
+        durationMs: 1000,
+        numTurns: 1,
+        usage: null,
+        costUsd: 0.01,
+        models: [],
+        text: '',
+      } as never;
     },
     grabFrame: async (video, seconds, output) => {
       frames.push({ video, seconds, output });
@@ -154,6 +162,7 @@ describe('metadata handler', () => {
     expect(result.result).toMatchObject({
       metadata: GOOD,
       thumbnail: { shot: '1.2', seconds: 4.4 },
+      claude: { duration_ms: 1000, num_turns: 1, cost_usd: 0.01 },
     });
     expect(result.result.media_token).toMatch(/^[0-9a-f]{32}$/);
     expect(JSON.parse(await readFile(join(workDir, 'metadata.json'), 'utf8'))).toEqual(GOOD);

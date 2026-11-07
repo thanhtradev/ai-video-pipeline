@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
-import type { ClaudeRunner } from '../claude/claude-cli.js';
+import { claudeSummary, type ClaudeRunner } from '../claude/claude-cli.js';
 import { rulesPrompt, type ChannelRules, type RulesSource } from '../rules/channel-rules.js';
 import { PermanentJobError, type JobHandler } from '../runner.js';
 import { readValidCheckpoint } from '../storage/checkpoint.js';
@@ -608,7 +608,7 @@ export function createEpisodeScriptHandler(deps: EpisodeScriptHandlerDeps): JobH
     await writeAtomic(join(workDir, 'script.md'), toMarkdown(script));
 
     const summary = summarize(parsed.data, language);
-    const claude = { duration_ms: reply.durationMs, num_turns: reply.numTurns, usage: reply.usage };
+    const claude = claudeSummary(reply);
     logger.info(
       { claude, actCount: summary.act_count, shotCount: summary.shot_count },
       'episode script written',
