@@ -1280,6 +1280,7 @@ describe('WF-06 /new (D-058)', () => {
       selection: {},
       worker: '',
       auto: false,
+      api: false,
       error: '',
     });
     expect(parse(message('/new Mèo nghĩ gì?'))).toMatchObject({
@@ -1340,6 +1341,7 @@ describe('WF-06 /new (D-058)', () => {
       userId: '111',
       worker: '',
       auto: 'false',
+      api: 'false',
       brief: JSON.stringify({
         topic: 'Mèo nghĩ gì?',
         duration_minutes: 6,
@@ -1682,11 +1684,11 @@ describe('WF-06 worker choice and /move (D-087)', () => {
 
     expect(out!.json).toMatchObject({ worker: 'hp-400-g7' });
     expect(node('Draft').parameters.query).toBe(
-      "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb, NULLIF($4, ''), $5::boolean);",
+      "SELECT result, token, expires_at, brief, has_voice, selection, error FROM telegram_intake_draft($1::bigint, $2, $3::jsonb, NULLIF($4, ''), $5::boolean, $6::boolean);",
     );
     expect(
       (node('Draft').parameters.options as { queryReplacement: string }).queryReplacement,
-    ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker, $json.auto] }}');
+    ).toBe('={{ [$json.userId, $json.chatId, $json.brief, $json.worker, $json.auto, $json.api] }}');
   });
 
   test('the confirmation shows the worker and a Worker button next to Thời lượng', () => {
@@ -4929,6 +4931,7 @@ describe('Claude API overflow button (D-118)', () => {
   const FILE = 'wf-06-telegram-callback.json';
   const TOKEN = 'a'.repeat(32);
   const OFFER = {
+    kind: 'OFFER',
     token: TOKEN,
     job_id: '0d1e2f3a-4b5c-4d6e-8f70-001122334455',
     video_id: 'abcd1234-4b5c-4d6e-8f70-001122334455',
@@ -4952,6 +4955,7 @@ describe('Claude API overflow button (D-118)', () => {
     const [out] = runCode(WATCH, 'Build API offer', { input: [{ json: OFFER }] });
 
     expect(out!.json).toMatchObject({
+      ask: true,
       approve: `cf:A:${TOKEN}`,
       reject: `cf:R:${TOKEN}`,
       label: 'Chạy bằng API (tối đa $6.00)',
@@ -4997,7 +5001,8 @@ describe('Claude API overflow button (D-118)', () => {
     const after = (name: string) =>
       watch.connections[name]!.main.map((out) => out.map((n) => n.node));
     expect(after('Claude API offers')).toEqual([['Build API offer']]);
-    expect(after('Build API offer')).toEqual([['Send API offer']]);
+    expect(after('Build API offer')).toEqual([['API offer?']]);
+    expect(after('API offer?')).toEqual([['Send API offer'], ['Send API notice']]);
     expect(watch.nodes.find((n) => n.name === 'Claude API offers')!.parameters.query).toBe(
       'SELECT * FROM claude_api_offers_due();',
     );
@@ -5006,5 +5011,113 @@ describe('Claude API overflow button (D-118)', () => {
     expect(send).toContain('"text":"={{ $json.label }}"');
     expect(send).toContain('"callback_data":"={{ $json.approve }}"');
     expect(send).toContain('"callback_data":"={{ $json.reject }}"');
+  });
+});
+
+describe('/new api=on (D-119)', () => {
+  const WF = 'wf-06-telegram-callback.json';
+  const WATCH = 'wf-08-watchdog.json';
+  const CHAT = 'REPLACE_WITH_APPROVAL_CHAT_ID';
+  const text = (value: string): Item => ({
+    json: {
+      message: {
+        message_id: 12,
+        from: { id: 111, is_bot: false },
+        chat: { id: CHAT },
+        text: value,
+      },
+    },
+  });
+  const parse = (value: string) =>
+    runCode(WF, 'Parse callback', { input: [text(value)] })[0]?.json as Record<string, unknown>;
+  const SELECTION = {
+    kit: { slug: 'science', label: 'Khoa học', next_slug: 'whatif', next_label: 'Nếu bạn…' },
+    character_set: {
+      slug: 'chip-science',
+      label: 'Chíp Khoa học',
+      next_slug: 'chip-science',
+      next_label: 'Chíp Khoa học',
+    },
+  };
+  const confirm = (row: Record<string, unknown>) =>
+    runCode(WF, 'Build confirmation', {
+      input: [{ json: row }],
+      nodeOutputs: { 'Parse callback': [{ json: { chatId: String(CHAT), messageId: '12' } }] },
+    })[0]!.json as { text: string };
+  const draftRow = (selection: object) => ({
+    result: 'DRAFT',
+    token: 'd'.repeat(32),
+    expires_at: '2026-11-04T06:00:00Z',
+    brief: { topic: 'Mèo' },
+    has_voice: null,
+    selection,
+  });
+
+  test('takes api=on off the first line, with the other options', () => {
+    expect(parse('/new 3 Vì sao trời xanh? kit=science api=on auto=on')).toMatchObject({
+      topic: 'Vì sao trời xanh?',
+      selection: { kit: 'science' },
+      auto: true,
+      api: true,
+      error: '',
+    });
+    expect(parse('/new Vì sao trời xanh?')).toMatchObject({ api: false });
+    expect(parse('/new Vì sao trời xanh? api=off')).toMatchObject({
+      topic: 'Vì sao trời xanh?',
+      api: false,
+    });
+    expect(parse('/new api=on')!.error).toMatch(/api=on/);
+  });
+
+  test('Build draft and the Draft query pass it to telegram_intake_draft()', async () => {
+    const [on] = await runAsyncCode(WF, 'Build draft', {
+      input: [{ json: {} }],
+      nodeOutputs: { 'Parse callback': [{ json: parse('/new Vì sao trời xanh? api=on') }] },
+    });
+    expect(on!.json).toMatchObject({ api: 'true' });
+    const node = workflow(WF).nodes.find((n) => n.name === 'Draft')!;
+    expect(node.parameters.query).toContain('$5::boolean, $6::boolean)');
+    expect(JSON.stringify(node.parameters.options)).toContain('$json.api');
+  });
+
+  test('the confirmation says the video moves to the API by itself, and refuses a non-owner', () => {
+    expect(confirm(draftRow({ ...SELECTION, api: true })).text).toContain(
+      'Claude API: Tự chuyển khi hết lượt Max',
+    );
+    expect(confirm(draftRow({ ...SELECTION, api: false })).text).not.toContain('Claude API');
+    expect(confirm({ result: 'API_NOT_OWNER' }).text).toBe(
+      'Chưa tạo: chỉ owner mới bật được api=on (Claude API tốn tiền).',
+    );
+  });
+
+  test('/help new names api=on', () => {
+    const node = workflow(WF).nodes.find((n) => n.name === 'Build help')!;
+    expect(node.parameters.jsCode as string).toMatch(/\[auto=on\] \[api=on\]/);
+  });
+
+  test('the watchdog reports an automatic switch without buttons', () => {
+    const [out] = runCode(WATCH, 'Build API offer', {
+      input: [
+        {
+          json: {
+            kind: 'AUTO',
+            token: null,
+            video_id: 'abcd1234-4b5c-4d6e-8f70-001122334455',
+            version: 1,
+            step: 'script',
+            cap_usd: '3.00',
+            month_spent_usd: '12.40',
+            month_limit_usd: '90.00',
+          },
+        },
+      ],
+    });
+
+    expect(out!.json.ask).toBe(false);
+    const message = out!.json.text as string;
+    expect(message).toContain('/v_abcd1234');
+    expect(message).toContain('tự chuyển sang Claude API');
+    expect(message).toContain('tối đa $3.00');
+    expect(message).toContain('$12.40 / $90.00');
   });
 });

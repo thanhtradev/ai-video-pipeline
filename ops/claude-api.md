@@ -11,7 +11,7 @@ What it adds:
   `--max-budget-usd` and an explicit model, and records the CLI's cost;
 - **WF-08**: when a `script`, `metadata` or `episode_code` job is blocked by the Max limit, a message
   with **Chạy bằng API (tối đa $X)** / **Bỏ qua** (owner only, 12 h);
-- **WF-06**: the answer to that tap.
+- **WF-06**: the answer to that tap, and `/new … api=on` (§6): that video switches by itself.
 
 Without a tap nothing changes: the job waits for Max as before. Design and limits:
 `docs/cost-and-providers.md` §6.
@@ -107,6 +107,19 @@ psql "$DATABASE_URL" -c "SELECT job_id, reserved_usd, actual_usd, detail->'model
 
 `actual_usd` should be close to the Console's usage for the workspace, and the next blocked job
 asks again.
+
+## 6. `/new … api=on` (D-119)
+
+Migration `20261203000200` (step 2 applies it with `20261203000100`) and WF-06 / WF-08 (step 4).
+An owner adds `api=on` to the first line of `/new`; the confirmation shows `Claude API: Tự chuyển
+khi hết lượt Max`. When a Claude step of that video hits the Max limit, the watchdog moves the job
+to the API itself and posts `🤖 … đã tự chuyển sang Claude API (api=on), tối đa $X`; no button.
+It still needs a cap for the step (step 5) and room in the month; otherwise the job waits for Max.
+A non-owner gets `Chưa tạo: chỉ owner mới bật được api=on`. Example:
+
+```
+/new 4 Vì sao trời xanh? kit=science nhanvat=chip-science auto=on api=on
+```
 
 ## Switch off
 

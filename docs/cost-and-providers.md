@@ -63,6 +63,7 @@ Canonical reporting currency: `[UNKNOWN]` (Q-002). Store the provider's original
 ## 6. Claude API overflow (D-118) `[PROPOSED]` until rolled out
 
 - **When:** a `script`, `metadata` or `episode_code` job blocked by the Max usage limit (`last_error` starts with `claude-code usage limit:`), for a step with a cap in `claude_api_step`. Login failures and API-side blocks are never offered.
+- **Per video, in advance:** `/new … api=on` (owner only, D-119) makes such a block switch by itself, with a notice instead of the button; same caps and limits.
 - **Who:** an owner taps the WF-08 button (`command_confirm` action `CLAUDE_API`, 12 h). One grant covers one job until it blocks, succeeds or fails permanently; another block asks again. Without a tap the job waits for Max as before.
 - **Limits:** the Console workspace limit ($100, the hard stop outside our code); `provider_quota.limit_value` of `anthropic-api` ($90, Vietnam calendar month, refused first because `--max-budget-usd` can overshoot); the per-job cap, passed as `--max-budget-usd` on each run (the cap minus what the job already spent or reserved).
 - **Ledger:** `claude_api_spend` (reservation, then the CLI's figure) and an ACTUAL `cost_entry` in USD with `is_derived = true`: the CLI's estimate at list prices, not an invoice. A run that fails keeps its whole reservation as spent.
