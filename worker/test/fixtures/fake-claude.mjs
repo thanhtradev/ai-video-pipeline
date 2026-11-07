@@ -14,7 +14,14 @@ writeFileSync(
 );
 
 const mode = stdin.split('\n')[0].trim();
-const base = { type: 'result', duration_ms: 1234, num_turns: 1, usage: { output_tokens: 42 } };
+const base = {
+  type: 'result',
+  duration_ms: 1234,
+  num_turns: 1,
+  usage: { output_tokens: 42 },
+  total_cost_usd: 0.0123,
+  modelUsage: { 'claude-test-model': { outputTokens: 42, costUSD: 0.0123 } },
+};
 
 function emit(result, code = 0) {
   process.stdout.write(JSON.stringify(result));
@@ -90,6 +97,19 @@ switch (mode) {
   case 'MODE:crash':
     process.stderr.write('internal error\n');
     process.exit(2);
+    break;
+  case 'MODE:agent':
+    emit({ ...base, subtype: 'success', is_error: false, session_id: 'sess-1', result: 'done' });
+    break;
+  case 'MODE:agent-error':
+    // An API error the CLI reports in a normal exit (no usage limit, no login failure).
+    emit({
+      ...base,
+      subtype: 'success',
+      is_error: true,
+      session_id: 'sess-1',
+      result: 'API Error: 500 {"type":"api_error","message":"Internal server error"}',
+    });
     break;
   case 'MODE:hang':
     setTimeout(() => emit({ ...base, subtype: 'success', is_error: false, result: '' }), 60_000);

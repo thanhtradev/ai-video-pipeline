@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
-import type { ClaudeRunner } from '../claude/claude-cli.js';
+import { claudeSummary, type ClaudeRunner } from '../claude/claude-cli.js';
 import type { FrameGrabber } from '../media/frame.js';
 import { rulesPrompt, type RulesSource } from '../rules/channel-rules.js';
 import { readValidCheckpoint, writeFileAtomic } from '../storage/checkpoint.js';
@@ -286,7 +286,7 @@ export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
         thumbnail: { shot: shot.id, seconds: Math.round(seconds * 100) / 100 },
         // Capability for GET /media/… (the thumbnail in the A3 message).
         media_token: randomBytes(16).toString('hex'),
-        claude: { duration_ms: reply.durationMs, num_turns: reply.numTurns, usage: reply.usage },
+        claude: claudeSummary(reply),
       },
     };
   };

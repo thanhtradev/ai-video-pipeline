@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { ProviderBlockedError } from '../runner.js';
+import { runCost, usageOf, type RunCost } from './usage.js';
 
 // Headless Claude Code CLI on the Max subscription (D-019, D-042): no Claude API. Text-only steps
 // run with every tool disabled, no MCP servers, no session persistence, the pipeline deny-list
@@ -17,11 +18,22 @@ export interface ClaudeRequest {
   timeoutMs?: number;
 }
 
-export interface ClaudeResult {
+export interface ClaudeResult extends RunCost {
   output: unknown;
   durationMs: number | null;
   numTurns: number | null;
   usage: Record<string, unknown> | null;
+}
+
+/** The `claude` field of a text step's job result: what the request used (Q-004). */
+export function claudeSummary(reply: ClaudeResult) {
+  return {
+    duration_ms: reply.durationMs,
+    num_turns: reply.numTurns,
+    usage: reply.usage,
+    cost_usd: reply.costUsd,
+    models: reply.models,
+  };
 }
 
 export type ClaudeRunner = (request: ClaudeRequest) => Promise<ClaudeResult>;
@@ -73,6 +85,8 @@ interface CliEnvelope {
   duration_ms?: unknown;
   num_turns?: unknown;
   usage?: unknown;
+  total_cost_usd?: unknown;
+  modelUsage?: unknown;
 }
 
 export interface ProcessResult {
@@ -229,10 +243,8 @@ export function createClaudeCli(options: ClaudeCliOptions): ClaudeRunner {
       output,
       durationMs: numberOrNull(envelope.duration_ms),
       numTurns: numberOrNull(envelope.num_turns),
-      usage:
-        typeof envelope.usage === 'object' && envelope.usage !== null
-          ? (envelope.usage as Record<string, unknown>)
-          : null,
+      usage: usageOf(envelope.usage),
+      ...runCost(envelope),
     };
   };
 }

@@ -117,7 +117,7 @@ Commands: `sw_vers`, `sysctl hw.memsize`, `qm config 223` and `qm guest exec 223
 | U-19 | A client on LXC 101 `lxc-core` (192.168.1.101) connected to `aivideo` as `aivideo_owner` on 2026-10-24 (looks like a DB GUI). New connections from it are now rejected by `pg_hba.conf` | User to identify; add an owner line for it only if it is an admin tool |
 | U-10 | Any backup outside Proxmox (e.g. external tool, HAOS) | S-08 found none on the host |
 | U-12 | ~~n8n webhook reachable from workers~~ — not needed: workers report via PostgreSQL (P-015) | |
-| U-14 | Max plan headless usage limits and terms for automation | Terms confirmed by the user (D-042); usage per video measured from the worker's `script written` log |
+| U-14 | Max plan headless usage limits and terms for automation | Terms confirmed by the user (D-042); usage per video: `ops/postgres/claude-usage.sql` (Q-004) |
 | U-20 | ITERA TTS (D-040): money price per credit, rate limits / concurrency, where `export_transcript` returns the SRT, commercial-use and data-retention terms, chosen provider/model/voice for Vietnamese | API surface documented in S-24 (2026-10-25). Price and voice needed before slice 2b goes live; rate limits measured in the first runs |
 | U-21 | Public HTTPS URL of n8n (`WEBHOOK_URL`) for the Telegram Trigger (WF-06) | Telegram can only deliver button presses to a public HTTPS webhook |
 | U-22 | Google Drive archive (D-063): Google One plan and free space of the owner's account, rclone version on the Mac mini, remote name and root folder | Personal Drive has 15 GB free; an archived episode is about 150 MB. Recorded when the owner runs `ops/final-delivery.md` §2 |

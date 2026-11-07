@@ -91,7 +91,14 @@ beforeEach(async () => {
 function stub(output: unknown): ClaudeRunner {
   return async (request) => {
     requests.push(request);
-    return { output, durationMs: 900, numTurns: 1, usage: { output_tokens: 10 } };
+    return {
+      output,
+      durationMs: 900,
+      numTurns: 1,
+      usage: { output_tokens: 10 },
+      costUsd: 0.02,
+      models: ['claude-test'],
+    };
   };
 }
 
@@ -297,7 +304,7 @@ describe('episode script handler', () => {
       narration_chars: narration.join('').length,
       // One TTS request per act, audio tags included (docs/episode-pipeline.md §4).
       scenes: narration.map((text) => ({ narration: text })),
-      claude: { duration_ms: 900, num_turns: 1 },
+      claude: { duration_ms: 900, num_turns: 1, cost_usd: 0.02, models: ['claude-test'] },
     });
     expect(result.result.total_seconds).toBeGreaterThan(0);
     expect(String(result.result.preview)).toContain('LUẬT CHƠI');

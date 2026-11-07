@@ -47,7 +47,14 @@ beforeEach(async () => {
 function stub(output: unknown): ClaudeRunner {
   return async (request) => {
     requests.push(request);
-    return { output, durationMs: 900, numTurns: 1, usage: { output_tokens: 10 } };
+    return {
+      output,
+      durationMs: 900,
+      numTurns: 1,
+      usage: { output_tokens: 10 },
+      costUsd: 0.02,
+      models: ['claude-test'],
+    };
   };
 }
 
@@ -78,7 +85,13 @@ describe('script handler', () => {
       total_seconds: 26,
       narration_chars: SCRIPT.scenes.reduce((n, s) => n + s.narration.length, 0),
       scenes: SCRIPT.scenes,
-      claude: { duration_ms: 900, num_turns: 1, usage: { output_tokens: 10 } },
+      claude: {
+        duration_ms: 900,
+        num_turns: 1,
+        usage: { output_tokens: 10 },
+        cost_usd: 0.02,
+        models: ['claude-test'],
+      },
     });
     expect(String(result.result.preview)).toContain('Tán xạ Rayleigh');
     expect(createHash('sha256').update(saved).digest('hex')).toMatch(/^[0-9a-f]{64}$/);
