@@ -321,6 +321,7 @@ async function runTurns(
       resumeSessionId: state.sessionId ?? undefined,
       timeoutMs,
       signal: context.signal,
+      job: { id: context.jobId },
     });
     state = {
       ...state,

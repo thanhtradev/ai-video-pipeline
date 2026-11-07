@@ -561,7 +561,7 @@ export interface EpisodeScriptHandlerDeps {
 }
 
 export function createEpisodeScriptHandler(deps: EpisodeScriptHandlerDeps): JobHandler {
-  return async ({ input, workDir, signal, logger, progress }) => {
+  return async ({ jobId, input, workDir, signal, logger, progress }) => {
     const parsedInput = inputSchema.safeParse(input);
     if (!parsedInput.success) {
       throw new PermanentJobError(`invalid episode script input: ${parsedInput.error.message}`);
@@ -590,6 +590,7 @@ export function createEpisodeScriptHandler(deps: EpisodeScriptHandlerDeps): JobH
       cwd: workDir,
       signal,
       timeoutMs: EPISODE_SCRIPT_TIMEOUT_MS,
+      job: { id: jobId },
     });
 
     const parsed = EPISODE_SCRIPT_SCHEMA.safeParse(reply.output);

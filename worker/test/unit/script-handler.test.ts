@@ -112,6 +112,8 @@ describe('script handler', () => {
 
     const request = requests[0]!;
     expect(request.cwd).toBe(workDir);
+    // The owner may move this job to the Claude API (D-118).
+    expect(request.job).toEqual({ id: 'job-1' });
     expect(request.systemPrompt).toMatch(/Vietnamese/);
     expect(request.prompt).toContain('Vì sao bầu trời có màu xanh?');
     expect(request.prompt).toMatch(/at most 30 seconds/);
