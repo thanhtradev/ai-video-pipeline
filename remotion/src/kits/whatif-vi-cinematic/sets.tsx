@@ -67,12 +67,38 @@ const LIVING_FINISH: FinishLook = {
 };
 
 const LIVING_MOODS: Readonly<
-  Record<Mood, { finish: FinishLook; light: SceneLight; filter?: string; reflection: number }>
+  Record<
+    Mood,
+    {
+      finish: FinishLook;
+      light: SceneLight;
+      filter?: string;
+      reflection: number;
+      /** colour of the sun through the window, when there is sun, and of its glow */
+      sun?: string;
+      sunGlow?: string;
+    }
+  >
 > = {
   golden: {
     finish: LIVING_FINISH,
     light: { side: -1, color: '#ffc677', strength: 0.9, wallShadow: true },
     reflection: 0.12,
+    sun: '#ffd28e',
+    sunGlow: '#ffdf9e',
+  },
+  clear: {
+    finish: {
+      top: 'rgba(206,226,255,0.36)',
+      bottom: 'rgba(40,56,86,0.3)',
+      edge: 0.52,
+      grain: 0.03,
+    },
+    light: { side: -1, color: '#e6f0ff', strength: 0.78, wallShadow: true },
+    filter: 'saturate(0.92)',
+    reflection: 0.12,
+    sun: '#eaf3ff',
+    sunGlow: '#f2f7ff',
   },
   night: {
     finish: { top: 'rgba(60,90,170,0.5)', bottom: 'rgba(20,24,70,0.5)', edge: 0.72, grain: 0.04 },
@@ -171,7 +197,7 @@ export const livingRoom = (
     ),
     behind: (
       <g>
-        {mood === 'golden' && (
+        {config.sun && (
           <>
             <Bloom
               id="cineLrBloom"
@@ -179,7 +205,7 @@ export const livingRoom = (
               y={660}
               rx={520}
               ry={520}
-              color="#ffdf9e"
+              color={config.sunGlow ?? config.sun}
               a={0.5}
               f={f}
             />
@@ -189,7 +215,7 @@ export const livingRoom = (
               bottom={[340, 960]}
               y0={450}
               y1={1540}
-              color="#ffd28e"
+              color={config.sun}
               a={0.8}
               f={f}
               rays={5}
@@ -356,6 +382,17 @@ const SCHOOL_MOODS: Readonly<
   golden: {
     finish: SCHOOL_FINISH,
     light: { side: 1, color: '#ffd68e', strength: 0.88 },
+    sunny: true,
+  },
+  clear: {
+    finish: {
+      top: 'rgba(206,226,255,0.4)',
+      bottom: 'rgba(40,58,86,0.28)',
+      edge: 0.46,
+      grain: 0.03,
+    },
+    light: { side: 1, color: '#e6f0ff', strength: 0.8 },
+    filter: 'saturate(0.94)',
     sunny: true,
   },
   night: {

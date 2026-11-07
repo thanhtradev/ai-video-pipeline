@@ -2,29 +2,58 @@ import React from 'react';
 import { AbsoluteFill, random } from 'remotion';
 import { Bloom, DustMotes, FilmFinish, FinishLook, Haze } from './atmosphere';
 import { flicker } from './set-motion';
+import { useFrameSpec } from '../whatif/theme';
 
 /**
  * Full-frame object close-ups, drawn with far more detail than the sets. They hold a beat of the
- * story for a moment. No digits or text. Coordinates are 1920×1080 screen pixels.
+ * story for a moment. No digits or text. Coordinates are 1920×1080 design pixels; a tall frame
+ * (science, 9:16) shows the middle `PORTRAIT_VIEW` of them, so each object is centred there.
  */
 
 const W = 1920;
 const H = 1080;
 const FPS = 30;
+/** Design pixels a tall frame shows across, centred on x = 960. */
+const PORTRAIT_VIEW_W = 1000;
+
+/** True in a tall frame, where the design extends above and below 0…1080. */
+const useTall = (): boolean => {
+  const frame = useFrameSpec();
+  return frame.H > frame.W;
+};
 
 const InsertFrame: React.FC<{
   readonly background: string;
   readonly look: FinishLook;
   readonly f: number;
   readonly children: React.ReactNode;
-}> = ({ background, look, f, children }) => (
-  <AbsoluteFill style={{ background, overflow: 'hidden' }}>
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute', inset: 0 }}>
-      {children}
-    </svg>
-    <FilmFinish f={f} look={look} />
-  </AbsoluteFill>
-);
+}> = ({ background, look, f, children }) => {
+  const frame = useFrameSpec();
+  const viewH = (PORTRAIT_VIEW_W * frame.H) / frame.W;
+  const viewBox =
+    frame.H > frame.W
+      ? `${W / 2 - PORTRAIT_VIEW_W / 2} ${H / 2 - viewH / 2} ${PORTRAIT_VIEW_W} ${viewH}`
+      : `0 0 ${W} ${H}`;
+  return (
+    <AbsoluteFill style={{ background, overflow: 'hidden' }}>
+      <svg
+        width={frame.W}
+        height={frame.H}
+        viewBox={viewBox}
+        style={{ position: 'absolute', inset: 0 }}
+      >
+        {children}
+      </svg>
+      <FilmFinish f={f} look={look} />
+    </AbsoluteFill>
+  );
+};
+
+const TALL_DEPTH = 700;
+
+/** A surface continuing below the 1080 design line, drawn only in a tall frame. */
+const TallFloor: React.FC<{ readonly y: number; readonly color: string }> = ({ y, color }) =>
+  useTall() ? <rect x={0} y={y} width={W} height={TALL_DEPTH} fill={color} /> : null;
 
 const WARM_LOOK: FinishLook = {
   top: 'rgba(255,186,104,0.42)',
@@ -148,13 +177,15 @@ const Steam: React.FC<{
   readonly x: number;
   readonly y: number;
   readonly f: number;
-}> = ({ x, y, f }) => (
+  /** strength, 1 = a hot cup */
+  readonly a?: number;
+}> = ({ x, y, f, a = 1 }) => (
   <g fill="none" stroke="#fff2dc" strokeLinecap="round" style={{ filter: 'blur(16px)' }}>
     {STEAM_STRANDS.map((strand) => (
       <polyline
         key={strand.phase}
         strokeWidth={strand.w}
-        opacity={strand.a}
+        opacity={strand.a * a}
         points={Array.from({ length: STEAM_POINTS }, (_, i) => {
           const k = i / (STEAM_POINTS - 1);
           const sway = Math.sin(k * 6 - f / 16 + strand.phase) * (10 + k * 66);
@@ -188,6 +219,7 @@ export const TeaCupInsert: React.FC<{ readonly f: number }> = ({ f }) => (
       <rect x={1260} y={110} width={320} height={420} fill="#2f241d" opacity={0.6} />
     </g>
     <rect x={0} y={640} width={W} height={H - 640} fill="url(#insTable)" />
+    <TallFloor y={H} color="#3b271b" />
     {Array.from({ length: 12 }, (_, i) => (
       <path
         key={i}
@@ -331,6 +363,7 @@ export const IncenseInsert: React.FC<{ readonly f: number }> = ({ f }) => (
         />
       ))}
     </g>
+    <TallFloor y={1060} color="#2a1512" />
     <ellipse cx={960} cy={1055} rx={620} ry={124} fill="url(#insBowl)" />
     <ellipse cx={960} cy={1000} rx={500} ry={62} fill="#b7aca0" />
     {Array.from({ length: 70 }, (_, i) => (
@@ -353,6 +386,146 @@ export const IncenseInsert: React.FC<{ readonly f: number }> = ({ f }) => (
       n={22}
       size={6}
       a={0.5}
+    />
+  </InsertFrame>
+);
+
+const BUBBLES = 26;
+const BUBBLE_RISE_FRAMES = 70;
+const BEAKER_X = 960;
+const LIQUID_TOP = 560;
+const BEAKER_BOTTOM = 900;
+
+/** A glass beaker of bubbling liquid on a lab bench, under a cool lamp. */
+export const BeakerInsert: React.FC<{ readonly f: number; readonly liquid?: string }> = ({
+  f,
+  liquid = '#5fb8d8',
+}) => (
+  <InsertFrame
+    background="#1d2733"
+    look={{ top: 'rgba(150,200,255,0.34)', bottom: 'rgba(20,24,60,0.42)', edge: 0.7, grain: 0.035 }}
+    f={f}
+  >
+    <defs>
+      <linearGradient id="insBench" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#4c5866" />
+        <stop offset="1" stopColor="#252d38" />
+      </linearGradient>
+      <linearGradient id="insLiquid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor={liquid} stopOpacity={0.82} />
+        <stop offset="1" stopColor={liquid} stopOpacity={0.96} />
+      </linearGradient>
+      <linearGradient id="insGlass" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor="#ffffff" stopOpacity={0.3} />
+        <stop offset="0.2" stopColor="#ffffff" stopOpacity={0.06} />
+        <stop offset="0.85" stopColor="#ffffff" stopOpacity={0.04} />
+        <stop offset="1" stopColor="#ffffff" stopOpacity={0.22} />
+      </linearGradient>
+    </defs>
+    <g style={{ filter: 'blur(40px)' }}>
+      <rect x={180} y={80} width={260} height={520} fill="#c7dcef" opacity={0.3} />
+      <circle cx={1550} cy={360} r={90} fill="#9fd0ff" opacity={0.4 * flicker(f, 9)} />
+      <rect x={1340} y={560} width={360} height={120} fill="#5f7f96" opacity={0.4} />
+    </g>
+    <Haze id="insBeakerHaze" x={500} y={60} w={920} h={420} color="#cfe6ff" a={0.08} f={f} n={6} />
+    <rect x={0} y={900} width={W} height={H - 900} fill="url(#insBench)" />
+    <TallFloor y={H} color="#252d38" />
+    <ellipse
+      cx={1010}
+      cy={918}
+      rx={300}
+      ry={40}
+      fill="#0b1018"
+      opacity={0.6}
+      style={{ filter: 'blur(16px)' }}
+    />
+    <ellipse cx={BEAKER_X} cy={BEAKER_BOTTOM} rx={250} ry={34} fill="#9fd6ea" opacity={0.25} />
+    <path
+      d={`M${BEAKER_X - 250} ${LIQUID_TOP} L${BEAKER_X - 250} ${BEAKER_BOTTOM - 26} Q${BEAKER_X - 250} ${BEAKER_BOTTOM} ${BEAKER_X - 220} ${BEAKER_BOTTOM} L${BEAKER_X + 220} ${BEAKER_BOTTOM} Q${BEAKER_X + 250} ${BEAKER_BOTTOM} ${BEAKER_X + 250} ${BEAKER_BOTTOM - 26} L${BEAKER_X + 250} ${LIQUID_TOP} Z`}
+      fill="url(#insLiquid)"
+    />
+    <ellipse
+      cx={BEAKER_X}
+      cy={LIQUID_TOP + Math.sin(f / 6) * 3}
+      rx={250}
+      ry={24}
+      fill={liquid}
+      opacity={0.75}
+    />
+    {Array.from({ length: BUBBLES }, (_, i) => {
+      const k =
+        ((f + random(`bub${i}p`) * BUBBLE_RISE_FRAMES) % BUBBLE_RISE_FRAMES) / BUBBLE_RISE_FRAMES;
+      const x = BEAKER_X - 200 + random(`bub${i}x`) * 400 + Math.sin(k * 9 + i) * 10;
+      const y = BEAKER_BOTTOM - 30 - k * (BEAKER_BOTTOM - LIQUID_TOP - 40);
+      const r = (4 + random(`bub${i}r`) * 12) * (0.6 + k * 0.6);
+      return (
+        <circle
+          key={i}
+          cx={x}
+          cy={y}
+          r={r}
+          fill="none"
+          stroke="#e8fbff"
+          strokeWidth={2.5}
+          opacity={0.7 * Math.min(1, (1 - k) * 6)}
+        />
+      );
+    })}
+    <path
+      d={`M${BEAKER_X - 262} 330 L${BEAKER_X - 262} ${BEAKER_BOTTOM - 26} Q${BEAKER_X - 262} ${BEAKER_BOTTOM + 12} ${BEAKER_X - 220} ${BEAKER_BOTTOM + 12} L${BEAKER_X + 220} ${BEAKER_BOTTOM + 12} Q${BEAKER_X + 262} ${BEAKER_BOTTOM + 12} ${BEAKER_X + 262} ${BEAKER_BOTTOM - 26} L${BEAKER_X + 262} 330`}
+      fill="url(#insGlass)"
+      stroke="#dff3fb"
+      strokeWidth={6}
+      strokeOpacity={0.7}
+    />
+    <path
+      d={`M${BEAKER_X - 280} 330 Q${BEAKER_X - 262} 316 ${BEAKER_X - 240} 330`}
+      stroke="#dff3fb"
+      strokeWidth={6}
+      fill="none"
+      opacity={0.7}
+    />
+    {[0, 1, 2, 3].map((i) => (
+      <line
+        key={i}
+        x1={BEAKER_X + 140}
+        x2={BEAKER_X + 230}
+        y1={440 + i * 110}
+        y2={440 + i * 110}
+        stroke="#dff3fb"
+        strokeWidth={4}
+        opacity={0.55}
+      />
+    ))}
+    <path
+      d={`M${BEAKER_X - 200} 360 L${BEAKER_X - 200} 860`}
+      stroke="#ffffff"
+      strokeWidth={18}
+      opacity={0.18}
+      strokeLinecap="round"
+    />
+    <Steam x={BEAKER_X} y={LIQUID_TOP - 10} f={f} a={0.4} />
+    <Bloom
+      id="insBeakerGlow"
+      x={BEAKER_X}
+      y={700}
+      rx={420}
+      ry={300}
+      color={liquid}
+      a={0.22}
+      f={f}
+    />
+    <DustMotes
+      id="insBeakerDust"
+      x={300}
+      y={100}
+      w={1300}
+      h={700}
+      color="#d8ecff"
+      f={f}
+      n={22}
+      size={5}
+      a={0.45}
     />
   </InsertFrame>
 );

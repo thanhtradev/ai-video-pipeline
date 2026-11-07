@@ -35,11 +35,23 @@ describe('kit / character catalog', () => {
   test('a kit that extends another copies both and splices both docs, base first', () => {
     const sel = resolveSelection({ kit: 'science', characterSet: 'chip-science' });
     expect(sel.dirs).toEqual(
-      expect.arrayContaining(['rig', 'kits/whatif', 'kits/science', 'characters/chip-science']),
+      expect.arrayContaining([
+        'rig',
+        'kits/whatif',
+        'kits/whatif-vi-cinematic',
+        'kits/science',
+        'characters/chip-science',
+      ]),
     );
     expect(sel.modules.theme).toBe('kits/science/theme');
-    expect(sel.kitDocs).toEqual(['kits/whatif/AGENT.md', 'kits/science/AGENT.md']);
-    expect(sel.kitPrompts).toEqual(['kits/whatif/prompt.md', 'kits/science/prompt.md']);
+    // D-117: the science kit builds on the cinematic kit, docs and sets.
+    expect(sel.kitDocs).toEqual(['kits/whatif-vi-cinematic/AGENT.md', 'kits/science/AGENT.md']);
+    expect(sel.kitPrompts).toEqual([
+      'kits/whatif-vi-cinematic/prompt.md',
+      'kits/science/prompt.md',
+    ]);
+    expect(sel.modules.sets).toBe('kits/whatif-vi-cinematic/sets');
+    expect(sel.modules['sets-home']).toBe('kits/whatif-vi-cinematic/sets-home');
     expect(sel.characterPrompts).toEqual(['characters/chip-science/prompt.md']);
     expect(sel.labels).toEqual({ kit: 'Khoa học', characterSet: 'Chíp Khoa học' });
     expect(sel.hero).toBe('CHÍP');

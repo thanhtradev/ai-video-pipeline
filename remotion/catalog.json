@@ -40,9 +40,9 @@
     "science": {
       "label": "Khoa học",
       "dir": "kits/science",
-      "extends": "whatif",
+      "extends": "whatif-vi-cinematic",
       "referenceEpisode": "episodes/ep5",
-      "episodeDeps": ["characters/chip"],
+      "episodeDeps": ["kits/whatif", "characters/chip"],
       "frame": {
         "width": 1080,
         "height": 1920
@@ -54,9 +54,9 @@
         "ui": "kits/whatif/ui",
         "stage": "kits/whatif/Stage",
         "set-stage": "kits/whatif/SetStage",
-        "sets": "kits/whatif/sets",
-        "sets-home": "kits/whatif/sets-home",
-        "sets-school": "kits/whatif/sets-school",
+        "sets": "kits/whatif-vi-cinematic/sets",
+        "sets-home": "kits/whatif-vi-cinematic/sets-home",
+        "sets-school": "kits/whatif-vi-cinematic/sets-school",
         "props": "kits/whatif/props",
         "grade": "kits/whatif/grade",
         "qa": "kits/whatif/qa/TextBoundsQA"

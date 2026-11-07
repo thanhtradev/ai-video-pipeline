@@ -7,7 +7,8 @@ import { Bloom, DustMotes, FilmFinish, FinishLook, Haze, LightShaft } from './at
 import { RainOnGlass, RainStreaks } from './set-motion';
 
 /** The light and weather of a shot. */
-export type Mood = 'golden' | 'night' | 'overcast' | 'rain';
+/** `clear` is cool, neutral daylight: the default of the science kit (D-117). */
+export type Mood = 'golden' | 'clear' | 'night' | 'overcast' | 'rain';
 
 /** What the cinematic look adds on top of a base set. See `cinematicSet` for the short form. */
 export type Look = {
@@ -208,6 +209,12 @@ const MOODS: Readonly<
     color: '#ffc677',
     strength: 0.9,
   },
+  clear: {
+    finish: { top: 'rgba(206,226,255,0.36)', bottom: 'rgba(40,56,86,0.3)', edge: 0.5, grain: 0.03 },
+    color: '#e6f0ff',
+    strength: 0.75,
+    filter: 'saturate(0.92)',
+  },
   night: {
     finish: { top: 'rgba(60,90,170,0.5)', bottom: 'rgba(20,24,70,0.5)', edge: 0.72, grain: 0.04 },
     color: '#8fb0ff',
@@ -247,7 +254,7 @@ export const cinematicSet = (base: SetLayers, f: number, spec: SetSpec, mood?: M
   const color = moodLook?.color ?? spec.color;
   const { id, source } = spec;
   const dustColor = moodLook ? moodLook.color : (spec.dust?.color ?? spec.color);
-  const showRays = !mood || mood === 'golden';
+  const showRays = !mood || mood === 'golden' || mood === 'clear';
   return enrich(base, f, {
     far: (
       <g>
