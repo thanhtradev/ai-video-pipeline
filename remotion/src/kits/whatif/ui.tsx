@@ -9,6 +9,7 @@ import {
 } from 'remotion';
 import { C, clamp, FONT, useFrameSpec } from './theme';
 import { tr } from './lang';
+import { captionWord } from './caption-text';
 import { CaptionLine, CaptionWord } from './timeline-types';
 
 const stroke = (w: number, c = '#15121a') => ({
@@ -292,9 +293,7 @@ export const Captions: React.FC<{
                 ...stroke(size * 0.16),
               }}
             >
-              {String(w[0])
-                .replace(/[—"“”]/g, '')
-                .toUpperCase()}
+              {captionWord(String(w[0]))}
             </span>
           );
         })}
