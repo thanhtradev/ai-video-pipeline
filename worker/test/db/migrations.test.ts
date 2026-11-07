@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { createTestDb, runDbmate, type TestDb } from '../helpers/db.js';
+import { createTestDb, dbmateTimeoutMs, runDbmate, type TestDb } from '../helpers/db.js';
 
 const MIGRATION_COUNT = readdirSync(
   fileURLToPath(new URL('../../../db/migrations', import.meta.url)),
@@ -24,15 +24,19 @@ async function publicTableCount(): Promise<number> {
   return result.rows[0]!.n;
 }
 
-test('every migration rolls back cleanly and re-applies', async () => {
-  const tablesAfterUp = await publicTableCount();
-  expect(tablesAfterUp).toBeGreaterThan(0);
+test(
+  'every migration rolls back cleanly and re-applies',
+  async () => {
+    const tablesAfterUp = await publicTableCount();
+    expect(tablesAfterUp).toBeGreaterThan(0);
 
-  for (let i = 0; i < MIGRATION_COUNT; i += 1) {
-    await runDbmate(db.url, ['rollback']);
-  }
-  expect(await publicTableCount()).toBe(0);
+    for (let i = 0; i < MIGRATION_COUNT; i += 1) {
+      await runDbmate(db.url, ['rollback']);
+    }
+    expect(await publicTableCount()).toBe(0);
 
-  await runDbmate(db.url, ['up']);
-  expect(await publicTableCount()).toBe(tablesAfterUp);
-});
+    await runDbmate(db.url, ['up']);
+    expect(await publicTableCount()).toBe(tablesAfterUp);
+  },
+  dbmateTimeoutMs(MIGRATION_COUNT + 1),
+);
