@@ -106,7 +106,7 @@ export interface ScriptHandlerDeps {
 }
 
 export function createScriptHandler(deps: ScriptHandlerDeps): JobHandler {
-  return async ({ jobId, input, workDir, signal, logger }) => {
+  return async ({ input, workDir, signal, logger }) => {
     const parsedInput = inputSchema.safeParse(input);
     if (!parsedInput.success) {
       throw new PermanentJobError(`invalid script input: ${parsedInput.error.message}`);
@@ -119,7 +119,6 @@ export function createScriptHandler(deps: ScriptHandlerDeps): JobHandler {
       jsonSchema: SCRIPT_JSON_SCHEMA,
       cwd: workDir,
       signal,
-      job: { id: jobId },
     });
 
     const parsed = SCRIPT_SCHEMA.safeParse(reply.output);

@@ -325,7 +325,6 @@ describe('episode script handler', () => {
     await handler(context({ brief: TOPIC_BRIEF, language: 'vi' }));
 
     const request = requests[0]!;
-    expect(request.job).toEqual({ id: 'job-1' });
     expect(request.cwd).toBe(workDir);
     expect(request.systemPrompt).toMatch(/Vietnamese/);
     expect(request.systemPrompt).toContain('Nếu bạn…?');

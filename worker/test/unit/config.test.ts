@@ -28,19 +28,7 @@ describe('loadConfig', () => {
       agentModel: 'claude-opus-5-5',
       timeoutSeconds: 600,
       blockSeconds: 3600,
-      apiKey: undefined,
     });
-  });
-
-  test('reads the Claude API overflow key under its own name (D-118)', () => {
-    const config = loadConfig({
-      ...VALID_ENV,
-      PIPELINE_ANTHROPIC_API_KEY: 'sk-ant-api03-test-key-value',
-    });
-    expect(config.claude.apiKey).toBe('sk-ant-api03-test-key-value');
-    expect(
-      loadConfig({ ...VALID_ENV, ANTHROPIC_API_KEY: 'sk-ant-api03-stray' }).claude.apiKey,
-    ).toBe(undefined);
   });
 
   test('reads Claude Code CLI overrides', () => {
@@ -57,7 +45,6 @@ describe('loadConfig', () => {
       timeoutSeconds: 900,
       blockSeconds: 1800,
       agentModel: 'claude-opus-5-5',
-      apiKey: undefined,
     });
   });
 

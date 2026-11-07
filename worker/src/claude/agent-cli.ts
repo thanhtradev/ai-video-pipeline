@@ -1,11 +1,5 @@
 import { ProviderBlockedError } from '../runner.js';
-import {
-  billingOf,
-  blockReason,
-  runClaudeProcess,
-  type ApiBudget,
-  type JobRef,
-} from './claude-cli.js';
+import { AUTH_FAILURE, runClaudeProcess, USAGE_LIMIT } from './claude-cli.js';
 import { runCost, usageOf, type RunCost } from './usage.js';
 
 // Headless Claude Code as a coding agent (episode code, D-053/D-054): tools allowed by the
@@ -23,10 +17,6 @@ export interface AgentTurn {
   resumeSessionId?: string | undefined;
   timeoutMs: number;
   signal: AbortSignal;
-  /** The job this turn belongs to: lets the owner move it to the Claude API (D-118). */
-  job?: JobRef;
-  /** Set by withClaudeApi only: run on the Claude API with this budget. */
-  api?: ApiBudget;
 }
 
 export interface AgentTurnResult extends RunCost {
@@ -47,18 +37,12 @@ export interface AgentCliOptions {
   blockSeconds: number;
   /** The complete child environment. Nothing else is inherited. */
   env: Readonly<Record<string, string>>;
-  /** The child environment in API mode (claudeApiEnv); absent when this worker has no key. */
-  apiEnv?: Readonly<Record<string, string>> | undefined;
 }
 
 const MAX_STDOUT_BYTES = 20 * 1024 * 1024;
 const STDERR_TAIL = 1000;
 
-export function agentArgs(
-  options: AgentCliOptions,
-  turn: AgentTurn,
-  extra: string[] = [],
-): string[] {
+export function agentArgs(options: AgentCliOptions, turn: AgentTurn): string[] {
   return [
     '-p',
     '--output-format',
@@ -73,7 +57,6 @@ export function agentArgs(
     'project',
     '--strict-mcp-config',
     ...(turn.resumeSessionId ? ['--resume', turn.resumeSessionId] : []),
-    ...extra,
   ];
 }
 
@@ -101,11 +84,10 @@ function parseEnvelope(stdout: string): Envelope | null {
 
 export function createAgentCli(options: AgentCliOptions): AgentRunner {
   return async (turn) => {
-    const billing = billingOf(options, turn.api);
     const { code, stdout, stderr } = await runClaudeProcess({
       bin: options.bin,
-      args: agentArgs(options, turn, billing.args),
-      env: billing.env,
+      args: agentArgs(options, turn),
+      env: options.env,
       cwd: turn.cwd,
       input: turn.prompt,
       timeoutMs: turn.timeoutMs,
@@ -115,9 +97,21 @@ export function createAgentCli(options: AgentCliOptions): AgentRunner {
     const envelope = parseEnvelope(stdout);
     const text = typeof envelope?.result === 'string' ? envelope.result : '';
     const failed = code !== 0 || !envelope;
-    const blocked =
-      failed || envelope?.is_error === true ? blockReason(Boolean(turn.api), text, stderr) : null;
-    if (blocked) throw new ProviderBlockedError(blocked.slice(0, 300), options.blockSeconds);
+    if (
+      (failed || envelope?.is_error === true) &&
+      (USAGE_LIMIT.test(text) || USAGE_LIMIT.test(stderr))
+    ) {
+      throw new ProviderBlockedError(
+        `claude-code usage limit: ${text || stderr}`.slice(0, 300),
+        options.blockSeconds,
+      );
+    }
+    if (failed && (AUTH_FAILURE.test(text) || AUTH_FAILURE.test(stderr))) {
+      throw new ProviderBlockedError(
+        `claude-code login failed (see ops/phase-2a.md §2): ${text || stderr}`.slice(0, 300),
+        options.blockSeconds,
+      );
+    }
     if (failed || typeof envelope?.session_id !== 'string') {
       throw new Error(`agent exited with code ${code}: ${(text || stderr).slice(-STDERR_TAIL)}`);
     }

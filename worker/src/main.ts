@@ -3,13 +3,7 @@ import { Redis } from 'ioredis';
 import pg from 'pg';
 import { buildApi } from './api.js';
 import { createAgentCli } from './claude/agent-cli.js';
-import { createClaudeApiStore, withClaudeApi } from './claude/api-billing.js';
-import {
-  claudeApiEnv,
-  claudeChildEnv,
-  createClaudeCli,
-  type ClaudeRunner,
-} from './claude/claude-cli.js';
+import { claudeChildEnv, createClaudeCli, type ClaudeRunner } from './claude/claude-cli.js';
 import { loadConfig, type Config } from './config.js';
 import { createCostStore } from './db/cost-store.js';
 import { createIdeaStore } from './db/idea-store.js';
@@ -111,21 +105,14 @@ function createPipelineClaude(config: Config): ClaudeRunner {
     timeoutMs: config.claude.timeoutSeconds * 1000,
     blockSeconds: config.claude.blockSeconds,
     env: claudeChildEnv(process.env),
-    apiEnv: apiEnvOf(config),
     ...(config.claude.model ? { model: config.claude.model } : {}),
   });
-}
-
-/** The CLI environment for a job the owner moved to the Claude API (D-118); none without a key. */
-function apiEnvOf(config: Config): Record<string, string> | undefined {
-  return config.claude.apiKey ? claudeApiEnv(process.env, config.claude.apiKey) : undefined;
 }
 
 /** Every secret value this process holds: the agent's files must never contain any of them. */
 function agentSecrets(config: Config): string[] {
   return [
     process.env.CLAUDE_CODE_OAUTH_TOKEN ?? '',
-    config.claude.apiKey ?? '',
     config.itera.apiKey ?? '',
     config.archive.webdav?.password ?? '',
     urlPassword(config.databaseUrl),
@@ -141,9 +128,6 @@ function buildHandlers(
   claude: ClaudeRunner,
 ): ReadonlyMap<string, JobHandler> {
   const { itera } = config;
-  // Every Claude run of a job asks for the owner's API grant first (D-118); none = Max as always.
-  const claudeApi = createClaudeApiStore(pool, config.workerId);
-  const billedClaude = withClaudeApi(claude, claudeApi, config.claude.blockSeconds);
   const probe = createFfprobe(config.ffprobeBin);
   const rules = createRulesSource(pool, config.workerId);
   const archive = archiveTarget(config);
@@ -185,25 +169,20 @@ function buildHandlers(
     [
       'script',
       routeScriptJobs(
-        createScriptHandler({ claude: billedClaude }),
-        createEpisodeScriptHandler({ claude: billedClaude, rules }),
+        createScriptHandler({ claude }),
+        createEpisodeScriptHandler({ claude, rules }),
       ),
     ],
     ['tts', tts],
     [
       'episode_code',
       createEpisodeCodeHandler({
-        agent: withClaudeApi(
-          createAgentCli({
-            bin: config.claude.bin,
-            model: config.claude.agentModel,
-            blockSeconds: config.claude.blockSeconds,
-            env: claudeChildEnv(process.env),
-            apiEnv: apiEnvOf(config),
-          }),
-          claudeApi,
-          config.claude.blockSeconds,
-        ),
+        agent: createAgentCli({
+          bin: config.claude.bin,
+          model: config.claude.agentModel,
+          blockSeconds: config.claude.blockSeconds,
+          env: claudeChildEnv(process.env),
+        }),
         gates: createGateRunner({
           profile: EPISODE_RENDER_PROFILE,
           runtimeRoot: config.runtimeRoot,
@@ -240,7 +219,7 @@ function buildHandlers(
     [
       'metadata',
       createMetadataHandler({
-        claude: billedClaude,
+        claude,
         grabFrame: createFrameGrabber(config.ffmpegBin),
         rules,
       }),

@@ -111,17 +111,6 @@ switch (mode) {
       result: 'API Error: 500 {"type":"api_error","message":"Internal server error"}',
     });
     break;
-  case 'MODE:api-credit':
-    emit(
-      {
-        ...base,
-        subtype: 'success',
-        is_error: true,
-        result: 'Credit balance is too low to access the Anthropic API.',
-      },
-      1,
-    );
-    break;
   case 'MODE:hang':
     setTimeout(() => emit({ ...base, subtype: 'success', is_error: false, result: '' }), 60_000);
     break;

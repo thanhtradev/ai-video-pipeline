@@ -219,7 +219,7 @@ function buildPrompt(
 }
 
 export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
-  return async ({ jobId, input, workDir, signal, logger, progress }) => {
+  return async ({ input, workDir, signal, logger, progress }) => {
     const parsed = inputSchema.safeParse(input);
     if (!parsed.success) {
       throw new PermanentJobError(`invalid metadata input: ${parsed.error.message}`);
@@ -263,7 +263,6 @@ export function createMetadataHandler(deps: MetadataHandlerDeps): JobHandler {
       jsonSchema: METADATA_JSON_SCHEMA,
       cwd: workDir,
       signal,
-      job: { id: jobId },
     });
     const metadata = METADATA_SCHEMA.safeParse(reply.output);
     if (!metadata.success) {
