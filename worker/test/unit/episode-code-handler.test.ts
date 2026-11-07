@@ -218,6 +218,8 @@ describe('episode_code handler', () => {
     expect(turns[0]!.resumeSessionId).toBeUndefined();
     expect(turns[0]!.prompt).toMatch(/Write the episode described in brief.md/);
     expect(turns[1]!.resumeSessionId).toBe('session-1');
+    // The owner may move this job to the Claude API (D-118).
+    expect(turns.map((turn) => turn.job)).toEqual([{ id: CODE_JOB }, { id: CODE_JOB }]);
     expect(turns[1]!.prompt).toMatch(
       /checks passed[\s\S]*review the storyboard pages board\/page-01.jpg/,
     );

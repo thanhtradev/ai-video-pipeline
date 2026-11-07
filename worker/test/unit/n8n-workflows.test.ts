@@ -4494,7 +4494,9 @@ describe('/deploy (D-100)', () => {
     const watch = workflow(WATCH);
     const after = (name: string) =>
       watch.connections[name]!.main.map((out) => out.map((n) => n.node));
-    expect(after('Every minute')).toEqual([['Run watchdog', 'Deploy notices']]);
+    expect(after('Every minute')).toEqual([
+      ['Run watchdog', 'Deploy notices', 'Claude API offers'],
+    ]);
     expect(after('Deploy notices')).toEqual([['Build deploy message']]);
     expect(after('Build deploy message')).toEqual([['Ask deploy?']]);
     expect(after('Ask deploy?')).toEqual([['Send deploy confirm'], ['Send deploy notice']]);
@@ -4919,5 +4921,90 @@ describe('WF-06 kit picker (D-109)', () => {
     expect(node('Answer closed draft').parameters.additionalFields).toMatchObject({
       show_alert: '={{ $json.alert ?? true }}',
     });
+  });
+});
+
+describe('Claude API overflow button (D-118)', () => {
+  const WATCH = 'wf-08-watchdog.json';
+  const FILE = 'wf-06-telegram-callback.json';
+  const TOKEN = 'a'.repeat(32);
+  const OFFER = {
+    token: TOKEN,
+    job_id: '0d1e2f3a-4b5c-4d6e-8f70-001122334455',
+    video_id: 'abcd1234-4b5c-4d6e-8f70-001122334455',
+    version: 2,
+    step: 'episode_code',
+    cap_usd: '6.00',
+    month_spent_usd: '3.10',
+    month_limit_usd: '45.00',
+  };
+  const confirmReply = (row: Record<string, unknown>) =>
+    runCode(FILE, 'Build confirm reply', {
+      input: [{ json: row }],
+      nodeOutputs: {
+        'Parse callback': [
+          { json: { kind: 'confirm', queryId: 'q', chatId: '-1', messageId: '9' } },
+        ],
+      },
+    })[0]!.json;
+
+  test('the offer names the video, the step, the cap and the month, in Vietnamese', () => {
+    const [out] = runCode(WATCH, 'Build API offer', { input: [{ json: OFFER }] });
+
+    expect(out!.json).toMatchObject({
+      approve: `cf:A:${TOKEN}`,
+      reject: `cf:R:${TOKEN}`,
+      label: 'Chạy bằng API (tối đa $6.00)',
+    });
+    const text = out!.json.text as string;
+    expect(text).toContain('/v_abcd1234');
+    expect(text).toContain('v2');
+    expect(text).toContain('episode_code');
+    expect(text).toContain('giới hạn Max');
+    expect(text).toContain('$3.10 / $45.00');
+  });
+
+  test('the owner tap answers with the cap, or why nothing was granted', () => {
+    const ok = confirmReply({
+      result: 'OK',
+      action: 'CLAUDE_API',
+      items: [
+        { video_id: OFFER.video_id, version: 2, step: 'episode_code', result: 'OK', cap_usd: 6 },
+      ],
+    });
+    expect(ok.answer).toBe('Đã chuyển sang Claude API (tối đa $6.00); job chạy lại ngay.');
+    expect(ok.settled).toBe(true);
+
+    const stale = confirmReply({
+      result: 'OK',
+      action: 'CLAUDE_API',
+      items: [{ video_id: OFFER.video_id, version: 2, step: 'episode_code', result: 'STALE' }],
+    });
+    expect(stale.answer).toBe('Không cần nữa: job đã chạy lại trên Max.');
+    const budget = confirmReply({
+      result: 'OK',
+      action: 'CLAUDE_API',
+      items: [{ video_id: OFFER.video_id, result: 'BUDGET' }],
+    });
+    expect(budget.answer).toBe('Không chạy bằng API: hết ngân sách API tháng này.');
+    const approver = confirmReply({ result: 'NOT_ALLOWED', action: 'CLAUDE_API', items: null });
+    expect(approver.answer).toBe('Chỉ owner mới chuyển được sang Claude API (tốn tiền).');
+    expect(approver.settled).toBe(false);
+  });
+
+  test('routes the offers from the watchdog minute to a two-button message', () => {
+    const watch = workflow(WATCH);
+    const after = (name: string) =>
+      watch.connections[name]!.main.map((out) => out.map((n) => n.node));
+    expect(after('Claude API offers')).toEqual([['Build API offer']]);
+    expect(after('Build API offer')).toEqual([['Send API offer']]);
+    expect(watch.nodes.find((n) => n.name === 'Claude API offers')!.parameters.query).toBe(
+      'SELECT * FROM claude_api_offers_due();',
+    );
+    // Scalar expressions per button (D-112): n8n stringifies object expressions.
+    const send = JSON.stringify(watch.nodes.find((n) => n.name === 'Send API offer')!.parameters);
+    expect(send).toContain('"text":"={{ $json.label }}"');
+    expect(send).toContain('"callback_data":"={{ $json.approve }}"');
+    expect(send).toContain('"callback_data":"={{ $json.reject }}"');
   });
 });
