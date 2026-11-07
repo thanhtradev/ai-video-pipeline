@@ -5,8 +5,6 @@ import { fileURLToPath } from 'node:url';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { createAgentCli } from '../../src/claude/agent-cli.js';
 import {
-  ClaudeApiUnavailableError,
-  claudeApiEnv,
   claudeChildEnv,
   claudeSummary,
   createClaudeCli,
@@ -149,36 +147,6 @@ describe('claude cli', () => {
     });
   });
 
-  test('the child environment never carries an API key (D-118)', () => {
-    const env = claudeChildEnv({
-      PATH: '/usr/bin',
-      CLAUDE_CODE_OAUTH_TOKEN: 'token-value',
-      ANTHROPIC_API_KEY: 'sk-ant-stray',
-      PIPELINE_ANTHROPIC_API_KEY: 'sk-ant-pipeline',
-    });
-
-    expect(env).toEqual({ PATH: '/usr/bin', CLAUDE_CODE_OAUTH_TOKEN: 'token-value' });
-  });
-
-  test('the API environment has the key and never the subscription token (D-118)', () => {
-    const env = claudeApiEnv(
-      {
-        PATH: '/usr/bin',
-        HOME: '/Users/test',
-        CLAUDE_CODE_OAUTH_TOKEN: 'token-value',
-        DATABASE_URL: 'postgres://secret',
-      },
-      'sk-ant-pipeline',
-    );
-
-    expect(env).toEqual({
-      PATH: '/usr/bin',
-      HOME: '/Users/test',
-      ANTHROPIC_API_KEY: 'sk-ant-pipeline',
-      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: '1',
-    });
-  });
-
   test('a crash is a retryable error with the stderr tail', async () => {
     const error = await run('crash').catch((e: unknown) => e);
 
@@ -279,83 +247,5 @@ describe('agent cli', () => {
     const error = await agent()(turn('usage-limit')).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ProviderBlockedError);
-  });
-});
-
-describe('API mode (D-118)', () => {
-  const API_ENV = { PATH: process.env.PATH ?? '', HOME: '/Users/test', ANTHROPIC_API_KEY: 'k' };
-  const textCli = (options: { model?: string; apiEnv?: Record<string, string> }) =>
-    createClaudeCli({
-      bin: FAKE_CLAUDE,
-      settingsPath: '/repo/ops/claude/pipeline-settings.json',
-      timeoutMs: 5_000,
-      blockSeconds: 3600,
-      env: { PATH: process.env.PATH ?? '', HOME: '/Users/test', CLAUDE_CODE_OAUTH_TOKEN: 't' },
-      ...options,
-    });
-  const request = (mode: string) => ({
-    prompt: `MODE:${mode}\nWrite a script.`,
-    systemPrompt: 'You write scripts.',
-    jsonSchema: SCHEMA,
-    cwd,
-    signal: new AbortController().signal,
-    api: { maxBudgetUsd: 1.25 },
-  });
-
-  test('runs with the API environment, the budget and the model', async () => {
-    await textCli({ model: 'claude-sonnet-5-5', apiEnv: API_ENV })(request('structured'));
-    const { argv, envKeys } = await lastCall();
-
-    expect(envKeys).toContain('ANTHROPIC_API_KEY');
-    expect(envKeys).not.toContain('CLAUDE_CODE_OAUTH_TOKEN');
-    expect(argv.join(' ')).toContain('--max-budget-usd 1.25');
-    expect(argv.join(' ')).toContain('--model claude-sonnet-5-5');
-  });
-
-  test('is refused without a key or without an explicit model', async () => {
-    const noKey = await textCli({ model: 'claude-sonnet-5-5' })(request('structured')).catch(
-      (e: unknown) => e,
-    );
-    const noModel = await textCli({ apiEnv: API_ENV })(request('structured')).catch(
-      (e: unknown) => e,
-    );
-
-    expect(noKey).toBeInstanceOf(ClaudeApiUnavailableError);
-    expect((noKey as Error).message).toMatch(/PIPELINE_ANTHROPIC_API_KEY/);
-    expect(noModel).toBeInstanceOf(ClaudeApiUnavailableError);
-    expect((noModel as Error).message).toMatch(/CLAUDE_MODEL/);
-  });
-
-  test('an API-side block is reported as a claude api block, never as the Max usage limit', async () => {
-    const cli = textCli({ model: 'claude-sonnet-5-5', apiEnv: API_ENV });
-    const credit = await cli(request('api-credit')).catch((e: unknown) => e);
-    const limit = await cli(request('usage-limit')).catch((e: unknown) => e);
-
-    expect(credit).toBeInstanceOf(ProviderBlockedError);
-    expect((credit as Error).message).toMatch(/^claude api: Credit balance is too low/);
-    expect((limit as Error).message).toMatch(/^claude api: /);
-  });
-
-  test('the agent runs with the API environment and the budget', async () => {
-    const agent = createAgentCli({
-      bin: FAKE_CLAUDE,
-      model: 'claude-opus-5-5',
-      blockSeconds: 3600,
-      env: { PATH: process.env.PATH ?? '', HOME: '/Users/test', CLAUDE_CODE_OAUTH_TOKEN: 't' },
-      apiEnv: API_ENV,
-    });
-
-    await agent({
-      prompt: 'MODE:agent\nWrite the episode.',
-      cwd,
-      settingsPath: '/tmp/agent-settings.json',
-      timeoutMs: 5_000,
-      signal: new AbortController().signal,
-      api: { maxBudgetUsd: 6 },
-    });
-    const { argv, envKeys } = await lastCall();
-
-    expect(envKeys).not.toContain('CLAUDE_CODE_OAUTH_TOKEN');
-    expect(argv.join(' ')).toContain('--max-budget-usd 6');
   });
 });

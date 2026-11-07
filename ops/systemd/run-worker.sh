@@ -58,11 +58,6 @@ fi
 if CLAUDE_CODE_OAUTH_TOKEN="$(secret aivideo-claude-oauth-token)"; then
   export CLAUDE_CODE_OAUTH_TOKEN
 fi
-# Claude API overflow (D-118, ops/claude-api.md): optional; used only for a job the owner moved to the
-# API. Never exported as ANTHROPIC_API_KEY, which the CLI would prefer over the subscription token.
-if PIPELINE_ANTHROPIC_API_KEY="$(secret aivideo-claude-api-key)"; then
-  export PIPELINE_ANTHROPIC_API_KEY
-fi
 
 cd "$REPO_DIR/worker"
 exec npx tsx src/main.ts

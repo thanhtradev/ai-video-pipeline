@@ -72,7 +72,7 @@ On recovery: a step with a valid checkpoint (file exists + checksum matches) is 
 |---|---|
 | Network/timeout/5xx | `FAILED_RETRYABLE`, exponential backoff with jitter, max N attempts (proposed default 3, configurable per step) |
 | 4xx due to input, content rejected by provider | `FAILED_PERMANENT` → `NEEDS_DECISION` |
-| Quota / budget exhausted, Claude Code usage limit | `BLOCKED_PROVIDER` / `BLOCKED` — does not count as an attempt; resume after reset/decision, never switch to the Claude API by itself (the owner may move one job to it, D-118). **Implemented (2a)** for usage limits: the worker calls `job_block()` (job `BLOCKED`, one extra attempt granted, video `BLOCKED_PROVIDER`); `job_promote()` resumes both after `CLAUDE_BLOCK_SECONDS`; WF-08 alerts. **2b (ITERA):** 429 (after `Retry-After`), 401/403/402, too few credits, missing key/voice, provider disabled or quota exhausted block the same way (`ITERA_BLOCK_SECONDS`) |
+| Quota / budget exhausted, Claude Code usage limit | `BLOCKED_PROVIDER` / `BLOCKED` — does not count as an attempt; resume after reset/decision, never switch to Claude API. **Implemented (2a)** for usage limits: the worker calls `job_block()` (job `BLOCKED`, one extra attempt granted, video `BLOCKED_PROVIDER`); `job_promote()` resumes both after `CLAUDE_BLOCK_SECONDS`; WF-08 alerts. **2b (ITERA):** 429 (after `Retry-After`), 401/403/402, too few credits, missing key/voice, provider disabled or quota exhausted block the same way (`ITERA_BLOCK_SECONDS`) |
 | Over the approved budget, no price | Cost guard refuses before the request → `FAILED_PERMANENT` → `NEEDS_DECISION` (D-023, D-045) |
 | Render/QA error | Render: bounded retry; QA failure: no retry, user decides |
 
