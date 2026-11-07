@@ -27,9 +27,10 @@ VALUES ('anthropic-api', 'claude-code-cli', '{}'::jsonb, 3, false);
 INSERT INTO provider_price (provider_model_id, unit, unit_price, currency, valid_from, source_note)
 SELECT id, 'per_usd', 1, 'USD', '2026-11-01', 'CLI total_cost_usd recorded as is (D-118)'
 FROM provider_model WHERE provider_id = 'anthropic-api';
--- $45 of a $50 Console limit: --max-budget-usd can overshoot, so the guard refuses first.
+-- $90 of a $100 Console limit (owner, 2026-11-07: the key is used only by the pipeline):
+-- --max-budget-usd can overshoot, so the guard refuses first.
 INSERT INTO provider_quota (provider_model_id, period, limit_value)
-SELECT id, 'month', 45 FROM provider_model WHERE provider_id = 'anthropic-api';
+SELECT id, 'month', 90 FROM provider_model WHERE provider_id = 'anthropic-api';
 
 -- Steps that may be offered, with the USD cap of one grant. No rows at first: the owner sets
 -- them from ops/postgres/claude-usage.sql (Q-004), never a guess.

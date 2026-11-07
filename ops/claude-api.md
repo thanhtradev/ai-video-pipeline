@@ -4,7 +4,7 @@ Run by the owner after the PR is merged. Conventions as in [README.md](README.md
 free; Step 0's smoke test and every job moved to the API are **paid** (USD, Claude API).
 
 What it adds:
-- migration `20261203000100_claude_api.sql`: provider `anthropic-api` (off), the month limit ($45),
+- migration `20261203000100_claude_api.sql`: provider `anthropic-api` (off), the month limit ($90),
   `claude_api_step` caps (empty), grants, reservations, `claude_api_offers_due()`,
   `claude_api_begin()` / `claude_api_record()`, and `CLAUDE_API` in `telegram_confirm()`;
 - worker: a job with a grant runs the same CLI with the API key (never with the subscription token),
@@ -45,8 +45,8 @@ such a stop is a retryable error, and its reservation still counts as fully spen
 ## 1. Console workspace and key
 
 In the Claude Console: a **new workspace** `aivideo-overflow` (the default workspace cannot have a
-spend limit), **spend limit $50/month**, a key in that workspace, **no auto-reload**, and load
-only $50 of credit at first. Then on each worker that may run Claude steps:
+spend limit), **spend limit $100/month**, a key in that workspace, **no auto-reload**, and load
+only $100 of credit at first. Then on each worker that may run Claude steps:
 
 ```bash
 # macOS (Mac mini 1 and 2)
@@ -96,7 +96,7 @@ UPDATE provider SET enabled = true WHERE id = 'anthropic-api';
 SQL
 ```
 
-The month limit is `provider_quota.limit_value` ($45); keep it below the Console limit.
+The month limit is `provider_quota.limit_value` ($90); keep it about 10% below the Console limit.
 
 **Check** (one paid job): when a job blocks on the Max limit, the message arrives within a minute.
 Tap the button; the job runs again and then:

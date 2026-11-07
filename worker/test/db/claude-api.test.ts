@@ -21,6 +21,20 @@ beforeAll(async () => {
   );
 });
 
+const seededLimit = async () =>
+  (
+    await db.pool.query<{ limit_value: string }>(
+      `SELECT q.limit_value FROM provider_quota q
+       JOIN provider_model pm ON pm.id = q.provider_model_id
+       WHERE pm.provider_id = 'anthropic-api'`,
+    )
+  ).rows[0]!.limit_value;
+let seeded: string;
+
+beforeAll(async () => {
+  seeded = await seededLimit();
+});
+
 afterAll(async () => {
   await db.drop();
 });
@@ -134,6 +148,10 @@ async function granted(step = 'script') {
   await restart(job.jobId);
   return job;
 }
+
+test('the month limit starts at $90, below the $100 Console limit (D-118)', () => {
+  expect(Number(seeded)).toBe(90);
+});
 
 describe('claude_api_offers_due', () => {
   test('offers a usage-limit block once, with the step cap and the month so far', async () => {
