@@ -1,10 +1,12 @@
 // Worker gates for an agent-written episode workspace (docs/episode-pipeline.md §6, D-054).
 // The worker runs this under ops/claude/episode-render.sb (loopback only, writes only in the
 // workspace), since it executes agent-written code: the SFX script and the episode in Chrome.
-// Usage: node remotion/scripts/episode-gates.mjs <workspace>   → <workspace>/gates.json
+// Usage: node remotion/scripts/episode-gates.mjs <workspace> [--draft]   → <workspace>/gates.json
 // Steps: typecheck → SFX synthesis (no ambience beds, sfx-rules.mjs) → storyboard pages → audio mix
 // (voice + SFX as the Episode plays them, no frames: board/mix.wav, D-071) → text-out-of-frame QA
 // (reference scripts/tiktok2/check-text-bounds.mjs). Later steps run only when the typecheck passes.
+// --draft skips the mix and marks the report mixDeferred: the run before the review turn, whose mix
+// nothing uses (D-114).
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -18,11 +20,13 @@ import {
   renderStill,
   selectComposition,
 } from '@remotion/renderer';
+import { gatesPassed } from './gate-report.mjs';
 import { ambienceBeds, ambienceProblems } from './sfx-rules.mjs';
 
 const ws = process.argv[2];
+const draft = process.argv[3] === '--draft';
 if (!ws || !existsSync(join(ws, 'src', 'index.ts'))) {
-  console.error('usage: node episode-gates.mjs <workspace>');
+  console.error('usage: node episode-gates.mjs <workspace> [--draft]');
   process.exit(2);
 }
 // Remotion finds its Chrome download (remotion/node_modules/.remotion) from the working directory;
@@ -240,7 +244,8 @@ if (report.typecheck.ok) {
     const browser = await openBrowser('chrome', { chromiumOptions: CHROMIUM });
     try {
       report.board = await timed('board', () => guarded(() => board(serveUrl, browser)));
-      report.mix = await timed('mix', () => guarded(() => mix(serveUrl, browser)));
+      if (draft) report.mixDeferred = true;
+      else report.mix = await timed('mix', () => guarded(() => mix(serveUrl, browser)));
     } finally {
       await browser.close({ silent: true });
     }
@@ -250,7 +255,7 @@ if (report.typecheck.ok) {
   }
 }
 report.ms = ms;
-report.ok = ['typecheck', 'sfx', 'board', 'mix', 'textBounds'].every((k) => report[k]?.ok === true);
+report.ok = gatesPassed(report, { draft });
 writeFileSync(join(ws, 'gates.json'), `${JSON.stringify(report, null, 1)}\n`);
 console.log(`gates ${report.ok ? 'passed' : 'failed'}`);
 process.exit(0);

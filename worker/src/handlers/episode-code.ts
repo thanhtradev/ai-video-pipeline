@@ -49,6 +49,8 @@ import {
 // to the storyboard request with the pages (D-071).
 // A turn that changed no agent file (src/episode, sfx) reuses the last gate report instead of
 // running the gates again: they are deterministic on the same code, and a run takes minutes.
+// The gate run after turn 1 is a draft without the audio mix, which only the last run's report
+// delivers; a passing draft is never reused and never finishes the job (D-114).
 
 const AGENT_LIMIT_MS = 90 * 60 * 1000;
 const MAX_FOLLOW_UPS = 2;
@@ -178,6 +180,7 @@ const firstPrompt = (referenceEpisode: string) =>
 const REVISION_PROMPT =
   'Revise the episode in src/episode/ and sfx/ (your previous version) following feedback.md, ' +
   'brief.md and CLAUDE.md. Start by reading CLAUDE.md, feedback.md and brief.md.';
+const REVIEW_REQUEST = 'Now review the storyboard pages';
 
 /** What the storyboard review checks; an English episode also checks for anything Vietnamese (D-092). */
 function reviewChecklist(language: Language): string {
@@ -195,7 +198,7 @@ function followUpPrompt(report: GateReport, review: boolean, language: Language)
       ? `The worker's checks failed:\n\n${failures.join('\n\n')}`
       : "The worker's checks passed.",
     review && pages.length > 0
-      ? `Now review the storyboard pages ${pages.join(', ')} with the Read tool, shot by shot, ` +
+      ? `${REVIEW_REQUEST} ${pages.join(', ')} with the Read tool, shot by shot, ` +
         `against brief.md and CLAUDE.md ${reviewChecklist(language)}`
       : '',
     'Fix everything that is wrong, run the typecheck again, and reply with a short summary.',
@@ -229,11 +232,12 @@ async function runTurns(
     return state.turns.map((turn, i) => (i === n - 1 ? { ...turn, gates } : turn));
   };
 
-  const gate = async () => {
+  const gate = async (draft: boolean) => {
     const n = state.turns.length;
     const hash = await agentFingerprint(ws);
     const last = state.report;
-    if (hash === state.gatedHash && last !== null && browserCrash(last) === null) {
+    const needsMix = !draft && last?.ok === true && last.mixDeferred === true;
+    if (hash === state.gatedHash && last !== null && browserCrash(last) === null && !needsMix) {
       state = { ...state, turns: recordGates(n, last) };
       await save();
       context.logger.info(
@@ -244,7 +248,7 @@ async function runTurns(
     }
     await context.progress({ stage: 'gates', turn: n, of: maxTurns });
     const report = await withLanguageGate(
-      await deps.gates(ws, context.signal),
+      await deps.gates(ws, context.signal, { draft }),
       ws,
       selection.language,
     );
@@ -270,9 +274,14 @@ async function runTurns(
   // The last attempt stopped after an agent turn but before its gates finished, or an older worker
   // recorded a Chrome crash as that turn's gates.
   const crashed = state.report !== null && browserCrash(state.report) !== null;
-  if (state.turns.at(-1)?.gates === null || crashed) await gate();
+  const isFirstGateRun = () => state.turns.length === 1;
+  if (state.turns.at(-1)?.gates === null || crashed) await gate(isFirstGateRun());
+  // A turn whose report had no pages (it failed before the board) could not review; a later one does.
+  const canReview = () =>
+    (state.report?.board?.pages?.length ?? 0) > 0 &&
+    !state.turns.some((turn) => turn.prompt.includes(REVIEW_REQUEST));
   for (let n = state.turns.length; n < maxTurns; n++) {
-    if (n >= 2 && state.report?.ok) break;
+    if (n >= 2 && state.report?.ok && !canReview()) break;
     const timeoutMs = deadline - Date.now();
     if (timeoutMs <= 0) break;
     const prompt =
@@ -280,7 +289,7 @@ async function runTurns(
         ? input.revision
           ? REVISION_PROMPT
           : firstPrompt(selection.referenceEpisode)
-        : followUpPrompt(state.report!, n === 1, selection.language);
+        : followUpPrompt(state.report!, canReview(), selection.language);
     await context.progress({ stage: 'agent', turn: n + 1, of: maxTurns });
     const started = Date.now();
     const result = await deps.agent({
@@ -300,8 +309,10 @@ async function runTurns(
     };
     await save();
     context.logger.info({ turn: n + 1, agentMs: result.durationMs }, 'episode agent turn');
-    await gate();
+    await gate(isFirstGateRun());
   }
+  // The time ran out after turn 1: the job must still end on a full run, with its audio.
+  if (state.report?.ok && state.report.mixDeferred) await gate(false);
   return state;
 }
 
@@ -322,6 +333,7 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
 
     // The clip's kit and character set (D-066); an unknown slug fails the job, never falls back.
     const selection = selectionOf(input);
+    const prepareStart = Date.now();
     let saved = await savedState(context);
     if (saved) {
       context.logger.info({ turns: saved.turns.length }, 'resuming the episode agent');
@@ -358,6 +370,7 @@ export function createEpisodeCodeHandler(deps: EpisodeCodeDeps): JobHandler {
           `needs a repo fix, then /retry: ${kit.output.slice(0, KIT_ERROR_CHARS)}`,
       );
     }
+    context.logger.info({ prepareMs: Date.now() - prepareStart }, 'episode workspace ready');
     await writeFile(
       join(workDir, SETTINGS),
       `${JSON.stringify(agentSettings(realWs, deps.runtimeRoot), null, 1)}\n`,

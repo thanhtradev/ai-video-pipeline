@@ -269,8 +269,163 @@ describe('episode_code handler', () => {
   });
 
   test('skips the third turn when the review turn passes', async () => {
-    await createEpisodeCodeHandler(deps({ gates: gates(FAIL, PASS) }))(context());
+    await createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL, PASS) }))(context());
     expect(turns).toHaveLength(2);
+  });
+
+  test('a first gate run without a storyboard still gets the review on a later turn', async () => {
+    // Arrange: turn 1 does not compile, so its gate run renders no pages.
+    const handler = createEpisodeCodeHandler(deps({ gates: gates(FAIL, PASS) }));
+
+    // Act
+    await handler(context());
+
+    // Assert
+    expect(turns).toHaveLength(3);
+    expect(turns[1]!.prompt).not.toMatch(/review the storyboard/);
+    expect(turns[2]!.prompt).toMatch(/review the storyboard pages board\/page-01.jpg/);
+  });
+
+  test('does not ask for a review when the passing report has no pages', async () => {
+    const { board: _board, ...noPages } = PASS;
+    await createEpisodeCodeHandler(deps({ gates: gates(noPages) }))(context());
+    expect(turns).toHaveLength(2);
+    expect(turns[1]!.prompt).not.toMatch(/review the storyboard/);
+  });
+
+  describe('the audio mix waits for the last gate run', () => {
+    const { mix: _mix, ...withoutMix } = PASS;
+    const DRAFT: GateReport = { ...withoutMix, mixDeferred: true };
+
+    /** Answers like the gates script: a draft run has no mix. Records each run's mode. */
+    function modalGates(runs: boolean[]): GateRunner {
+      return async (ws, signal, options) => {
+        const draft = options?.draft === true;
+        runs.push(draft);
+        return gates(draft ? DRAFT : PASS)(ws, signal);
+      };
+    }
+
+    test('turn 1 gets a draft run, the review turn a full run with the mix', async () => {
+      // Arrange
+      const runs: boolean[] = [];
+
+      // Act
+      const result = await createEpisodeCodeHandler(deps({ gates: modalGates(runs) }))(context());
+
+      // Assert
+      expect(runs).toEqual([true, false]);
+      expect(turns[1]!.prompt).toMatch(/review the storyboard/);
+      expect(result.outputs).toContain('mix.m4a');
+      expect(result.result).toMatchObject({ mix_loudness: MIX_LOUDNESS });
+    });
+
+    test('a review turn that changed nothing does not reuse a passing draft', async () => {
+      // Arrange
+      const runs: boolean[] = [];
+
+      // Act
+      const result = await createEpisodeCodeHandler(
+        deps({ agent: agent(undefined, [1]), gates: modalGates(runs) }),
+      )(context());
+
+      // Assert
+      expect(runs).toEqual([true, false]);
+      expect(result.outputs).toContain('mix.m4a');
+    });
+
+    test('a failed draft on unchanged code is reused, and the fix turn runs full gates', async () => {
+      // Arrange: the draft fails; the review turn changes nothing, the fix turn does.
+      const runs: boolean[] = [];
+      const { mix: _unused, ...failedWithoutMix } = TEXT_FAIL;
+      const failedDraft: GateReport = { ...failedWithoutMix, mixDeferred: true };
+      const counted: GateRunner = async (ws, signal, options) => {
+        const draft = options?.draft === true;
+        runs.push(draft);
+        return gates(draft ? failedDraft : PASS)(ws, signal);
+      };
+
+      // Act
+      const result = await createEpisodeCodeHandler(
+        deps({ agent: agent(undefined, [1, 3]), gates: counted }),
+      )(context());
+
+      // Assert
+      expect(runs).toEqual([true, false]);
+      expect(turns).toHaveLength(3);
+      expect(result.outputs).toContain('mix.m4a');
+    });
+
+    test('a deadline right after turn 1 still produces the mix', async () => {
+      // Arrange
+      const runs: boolean[] = [];
+      const slow = agent(() => new Promise((resolve) => setTimeout(resolve, 20)));
+
+      // Act
+      const result = await createEpisodeCodeHandler(
+        deps({ agent: slow, gates: modalGates(runs), limitMs: 10 }),
+      )(context());
+
+      // Assert
+      expect(turns).toHaveLength(1);
+      expect(runs).toEqual([true, false]);
+      expect(result.outputs).toContain('mix.m4a');
+    });
+
+    test('a mix failure on the full run goes to the agent as the fix turn', async () => {
+      // Arrange
+      const broken: GateReport = { ...PASS, ok: false, mix: { ok: false, error: 'staticFile x' } };
+      let fullRuns = 0;
+      const counted: GateRunner = async (ws, signal, options) => {
+        if (options?.draft) return gates(DRAFT)(ws, signal);
+        return gates(fullRuns++ === 0 ? broken : PASS)(ws, signal);
+      };
+
+      // Act
+      const result = await createEpisodeCodeHandler(deps({ gates: counted }))(context());
+
+      // Assert
+      expect(turns).toHaveLength(3);
+      expect(turns[2]!.prompt).toMatch(/audio mix render failed:\nstaticFile x/);
+      expect(result.outputs).toContain('mix.m4a');
+    });
+
+    test('a checkpoint from before this change is reused as it was', async () => {
+      // Arrange: an attempt recorded a full failed report for its last turn.
+      await expect(
+        createEpisodeCodeHandler(deps({ gates: gates(TEXT_FAIL) }))(context()),
+      ).rejects.toThrow(PermanentJobError);
+      const runs: boolean[] = [];
+
+      // Act: the retry has no turn left and the code did not change.
+      await expect(
+        createEpisodeCodeHandler(deps({ gates: modalGates(runs) }))(context(INPUT, 2)),
+      ).rejects.toThrow(PermanentJobError);
+
+      // Assert
+      expect(runs).toEqual([]);
+    });
+
+    test('a retry after a crashed draft runs a draft again', async () => {
+      // Arrange
+      const runs: boolean[] = [];
+      let calls = 0;
+      const crashFirst: GateRunner = async (ws, signal, options) => {
+        runs.push(options?.draft === true);
+        if (++calls === 1) throw new Error('bundle crashed');
+        return gates(options?.draft ? DRAFT : PASS)(ws, signal);
+      };
+
+      // Act
+      await expect(
+        createEpisodeCodeHandler(deps({ gates: crashFirst }))(context()),
+      ).rejects.toThrow(/bundle crashed/);
+      const result = await createEpisodeCodeHandler(deps({ gates: crashFirst }))(context(INPUT, 2));
+
+      // Assert
+      expect(runs).toEqual([true, true, false]);
+      expect(result.outputs).toContain('mix.m4a');
+    });
   });
 
   test('reuses the gate report when a turn changed no agent file', async () => {
@@ -606,7 +761,8 @@ describe('episode_code handler', () => {
     };
     await createEpisodeCodeHandler(deps({ gates: gates(RENDER_ERROR, PASS) }))(context());
 
-    expect(turns).toHaveLength(2);
+    // Turn 2 fixes the render; turn 3 reviews the pages turn 1 could not produce.
+    expect(turns).toHaveLength(3);
     expect(turns[1]!.prompt).toMatch(/storyboard render failed:[\s\S]*reading 'x'/);
   });
 
@@ -614,7 +770,7 @@ describe('episode_code handler', () => {
     let calls = 0;
     const crashOnSecond: GateRunner = async (ws, signal) => {
       if (++calls === 2) throw new Error('bundle crashed');
-      return gates(FAIL)(ws, signal);
+      return gates(TEXT_FAIL)(ws, signal);
     };
     await expect(
       createEpisodeCodeHandler(deps({ gates: crashOnSecond }))(context()),

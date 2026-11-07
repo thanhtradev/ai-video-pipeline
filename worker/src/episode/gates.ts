@@ -29,6 +29,8 @@ export const gateReportSchema = z
     board: stepSchema.extend({ pages: z.array(z.string()).optional() }).optional(),
     /** The episode's audio, rendered without frames (D-071); absent in older reports. */
     mix: stepSchema.extend({ file: z.string().optional() }).optional(),
+    /** A draft run skipped the mix (D-114): this report can never finish the job. */
+    mixDeferred: z.boolean().optional(),
     textBounds: stepSchema
       .extend({
         sharp: z.number().optional(),
@@ -59,7 +61,15 @@ export const gateReportSchema = z
   .loose();
 
 export type GateReport = z.infer<typeof gateReportSchema>;
-export type GateRunner = (ws: string, signal: AbortSignal) => Promise<GateReport>;
+export interface GateRunOptions {
+  /** Skip the audio mix: the run before the review turn, whose mix nothing uses (D-114). */
+  draft?: boolean;
+}
+export type GateRunner = (
+  ws: string,
+  signal: AbortSignal,
+  options?: GateRunOptions,
+) => Promise<GateReport>;
 
 export interface GateRunnerOptions {
   /** ops/claude/episode-render.sb */
@@ -72,14 +82,14 @@ export interface GateRunnerOptions {
 
 /** `ws` must be the real path (Seatbelt matches resolved paths, e.g. /private/tmp). */
 export function createGateRunner(options: GateRunnerOptions): GateRunner {
-  return async (ws, signal) => {
+  return async (ws, signal, run) => {
     await runSandboxedNode({
       profile: options.profile,
       ws,
       runtimeRoot: options.runtimeRoot,
       ...(options.env ? { env: options.env } : {}),
       script: GATES_SCRIPT,
-      args: [ws],
+      args: run?.draft ? [ws, '--draft'] : [ws],
       timeoutMs: GATES_TIMEOUT_MS,
       signal,
     });

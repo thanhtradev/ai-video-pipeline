@@ -66,6 +66,12 @@ describe('language gate (D-092)', () => {
     expect((await withLanguageGate(PASSED, en, 'en')).ok).toBe(true);
   });
 
+  test('keeps the draft mark of a gate report (D-114)', async () => {
+    const en = await workspace({ 'src/episode/Episode.tsx': "const t = 'Mom!';" });
+    const report = await withLanguageGate({ ...PASSED, mixDeferred: true }, en, 'en');
+    expect(report.mixDeferred).toBe(true);
+  });
+
   test('keeps URLs while stripping line comments', () => {
     expect(stripComments('a("https://x.y") // note')).toBe('a("https://x.y") ');
   });
