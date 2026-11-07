@@ -21,6 +21,7 @@ import {
   selectComposition,
 } from '@remotion/renderer';
 import { gatesPassed } from './gate-report.mjs';
+import { renderQaRanges } from './qa-ranges.mjs';
 import { ambienceBeds, ambienceProblems } from './sfx-rules.mjs';
 
 const ws = process.argv[2];
@@ -37,10 +38,13 @@ const TSC = join(dirname(require.resolve('typescript/package.json')), 'bin', 'ts
 const STEP_TIMEOUT_MS = 10 * 60 * 1000;
 const OUTPUT_TAIL = 6000;
 /**
- * QA samples per fresh browser. 100 crashed Chrome deterministically on one episode (a V8 fatal
- * check in the tab, 2026-10-27) while 20 passed; a fresh browser costs under a second.
+ * QA samples per fresh browser. Browser and tab startup is most of the QA's time on macOS: 60 took
+ * 43% of the time of 20 on the Macs, with the same findings (D-115). 100 crashed Chrome
+ * deterministically on one episode (a V8 fatal check in the tab, 2026-10-27), so a range that
+ * crashes is split and tried again, down to QA_CHUNK_MIN, which passed on that episode.
  */
-const QA_CHUNK = 20;
+const QA_CHUNK = 60;
+const QA_CHUNK_MIN = 20;
 /** Must match src/Root.tsx: board shots per page, QA sampling step. */
 const BOARD_PER = 12;
 const QA_EVERY = 10;
@@ -172,16 +176,17 @@ function groupHits(hits, every) {
 async function textBounds(serveUrl) {
   const composition = await selectComposition({ serveUrl, id: 'EpisodeQA' });
   const samples = Math.ceil(composition.durationInFrames / QA_EVERY);
-  const hits = [];
-  let measured = 0;
-  for (let a = 0; a < samples; a += QA_CHUNK) {
-    // A fresh browser per chunk, as in the reference: long runs crash Chrome on small machines.
-    await renderFrames({
+  // A Set: a range tried again after a crash reports its samples and hits a second time.
+  const pings = new Set();
+  const hits = new Set();
+  await renderQaRanges(samples, { size: QA_CHUNK, minSize: QA_CHUNK_MIN }, (from, to) =>
+    // A fresh browser per range, as in the reference: long runs crash Chrome on small machines.
+    renderFrames({
       composition,
       serveUrl,
       inputProps: {},
       imageFormat: 'none',
-      frameRange: [a, Math.min(samples, a + QA_CHUNK) - 1],
+      frameRange: [from, to],
       concurrency: 3,
       timeoutInMilliseconds: 120_000,
       chromiumOptions: CHROMIUM,
@@ -190,19 +195,20 @@ async function textBounds(serveUrl) {
       outputDir: null,
       onBrowserLog: (log) => {
         const text = log.text;
-        if (text.startsWith('TEXTQA-PING')) measured++;
-        else if (text.startsWith('TEXTQA|')) {
-          const [, at, kind, side, , ...rest] = text.split('|');
-          hits.push({ at: Number(at), kind, side, text: rest.join('|') });
-        }
+        if (text.startsWith('TEXTQA-PING')) pings.add(text);
+        else if (text.startsWith('TEXTQA|')) hits.add(text);
       },
-    });
-  }
-  const rows = groupHits(hits, QA_EVERY);
+    }),
+  );
+  const parsed = [...hits].map((line) => {
+    const [, at, kind, side, , ...rest] = line.split('|');
+    return { at: Number(at), kind, side, text: rest.join('|') };
+  });
+  const rows = groupHits(parsed, QA_EVERY);
   const sharp = rows.filter((r) => r.kind !== 'blur');
   return {
     ok: sharp.length === 0,
-    measured,
+    measured: pings.size,
     sharp: sharp.length,
     blur: rows.length - sharp.length,
     rows,
