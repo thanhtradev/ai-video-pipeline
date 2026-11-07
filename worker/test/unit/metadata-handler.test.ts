@@ -135,6 +135,7 @@ describe('metadata handler', () => {
       context({ ...INPUT, kit: 'horror', character_set: 'bong' }),
     );
     const request = requests[0]!;
+    expect(request.job).toEqual({ id: META_JOB });
     expect(request.systemPrompt).toContain('horror YouTube channel told in silhouettes');
     expect(request.prompt).toContain('There are no captions in the video.');
     expect(request.prompt).toContain("NÓ's two eyes");
