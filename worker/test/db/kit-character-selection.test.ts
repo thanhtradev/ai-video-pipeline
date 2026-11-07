@@ -124,7 +124,15 @@ describe('Telegram draft buttons', () => {
     // the horror kit is Vietnamese (D-106): the English cast gives way to the first Vietnamese one
     const horror = await cycle(drafted.token!, 'kit');
     expect(horror.brief).toMatchObject({ kit: 'horror', character_set: 'chip' });
-    expect(horror.selection!.kit).toMatchObject({ slug: 'horror', next_slug: 'whatif' });
+    expect(horror.selection!.kit).toMatchObject({
+      slug: 'horror',
+      next_slug: 'whatif-vi-cinematic',
+    });
+
+    // the cinematic kit is Vietnamese too and keeps that cast (D-116)
+    const cinematic = await cycle(drafted.token!, 'kit');
+    expect(cinematic.brief).toMatchObject({ kit: 'whatif-vi-cinematic', character_set: 'chip' });
+    expect(cinematic.selection!.kit).toMatchObject({ next_slug: 'whatif' });
 
     // the last cycle wraps to the first option, with a Vietnamese cast again
     const wrapped = await cycle(drafted.token!, 'kit');
@@ -286,6 +294,7 @@ describe('kit picker (D-109)', () => {
       { slug: 'science', label: 'Khoa học', current: false },
       { slug: 'whatif-en', label: 'What if… (EN)', current: false },
       { slug: 'horror', label: 'Kinh dị', current: false },
+      { slug: 'whatif-vi-cinematic', label: 'Nếu bạn… (Điện ảnh)', current: false },
     ]);
 
     await db.pool.query(`UPDATE catalog_option SET enabled = false WHERE slug = 'horror'`);
@@ -293,6 +302,7 @@ describe('kit picker (D-109)', () => {
       'whatif',
       'science',
       'whatif-en',
+      'whatif-vi-cinematic',
     ]);
     await db.pool.query(`UPDATE catalog_option SET enabled = true WHERE slug = 'horror'`);
   });

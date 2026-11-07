@@ -1,6 +1,31 @@
 import React from 'react';
+import { SceneLightCtx } from '../../rig/scene-light';
 import { SetLayers } from './sets';
 import { Cam, Stage } from './Stage';
+
+const REFLECTION_BLUR = 7;
+
+const SetFilter: React.FC<{ readonly filter?: string; readonly children: React.ReactNode }> = ({
+  filter,
+  children,
+}) => <g style={filter ? { filter } : undefined}>{children}</g>;
+
+/** The actors flipped about a floor line, faint and blurred, with no scene light of their own. */
+const FloorReflection: React.FC<{
+  readonly y: number;
+  readonly a: number;
+  readonly children: React.ReactNode;
+}> = ({ y, a, children }) => (
+  <SceneLightCtx.Provider value={null}>
+    <g
+      transform={`translate(0 ${2 * y}) scale(1 -1)`}
+      opacity={a}
+      style={{ filter: `blur(${REFLECTION_BLUR}px)` }}
+    >
+      {children}
+    </g>
+  </SceneLightCtx.Provider>
+);
 
 /**
  * Builds a shot from a set + characters: mid = back → behind → furniture in front (tables…) → actors → front.
@@ -25,6 +50,8 @@ export const SetStage: React.FC<{
   readonly noFg?: boolean;
   /** CSS filter for the set (not applied to actors) */
   readonly setFilter?: string;
+  /** blur of the character layer, for rack focus */
+  readonly blurMid?: number;
 }> = ({
   set,
   cam,
@@ -42,41 +69,55 @@ export const SetStage: React.FC<{
   children,
   noFg,
   setFilter,
+  blurMid,
 }) => (
-  <Stage
-    cam={cam}
-    f={f}
-    seed={seed}
-    shake={shake}
-    sky={set.sky}
-    far={set.far}
-    bg={set.bg}
-    glow={set.glow}
-    blurBg={blurBg}
-    blurFg={blurFg}
-    blurFar={blurFar}
-    vignette={vignette}
-    layerFilter={setFilter}
-    mid={
-      <>
-        <g style={setFilter ? { filter: setFilter } : undefined}>{set.back}</g>
-        {behind}
-        <g style={setFilter ? { filter: setFilter } : undefined}>{set.front}</g>
-        {actors}
-        {front}
-      </>
-    }
-    fg={
-      noFg ? (
-        fg
-      ) : (
+  <SceneLightCtx.Provider value={set.atmos?.light ?? null}>
+    <Stage
+      cam={cam}
+      f={f}
+      seed={seed}
+      shake={shake}
+      sky={set.sky}
+      far={set.far}
+      bg={set.bg}
+      glow={set.glow}
+      blurBg={blurBg ?? set.atmos?.blurBg}
+      blurFg={blurFg}
+      blurFar={blurFar ?? set.atmos?.blurFar}
+      vignette={vignette}
+      layerFilter={setFilter ?? set.atmos?.filter}
+      blurMid={blurMid}
+      focusGain={set.atmos?.focusGain}
+      bokeh={set.atmos?.bokeh}
+      atmosBehind={set.atmos?.behind}
+      atmosOver={set.atmos?.over}
+      finish={set.atmos?.finish}
+      mid={
         <>
-          {set.fg}
-          {fg}
+          {set.atmos?.reflection && actors && (
+            <FloorReflection y={set.atmos.reflection.y} a={set.atmos.reflection.a}>
+              {actors}
+            </FloorReflection>
+          )}
+          <SetFilter filter={setFilter ?? set.atmos?.filter}>{set.back}</SetFilter>
+          {behind}
+          <SetFilter filter={setFilter ?? set.atmos?.filter}>{set.front}</SetFilter>
+          {actors}
+          {front}
         </>
-      )
-    }
-  >
-    {children}
-  </Stage>
+      }
+      fg={
+        noFg ? (
+          fg
+        ) : (
+          <>
+            {set.fg}
+            {fg}
+          </>
+        )
+      }
+    >
+      {children}
+    </Stage>
+  </SceneLightCtx.Provider>
 );

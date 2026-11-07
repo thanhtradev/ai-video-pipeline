@@ -17,6 +17,7 @@ const THEMES: Record<string, { W: number; H: number }> = {
   science,
   'whatif-en': whatifEn,
   horror,
+  'whatif-vi-cinematic': whatif,
 };
 
 describe('kit frames', () => {

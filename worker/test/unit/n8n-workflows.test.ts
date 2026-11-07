@@ -4729,6 +4729,7 @@ describe('WF-06 kit picker (D-109)', () => {
     { slug: 'science', label: 'Khoa học', current: false },
     { slug: 'whatif-en', label: 'What if… (EN)', current: false },
     { slug: 'horror', label: 'Kinh dị', current: false },
+    { slug: 'whatif-vi-cinematic', label: 'Nếu bạn… (Điện ảnh)', current: false },
   ];
 
   test('the Kit button opens the picker instead of cycling', () => {
@@ -4831,6 +4832,7 @@ describe('WF-06 kit picker (D-109)', () => {
       { text: 'Khoa học', data: `in:k:${token}:science` },
       { text: 'What if… (EN)', data: `in:k:${token}:whatif-en` },
       { text: 'Kinh dị', data: `in:k:${token}:horror` },
+      { text: 'Nếu bạn… (Điện ảnh)', data: `in:k:${token}:whatif-vi-cinematic` },
     ]);
     for (const button of out!.json.buttons as { data: string }[]) {
       expect(Buffer.byteLength(button.data)).toBeLessThanOrEqual(64);
