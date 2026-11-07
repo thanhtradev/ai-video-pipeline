@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { interpolate, random } from 'remotion';
 import {
   Antenna,
@@ -12,6 +12,7 @@ import {
   Visor,
 } from './accessories-extra';
 import { clamp, desat, HERO_DEFAULT, INK, mix, RIM, shade } from './palette';
+import { CastShadow, SceneLightCtx, SceneLightDefs } from './scene-light';
 
 /**
  * TikTok 2 character: glossy black round head (~43% of height), radial gradient + thin cream rim light; the face is only two white eyes.
@@ -506,6 +507,8 @@ export const Character: React.FC<CharacterProps> = (p) => {
     shirtColor = '#a9c4dc',
     sleeve = 0.84,
   } = p;
+  const sceneLight = useContext(SceneLightCtx);
+  const lightSide = sceneLight ? sceneLight.side : rimSide;
   const uid = `ch${seed}`;
   const fx = facing === 0 ? 0 : facing > 0 ? 1 : -1;
   const ph = (t / 30) * Math.PI * 2 * (pose === 'run' ? 2.6 : pose === 'flail' ? 2.2 : 1.7) * speed;
@@ -680,6 +683,7 @@ export const Character: React.FC<CharacterProps> = (p) => {
         {hoodUp && <circle cx={fx * 4} cy={HEAD_Y + yOff + 6} r={HEAD_R + 22} {...S(dark)} />}
         {/* body */}
         <path d={torso} {...(line ? S('') : { fill: `url(#${uid}-hd)` })} />
+        {!line && sceneLight && <path d={torso} fill={`url(#${uid}-lit)`} />}
         {!line && !isAodai && (
           <rect x={-80} y={hem - 22} width={160} height={20} rx={10} fill={dark} opacity={0.65} />
         )}
@@ -801,23 +805,32 @@ export const Character: React.FC<CharacterProps> = (p) => {
           )}
           {!line && (
             <path
-              d={`M${rimSide * HEAD_R * 0.98} ${HEAD_Y + yOff - 30} A${HEAD_R} ${HEAD_R} 0 0 ${rimSide < 0 ? 1 : 0} ${rimSide * 30} ${HEAD_Y + yOff - HEAD_R * 0.99}`}
-              stroke={RIM}
-              strokeWidth={5}
+              d={`M${lightSide * HEAD_R * 0.98} ${HEAD_Y + yOff - 30} A${HEAD_R} ${HEAD_R} 0 0 ${lightSide < 0 ? 1 : 0} ${lightSide * 30} ${HEAD_Y + yOff - HEAD_R * 0.99}`}
+              stroke={sceneLight?.color ?? RIM}
+              strokeWidth={sceneLight ? 7 : 5}
               fill="none"
               strokeLinecap="round"
               opacity={0.85}
             />
           )}
+          {!line && sceneLight && (
+            <ellipse
+              cx={0}
+              cy={HEAD_Y + yOff}
+              rx={HEAD_R * (1 + puff * 0.09)}
+              ry={HEAD_R * (1 - puff * 0.02)}
+              fill={`url(#${uid}-headlit)`}
+            />
+          )}
           {!line && (
             <ellipse
-              cx={rimSide * 40}
+              cx={lightSide * 40}
               cy={HEAD_Y + yOff - 62}
               rx={30}
               ry={16}
-              fill="#ffffff"
-              opacity={0.07}
-              transform={`rotate(${rimSide * 30} ${rimSide * 40} ${HEAD_Y + yOff - 62})`}
+              fill={sceneLight?.color ?? '#ffffff'}
+              opacity={sceneLight ? 0.22 : 0.07}
+              transform={`rotate(${lightSide * 30} ${lightSide * 40} ${HEAD_Y + yOff - 62})`}
             />
           )}
           {accessories.includes('cap') && (
@@ -911,7 +924,7 @@ export const Character: React.FC<CharacterProps> = (p) => {
         </filter>
         <filter id={`${uid}-rim`} x="-20%" y="-20%" width="140%" height="140%">
           <feMorphology in="SourceAlpha" operator="dilate" radius={3.2 / (size * px)} result="d" />
-          <feFlood floodColor={RIM} floodOpacity={0.6} />
+          <feFlood floodColor={sceneLight?.color ?? RIM} floodOpacity={sceneLight ? 0.42 : 0.6} />
           <feComposite in2="d" operator="in" result="rim" />
           <feMerge>
             <feMergeNode in="rim" />
@@ -928,7 +941,11 @@ export const Character: React.FC<CharacterProps> = (p) => {
           <stop offset="0" stopColor="#000" stopOpacity="0.32" />
           <stop offset="1" stopColor="#000" stopOpacity="0" />
         </radialGradient>
+        {sceneLight && <SceneLightDefs uid={uid} light={sceneLight} />}
       </defs>
+      {sceneLight && shadow && inv < 1 && (
+        <CastShadow light={sceneLight} headY={HEAD_Y} headR={HEAD_R} opacity={1 - inv} />
+      )}
       {shadow && (
         <ellipse
           cx={0}

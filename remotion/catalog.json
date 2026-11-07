@@ -86,6 +86,27 @@
         "qa": "kits/whatif/qa/TextBoundsQA"
       }
     },
+    "whatif-vi-cinematic": {
+      "label": "Nếu bạn… (Điện ảnh)",
+      "dir": "kits/whatif-vi-cinematic",
+      "referenceEpisode": "episodes/ep5",
+      "episodeDeps": ["kits/whatif", "characters/chip"],
+      "frame": { "width": 1920, "height": 1080 },
+      "language": "vi",
+      "modules": {
+        "theme": "kits/whatif/theme",
+        "lang": "kits/whatif/lang",
+        "ui": "kits/whatif/ui",
+        "stage": "kits/whatif/Stage",
+        "set-stage": "kits/whatif/SetStage",
+        "sets": "kits/whatif-vi-cinematic/sets",
+        "sets-home": "kits/whatif-vi-cinematic/sets-home",
+        "sets-school": "kits/whatif-vi-cinematic/sets-school",
+        "props": "kits/whatif/props",
+        "grade": "kits/whatif/grade",
+        "qa": "kits/whatif/qa/TextBoundsQA"
+      }
+    },
     "horror": {
       "label": "Kinh dị",
       "dir": "kits/horror",

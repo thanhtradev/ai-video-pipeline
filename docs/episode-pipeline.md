@@ -52,7 +52,7 @@ topic (required), duration (2–12 minutes, optional), notes on the next lines, 
 brief (optional, ≤ 30000 characters, kept verbatim). The brief gets `format: "episode"`, which `brief_normalize` validates and `video_submit` turns into
 a video in its kit's frame (D-080: `whatif` 16:9 1920×1080, `science` 9:16 1080×1920, from
 `catalog_option.aspect_ratio` / `catalog.json` `frame`); Shorts briefs still work. `kit` and `character_set` are slugs of enabled rows of
-`catalog_option` (seeded from `remotion/catalog.json`: kits `whatif`, `science`, `whatif-en`, `horror`;
+`catalog_option` (seeded from `remotion/catalog.json`: kits `whatif`, `science`, `whatif-en`, `horror`, `whatif-vi-cinematic`;
 character sets `chip`, `chip-science`, `chip-en`, `mun`), filled with the defaults when absent and refused when unknown. On Telegram,
 `/new` takes `kit=<slug>` / `nhanvat=<slug>` on its first line, and the confirmation shows
 `Kit: … · Nhân vật: …` with two buttons that switch to the next option

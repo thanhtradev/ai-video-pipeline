@@ -52,6 +52,7 @@ describe('aspect ratio by kit', () => {
       { kind: 'kit', slug: 'science', aspect_ratio: '9:16' },
       { kind: 'kit', slug: 'whatif-en', aspect_ratio: '16:9' },
       { kind: 'kit', slug: 'horror', aspect_ratio: '16:9' },
+      { kind: 'kit', slug: 'whatif-vi-cinematic', aspect_ratio: '16:9' },
     ]);
     await expect(
       db.pool.query(`UPDATE catalog_option SET aspect_ratio = NULL WHERE slug = 'science'`),

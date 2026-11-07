@@ -80,6 +80,21 @@ describe('kit / character catalog', () => {
     expect(() => resolveSelection({ characterSet: 'nope' })).toThrow(/character set/);
   });
 
+  test('the cinematic kit wraps the whatif code and adds its own modules (D-116)', () => {
+    const sel = resolveSelection({ kit: 'whatif-vi-cinematic', characterSet: 'chip' });
+    expect(sel.language).toBe('vi');
+    expect(sel.frame).toEqual({ width: 1920, height: 1080 });
+    expect(sel.dirs).toEqual(expect.arrayContaining(['kits/whatif', 'kits/whatif-vi-cinematic']));
+    expect(sel.kitDocs).toEqual(['kits/whatif-vi-cinematic/AGENT.md']);
+    expect(sel.kitPrompts).toEqual(['kits/whatif-vi-cinematic/prompt.md']);
+    expect(sel.modules).toMatchObject({
+      stage: 'kits/whatif/Stage',
+      sets: 'kits/whatif-vi-cinematic/sets',
+      'sets-home': 'kits/whatif-vi-cinematic/sets-home',
+      'sets-school': 'kits/whatif-vi-cinematic/sets-school',
+    });
+  });
+
   test('the English kit is its own channel: English docs only, Western sets (D-092)', async () => {
     const sel = resolveSelection({ kit: 'whatif-en', characterSet: 'chip-en' });
     expect(sel).toMatchObject({ kit: 'whatif-en', characterSet: 'chip-en', hero: 'YOU' });

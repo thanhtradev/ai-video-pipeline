@@ -1,5 +1,6 @@
 import React from 'react';
 import { AbsoluteFill, Easing, interpolate, random } from 'remotion';
+import { BokehLight, BokehLights } from './lens';
 import { clamp, useFrameSpec, type FrameSpec } from './theme';
 
 /** Camera: the world point (x,y) lands on the frame's ANCHOR on screen, zoom z. The world is drawn in a 1080×1920 frame (+ margins). */
@@ -8,6 +9,8 @@ export type Cam = {
   readonly y: number;
   readonly z: number;
   readonly r?: number;
+  /** perspective tilt in degrees: above 0 looks up from low, below 0 looks down from high */
+  readonly tilt?: number;
 };
 /** World centre of the wide shot (sets are drawn around x≈500, floor y≈1500). */
 export const WORLD = { x: 500, y: 860 } as const;
@@ -19,6 +22,7 @@ export const lerpCam = (a: Cam, b: Cam, k: number): Cam => ({
   y: lerp(a.y, b.y, k),
   z: lerp(a.z, b.z, k),
   r: lerp(a.r ?? 0, b.r ?? 0, k),
+  tilt: lerp(a.tilt ?? 0, b.tilt ?? 0, k),
 });
 const ease = Easing.inOut(Easing.cubic);
 
@@ -80,14 +84,27 @@ export type StageProps = {
   readonly children?: React.ReactNode;
   /** CSS filter for the far/bg/fg set layers (e.g. desaturation by act) */
   readonly layerFilter?: string;
+  /** light in the air behind the characters (world coordinates, screen blend) */
+  readonly atmosBehind?: React.ReactNode;
+  /** light in the air in front of the characters (world coordinates, screen blend) */
+  readonly atmosOver?: React.ReactNode;
+  /** whole-frame finish drawn last, in screen coordinates */
+  readonly finish?: React.ReactNode;
+  /** blur of the character layer, for rack focus */
+  readonly blurMid?: number;
+  /** background blur multiplier at zoom 3 (default 1.6): higher melts the background in close-ups */
+  readonly focusGain?: number;
+  /** bright points behind the characters that become round discs in close-ups */
+  readonly bokeh?: readonly BokehLight[];
 };
 
-const Layer: React.FC<{ t: string; blur: number; children: React.ReactNode; extra?: string }> = ({
-  t,
-  blur,
-  children,
-  extra,
-}) => {
+const Layer: React.FC<{
+  t: string;
+  blur: number;
+  children: React.ReactNode;
+  extra?: string;
+  blend?: React.CSSProperties['mixBlendMode'];
+}> = ({ t, blur, children, extra, blend }) => {
   const { W, H } = useFrameSpec();
   return (
     <svg
@@ -99,12 +116,16 @@ const Layer: React.FC<{ t: string; blur: number; children: React.ReactNode; extr
         inset: 0,
         filter: [blur > 0.3 ? `blur(${blur}px)` : '', extra ?? ''].join(' ').trim() || undefined,
         overflow: 'visible',
+        mixBlendMode: blend,
       }}
     >
       <g transform={t}>{children}</g>
     </svg>
   );
 };
+
+const TILT_PERSPECTIVE = 2200;
+const TILT_COVER = 1.14;
 
 /** 3-layer stage: far/bg (blurred, slow drift) · mid (characters – sharp) · fg (blurred, fast drift). */
 export const Stage: React.FC<StageProps> = ({
@@ -124,13 +145,19 @@ export const Stage: React.FC<StageProps> = ({
   sky = '#2a2733',
   children,
   layerFilter,
+  atmosBehind,
+  atmosOver,
+  finish,
+  blurMid = 0,
+  focusGain = 1.6,
+  bokeh,
 }) => {
   const frame = useFrameSpec();
   const hh = shake ? handheld(f, shake, seed) : { x: 0, y: 0, r: 0 };
   // background blur increases slightly in close-ups (depth of field)
-  const zb = interpolate(cam.z, [1, 3], [1, 1.6], clamp);
-  return (
-    <AbsoluteFill style={{ background: sky, overflow: 'hidden' }}>
+  const zb = interpolate(cam.z, [1, 3], [1, focusGain], clamp);
+  const layers = (
+    <>
       {far && (
         <Layer
           t={layerTransform(frame, cam, 0.45, hh.x, hh.y, hh.r)}
@@ -166,9 +193,24 @@ export const Stage: React.FC<StageProps> = ({
           />
         </Layer>
       )}
+      {bokeh && (
+        <Layer t={layerTransform(frame, cam, 0.78, hh.x, hh.y, hh.r)} blur={0} blend="screen">
+          <BokehLights lights={bokeh} z={cam.z} seed={seed} />
+        </Layer>
+      )}
+      {atmosBehind && (
+        <Layer t={layerTransform(frame, cam, 0.9, hh.x, hh.y, hh.r)} blur={0} blend="screen">
+          {atmosBehind}
+        </Layer>
+      )}
       {mid && (
-        <Layer t={layerTransform(frame, cam, 1, hh.x, hh.y, hh.r)} blur={0}>
+        <Layer t={layerTransform(frame, cam, 1, hh.x, hh.y, hh.r)} blur={blurMid}>
           {mid}
+        </Layer>
+      )}
+      {atmosOver && (
+        <Layer t={layerTransform(frame, cam, 1, hh.x, hh.y, hh.r)} blur={0} blend="screen">
+          {atmosOver}
         </Layer>
       )}
       {fg && (
@@ -181,12 +223,29 @@ export const Stage: React.FC<StageProps> = ({
         </Layer>
       )}
       {children}
+    </>
+  );
+  return (
+    <AbsoluteFill style={{ background: sky, overflow: 'hidden' }}>
+      {cam.tilt ? (
+        <AbsoluteFill
+          style={{
+            transform: `perspective(${TILT_PERSPECTIVE}px) rotateX(${cam.tilt}deg) scale(${TILT_COVER})`,
+            transformOrigin: cam.tilt > 0 ? '50% 100%' : '50% 0%',
+          }}
+        >
+          {layers}
+        </AbsoluteFill>
+      ) : (
+        layers
+      )}
       <AbsoluteFill
         style={{
           background: `radial-gradient(ellipse 75% 60% at 46% 45%, rgba(0,0,0,0) 55%, rgba(10,6,14,${vignette}) 100%)`,
           pointerEvents: 'none',
         }}
       />
+      {finish}
     </AbsoluteFill>
   );
 };

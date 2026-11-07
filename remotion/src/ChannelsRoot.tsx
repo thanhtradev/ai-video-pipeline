@@ -13,6 +13,7 @@ import { TextBoundsQA } from './kits/whatif/qa/TextBoundsQA';
 import { ChipScienceCompositions } from './characters/chip-science/ChipScienceRoot';
 import { WhatifEnCompositions } from './kits/whatif-en/SetsSample';
 import { HorrorCompositions } from './kits/horror/SetsSample';
+import { WhatifCinematicCompositions } from './kits/whatif-vi-cinematic/CinematicSample';
 
 /** Text-out-of-frame QA (scripts/tiktok2/check-text-bounds.mjs): samples every QA_EVERY frames of an episode. */
 const QA_EVERY = 10;
@@ -178,5 +179,6 @@ export const ChannelsCompositions: React.FC = () => (
     <ChipScienceCompositions />
     <WhatifEnCompositions />
     <HorrorCompositions />
+    <WhatifCinematicCompositions />
   </>
 );

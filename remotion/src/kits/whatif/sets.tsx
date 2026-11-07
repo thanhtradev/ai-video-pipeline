@@ -37,6 +37,8 @@ import {
 } from './props';
 import { FONT, shade } from './theme';
 import { tr } from './lang';
+import type { BokehLight } from './lens';
+import type { SceneLight } from '../../rig/scene-light';
 
 /**
  * A set = layers: far (farthest) · bg (background, blurred) · back (behind characters, sharp) · front (in front of characters, sharp) · fg (foreground, blurred).
@@ -50,6 +52,24 @@ export type SetLayers = {
   fg?: React.ReactNode;
   glow?: { x: number; y: number; r: number; color: string; a?: number };
   sky?: string;
+  /** optional cinematic atmosphere: light in the air and a whole-frame finish */
+  atmos?: {
+    behind?: React.ReactNode;
+    over?: React.ReactNode;
+    finish?: React.ReactNode;
+    /** default depth blur of the far and bg layers; a shot's own blur props still win */
+    blurFar?: number;
+    blurBg?: number;
+    /** see StageProps.focusGain */
+    focusGain?: number;
+    bokeh?: readonly BokehLight[];
+    /** the light that falls on the characters */
+    light?: SceneLight;
+    /** faint mirror image of the actors about this floor line */
+    reflection?: { y: number; a: number };
+    /** CSS filter on the set layers, unless a shot sets its own */
+    filter?: string;
+  };
 };
 
 export const FLOOR = 1500;
