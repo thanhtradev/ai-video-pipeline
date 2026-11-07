@@ -29,12 +29,12 @@ Smoke test on the Mac mini, **outside the pipeline**, in an empty folder:
 ```bash
 mkdir -p /tmp/claude-api-smoke && cd /tmp/claude-api-smoke
 KEY="$(security find-generic-password -a aivideo -s aivideo-claude-api-key -w)"
-# 1. The key works, and the model is the one you set as CLAUDE_MODEL (step 3)
+# 1. The key works with the pipeline model (CLAUDE_MODEL, default claude-opus-5-5)
 env -u CLAUDE_CODE_OAUTH_TOKEN ANTHROPIC_API_KEY="$KEY" claude -p --output-format json \
-  --model <CLAUDE_MODEL> --max-budget-usd 0.20 "Reply with OK" | head -c 600; echo
+  --model claude-opus-5-5 --max-budget-usd 0.20 "Reply with OK" | head -c 600; echo
 # 2. What the budget stop looks like (expect is_error and a budget message)
 env -u CLAUDE_CODE_OAUTH_TOKEN ANTHROPIC_API_KEY="$KEY" claude -p --output-format json \
-  --model <CLAUDE_MODEL> --max-budget-usd 0.001 "Write 300 words about rain" | head -c 600; echo
+  --model claude-opus-5-5 --max-budget-usd 0.001 "Write 300 words about rain" | head -c 600; echo
 unset KEY
 ```
 
@@ -67,15 +67,11 @@ Backup as in `phase-2b.md` §3, then migrate and grant as in `preview-approval.m
 
 ## 3. Worker settings
 
-Text steps need an explicit model in API mode. Pick the one they use today: the `models` column of
-`psql "$DATABASE_URL" -f ops/postgres/claude-usage.sql`. In `~/aivideo/config/worker.env` on every
-worker:
+API mode needs an explicit model; `CLAUDE_MODEL` defaults to `claude-opus-5-5` (D-120), so nothing
+to set unless you want another one. Check no `worker.env` overrides it:
+`grep CLAUDE_MODEL ~/aivideo/config/worker.env` on each worker (no output = Opus).
 
-```bash
-CLAUDE_MODEL=<that model>
-```
-
-Then `update-worker.sh` (or restart) on each worker so it reads the new secret and setting.
+Then `update-worker.sh` (or restart) on each worker so it reads the new secret.
 
 ## 4. Workflows
 

@@ -22,9 +22,10 @@ describe('loadConfig', () => {
   });
 
   test('defaults the Claude Code CLI settings', () => {
+    // Opus for every Claude step, text and agent (owner, 2026-11-07, D-120).
     expect(loadConfig(VALID_ENV).claude).toEqual({
       bin: 'claude',
-      model: undefined,
+      model: 'claude-opus-5-5',
       agentModel: 'claude-opus-5-5',
       timeoutSeconds: 600,
       blockSeconds: 3600,
