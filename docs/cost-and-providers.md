@@ -2,7 +2,7 @@
 
 ## 1. Strategy [CONFIRMED]
 
-- **TTS is the only external paid API.** All LLM work (script, storyboard, metadata, Remotion code) runs through Claude Code CLI on the subscription; **no Claude API** (D-019, 2026-10-23).
+- **TTS is the only external paid API.** All LLM work (script, storyboard, metadata, Remotion code) runs through Claude Code CLI on the subscription; **no Claude API** (D-019, 2026-10-23), except a job the owner moves to it after a Max usage limit (D-118, section 6).
 - Visuals are code-only (Remotion, SVG, typography, charts) (D-020). No image/video generation API.
 - Music/SFX from a free royalty-free library; no cost, but license recorded per track (D-021).
 - ~~Image-first, AI video for key scenes~~ — superseded by D-019 for now.
@@ -59,3 +59,13 @@ else ALLOW (write cost_entry kind=ESTIMATE, reserve)
 ## 5. Currency
 
 Canonical reporting currency: `[UNKNOWN]` (Q-002). Store the provider's original currency; convert only when reporting.
+
+## 6. Claude API overflow (D-118) `[PROPOSED]` until rolled out
+
+- **When:** a `script`, `metadata` or `episode_code` job blocked by the Max usage limit (`last_error` starts with `claude-code usage limit:`), for a step with a cap in `claude_api_step`. Login failures and API-side blocks are never offered.
+- **Per video, in advance:** `/new … api=on` (owner only, D-119) makes such a block switch by itself, with a notice instead of the button; same caps and limits.
+- **Who:** an owner taps the WF-08 button (`command_confirm` action `CLAUDE_API`, 12 h). One grant covers one job until it blocks, succeeds or fails permanently; another block asks again. Without a tap the job waits for Max as before.
+- **Limits:** the Console workspace limit ($100, the hard stop outside our code); `provider_quota.limit_value` of `anthropic-api` ($90, Vietnam calendar month, refused first because `--max-budget-usd` can overshoot); the per-job cap, passed as `--max-budget-usd` on each run (the cap minus what the job already spent or reserved).
+- **Ledger:** `claude_api_spend` (reservation, then the CLI's figure) and an ACTUAL `cost_entry` in USD with `is_derived = true`: the CLI's estimate at list prices, not an invoice. A run that fails keeps its whole reservation as spent.
+- **Caps:** set from measured cost (`ops/postgres/claude-usage.sql`, Q-004), never guessed; no step is offered until it has one.
+- `[UNKNOWN]` until the Step 0 smoke test in `ops/claude-api.md`: the exact wording of the budget stop, whether `--resume` of a Max session works under an API key, and whether `total_cost_usd` after `--resume` covers the whole session (the worker records it as reported, which can only over-count).

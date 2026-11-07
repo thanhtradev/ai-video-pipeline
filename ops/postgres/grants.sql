@@ -30,6 +30,8 @@ GRANT EXECUTE ON FUNCTION
   job_block(uuid, text, text, integer),
   cost_guard(uuid, text, numeric),
   cost_record(uuid, text, text, numeric, numeric),
+  claude_api_begin(uuid, text),
+  claude_api_record(uuid, text, numeric, jsonb),
   worker_heartbeat(text, text[]),
   worker_heartbeat(text, text[], text),
   worker_idle(text),

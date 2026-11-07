@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const MIN_CLIENT_KEY_LENGTH = 32;
 const MIN_ITERA_KEY_LENGTH = 16;
+const MIN_ANTHROPIC_KEY_LENGTH = 20;
 
 const streamList = z
   .string()
@@ -52,6 +53,9 @@ const envSchema = z
     CLAUDE_AGENT_MODEL: z.string().min(1).default('claude-opus-5-5'),
     CLAUDE_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(600),
     CLAUDE_BLOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(3600),
+    // Claude API overflow (D-118), used only for a job the owner moved to the API. Its own name, so
+    // no tool picks it up as ANTHROPIC_API_KEY by accident; run-worker.sh reads it from a secret.
+    PIPELINE_ANTHROPIC_API_KEY: z.string().min(MIN_ANTHROPIC_KEY_LENGTH).optional(),
     // ITERA TTS (D-040, S-24). The key comes from the Keychain (run-worker.sh); without it tts
     // jobs wait as BLOCKED.
     ITERA_BASE_URL: z.url({ protocol: /^https$/ }).default('https://api.genmax.io'),
@@ -116,6 +120,8 @@ export interface Config {
     timeoutSeconds: number;
     /** How long a job waits after a usage limit before it is retried. */
     blockSeconds: number;
+    /** Claude API key for owner-approved overflow (D-118); absent on a worker without one. */
+    apiKey: string | undefined;
   };
   itera: {
     baseUrl: string;
@@ -169,6 +175,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
       agentModel: e.CLAUDE_AGENT_MODEL,
       timeoutSeconds: e.CLAUDE_TIMEOUT_SECONDS,
       blockSeconds: e.CLAUDE_BLOCK_SECONDS,
+      apiKey: e.PIPELINE_ANTHROPIC_API_KEY,
     },
     itera: {
       baseUrl: e.ITERA_BASE_URL,

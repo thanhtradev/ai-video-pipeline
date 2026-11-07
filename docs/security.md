@@ -79,6 +79,7 @@ Claude Code login of the macOS user running the worker (D-039); no `--fallback-m
 - Time and turn limits; store a (redacted) transcript in the workspace.
 - Claude Code is the pipeline's only LLM (D-019). Text-only steps (script, storyboard, metadata) run with tools disabled in an empty workspace; code steps (Remotion) may only build/render inside the job workspace.
 - Worker login uses a long-lived Claude Code token (`claude setup-token`) stored in the macOS Keychain (`aivideo-claude-oauth-token`), read by `run-worker.sh` at start and passed only to the CLI process as `CLAUDE_CODE_OAUTH_TOKEN`; never in Git or env files (D-046). `[IMPLEMENTED]`
+- Claude API overflow key (D-118): Keychain item / secret file `aivideo-claude-api-key`, read by `run-worker.sh` as `PIPELINE_ANTHROPIC_API_KEY` (never `ANTHROPIC_API_KEY`, which the CLI would prefer). The worker passes it to the CLI as `ANTHROPIC_API_KEY` only for a run the owner granted, with the subscription token removed and `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1`; it is one of the secrets the agent's files are checked for. Use a dedicated Console workspace with a spend limit and no auto-reload. `[PROPOSED]`
 - The subscription does not cover TTS or other APIs. Terms/limits of automated headless use: `[UNKNOWN]` (U-14, Q-004).
 
 ## 6. Telegram [PROPOSED]
