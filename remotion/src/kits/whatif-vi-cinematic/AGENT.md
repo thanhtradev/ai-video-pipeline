@@ -23,7 +23,7 @@
 Everything below is imported from `kit/active/sets`. Use these so the episode looks filmed, and vary them. Too many effects at once looks busy: at most
 one special shot (over-the-shoulder, angle, focus slide) in four, never two of one kind in a row.
 
-- **Mood:** the sets take `{ mood }`: `golden`, `night`, `overcast`, `rain`
+- **Mood:** the sets take `{ mood }`: `golden`, `clear` (cool daylight), `night`, `overcast`, `rain`
   (`livingRoom(f, { mood: 'rain' })`). Without it a set keeps its own light. Choose by the act, and keep
   one mood through a scene unless the story changes it. Rain is silent: no rain bed (see Sound).
 - **Face close-up:** `closeUpCam(x, feetY, size?, z?)`, for reactions and key

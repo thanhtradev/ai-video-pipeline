@@ -97,6 +97,17 @@ describe('the cinematic kit', () => {
     expect(markup(rainy)).not.toContain('cineClRay0');
   });
 
+  test('the clear mood is cool daylight that keeps the sun rays', () => {
+    // Act
+    const clear = rooms.classroom(FRAME, { mood: 'clear' });
+
+    // Assert
+    expect(clear.atmos?.light?.color).toBe('#e6f0ff');
+    expect(markup(clear)).toContain('cineClRay0');
+    expect(rooms.livingRoom(FRAME, { mood: 'clear' }).atmos?.light?.color).toBe('#e6f0ff');
+    expect(rooms.schoolYard(FRAME, { mood: 'clear' }).atmos?.filter).toBe('saturate(0.94)');
+  });
+
   test('wrapping keeps what the base module exports', () => {
     expect(rooms.FLOOR).toBe(baseRooms.FLOOR);
     expect(home.AlarmClock).toBe(baseHome.AlarmClock);
