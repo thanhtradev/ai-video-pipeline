@@ -30,4 +30,23 @@ describe('captionWord', () => {
     expect(captionWord('đi.”')).toBe('ĐI');
     expect(captionWord('—')).toBe('');
   });
+
+  test('drops brackets, guillemets, en dashes and markdown-like symbols', () => {
+    expect(captionWord('(nhỏ)')).toBe('NHỎ');
+    expect(captionWord('«đây»')).toBe('ĐÂY');
+    expect(captionWord('–')).toBe('');
+    expect(captionWord('*bùm*')).toBe('BÙM');
+    expect(captionWord('#1')).toBe('1');
+  });
+
+  test('drops single quotes at the edges but keeps an apostrophe inside a word', () => {
+    expect(captionWord('‘thật’')).toBe('THẬT');
+    expect(captionWord("'yes'")).toBe('YES');
+    expect(captionWord("don't")).toBe("DON'T");
+  });
+
+  test('drops a lone hyphen but keeps one inside a word', () => {
+    expect(captionWord('-')).toBe('');
+    expect(captionWord('Wi-Fi')).toBe('WI-FI');
+  });
 });
