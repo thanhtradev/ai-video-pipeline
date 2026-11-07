@@ -48,7 +48,9 @@ const envSchema = z
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
     // Claude Code CLI (D-042). launchd's PATH does not include ~/.local/bin: use an absolute path.
     CLAUDE_BIN: z.string().min(1).default('claude'),
-    CLAUDE_MODEL: z.string().min(1).optional(),
+    // Text steps (script, metadata, /ideas): Opus, like the agent (owner, 2026-11-07, D-120). Also the
+    // explicit model API mode needs (D-118). Never switched automatically.
+    CLAUDE_MODEL: z.string().min(1).default('claude-opus-5-5'),
     // The episode-code agent (D-053): Opus by default, never switched automatically.
     CLAUDE_AGENT_MODEL: z.string().min(1).default('claude-opus-5-5'),
     CLAUDE_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(600),
